@@ -1,0 +1,42 @@
+{
+  "model_names": [
+    "Logistic Prey",
+    "Satiated Predator",
+    "Rosenzweig-MacArthur",
+    "Lotka-Volterra"
+  ],
+  "train_n": 50000,
+  "val_n": 2000,
+  "timesteps_per_series": 20,
+  "simulation_t_max": 20.0,
+  "normalization_method": "log1p",
+  "normalization_scope": "one scalar over all models, trajectories, species, and time points",
+  "x_mu": [
+    [
+      2.156428813934326
+    ]
+  ],
+  "x_std": [
+    [
+      1.6415414810180664
+    ]
+  ],
+  "asinh_scale": 100.0,
+  "max_population": 1000000.0,
+  "confusion_n": 50,
+  "confusion_n_observations": 8,
+  "confusion_timesteps_per_series": 20,
+  "confusion_timesteps": 60,
+  "data_schema_version": 3,
+  "data_generation_id": "df93544a-7a26-48f7-ae15-7375ec35c903",
+  "confusion_num_samples": 1000,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3,
+    "hidden_size": 32,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "model_dir": "/export/home/rheinric/COMPASS/tutorials/data/Population_dynamics_new"
+}

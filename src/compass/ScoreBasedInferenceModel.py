@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+import math
+import time
 
 from .ConditionTransformer import ConditionTransformer
 from .SDE import VESDE, VPSDE
@@ -81,6 +84,118 @@ class ScoreBasedInferenceModel(nn.Module):
         return x / scale
     
     #############################################
+    # ----- Probability-flow log probability -----
+    #############################################
+
+    def _probability_flow_score(self, joint, t, mask, cfg_alpha=None):
+        score = self.output_scale_function(t, self.model(x=joint, t=t, c=mask))
+        if cfg_alpha is not None:
+            uncond = self.output_scale_function(t, self.model(x=joint, t=t, c=torch.zeros_like(mask)))
+            score = uncond + cfg_alpha * (score - uncond)
+        return score
+
+    def _probability_flow_vector_field(self, joint, t, mask, cfg_alpha=None):
+        if self.sde_type != "vesde":
+            raise NotImplementedError("Probability-flow likelihood currently supports only VESDE.")
+        sigma = torch.as_tensor(self.sde.sigma, device=joint.device, dtype=joint.dtype)
+        return -0.5 * sigma.pow(2 * t) * self._probability_flow_score(joint, t, mask, cfg_alpha) * (1-mask)
+
+    def _probability_flow_divergence(self, field, joint, latent_mask, method, samples):
+        divergence = torch.zeros(joint.shape[0], device=joint.device, dtype=joint.dtype)
+        if method == "exact":
+            for index in torch.where(latent_mask[0])[0]:
+                gradient = torch.autograd.grad(field[:, index].sum(), joint, retain_graph=True)[0]
+                divergence += gradient[:, index]
+            return divergence
+        for sample in range(samples):
+            probe = torch.empty_like(joint).bernoulli_(0.5).mul_(2).sub_(1) * latent_mask
+            vjp = torch.autograd.grad((field*probe).sum(), joint, retain_graph=sample < samples-1)[0]
+            divergence += (vjp*probe).sum(1)
+        return divergence / samples
+
+    def _integrate_probability_flow_batch(self, joint, mask, timesteps, eps,
+                                          divergence_method, hutchinson_samples,
+                                          cfg_alpha=None, save_trajectory=False):
+        conditioned = joint * mask
+        correction = torch.zeros(joint.shape[0], device=joint.device, dtype=joint.dtype)
+        trajectory = [joint.detach().cpu()] if save_trajectory else None
+        times = torch.linspace(eps, 1., timesteps+1, device=joint.device, dtype=joint.dtype)
+        for step in range(timesteps):
+            dt, t = times[step+1]-times[step], times[step].reshape(1, 1)
+            state = joint.detach().requires_grad_(True)
+            field = self._probability_flow_vector_field(state, t, mask, cfg_alpha)
+            divergence = self._probability_flow_divergence(field, state, (1-mask).bool(), divergence_method, hutchinson_samples)
+            joint = (state + dt*field).detach()
+            joint = joint*(1-mask) + conditioned
+            correction += dt*divergence.detach()
+            if save_trajectory:
+                trajectory.append(joint.cpu())
+        return joint, correction, trajectory
+
+    def log_prob_probability_flow(self, theta=None, x=None, condition_mask=None,
+                                  timesteps=100, eps=1e-3,
+                                  divergence_method="hutchinson", hutchinson_samples=1,
+                                  exact_divergence_max_dim=16,
+                                  divergence_batch_size=128, device="cuda",
+                                  verbose=False, cfg_alpha=None):
+        """Return one deterministic PF-ODE log probability per paired theta/x row."""
+        if theta is None or x is None:
+            raise ValueError("theta and x must both be provided.")
+        theta, x = torch.as_tensor(theta), torch.as_tensor(x)
+        if theta.ndim != 2 or x.ndim != 2:
+            raise ValueError("theta and x must have shape (n_obs, dimension).")
+        if theta.shape[0] != x.shape[0]:
+            raise ValueError("theta and x must have the same number of observations.")
+        if theta.shape[0] == 0:
+            raise ValueError("theta and x must contain at least one observation.")
+        if theta.shape[1] + x.shape[1] != self.nodes_size:
+            raise ValueError("theta_dim + x_dim must equal nodes_size.")
+        if divergence_method not in {"exact", "hutchinson"}:
+            raise ValueError("divergence_method must be 'exact' or 'hutchinson'.")
+        if not isinstance(timesteps, int) or timesteps <= 0:
+            raise ValueError("timesteps must be a positive integer.")
+        if not 0 < eps < 1:
+            raise ValueError("eps must lie strictly between 0 and 1.")
+        if not isinstance(hutchinson_samples, int) or hutchinson_samples <= 0:
+            raise ValueError("hutchinson_samples must be a positive integer.")
+        if not isinstance(divergence_batch_size, int) or divergence_batch_size <= 0:
+            raise ValueError("divergence_batch_size must be a positive integer.")
+        joint = torch.cat((theta, x), 1)
+        if not joint.is_floating_point(): joint = joint.float()
+        expected = torch.cat((torch.ones(theta.shape[1]), torch.zeros(x.shape[1])))
+        mask = torch.as_tensor(expected if condition_mask is None else condition_mask, dtype=joint.dtype)
+        if mask.ndim == 1:
+            if mask.shape[0] != self.nodes_size: raise ValueError("condition_mask has the wrong size.")
+            mask = mask.unsqueeze(0).expand(joint.shape[0], -1)
+        elif mask.shape != joint.shape:
+            raise ValueError("condition_mask must have shape (nodes_size,) or (n_obs, nodes_size).")
+        if not torch.all((mask == 0) | (mask == 1)): raise ValueError("condition_mask must be binary.")
+        if not torch.all(mask == expected.to(mask)):
+            raise ValueError("Likelihood integration requires theta conditioned and x latent.")
+        latent_dim = int((mask[0] == 0).sum())
+        if divergence_method == "exact" and latent_dim > exact_divergence_max_dim:
+            raise ValueError(f"Exact divergence latent dimension {latent_dim} exceeds exact_divergence_max_dim={exact_divergence_max_dim}.")
+        if self.sde_type != "vesde": raise NotImplementedError("Probability-flow likelihood currently supports only VESDE.")
+        target, original = torch.device(device), next(self.model.parameters()).device
+        self.model.to(target).eval()
+        loader = DataLoader(TensorDataset(joint, mask), batch_size=divergence_batch_size, shuffle=False)
+        result, started = [], time.perf_counter()
+        try:
+            for batch_index, (state, batch_mask) in enumerate(loader):
+                batch_started = time.perf_counter()
+                state, batch_mask = state.to(target), batch_mask.to(target)
+                terminal, correction, _ = self._integrate_probability_flow_batch(state, batch_mask, timesteps, eps, divergence_method, hutchinson_samples, cfg_alpha)
+                latent = terminal[batch_mask == 0].reshape(terminal.shape[0], -1)
+                std = self.sde.marginal_prob_std(torch.ones((), device=target, dtype=terminal.dtype)).to(target)
+                prior = (-.5*(latent/std).square()-torch.log(std)-.5*math.log(2*math.pi)).sum(1)
+                result.append((prior+correction).detach().cpu())
+                if verbose: print(f"PF likelihood batch {batch_index+1}/{len(loader)}: {len(state)} observations in {time.perf_counter()-batch_started:.3f}s")
+        finally:
+            self.model.to(original)
+        if verbose: print(f"PF likelihood total: {len(joint)} observations in {time.perf_counter()-started:.3f}s")
+        return torch.cat(result)
+
+    #############################################
     # ----- Training -----
     #############################################
     
@@ -127,7 +242,7 @@ class ScoreBasedInferenceModel(nn.Module):
     def sample(self, theta=None, x=None, err=None, condition_mask=None,
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False):
+               device="cpu", verbose=True, method="dpm", equation="reverse_sde", time_grid_type="linear_t", save_trajectory=False):
         """
         Sample from the model using the specified method
 
@@ -151,6 +266,7 @@ class ScoreBasedInferenceModel(nn.Module):
             device: Device to run sampling on
             verbose: Whether to show progress bar
             method: Sampling method to use (euler, dpm)
+            equation: Equation to solve (reverse_sde, probability_flow_ode)
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -185,15 +301,15 @@ class ScoreBasedInferenceModel(nn.Module):
             world_size = 1
             
         if multi_obs_inference == False:
-            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
+            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                    verbose=verbose, method=method, save_trajectory=save_trajectory)
+                                    verbose=verbose, method=method, equation=equation, time_grid_type=time_grid_type, save_trajectory=save_trajectory)
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
-            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                      verbose=verbose, method=method, save_trajectory=save_trajectory)
+                                      verbose=verbose, method=method, equation=equation, time_grid_type=time_grid_type, save_trajectory=save_trajectory)
 
         # just return the sampled values
         samples = samples[:,:,(1-condition_mask).bool()] 
@@ -238,6 +354,5 @@ class ScoreBasedInferenceModel(nn.Module):
         )
 
         model.model.load_state_dict(checkpoint['model_state_dict'])
-
         return model
     

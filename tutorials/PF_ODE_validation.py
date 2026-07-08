@@ -1,0 +1,916 @@
+from autocvd import autocvd
+from pathlib import Path
+from shutil import copyfile
+import json
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import torch
+import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
+from matplotlib.patches import Ellipse
+from tqdm.auto import tqdm
+
+from compass import ScoreBasedInferenceModel as SBIm
+from compass import ModelTransfuser as MTf
+
+
+TUTORIAL_DIR = Path(__file__).resolve().parent
+DATA_DIR = TUTORIAL_DIR / "data" / "PF_ODE_validation"
+OUTPUT_DIR = TUTORIAL_DIR / "output" / "PF_ODE_validation"
+
+N_TRAIN = 80_000
+N_VAL = 800
+NUM_SAMPLES = 1000
+TIMESTEPS = 100
+RECONSTRUCTION_N_OBSERVATIONS = 5
+
+THETA_DIM = 1
+X_DIM = 2
+SIGMA_X = 0.1
+TRAIN_BATCH_SIZE = 256
+TRAIN_MAX_EPOCHS = 500
+TRAIN_LR = 1e-3
+TRAIN_EARLY_STOPPING_PATIENCE = 20
+TRAIN_VERBOSE = True
+PRETRAINED_ONLY = False
+
+MODEL_KWARGS = dict(
+    sde_type="vesde",
+    sigma=3,
+    hidden_size=40,
+    depth=4,
+    num_heads=4,
+    mlp_ratio=4,
+)
+
+MODEL_SPECS = [
+    {"name": "Parabola", "family": "parabola"},
+    {"name": "Line", "family": "line"},
+]
+
+METHOD_CONFIGS = [
+    {"label": "euler", "method": "euler", "equation": "reverse_sde", "order": 1},
+    {"label": "dpm_order1_reverse_sde", "method": "dpm", "equation": "reverse_sde", "order": 1},
+    {"label": "dpm_order2_reverse_sde", "method": "dpm", "equation": "reverse_sde", "order": 2},
+    {"label": "euler_probability_flow_ode", "method": "euler", "equation": "probability_flow_ode", "order": 1},
+    {"label": "dpm_order1_probability_flow_ode", "method": "dpm", "equation": "probability_flow_ode", "order": 1},
+    {"label": "dpm_order2_probability_flow_ode", "method": "dpm", "equation": "probability_flow_ode", "order": 2},
+]
+
+POSTERIOR_SAMPLE_METHOD_ROWS = [
+    {
+        "row_label": "Reverse SDE",
+        "configs": [
+            {"label": "euler", "plot_label": "Euler", "method": "euler", "equation": "reverse_sde", "order": 1},
+            {
+                "label": "dpm_order1_reverse_sde",
+                "plot_label": "DPM order 1",
+                "method": "dpm",
+                "equation": "reverse_sde",
+                "order": 1,
+            },
+            {
+                "label": "dpm_order2_reverse_sde",
+                "plot_label": "DPM order 2",
+                "method": "dpm",
+                "equation": "reverse_sde",
+                "order": 2,
+            },
+        ],
+    },
+    {
+        "row_label": "PF-ODE",
+        "configs": [
+            {
+                "label": "euler_probability_flow_ode",
+                "plot_label": "PF-ODE Euler",
+                "method": "euler",
+                "equation": "probability_flow_ode",
+                "order": 1,
+            },
+            {
+                "label": "dpm_order1_probability_flow_ode",
+                "plot_label": "PF-ODE DPM order 1",
+                "method": "dpm",
+                "equation": "probability_flow_ode",
+                "order": 1,
+            },
+            {
+                "label": "dpm_order2_probability_flow_ode",
+                "plot_label": "PF-ODE DPM order 2",
+                "method": "dpm",
+                "equation": "probability_flow_ode",
+                "order": 2,
+            },
+        ],
+    },
+]
+
+ELLIPSE_METHOD_CONFIGS = [
+    {"label": "dpm_order1_reverse_sde", "method": "dpm", "equation": "reverse_sde", "order": 1},
+    {"label": "dpm_order2_reverse_sde", "method": "dpm", "equation": "reverse_sde", "order": 2},
+    {"label": "euler_probability_flow_ode", "method": "euler", "equation": "probability_flow_ode", "order": 1},
+    {"label": "dpm_order1_probability_flow_ode", "method": "dpm", "equation": "probability_flow_ode", "order": 1},
+    {"label": "dpm_order2_probability_flow_ode", "method": "dpm", "equation": "probability_flow_ode", "order": 2},
+]
+ELLIPSE_METHOD_LABELS = [cfg["label"] for cfg in ELLIPSE_METHOD_CONFIGS]
+ELLIPSE_TIMESTEP_SWEEP = [25, 50, 100, 200]
+ELLIPSE_TIMESTEP_EXTRA_STEPS = [500, 1000, 2000]
+ELLIPSE_TIMESTEP_COLORS = [
+    "#0072B2",
+    "#D55E00",
+    "#009E73",
+    "#CC79A7",
+    "#E69F00",
+    "#56B4E9",
+    "#000000",
+]
+HEUN_TIMESTEP_COLORS = [
+    "#E41A1C",
+    "#377EB8",
+    "#4DAF4A",
+    "#984EA3",
+    "#FF7F00",
+    "#A65628",
+    "#F781BF",
+]
+ELLIPSE_THETA_VALUES = torch.tensor([-1.25, 0.25, 1.35], dtype=torch.float).reshape(-1, 1)
+ELLIPSE_OBSERVATION_NOISE = torch.tensor([
+    [0.05, -0.03],
+    [-0.04, 0.02],
+    [0.03, 0.04],
+], dtype=torch.float)
+
+
+def log(message):
+    print(message, flush=True)
+
+
+def progress(iterable, description, leave=False):
+    return tqdm(iterable, desc=description, leave=leave, dynamic_ncols=True)
+
+
+def to_numpy(value):
+    if isinstance(value, torch.Tensor):
+        return value.detach().cpu().numpy()
+    return np.asarray(value)
+
+
+def save_figure(fig, filename):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUTPUT_DIR / filename
+    fig.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    log(f"[plot] saved {path}")
+
+
+def save_csv(rows, filename):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUTPUT_DIR / filename
+    pd.DataFrame(rows).to_csv(path, index=False)
+    log(f"[csv] saved {path}")
+
+
+def model_mean(theta, family):
+    theta = torch.as_tensor(theta, dtype=torch.float).reshape(-1)
+    if family == "parabola":
+        return torch.stack([theta, theta ** 2], dim=1)
+    if family == "line":
+        return torch.stack([theta, 0.5 * theta], dim=1)
+    raise ValueError(f"Unknown family: {family}")
+
+
+def generate_model_data(n, family, theta=None):
+    if theta is None:
+        theta = -2.0 + 4.0 * torch.rand(n, THETA_DIM)
+    else:
+        theta = torch.as_tensor(theta, dtype=torch.float).reshape(n, THETA_DIM)
+    x = model_mean(theta[:, 0], family) + SIGMA_X * torch.randn(n, X_DIM)
+    return theta, x
+
+
+def compute_normalization(*datasets):
+    all_x = torch.cat([x for _, x in datasets], dim=0)
+    data_mean = all_x.mean(0)
+    data_std = all_x.std(0)
+    data_std = torch.where(data_std == 0, torch.ones_like(data_std), data_std)
+    return data_mean, data_std
+
+
+def normalize_x(x, data_mean, data_std):
+    return (x - data_mean) / data_std
+
+
+
+def normalize(theta, x, data_mean, data_std):
+    return theta, normalize_x(x, data_mean, data_std)
+
+
+def manifold_raw(family, n=400):
+    theta = torch.linspace(-2, 2, n)
+    return theta, model_mean(theta, family)
+
+
+def manifold_norm(family, data_mean, data_std, n=400):
+    theta, x_raw = manifold_raw(family, n=n)
+    return theta, normalize_x(x_raw, data_mean, data_std)
+
+
+
+def data_path(name):
+    return DATA_DIR / f"{name}.npz"
+
+
+def save_tensor_pair(path, theta, x):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    np.savez(path, theta=to_numpy(theta), x=to_numpy(x))
+
+
+def load_tensor_pair(path):
+    payload = np.load(path)
+    return torch.tensor(payload["theta"], dtype=torch.float), torch.tensor(payload["x"], dtype=torch.float)
+
+
+def load_or_generate_data():
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    raw_train = {}
+    raw_val = {}
+
+    for spec in MODEL_SPECS:
+        train_path = data_path(f"{spec['family']}_train_raw")
+        val_path = data_path(f"{spec['family']}_val_raw")
+        if train_path.exists() and val_path.exists():
+            log(f"[data] loading {spec['name']} train/val from {DATA_DIR}")
+            raw_train[spec["name"]] = load_tensor_pair(train_path)
+            raw_val[spec["name"]] = load_tensor_pair(val_path)
+        else:
+            log(f"[data] generating {spec['name']} train/val")
+            raw_train[spec["name"]] = generate_model_data(N_TRAIN, spec["family"])
+            raw_val[spec["name"]] = generate_model_data(N_VAL, spec["family"])
+            save_tensor_pair(train_path, *raw_train[spec["name"]])
+            save_tensor_pair(val_path, *raw_val[spec["name"]])
+
+    norm_path = DATA_DIR / "normalization.json"
+    if norm_path.exists():
+        with norm_path.open() as handle:
+            payload = json.load(handle)
+        data_mean = torch.tensor(payload["data_mean"], dtype=torch.float)
+        data_std = torch.tensor(payload["data_std"], dtype=torch.float)
+        log(f"[data] loaded normalization from {norm_path}")
+    else:
+        data_mean, data_std = compute_normalization(*raw_train.values())
+        with norm_path.open("w") as handle:
+            json.dump({"data_mean": to_numpy(data_mean).tolist(), "data_std": to_numpy(data_std).tolist()}, handle, indent=2)
+        log(f"[data] saved normalization to {norm_path}")
+
+    norm_train = {name: normalize(theta, x, data_mean, data_std) for name, (theta, x) in raw_train.items()}
+    norm_val = {name: normalize(theta, x, data_mean, data_std) for name, (theta, x) in raw_val.items()}
+    for spec in MODEL_SPECS:
+        save_tensor_pair(data_path(f"{spec['family']}_train_norm"), *norm_train[spec["name"]])
+        save_tensor_pair(data_path(f"{spec['family']}_val_norm"), *norm_val[spec["name"]])
+    return raw_train, raw_val, norm_train, norm_val, data_mean, data_std
+
+
+def make_pairplot(raw_val_data_by_model):
+    log("[plot] creating validation pairplot")
+    frames = []
+    for spec in MODEL_SPECS:
+        theta, x = raw_val_data_by_model[spec["name"]]
+        frames.append(pd.DataFrame({
+            "x_1": to_numpy(x[:, 0]),
+            "x_2": to_numpy(x[:, 1]),
+            "theta": to_numpy(theta[:, 0]),
+            "Hypothesis": spec["name"],
+        }))
+    combined_df = pd.concat(frames, axis=0, ignore_index=True)
+    pairplot = sns.pairplot(
+        combined_df,
+        vars=["x_1", "x_2", "theta"],
+        diag_kind="kde",
+        hue="Hypothesis",
+        plot_kws=dict(alpha=0.5, s=5),
+    )
+    pairplot.fig.suptitle("Parabola-vs-line validation pairplot", y=1.02)
+    save_figure(pairplot.fig, "pairplot.png")
+
+
+def checkpoint_paths(model_names):
+    return {name: DATA_DIR / f"{name}.pt" for name in model_names}
+
+
+def promote_best_checkpoint(model_name, overwrite=False):
+    final_path = DATA_DIR / f"{model_name}.pt"
+    checkpoint_path = DATA_DIR / f"{model_name}_checkpoint.pt"
+    if final_path.exists() and not overwrite:
+        return final_path
+    if checkpoint_path.exists():
+        copyfile(checkpoint_path, final_path)
+        log(f"[train] promoted {checkpoint_path.name} -> {final_path.name}")
+        return final_path
+    raise FileNotFoundError(f"Expected {final_path} or {checkpoint_path} after training.")
+
+
+def load_or_train_models(mtf, model_names, device):
+    paths = checkpoint_paths(model_names)
+    missing = [name for name, path in paths.items() if not path.exists()]
+    if missing:
+        if PRETRAINED_ONLY:
+            raise FileNotFoundError("Missing checkpoints: " + ", ".join(str(paths[name]) for name in missing))
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        for model_name in progress(missing, "[train] models", leave=True):
+            log(f"[train] training {model_name}")
+            model = mtf.models_dict[model_name]
+            data = mtf.data_dict[model_name]
+            model.train(
+                theta=data["train_theta"],
+                x=data["train_x"],
+                theta_val=data.get("val_theta"),
+                x_val=data.get("val_x"),
+                batch_size=TRAIN_BATCH_SIZE,
+                max_epochs=TRAIN_MAX_EPOCHS,
+                lr=TRAIN_LR,
+                device=device,
+                verbose=TRAIN_VERBOSE,
+                path=str(DATA_DIR),
+                name=model_name,
+                early_stopping_patience=TRAIN_EARLY_STOPPING_PATIENCE,
+            )
+            promote_best_checkpoint(model_name, overwrite=True)
+            torch.cuda.empty_cache()
+    else:
+        log(f"[model] found all pretrained checkpoints in {DATA_DIR}; loading")
+
+    models = {}
+    for model_name, path in progress(paths.items(), "[model] loading checkpoints"):
+        path = promote_best_checkpoint(model_name)
+        model = SBIm.load(str(path), device=device)
+        checkpoint_kwargs = dict(
+            sde_type=model.sde_type,
+            sigma=model.sigma,
+            hidden_size=model.hidden_size,
+            depth=model.depth,
+            num_heads=model.num_heads,
+            mlp_ratio=model.mlp_ratio,
+        )
+        if checkpoint_kwargs != MODEL_KWARGS:
+            raise RuntimeError(f"Checkpoint {path} uses {checkpoint_kwargs}, expected {MODEL_KWARGS}.")
+        models[model_name] = model
+    return models
+
+
+
+
+
+
+def estimate_map_from_posterior_samples(mtf, model, x, cfg, device, timesteps=TIMESTEPS):
+    condition_mask = mtf._condition_mask_for_model(model, x, None)
+    posterior_samples = model.sample(
+        x=x,
+        condition_mask=condition_mask,
+        timesteps=timesteps,
+        num_samples=NUM_SAMPLES,
+        device=device,
+        method=cfg["method"],
+        equation=cfg["equation"],
+        order=cfg["order"],
+        time_grid_type=cfg.get("time_grid_type", "linear_t"),
+        verbose=False,
+    ).detach().cpu().numpy()
+    theta_hat = np.array([mtf._map_kde(posterior_samples[i]) for i in range(len(posterior_samples))])
+    return torch.tensor(theta_hat[:, 0], dtype=torch.float), torch.tensor(theta_hat[:, 1], dtype=torch.float)
+
+def collect_matched_likelihood_reconstruction_summaries(mtf, norm_val_data_by_model, device):
+    rows = []
+    for cfg in METHOD_CONFIGS:
+        method = cfg["label"]
+        for model_name, model in mtf.models_dict.items():
+            _, x_norm_full = norm_val_data_by_model[model_name]
+            x_norm = x_norm_full[:RECONSTRUCTION_N_OBSERVATIONS]
+            model_condition_mask = mtf._condition_mask_for_model(model, x_norm, None)
+            log(f"[matched likelihood] MAP and reconstruction for generated={model_name}, model={model_name}, method={method}")
+            theta_hat, theta_std = estimate_map_from_posterior_samples(mtf, model, x_norm, cfg, device)
+            samples = model.sample(
+                theta=theta_hat,
+                err=theta_std,
+                condition_mask=(1 - model_condition_mask),
+                timesteps=TIMESTEPS,
+                num_samples=NUM_SAMPLES,
+                device=device,
+                method=cfg["method"],
+                equation=cfg["equation"],
+                order=cfg["order"],
+                time_grid_type=cfg.get("time_grid_type", "linear_t"),
+                verbose=False,
+            ).detach().cpu()
+            means = samples.mean(dim=1)
+            for i in range(len(x_norm)):
+                dist = torch.linalg.norm(x_norm[i] - means[i])
+                rows.append({
+                    "method": method,
+                    "model_name": model_name,
+                    "true_data_model": model_name,
+                    "observation_index": i,
+                    "likelihood_mean_x1": float(means[i, 0]),
+                    "likelihood_mean_x2": float(means[i, 1]),
+                    "distance_observation_to_likelihood_mean": float(dist),
+                })
+    save_csv(rows, "likelihood_reconstruction_distance_matched.csv")
+    return pd.DataFrame(rows)
+
+
+
+def add_cov_ellipse(ax, mean, cov, color, n_std=2.0, linestyle="--", alpha=0.6, **kwargs):
+    vals, vecs = np.linalg.eigh(cov)
+    vals = np.maximum(vals, 1e-12)
+    order = vals.argsort()[::-1]
+    vals, vecs = vals[order], vecs[:, order]
+    angle = np.degrees(np.arctan2(vecs[1, 0], vecs[0, 0]))
+    width, height = 2 * n_std * np.sqrt(vals)
+    ellipse = Ellipse(xy=mean, width=width, height=height, angle=angle, edgecolor=color, facecolor="none", lw=1.8, linestyle=linestyle, alpha=alpha, **kwargs)
+    ax.add_patch(ellipse)
+
+
+
+def make_ellipse_observations(family, data_mean, data_std):
+    theta = ELLIPSE_THETA_VALUES.clone()
+    x_raw = model_mean(theta[:, 0], family) + ELLIPSE_OBSERVATION_NOISE
+    return theta, x_raw, normalize_x(x_raw, data_mean, data_std)
+
+
+def collect_likelihood_ellipse_cases(
+    mtf,
+    data_mean,
+    data_std,
+    device,
+    method_configs=None,
+    timesteps=TIMESTEPS,
+    filename="likelihood_ellipse_cases.csv",
+):
+    if method_configs is None:
+        method_configs = ELLIPSE_METHOD_CONFIGS
+    rows = []
+    for true_spec in MODEL_SPECS:
+        model_name = true_spec["name"]
+        theta_true, x_raw, x_norm = make_ellipse_observations(true_spec["family"], data_mean, data_std)
+        model = mtf.models_dict[model_name]
+        model_condition_mask = mtf._condition_mask_for_model(model, x_norm, None)
+
+        for cfg in method_configs:
+            method_label = cfg["label"]
+            log(f"[ellipse] MAP/likelihood for true={model_name}, method={method_label}, timesteps={timesteps}")
+            theta_hat, theta_std = estimate_map_from_posterior_samples(mtf, model, x_norm, cfg, device, timesteps=timesteps)
+            samples = model.sample(
+                theta=theta_hat,
+                err=theta_std,
+                condition_mask=(1 - model_condition_mask),
+                timesteps=timesteps,
+                num_samples=NUM_SAMPLES,
+                device=device,
+                method=cfg["method"],
+                equation=cfg["equation"],
+                order=cfg["order"],
+                time_grid_type=cfg.get("time_grid_type", "linear_t"),
+                verbose=False,
+            ).detach().cpu()
+            means = samples.mean(dim=1)
+            for obs_index in range(len(x_norm)):
+                cov = torch.cov(samples[obs_index].T)
+                rows.append({
+                    "true_model_name": model_name,
+                    "true_family": true_spec["family"],
+                    "method": method_label,
+                    "timesteps": timesteps,
+                    "observation_index": obs_index,
+                    "true_theta": float(theta_true[obs_index, 0]),
+                    "observation_x1": float(x_norm[obs_index, 0]),
+                    "observation_x2": float(x_norm[obs_index, 1]),
+                    "observation_x1_raw": float(x_raw[obs_index, 0]),
+                    "observation_x2_raw": float(x_raw[obs_index, 1]),
+                    "theta_hat": float(theta_hat[obs_index]),
+                    "likelihood_mean_x1": float(means[obs_index, 0]),
+                    "likelihood_mean_x2": float(means[obs_index, 1]),
+                    "likelihood_cov_x1x1": float(cov[0, 0]),
+                    "likelihood_cov_x1x2": float(cov[0, 1]),
+                    "likelihood_cov_x2x1": float(cov[1, 0]),
+                    "likelihood_cov_x2x2": float(cov[1, 1]),
+                })
+    save_csv(rows, filename)
+    return pd.DataFrame(rows)
+
+def draw_likelihood_ellipse_grid(ellipse_df, data_mean, data_std, method_labels, colors, labels, title, filename):
+    fig, axes = plt.subplots(3, 2, figsize=(12.5, 13.0), sharex=True, sharey=True)
+    for col, spec in enumerate(MODEL_SPECS):
+        obs_df = ellipse_df[
+            (ellipse_df["true_model_name"] == spec["name"])
+            & (ellipse_df["method"] == method_labels[0])
+        ].sort_values("observation_index")
+        obs_x = obs_df[["observation_x1", "observation_x2"]].to_numpy(dtype=float)
+        _, curve = manifold_norm(spec["family"], data_mean, data_std)
+        curve_np = to_numpy(curve)
+
+        for row_index in range(3):
+            ax = axes[row_index, col]
+            ax.plot(curve_np[:, 0], curve_np[:, 1], color="0.48", lw=2.0, label=f"{spec['name']} manifold" if row_index == 0 else None)
+            ax.scatter(obs_x[:, 0], obs_x[:, 1], s=28, color="0.72", alpha=0.8, label="created observations" if row_index == 0 else None, zorder=2)
+            ax.scatter(obs_x[row_index, 0], obs_x[row_index, 1], s=52, color="0.20", label="ellipse observation" if row_index == 0 else None, zorder=5)
+
+            for method in method_labels:
+                sub = ellipse_df[
+                    (ellipse_df["true_model_name"] == spec["name"])
+                    & (ellipse_df["method"] == method)
+                    & (ellipse_df["observation_index"] == row_index)
+                ]
+                if sub.empty:
+                    continue
+                ellipse_row = sub.iloc[0]
+                mean = np.array([ellipse_row["likelihood_mean_x1"], ellipse_row["likelihood_mean_x2"]], dtype=float)
+                cov = np.array([
+                    [ellipse_row["likelihood_cov_x1x1"], ellipse_row["likelihood_cov_x1x2"]],
+                    [ellipse_row["likelihood_cov_x2x1"], ellipse_row["likelihood_cov_x2x2"]],
+                ], dtype=float)
+                add_cov_ellipse(ax, mean, cov, colors[method], n_std=2.0, alpha=0.55, linestyle="--", label=labels[method] if row_index == 0 else None)
+                ax.scatter(mean[0], mean[1], s=20, color=colors[method], zorder=6)
+
+            if row_index == 0:
+                ax.set_title(f"{spec['name']}-generated data")
+            if col == 0:
+                ax.set_ylabel(f"Observation {row_index + 1}\nnormalized x_2")
+            if row_index == 2:
+                ax.set_xlabel("normalized x_1")
+            ax.grid(True, color="0.92")
+            sns.despine(ax=ax)
+
+    handles, legend_labels = axes[0, 1].get_legend_handles_labels()
+    axes[0, 1].legend(handles, legend_labels, frameon=False, loc="best", fontsize=7)
+    fig.suptitle(title, y=0.995)
+    fig.tight_layout()
+    save_figure(fig, filename)
+
+
+def plot_likelihood_ellipses(mtf, data_mean, data_std, device):
+    ellipse_df = collect_likelihood_ellipse_cases(mtf, data_mean, data_std, device)
+    colors = {
+        "dpm_order1_reverse_sde": "#4C78A8",
+        "dpm_order2_reverse_sde": "#F58518",
+        "euler_probability_flow_ode": "#B279A2",
+        "dpm_order1_probability_flow_ode": "#54A24B",
+        "dpm_order2_probability_flow_ode": "#E45756",
+    }
+    labels = {
+        "dpm_order1_reverse_sde": "DPM order 1, reverse SDE",
+        "dpm_order2_reverse_sde": "DPM order 2, reverse SDE",
+        "euler_probability_flow_ode": "Euler, PF-ODE",
+        "dpm_order1_probability_flow_ode": "DPM order 1, PF-ODE",
+        "dpm_order2_probability_flow_ode": "DPM order 2, PF-ODE",
+    }
+    draw_likelihood_ellipse_grid(
+        ellipse_df,
+        data_mean,
+        data_std,
+        ELLIPSE_METHOD_LABELS,
+        colors,
+        labels,
+        "Likelihood ellipses by different samplers",
+        "likelihood_ellipses_selected.png",
+    )
+
+
+def plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, method, time_grid_type, display_method, palette_name=None, order=1, color_sequence=None):
+    """Plot a timestep sweep with solver and timestep grid as independent variables."""
+    timesteps_sweep = [*ELLIPSE_TIMESTEP_SWEEP, *ELLIPSE_TIMESTEP_EXTRA_STEPS]
+    method_name = f"dpm{order}" if method == "dpm" else method
+    experiment_name = f"pf_ode_{method_name}_{time_grid_type}"
+    method_configs = [
+        {"label": f"{experiment_name}_{timesteps}_steps", "method": method,
+         "equation": "probability_flow_ode", "order": order,
+         "time_grid_type": time_grid_type}
+        for timesteps in timesteps_sweep
+    ]
+    frames = []
+    for cfg, timesteps in zip(method_configs, timesteps_sweep):
+        filename = f"likelihood_ellipse_cases_{experiment_name}_{timesteps}_steps.csv"
+        path = OUTPUT_DIR / filename
+        if path.exists():
+            log(f"[ellipse] loading existing {path}")
+            frames.append(pd.read_csv(path))
+        else:
+            frames.append(collect_likelihood_ellipse_cases(
+                mtf, data_mean, data_std, device, method_configs=[cfg], timesteps=timesteps,
+                filename=filename,
+            ))
+    ellipse_df = pd.concat(frames, axis=0, ignore_index=True)
+    save_csv(ellipse_df.to_dict("records"), f"likelihood_ellipse_cases_{experiment_name}_timesteps.csv")
+    if color_sequence is not None:
+        palette = color_sequence[:len(method_configs)]
+    elif palette_name is None:
+        palette = ELLIPSE_TIMESTEP_COLORS[:len(method_configs)]
+    else:
+        palette = sns.color_palette(palette_name, len(method_configs))
+    colors = {cfg["label"]: palette[index] for index, cfg in enumerate(method_configs)}
+    grid_label = time_grid_type.replace("_", " ")
+    labels = {cfg["label"]: f"PF-ODE {display_method}, {grid_label}, {timesteps} steps"
+              for cfg, timesteps in zip(method_configs, timesteps_sweep)}
+    draw_likelihood_ellipse_grid(
+        ellipse_df, data_mean, data_std, [cfg["label"] for cfg in method_configs],
+        colors, labels,
+        f"Likelihood ellipses by PF-ODE {display_method} timesteps ({grid_label})",
+        f"likelihood_ellipses_{experiment_name}_timesteps.png",
+    )
+
+
+def plot_pf_ode_euler_linear_t_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "euler", "linear_t", "Euler")
+
+
+def plot_pf_ode_dpm1_linear_t_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "dpm", "linear_t", "DPM1", order=1)
+
+
+def plot_pf_ode_heun_linear_t_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "heun", "linear_t", "Heun/RK2", color_sequence=HEUN_TIMESTEP_COLORS)
+
+
+def plot_pf_ode_euler_log_snr_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "euler", "log_snr", "Euler")
+
+
+def plot_pf_ode_euler_log_sigma_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "euler", "log_sigma", "Euler")
+
+
+def plot_pf_ode_heun_log_snr_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "heun", "log_snr", "Heun/RK2")
+
+
+def plot_pf_ode_heun_log_sigma_timestep_ellipses(mtf, data_mean, data_std, device):
+    plot_pf_ode_timestep_ellipses(mtf, data_mean, data_std, device, "heun", "log_sigma", "Heun/RK2")
+
+
+def plot_likelihood_reconstruction_distance(likelihood_df):
+    method_labels = {
+        "euler": "Euler Reverse SDE",
+        "dpm_order1_reverse_sde": "DPM Order 1 Reverse SDE",
+        "dpm_order2_reverse_sde": "DPM Order 2 Reverse SDE",
+        "euler_probability_flow_ode": "Euler Probability Flow ODE",
+        "dpm_order1_probability_flow_ode": "DPM Order 1 Probability Flow ODE",
+        "dpm_order2_probability_flow_ode": "DPM Order 2 Probability Flow ODE",
+    }
+    method_order = [label for method, label in method_labels.items() if method in set(likelihood_df["method"])]
+    plot_df = likelihood_df.copy()
+    plot_df["method_label"] = plot_df["method"].map(method_labels).fillna(plot_df["method"])
+
+    fig, ax = plt.subplots(figsize=(12, 5.4))
+    sns.boxplot(
+        data=plot_df,
+        x="method_label",
+        y="distance_observation_to_likelihood_mean",
+        hue="model_name",
+        order=method_order,
+        ax=ax,
+        showfliers=False,
+    )
+    for patch in ax.patches:
+        patch.set_alpha(0.35)
+    sns.stripplot(
+        data=plot_df,
+        x="method_label",
+        y="distance_observation_to_likelihood_mean",
+        hue="model_name",
+        order=method_order,
+        dodge=True,
+        ax=ax,
+        alpha=0.8,
+        size=3,
+        linewidth=0,
+    )
+    handles, labels = ax.get_legend_handles_labels()
+    n_models = len(MODEL_SPECS)
+    ax.legend(handles[:n_models], labels[:n_models], title="Model", frameon=False)
+    ax.set_title("Likelihood reconstruction distance by method")
+    ax.set_xlabel("method")
+    ax.set_ylabel(r"$||x_i - E[x | \hat{\theta}_i, M_j]||$")
+    ax.tick_params(axis="x", rotation=25)
+    ax.grid(True, axis="y", color="0.92")
+    sns.despine(ax=ax)
+    fig.tight_layout()
+    save_figure(fig, "likelihood_reconstruction_distance_by_method.png")
+
+
+def calculate_posterior_samples_one_observation(mtf, data_mean, data_std, device):
+    plot_configs = [cfg for row in POSTERIOR_SAMPLE_METHOD_ROWS for cfg in row["configs"]]
+
+    obs_idx = 0
+    rows = []
+    cases = []
+    print("[posterior MAP diagnostics]", flush=True)
+    for spec in MODEL_SPECS:
+        theta_true, x_raw, x_norm = make_ellipse_observations(spec["family"], data_mean, data_std)
+        cases.append({
+            "model_name": spec["name"],
+            "family": spec["family"],
+            "theta_true": theta_true[obs_idx : obs_idx + 1],
+            "x_norm": x_norm[obs_idx : obs_idx + 1],
+            "x_raw": x_raw[obs_idx : obs_idx + 1],
+        })
+
+    for cfg in plot_configs:
+        for case in cases:
+            model_name = case["model_name"]
+            model = mtf.models_dict[model_name]
+            x_case = case["x_norm"]
+            model_condition_mask = mtf._condition_mask_for_model(model, x_case, None)
+            posterior_samples = model.sample(
+                x=x_case,
+                condition_mask=model_condition_mask,
+                timesteps=TIMESTEPS,
+                num_samples=NUM_SAMPLES,
+                device=device,
+                method=cfg["method"],
+                equation=cfg["equation"],
+                order=cfg["order"],
+                time_grid_type=cfg.get("time_grid_type", "linear_t"),
+                verbose=False,
+            ).detach().cpu().numpy()
+            samples = posterior_samples[0, :, 0]
+            # Use the exact KDE/MAP implementation exercised by ModelTransfuser.compare.
+            map_estimate, kde_std = mtf._map_kde(samples[:, None])
+            map_theta = float(map_estimate[0])
+            print(
+                f"  {cfg['label']:<35} {model_name:<8} "
+                f"mean={float(samples.mean()): .6f}  "
+                f"MAP={map_theta: .6f}  "
+                f"KDE std={float(kde_std[0]): .6f}",
+                flush=True,
+            )
+            for value in to_numpy(samples):
+                rows.append({
+                    "method": cfg["label"],
+                    "model_name": model_name,
+                    "true_data_model": model_name,
+                    "observation_index": obs_idx,
+                    "theta_sample": float(value),
+                    "true_theta": float(case["theta_true"][0, 0]),
+                    "map_theta": map_theta,
+                    "observation_x1": float(x_case[0, 0]),
+                    "observation_x2": float(x_case[0, 1]),
+                    "observation_x1_raw": float(case["x_raw"][0, 0]),
+                    "observation_x2_raw": float(case["x_raw"][0, 1]),
+                })
+    return pd.DataFrame(rows)
+
+
+def plot_posterior_samples_one_observation(mtf, data_mean, data_std, device):
+    posterior_samples_df = calculate_posterior_samples_one_observation(
+        mtf, data_mean, data_std, device
+    )
+
+    model_names = [spec["name"] for spec in MODEL_SPECS]
+    n_method_rows = len(POSTERIOR_SAMPLE_METHOD_ROWS)
+    n_cols = len(POSTERIOR_SAMPLE_METHOD_ROWS[0]["configs"])
+    n_rows = len(model_names) * n_method_rows
+    fig, axes = plt.subplots(
+        n_rows,
+        n_cols,
+        figsize=(3.7 * n_cols, 2.7 * n_rows),
+        sharex=True,
+        sharey="row",
+    )
+    axes = np.atleast_2d(axes)
+
+    for model_index, model_name in enumerate(model_names):
+        for method_row_index, method_row in enumerate(POSTERIOR_SAMPLE_METHOD_ROWS):
+            row_index = model_index * n_method_rows + method_row_index
+            for col_index, cfg in enumerate(method_row["configs"]):
+                ax = axes[row_index, col_index]
+                sub = posterior_samples_df[
+                    (posterior_samples_df["model_name"] == model_name)
+                    & (posterior_samples_df["method"] == cfg["label"])
+                ]
+                color = "#4C78A8" if model_name == "Parabola" else "#F58518"
+                sns.histplot(
+                    data=sub,
+                    x="theta_sample",
+                    bins=45,
+                    stat="density",
+                    color=color,
+                    alpha=0.12,
+                    edgecolor="none",
+                    ax=ax,
+                )
+                samples = sub["theta_sample"].to_numpy(dtype=np.float64)
+                x_grid = np.linspace(-2.0, 0.5, 512)
+                # This KDE is visualization-only; MAP estimation above stays in COMPASS.
+                sns.kdeplot(
+                    x=samples, color=color, lw=1.4, alpha=0.85, ax=ax,
+                    clip=(x_grid[0], x_grid[-1]),
+                )
+                true_theta = float(sub["true_theta"].iloc[0])
+                map_theta = float(sub["map_theta"].iloc[0])
+                true_line = ax.axvline(
+                    true_theta,
+                    color="black",
+                    lw=1.4,
+                    ls="--",
+                    zorder=20,
+                    label="true theta" if row_index == 0 and col_index == 0 else None,
+                )
+                map_line = ax.axvline(
+                    map_theta,
+                    color="#D62728",
+                    lw=1.4,
+                    ls="-",
+                    zorder=21,
+                    label="MAP theta" if row_index == 0 and col_index == 0 else None,
+                )
+                for reference_line in (true_line, map_line):
+                    reference_line.set_path_effects([
+                        path_effects.Stroke(linewidth=2.6, foreground="white"),
+                        path_effects.Normal(),
+                    ])
+                if row_index == 0:
+                    ax.set_title(cfg["plot_label"])
+                if col_index == 0:
+                    ax.set_ylabel(f"{model_name} {method_row['row_label']} density")
+                else:
+                    ax.set_ylabel("")
+                ax.set_xlim(-2.0, 0.5)
+                if row_index == n_rows - 1:
+                    ax.set_xlabel("theta")
+                else:
+                    ax.set_xlabel("")
+                ax.grid(True, color="0.92")
+                sns.despine(ax=ax)
+
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, frameon=True, loc="upper right", framealpha=0.9)
+    fig.suptitle("Posterior samples for matched representative observations", y=1.01)
+    fig.tight_layout()
+    save_figure(fig, "posterior_samples_one_observation.png")
+
+
+def save_config(data_mean, data_std):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "data_dir": str(DATA_DIR),
+        "output_dir": str(OUTPUT_DIR),
+        "n_train": N_TRAIN,
+        "n_val": N_VAL,
+        "num_samples": NUM_SAMPLES,
+        "timesteps": TIMESTEPS,
+        "reconstruction_n_observations": RECONSTRUCTION_N_OBSERVATIONS,
+        "theta_dim": THETA_DIM,
+        "x_dim": X_DIM,
+        "sigma_x": SIGMA_X,
+        "model_kwargs": MODEL_KWARGS,
+        "method_configs": METHOD_CONFIGS,
+        "ellipse_method_configs": ELLIPSE_METHOD_CONFIGS,
+        "ellipse_timestep_sweep": ELLIPSE_TIMESTEP_SWEEP,
+        "data_mean": to_numpy(data_mean).tolist(),
+        "data_std": to_numpy(data_std).tolist(),
+    }
+    path = OUTPUT_DIR / "experiment_config.json"
+    with path.open("w") as handle:
+        json.dump(payload, handle, indent=2)
+    log(f"[config] saved {path}")
+
+
+def main():
+    log("[setup] selecting a free CUDA device")
+    autocvd(num_gpus=1, interval=1)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    _, raw_val, norm_train, norm_val, data_mean, data_std = load_or_generate_data()
+    save_config(data_mean, data_std)
+    make_pairplot(raw_val)
+
+    model_names = [spec["name"] for spec in MODEL_SPECS]
+    mtf = MTf(path=str(DATA_DIR))
+    for model_name in model_names:
+        theta, x = norm_train[model_name]
+        val_theta, val_x = norm_val[model_name]
+        mtf.add_data(model_name, theta, x, val_theta, val_x)
+    mtf.init_models(**MODEL_KWARGS)
+    models = load_or_train_models(mtf, model_names, device="cuda")
+    for model_name, model in models.items():
+        mtf.add_model(model_name, model)
+
+    matched_likelihood_df = collect_matched_likelihood_reconstruction_summaries(mtf, norm_val, device="cuda")
+
+    # plot_likelihood_reconstruction_distance(matched_likelihood_df)
+    # plot_likelihood_ellipses(mtf, data_mean, data_std, device="cuda")
+    # PF-ODE solver/grid timestep experiments (enable individually as needed).
+    plot_pf_ode_euler_linear_t_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_dpm1_linear_t_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_heun_linear_t_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_euler_log_snr_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_euler_log_sigma_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_heun_log_snr_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    # plot_pf_ode_heun_log_sigma_timestep_ellipses(mtf, data_mean, data_std, device="cuda")
+    plot_posterior_samples_one_observation(mtf, data_mean, data_std, device="cuda")
+    log("[done] PF-ODE validation finished")
+
+
+if __name__ == "__main__":
+    main()

@@ -6,6 +6,7 @@ import torch.multiprocessing as mp
 import tqdm
 import datetime
 import os
+from .SamplingUtils import TIME_GRID_TYPES, make_time_grid
 
 class TensorTupleDataset(Dataset):
     def __init__(self, tensor1, tensor2):
@@ -34,7 +35,8 @@ class MultiObsSampler():
     
     def sample(self, world_size, data, condition_mask=None, timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, hierarchy=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
+               device="cpu", verbose=True, method="dpm", equation="reverse_sde",
+               time_grid_type="linear_t", save_trajectory=False, result_dict=None):
         """
         Sample from the model using the specified method
 
@@ -64,8 +66,22 @@ class MultiObsSampler():
             device: Device to run sampling on
             verbose: Whether to show progress bar
             method: Sampling method to use (euler, dpm)
+            equation: Equation to solve (reverse_sde, probability_flow_ode)
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
+
+        if equation not in ["reverse_sde", "probability_flow_ode"]:
+            raise ValueError(f"Sampling equation {equation} not recognized.")
+        if method not in ["euler", "heun", "rk2", "dpm"]:
+            raise ValueError(f"Sampling method {method} not recognized.")
+        if time_grid_type not in TIME_GRID_TYPES:
+            raise ValueError(f"Timestep grid {time_grid_type} not recognized.")
+        if equation == "reverse_sde" and time_grid_type != "linear_t":
+            raise ValueError("Non-linear timestep grids are only supported for probability_flow_ode.")
+        if equation == "reverse_sde" and method in ["heun", "rk2"]:
+            raise ValueError("Heun/RK2 is only supported for probability_flow_ode.")
+        if equation == "probability_flow_ode" and method == "dpm" and order not in [1, 2]:
+            raise ValueError("Only orders 1 or 2 are supported for probability_flow_ode with DPM.")
 
         
         # Set parameters
@@ -76,15 +92,17 @@ class MultiObsSampler():
         self.cfg_alpha = cfg_alpha
         self.verbose = verbose
         self.method = method
+        self.equation = equation
+        self.time_grid_type = time_grid_type
         self.save_trajectory = save_trajectory
         self.hierarchy = hierarchy
+        self.order = order
 
-        if method == "dpm":
+        if method == "dpm" and equation == "reverse_sde":
             self.corrector_steps_interval = corrector_steps_interval
             self.corrector_steps = corrector_steps
             self.final_corrector_steps = final_corrector_steps
             self.snr = snr
-            self.order = order
 
         if self.world_size > 1:
             manager = mp.Manager()
@@ -111,15 +129,17 @@ class MultiObsSampler():
         else:
             self.model = self.SBIm.model.to(self.device)
 
-        # Set hierarchy for compositional score modeling to all latent if not provided
+        # Set hierarchy for compositional score modeling to all latent if not provided.
+        # condition_mask can be either a single joint mask or one mask per observation.
         if self.hierarchy is None:
-            self.hierarchy = torch.where(condition_mask[0] == 0)[0].tolist()
+            hierarchy_mask = condition_mask[0] if len(condition_mask.shape) > 1 else condition_mask
+            self.hierarchy = torch.where(hierarchy_mask == 0)[0].tolist()
         
         # Check data structure
         data_loader, self.num_observations = self._check_data_structure(data, condition_mask)
 
         # Set up timesteps
-        self.timesteps_list = torch.linspace(1., self.eps, self.timesteps, device=self.device)
+        self.timesteps_list = make_time_grid(self.sde, self.time_grid_type, self.timesteps, self.eps, self.device)
         self.dt = self.timesteps_list[0] - self.timesteps_list[1]
         
         # Loop over data samples
@@ -133,16 +153,20 @@ class MultiObsSampler():
             data_batch = self._initial_sample(data_batch, condition_mask_batch)
             
             # Get samples for this batch
-            if self.method == "euler":
+            if self.equation == "reverse_sde" and self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch, idx)
-            elif self.method == "dpm":
+            elif self.equation == "reverse_sde" and self.method == "dpm":
                 samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
                                             order=self.order, snr=self.snr, corrector_steps_interval=self.corrector_steps_interval,
                                             corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps)
-            elif self.method == "multi_observation":
-                samples = self._multi_observation_sampler(data_batch, condition_mask_batch)
+            elif self.equation == "probability_flow_ode" and self.method == "euler":
+                samples = self._probability_flow_ode_euler_sampler(data_batch, condition_mask_batch, idx)
+            elif self.equation == "probability_flow_ode" and self.method in ["heun", "rk2"]:
+                samples = self._probability_flow_ode_heun_sampler(data_batch, condition_mask_batch, idx)
+            elif self.equation == "probability_flow_ode" and self.method == "dpm":
+                samples = self._probability_flow_ode_dpm_sampler(data_batch, condition_mask_batch, idx, order=self.order)
             else:
-                raise ValueError(f"Sampling method {self.method} not recognized.")
+                raise ValueError(f"Sampling combination equation={self.equation}, method={self.method} not recognized.")
 
             # Store samples
             all_samples.append(samples)
@@ -251,16 +275,7 @@ class MultiObsSampler():
         return score[indices]
     
     def _compositional_score(self, scores, x, t, hierarchy):
-        mu_prior = torch.zeros_like(x)
-        mu_prior[:,:,0] = -2.3
-        mu_prior[:,:,1] = -2.89
-        sigma_prior = torch.ones_like(x)
-        sigma_prior[:,:,0] = 0.3
-        sigma_prior[:,:,1] = 0.3
-
-
-        prior_score = -(x-mu_prior)/(sigma_prior**2)
-        #prefactor = (1 - len(scores))*(1-t) * prior_score
+        prior_score = -x
         compositional_scores = prior_score + torch.mean(scores, dim=0).repeat(len(scores), 1, 1)
         #compositional_scores = compositional_scores.
         scores[:,:,hierarchy] = compositional_scores[:,:,hierarchy]
@@ -473,6 +488,80 @@ class MultiObsSampler():
                                             (3/4) * sigma_next * score_mid2) * (1-condition_mask)
         
         return data_next
+
+    def _probability_flow_ode_euler_sampler(self, data, condition_mask, idx):
+        """
+        Deterministic probability-flow ODE sampler using the existing descending
+        timestep grid. self.dt is positive because t_now > t_next.
+        """
+
+        if self.save_trajectory:
+            self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
+            self.score_t = torch.zeros(data.shape[0], self.timesteps-1, data.shape[1], data.shape[2])
+            self.dx_t = torch.zeros(data.shape[0], self.timesteps-1, data.shape[1], data.shape[2])
+            self.data_t[:,0,:,:] = data
+
+        for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose, total=self.timesteps-1):
+            t = self.timesteps_list[i].reshape(-1, 1)
+            score = self._get_score(data, t, condition_mask, idx, self.cfg_alpha)
+            dx = 0.5 * self.sde.sigma**(2*t) * score * (t-self.timesteps_list[i+1].reshape(-1, 1))
+            data = data + dx * (1-condition_mask)
+
+            if self.save_trajectory:
+                self.data_t[:,i+1] = data
+                self.dx_t[:,i] = dx
+                self.score_t[:,i] = score
+
+        return data.detach()
+
+    def _probability_flow_ode_heun_sampler(self, data, condition_mask, idx):
+        """Heun/RK2 averages the initial and Euler-predicted endpoint drifts."""
+        for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose):
+            t = self.timesteps_list[i].reshape(-1, 1); t_next = self.timesteps_list[i+1].reshape(-1, 1); step = t-t_next
+            drift_now = 0.5*self.sde.sigma**(2*t)*self._get_score(data, t, condition_mask, idx, self.cfg_alpha)
+            predicted = data + step*drift_now*(1-condition_mask)
+            drift_next = 0.5*self.sde.sigma**(2*t_next)*self._get_score(predicted, t_next, condition_mask, idx, self.cfg_alpha)
+            data = data + 0.5*step*(drift_now+drift_next)*(1-condition_mask)
+        return data.detach()
+
+    def _probability_flow_ode_dpm_solver_1_step(self, data_t, t, t_next, condition_mask, idx):
+        """First-order probability-flow ODE DPM step without corrector steps."""
+        score_now = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
+        data_next = data_t + 0.5 * (t-t_next) * self.sde.sigma**(2*t) * score_now * (1-condition_mask)
+        return data_next
+
+    def _probability_flow_ode_dpm_solver_2_step(self, data_t, t, t_next, condition_mask, idx):
+        score_now = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
+        data_half = data_t + 0.5 * (t-t_next) * self.sde.sigma**(2*t) * score_now * (1-condition_mask)
+        score_next = self._get_score(data_half, t_next, condition_mask, idx, self.cfg_alpha)
+        data_next = data_t + 0.25 * (t-t_next) * (
+            self.sde.sigma**(2*t) * score_now
+            + self.sde.sigma**(2*t_next) * score_next
+        ) * (1-condition_mask)
+        return data_next
+
+    def _probability_flow_ode_dpm_sampler(self, data, condition_mask, idx, order=2):
+        """Deterministic DPM-style integration for the probability-flow ODE."""
+
+        if self.save_trajectory:
+            self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
+            self.data_t[:,0,:,:] = data
+
+        for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose, total=self.timesteps-1):
+            t_now = self.timesteps_list[i].reshape(-1, 1)
+            t_next = self.timesteps_list[i+1].reshape(-1, 1)
+
+            if order == 1:
+                data = self._probability_flow_ode_dpm_solver_1_step(data, t_now, t_next, condition_mask, idx)
+            elif order == 2:
+                data = self._probability_flow_ode_dpm_solver_2_step(data, t_now, t_next, condition_mask, idx)
+            else:
+                raise ValueError("Only orders 1 or 2 are supported for probability_flow_ode with DPM.")
+
+            if self.save_trajectory:
+                self.data_t[:,i+1] = data
+
+        return data.detach()
 
     def _dpm_sampler(self, data, condition_mask, idx,
                      order=2, 

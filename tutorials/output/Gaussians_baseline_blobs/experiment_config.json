@@ -1,0 +1,39 @@
+{
+  "role_model": "Gaussian_models_baselines.ipynb",
+  "model_dir": "/export/home/rheinric/COMPASS/tutorials/data/gaussians_baseline_blobs",
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/Gaussians_baseline_blobs",
+  "theta_dim": 1,
+  "x_dim": 2,
+  "theta_prior": "Normal(0, 3)",
+  "confusion_n": 10,
+  "confusion_n_observations": 80,
+  "confusion_timesteps": 125,
+  "confusion_num_samples": 800,
+  "baseline_n_test": 100,
+  "baseline_true_marginal_k": 50000,
+  "baseline_classifier_n": 100000,
+  "baseline_classifier_epochs": 20,
+  "baseline_convergence_runs": 50,
+  "baseline_sweep_timesteps": [
+    50,
+    100,
+    200,
+    300,
+    400,
+    500,
+    1000
+  ],
+  "baseline_sweep_orders": [
+    1
+  ],
+  "data_mean": [
+    -0.0023693516850471497,
+    0.2994256317615509,
+    0.8417351245880127
+  ],
+  "data_std": [
+    3.001796007156372,
+    1.3745136260986328,
+    1.5415014028549194
+  ]
+}

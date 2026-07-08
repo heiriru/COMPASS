@@ -1,0 +1,104 @@
+{
+  "data_dir": "/export/home/rheinric/COMPASS/tutorials/data/PF_ODE_validation",
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/PF_ODE_validation",
+  "n_train": 80000,
+  "n_val": 800,
+  "num_samples": 1000,
+  "timesteps": 100,
+  "reconstruction_n_observations": 5,
+  "theta_dim": 1,
+  "x_dim": 2,
+  "sigma_x": 0.1,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3,
+    "hidden_size": 40,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "method_configs": [
+    {
+      "label": "euler",
+      "method": "euler",
+      "equation": "reverse_sde",
+      "order": 1
+    },
+    {
+      "label": "dpm_order1_reverse_sde",
+      "method": "dpm",
+      "equation": "reverse_sde",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_reverse_sde",
+      "method": "dpm",
+      "equation": "reverse_sde",
+      "order": 2
+    },
+    {
+      "label": "euler_probability_flow_ode",
+      "method": "euler",
+      "equation": "probability_flow_ode",
+      "order": 1
+    },
+    {
+      "label": "dpm_order1_probability_flow_ode",
+      "method": "dpm",
+      "equation": "probability_flow_ode",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_probability_flow_ode",
+      "method": "dpm",
+      "equation": "probability_flow_ode",
+      "order": 2
+    }
+  ],
+  "ellipse_method_configs": [
+    {
+      "label": "dpm_order1_reverse_sde",
+      "method": "dpm",
+      "equation": "reverse_sde",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_reverse_sde",
+      "method": "dpm",
+      "equation": "reverse_sde",
+      "order": 2
+    },
+    {
+      "label": "euler_probability_flow_ode",
+      "method": "euler",
+      "equation": "probability_flow_ode",
+      "order": 1
+    },
+    {
+      "label": "dpm_order1_probability_flow_ode",
+      "method": "dpm",
+      "equation": "probability_flow_ode",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_probability_flow_ode",
+      "method": "dpm",
+      "equation": "probability_flow_ode",
+      "order": 2
+    }
+  ],
+  "ellipse_timestep_sweep": [
+    25,
+    50,
+    100,
+    200
+  ],
+  "data_mean": [
+    0.0027969444636255503,
+    0.6673949360847473
+  ],
+  "data_std": [
+    1.161486029624939,
+    1.1566075086593628
+  ]
+}

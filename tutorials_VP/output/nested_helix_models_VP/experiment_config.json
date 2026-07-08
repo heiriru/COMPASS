@@ -1,0 +1,65 @@
+{
+  "role_model": "Gaussian_models_baselines.ipynb",
+  "model_dir": "/export/home/rheinric/COMPASS/tutorials/data/nested_helix_models_VP",
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/nested_helix_models_VP",
+  "theta_dims": {
+    "Helix 1p": 1,
+    "Helix + a 2p": 2,
+    "Helix + a,b 3p": 3
+  },
+  "x_dim": 3,
+  "theta_prior": "theta~N(0,3^2), a~N(0,tau_a^2), b~N(0,tau_b^2)",
+  "train_n": 200000,
+  "validation_n": 2000,
+  "mock_sets_per_model": 1,
+  "mock_observations_per_set": 80,
+  "observation_sigma": 0.3,
+  "theta_std": 3.0,
+  "tau_a": 1.0,
+  "tau_b": 1.0,
+  "mock_min_abs_deformation": 0.5,
+  "model_descriptions": {
+    "Helix 1p": "one-parameter noisy helix-like curve",
+    "Helix + a 2p": "helix with a second-harmonic planar deformation",
+    "Helix + a,b 3p": "helix with planar and vertical deformations"
+  },
+  "confusion_n": 1,
+  "confusion_n_observations": 80,
+  "confusion_timesteps": 100,
+  "confusion_num_samples": 800,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3,
+    "hidden_size": 40,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "baseline_n_test": 100,
+  "baseline_true_marginal_k": 50000,
+  "baseline_classifier_n": 100000,
+  "baseline_classifier_epochs": 20,
+  "baseline_convergence_runs": 50,
+  "baseline_sweep_timesteps": [
+    50,
+    100,
+    200,
+    300,
+    400,
+    500,
+    1000
+  ],
+  "baseline_sweep_orders": [
+    1
+  ],
+  "data_mean": [
+    -0.0015347147127613425,
+    0.0236849095672369,
+    0.0013530405703932047
+  ],
+  "data_std": [
+    1.5568513870239258,
+    1.5576171875,
+    0.7861118912696838
+  ]
+}
