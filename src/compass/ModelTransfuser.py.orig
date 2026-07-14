@@ -14,7 +14,6 @@ from scipy.stats import norm, gaussian_kde
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import PowerNorm
-from matplotlib.lines import Line2D
 
 import seaborn as sns
 
@@ -603,88 +602,21 @@ class ModelTransfuser():
         if len(model_names) < n_models:
             n_models = len(model_names)
 
+        legend_cols = 1 if len(model_names) < 6 else 2
+
         # plt.style.use('ggplot')
 
         #---------------------------
+        def two_line_model_label(name):
+            """Break a model name at its midpoint to keep x-axis labels legible."""
+            words = name.replace(",", "").split()
+            if len(words) < 2:
+                return name
+            split_index = (len(words) + 1) // 2
+            return " ".join(words[:split_index]) + "\n" + " ".join(words[split_index:])
+
+        model_names_violin = [two_line_model_label(name) for name in model_names[:n_models]]
         sample_size = model_log_probs.shape[1]
-        # AICc is valid only when n - k - 1 > 0 for every candidate model.
-        aicc_first_valid_observation = int(param_counts.max().item()) + 2
-        palette = sns.color_palette("dark", n_colors=n_models)
-        legend_handles = [
-            Line2D([0], [0], color=palette[index], linewidth=3, label=model_names[index])
-            for index in range(n_models)
-        ]
-        legend_handles.append(
-            Line2D(
-                [0], [0], color="black", linestyle="--", linewidth=2,
-                label=(
-                    f"AICc valid from $n={aicc_first_valid_observation}$ "
-                    r"($n > k + 1$)"
-                ),
-            )
-        )
-        # Independent baseline: the original single-panel violin layout using
-        # likelihood-only probabilities, with no information-criterion penalty.
-        no_penalty_probabilities = torch.nn.functional.softmax(model_log_probs, dim=0)
-        baseline_model_labels = [name.replace(", ", "\n") for name in model_names[:n_models]]
-        baseline_fig, baseline_axis = plt.subplots(figsize=(12, 6), dpi=500)
-        sns.violinplot(
-            data=no_penalty_probabilities.T[:, :n_models],
-            ax=baseline_axis,
-            palette=palette,
-            cut=2,
-            inner_kws=dict(box_width=5, whis_width=2, color="k"),
-        )
-        baseline_axis.set_xticks(range(n_models), baseline_model_labels)
-        baseline_axis.tick_params(axis="x", which="major", labelsize=16)
-        baseline_axis.tick_params(axis="y", which="major", labelsize=16)
-        baseline_axis.set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        baseline_axis.set_ylim(0.0, 1.0)
-        baseline_axis.set_title("No parameter penalty", fontsize=18, pad=12)
-        sns.despine(ax=baseline_axis)
-        baseline_fig.tight_layout()
-        if path is not None:
-            baseline_fig.savefig(f"{path}/model_probs_violin_no_penalty.png")
-        if show:
-            plt.show()
-        plt.close(baseline_fig)
-
-        # Exact binned distributions in the same categorical layout as the
-        # violin plot.  Bin widths encode observation counts; no KDE is used.
-        histogram_fig, histogram_axis = plt.subplots(figsize=(12, 6), dpi=500)
-        bin_edges = np.linspace(0.0, 1.0, 31)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-        bin_height = 0.95 * (bin_edges[1] - bin_edges[0])
-        histogram_counts = [
-            np.histogram(
-                no_penalty_probabilities[model_index].detach().cpu().numpy(),
-                bins=bin_edges,
-            )[0]
-            for model_index in range(n_models)
-        ]
-        max_count = max(counts.max() for counts in histogram_counts)
-        for model_index, counts in enumerate(histogram_counts):
-            widths = 0.8 * counts / max_count if max_count else counts
-            histogram_axis.barh(
-                bin_centers, widths, height=bin_height,
-                left=model_index - widths / 2,
-                color=palette[model_index], edgecolor="white", linewidth=0.3,
-            )
-        histogram_axis.set_xticks(range(n_models), baseline_model_labels)
-        histogram_axis.set_xlim(-0.6, n_models - 0.4)
-        histogram_axis.set_ylim(0.0, 1.0)
-        histogram_axis.set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        histogram_axis.set_title("No parameter penalty", fontsize=18, pad=12)
-        histogram_axis.tick_params(axis="x", which="major", labelsize=16)
-        histogram_axis.tick_params(axis="y", which="major", labelsize=16)
-        sns.despine(ax=histogram_axis)
-        histogram_fig.tight_layout()
-        if path is not None:
-            histogram_fig.savefig(f"{path}/model_probs_histogram_no_penalty.png")
-        if show:
-            plt.show()
-        plt.close(histogram_fig)
-
         per_observation_criteria = {
             "No parameter penalty": -2 * model_log_probs,
             "AICc penalty": self._aicc(model_log_probs, param_counts.unsqueeze(1), sample_size),
@@ -697,21 +629,14 @@ class ModelTransfuser():
             sns.violinplot(
                 data=probabilities.T[:, :n_models],
                 ax=axis,
-                palette=palette,
-                cut=2,
+                palette=sns.color_palette("dark", n_colors=n_models),
                 inner_kws=dict(box_width=5, whis_width=2, color="k"),
             )
-            # Retain the full KDE tail inside the probability domain and clip
-            # only any extrapolation beyond its valid [0, 1] boundaries.
-            axis.set_ylim(0.0, 1.0)
-            axis.tick_params(axis="x", bottom=False, labelbottom=False)
+            axis.set_xticks(range(n_models), model_names_violin)
             axis.tick_params(axis='both', which='major', labelsize=14)
             axis.set_xlabel("")
-            axis.set_title(title, fontsize=18, pad=12)
         axes[0].set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        fig.legend(handles=legend_handles, loc="lower center", fontsize=14,
-                   frameon=False, ncol=len(legend_handles))
-        fig.tight_layout(rect=(0, 0.08, 1, 1))
+        fig.tight_layout()
 
         if path is not None:
             fig.savefig(f"{path}/model_probs_violin.png")
@@ -754,16 +679,22 @@ class ModelTransfuser():
                 cumulative_probabilities[name].append(torch.stack(probabilities))
 
         fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=500, sharex=True, sharey=True)
+        palette = sns.color_palette("dark", n_colors=n_models)
         observation_counts = torch.arange(model_log_probs.shape[1] + 1)
+        # AICc is defined only when n - k - 1 > 0.  Use the largest
+        # parameter count so the marked region is invalid for at least one
+        # candidate model and the boundary marks validity for all models.
+        aicc_first_valid_observation = int(param_counts.max().item()) + 2
         for axis, (title, repetitions) in zip(axes.flat, cumulative_probabilities.items()):
             if title == "AICc penalty":
                 axis.axvspan(0, aicc_first_valid_observation, color="0.5", alpha=0.12, zorder=0)
-                axis.axvline(aicc_first_valid_observation, color="black", linestyle="--", linewidth=2, zorder=1)
+                axis.axvline(aicc_first_valid_observation, color="0.35", linestyle=":", linewidth=2, zorder=1)
             mean_probabilities = torch.stack(repetitions).mean(0)
             for model_index in range(n_models):
                 axis.plot(
                     observation_counts,
                     mean_probabilities[:, model_index],
+                    label=model_names[model_index],
                     linewidth=3,
                     color=palette[model_index],
                 )
@@ -773,8 +704,10 @@ class ModelTransfuser():
             axis.set_ylabel(r"$P(\mathcal{M} | x_0,..., x_i)$", fontsize=16)
             sns.despine(ax=axis)
 
-        fig.legend(handles=legend_handles, loc="lower center", fontsize=14,
-                   frameon=False, ncol=len(legend_handles))
+        if model_names != "":
+            handles, labels = axes[0, 0].get_legend_handles_labels()
+            fig.legend(handles, labels, title="Models", loc="lower center", fontsize=14,
+                       title_fontsize=16, frameon=True, ncol=legend_cols)
         fig.tight_layout(rect=(0, 0.08, 1, 1))
         if path is not None:
             fig.savefig(f"{path}/model_probs_cumulative.png")

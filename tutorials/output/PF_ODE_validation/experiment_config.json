@@ -1,0 +1,68 @@
+{
+  "data_dir": "/export/home/rheinric/COMPASS/tutorials/data/PF_ODE_validation",
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/PF_ODE_validation",
+  "n_train": 80000,
+  "n_val": 800,
+  "num_samples": 1000,
+  "timesteps": 100,
+  "reconstruction_n_observations": 5,
+  "theta_dim": 1,
+  "x_dim": 2,
+  "sigma_x": 0.1,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3,
+    "hidden_size": 40,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "method_configs": [
+    {
+      "label": "euler_reverse_sde",
+      "method": "euler",
+      "order": 1
+    },
+    {
+      "label": "dpm_order1_reverse_sde",
+      "method": "dpm",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_reverse_sde",
+      "method": "dpm",
+      "order": 2
+    }
+  ],
+  "ellipse_method_configs": [
+    {
+      "label": "euler_reverse_sde",
+      "method": "euler",
+      "order": 1
+    },
+    {
+      "label": "dpm_order1_reverse_sde",
+      "method": "dpm",
+      "order": 1
+    },
+    {
+      "label": "dpm_order2_reverse_sde",
+      "method": "dpm",
+      "order": 2
+    }
+  ],
+  "ellipse_timestep_sweep": [
+    25,
+    50,
+    100,
+    200
+  ],
+  "data_mean": [
+    0.00026755069848150015,
+    0.665564239025116
+  ],
+  "data_std": [
+    1.1586990356445312,
+    1.1540576219558716
+  ]
+}

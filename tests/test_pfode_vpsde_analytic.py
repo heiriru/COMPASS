@@ -17,6 +17,7 @@ or with pytest:
 """
 import os
 import sys
+from autocvd import autocvd
 
 import torch
 
@@ -236,6 +237,7 @@ def test_vpsde_end_to_end_training():
 
 
 if __name__ == "__main__":
+    autocvd(num_gpus=1, interval=1)
     test_pfode_logprob_vesde()
     test_pfode_logprob_vesde_hutchinson()
     test_pfode_logprob_vpsde()
