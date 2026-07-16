@@ -71,6 +71,10 @@ class MultiObsSampler():
         self.SBIm = SBIm
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
+        from .PFODE import PFODE
+        self.pfode = getattr(self.SBIm, "pfode", None)
+        if self.pfode is None:
+            self.pfode = PFODE(self.SBIm)
 
     #############################################
     # ----- Main Sampling Loop -----
@@ -80,7 +84,8 @@ class MultiObsSampler():
                prior=None, correction="gauss", posterior_precision=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
+               device="cpu", verbose=True, method=None, equation="reverse_sde",
+               save_trajectory=False, result_dict=None):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -126,9 +131,26 @@ class MultiObsSampler():
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Sampling method to use (euler, dpm)
+            method: Solver method. Defaults to dpm for reverse_sde and heun for
+                    probability_flow_ode.
+            equation: Equation to solve (reverse_sde or probability_flow_ode).
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
+
+        if equation not in ("reverse_sde", "probability_flow_ode"):
+            raise ValueError(
+                "equation must be 'reverse_sde' or 'probability_flow_ode'.")
+        if method is None:
+            method = "dpm" if equation == "reverse_sde" else "heun"
+        valid_methods = {
+            "reverse_sde": ("euler", "dpm", "langevin"),
+            "probability_flow_ode": ("euler", "heun"),
+        }
+        if method not in valid_methods[equation]:
+            allowed = ", ".join(valid_methods[equation])
+            raise ValueError(
+                f"Sampling method '{method}' is not valid for equation='{equation}'. "
+                f"Choose from: {allowed}.")
 
         # Set parameters
         self.world_size = world_size
@@ -138,6 +160,7 @@ class MultiObsSampler():
         self.cfg_alpha = cfg_alpha
         self.verbose = verbose
         self.method = method
+        self.equation = equation
         self.save_trajectory = save_trajectory
         self.hierarchy = hierarchy
         self.correction = correction
@@ -152,6 +175,10 @@ class MultiObsSampler():
 
         if correction not in ("gauss", "uncorrected", "fnpe"):
             raise ValueError(f"Unknown correction '{correction}'. Choose from 'gauss', 'uncorrected', 'fnpe'.")
+        if correction == "fnpe" and equation == "probability_flow_ode":
+            raise ValueError(
+                "correction='fnpe' is not compatible with probability_flow_ode: "
+                "its bridging score is not a diffusion-marginal score.")
         if correction == "fnpe" and method != "langevin":
             print("WARNING: correction='fnpe' composes the scores of the F-NPSE bridging densities, "
                   "which are NOT the diffusion marginals of the posterior. Reverse-diffusion samplers "
@@ -176,7 +203,8 @@ class MultiObsSampler():
                     data, condition_mask,
                     num_samples=precision_est_samples,
                     timesteps=precision_est_timesteps or timesteps,
-                    eps=eps, device=device if world_size <= 1 else "cuda:0")
+                    eps=eps, device=device if world_size <= 1 else "cuda:0",
+                    method=method, equation=equation)
             self.posterior_precision = self._validate_precision(torch.as_tensor(posterior_precision, dtype=torch.float32))
         else:
             self.posterior_precision = None
@@ -224,21 +252,25 @@ class MultiObsSampler():
         # the score network cannot add information, and the remaining gap to t=0 is
         # closed exactly (under the Gaussian approximation) by the final analytic
         # denoising step (see _final_denoise).
-        one = torch.ones(1, device=self.device)
-        sigma_max = self.sde.marginal_prob_std(one)
-        sigma_min = self.sde.marginal_prob_std(self.eps * one)
-        if self.correction == "gauss":
-            n = self.num_observations
-            Lambda_prior = 1.0 / self.prior_std**2
-            if self.posterior_precision.shape[0] == 1:
-                Lambda_star = (1 - n) * Lambda_prior + n * self.posterior_precision[0]
-            else:
-                Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
-            sigma_stop = (1.0 / Lambda_star).sqrt().min()
-            sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
-        sigmas = torch.logspace(torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
-                                self.timesteps, device=self.device)
-        self.timesteps_list = self.sde.time_of_sigma(sigmas)
+        if self.equation == "probability_flow_ode":
+            _, self.timesteps_list = self.pfode.lambda_grid(
+                self.timesteps, self.eps, self.device, descending=True)
+        else:
+            one = torch.ones(1, device=self.device)
+            sigma_max = self.sde.marginal_prob_std(one)
+            sigma_min = self.sde.marginal_prob_std(self.eps * one)
+            if self.correction == "gauss":
+                n = self.num_observations
+                Lambda_prior = 1.0 / self.prior_std**2
+                if self.posterior_precision.shape[0] == 1:
+                    Lambda_star = (1 - n) * Lambda_prior + n * self.posterior_precision[0]
+                else:
+                    Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
+                sigma_stop = (1.0 / Lambda_star).sqrt().min()
+                sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
+            sigmas = torch.logspace(torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
+                                    self.timesteps, device=self.device)
+            self.timesteps_list = self.sde.time_of_sigma(sigmas)
 
         # Loop over data samples
         all_samples = []
@@ -251,17 +283,28 @@ class MultiObsSampler():
             data_batch = self._initial_sample(data_batch, condition_mask_batch)
 
             # Get samples for this batch
-            if self.method == "euler":
+            if self.equation == "reverse_sde" and self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch, idx)
-            elif self.method == "dpm":
+            elif self.equation == "reverse_sde" and self.method == "dpm":
                 samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
                                             order=self.order, snr=self.snr, corrector_steps_interval=self.corrector_steps_interval,
                                             corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps)
-            elif self.method == "langevin":
+            elif self.equation == "reverse_sde" and self.method == "langevin":
                 samples = self._langevin_sampler(data_batch, condition_mask_batch, idx,
                                                  snr=self.snr, steps_per_level=self.corrector_steps)
+            elif self.equation == "probability_flow_ode":
+                def score_fn(state, time):
+                    return self._get_score(
+                        state, time.reshape(-1, 1), condition_mask_batch, idx, self.cfg_alpha)
+
+                samples, trajectory = self.pfode.sample(
+                    data_batch, condition_mask_batch, score_fn,
+                    timesteps=self.timesteps, eps=self.eps, method=self.method,
+                    verbose=self.verbose, save_trajectory=self.save_trajectory)
+                if self.save_trajectory:
+                    self.data_t = trajectory
             else:
-                raise ValueError(f"Sampling method {self.method} not recognized.")
+                raise RuntimeError("Unreachable sampling configuration.")
 
             # Final analytic denoising step (gauss correction only)
             if self.correction == "gauss":
@@ -307,7 +350,8 @@ class MultiObsSampler():
                              f"got {mean.numel()}/{std.numel()}.")
         return mean, std
 
-    def _estimate_posterior_precision(self, data, condition_mask, num_samples, timesteps, eps, device):
+    def _estimate_posterior_precision(self, data, condition_mask, num_samples, timesteps, eps,
+                                      device, method, equation):
         """
         Estimate the precision of each single-observation posterior on the hierarchy
         dimensions by sampling p(theta | x_j) once with the standard (single-observation)
@@ -316,7 +360,7 @@ class MultiObsSampler():
         samples = self.SBIm.sampler.sample(
             world_size=1, data=data, condition_mask=condition_mask,
             timesteps=timesteps, eps=eps, num_samples=num_samples,
-            device=device, verbose=self.verbose, method="dpm")
+            device=device, verbose=self.verbose, method=method, equation=equation)
 
         # samples: (num_observations, num_samples, num_features)
         var = samples[:, :, self.hierarchy].var(dim=1)

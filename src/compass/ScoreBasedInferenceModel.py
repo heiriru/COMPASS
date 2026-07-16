@@ -56,12 +56,13 @@ class ScoreBasedInferenceModel(nn.Module):
         # Init Trainer
         self.trainer = Trainer(self)
 
-        # Init Sampler
+        # Shared probability-flow ODE engine (likelihood, MAP and sampling).
+        # Initialize it first so both samplers reuse this exact instance.
+        self.pfode = PFODE(self)
+
+        # Init Samplers
         self.sampler = Sampler(self)
         self.multi_obs_sampler = MultiObsSampler(self)
-
-        # Init probability-flow ODE engine (log-probability evaluation, MAP)
-        self.pfode = PFODE(self)
         
     #############################################
     # ----- Forward Diffusion -----
@@ -144,7 +145,8 @@ class ScoreBasedInferenceModel(nn.Module):
                prior=None, correction="gauss", posterior_precision=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False):
+               device="cpu", verbose=True, method=None, equation="reverse_sde",
+               save_trajectory=False):
         """
         Sample from the model using the specified method
 
@@ -181,7 +183,9 @@ class ScoreBasedInferenceModel(nn.Module):
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Sampling method to use (euler, dpm)
+            method: Solver method. Defaults to dpm for reverse_sde and heun for
+                    probability_flow_ode.
+            equation: Equation to solve (reverse_sde or probability_flow_ode).
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -216,9 +220,10 @@ class ScoreBasedInferenceModel(nn.Module):
             world_size = 1
             
         if multi_obs_inference == False:
-            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
+            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                    verbose=verbose, method=method, save_trajectory=save_trajectory)
+                                    verbose=verbose, method=method, equation=equation,
+                                    save_trajectory=save_trajectory)
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
@@ -226,16 +231,28 @@ class ScoreBasedInferenceModel(nn.Module):
                 raise NotImplementedError(
                     "Multi-observation (compositional) inference currently assumes a "
                     "VESDE; the composition corrections are not implemented for the VPSDE.")
-            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
                                       prior=prior, correction=correction, posterior_precision=posterior_precision,
                                       precision_est_samples=precision_est_samples, precision_est_timesteps=precision_est_timesteps,
                                       denoise_clamp=denoise_clamp,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                      verbose=verbose, method=method, save_trajectory=save_trajectory)
+                                      verbose=verbose, method=method, equation=equation,
+                                      save_trajectory=save_trajectory)
 
-        # just return the sampled values
-        samples = samples[:,:,(1-condition_mask).bool()] 
-        
+        # Return only latent values. Per-row masks are supported as long as each
+        # row has the same latent dimensionality, which is required for a tensor.
+        latent_mask = (1 - condition_mask).bool()
+        if latent_mask.dim() == 1:
+            samples = samples[:, :, latent_mask]
+        else:
+            latent_counts = latent_mask.sum(dim=-1)
+            if not torch.all(latent_counts == latent_counts[0]):
+                raise ValueError(
+                    "All condition_mask rows must have the same number of latent dimensions.")
+            samples = torch.stack(
+                [samples[i, :, latent_mask[i]] for i in range(samples.shape[0])],
+                dim=0)
+
         return samples
     
     #############################################

@@ -206,7 +206,7 @@ class ModelTransfuser():
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
                prior=None, correction="gauss",
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cuda", verbose=False, method="dpm",
+               device="cuda", verbose=False, method=None, equation="reverse_sde",
                likelihood_method="pfode", map_method="score", criterion="aic",
                log_prob_timesteps=100):
         """
@@ -236,9 +236,10 @@ class ModelTransfuser():
             final_corrector_steps: Final corrector steps for the model
             device:         Device to run inference on
             verbose:        (bool) Whether to show inference progress
-            method:         (string) Method used to solve the SDE during inference.
-                                "dpm"   - (default) Using the DPM-Solver for infernce with order 'order'
-                                "euler" - Using the Euler-Maruyama method for inference
+            method:         Solver method. Defaults to "dpm" for reverse_sde
+                                and "heun" for probability_flow_ode.
+            equation:       Equation used for posterior and legacy likelihood sampling:
+                                "reverse_sde" (default) or "probability_flow_ode".
             likelihood_method: (string) How the per-observation likelihood
                                 log p(x_i | theta_MAP,i) is evaluated:
                                 "pfode" - (default) directly through the probability-flow
@@ -296,7 +297,8 @@ class ModelTransfuser():
                                             multi_obs_inference=multi_obs_inference, hierarchy=hierarchy,
                                             prior=prior, correction=correction,
                                             order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                            device=device, verbose=verbose, method=method)
+                                            device=device, verbose=verbose, method=method,
+                                            equation=equation)
             posterior_samples = posterior_samples.cpu().numpy()
 
             # Inference Attention weights
@@ -364,7 +366,8 @@ class ModelTransfuser():
                                                 multi_obs_inference=multi_obs_inference, hierarchy=hierarchy,
                                                 prior=prior, correction=correction,
                                                 order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                                device=device, verbose=verbose, method=method)
+                                                device=device, verbose=verbose, method=method,
+                                                equation=equation)
                 likelihood_samples = likelihood_samples.cpu().numpy()
                 log_probs = torch.tensor([self._log_prob(likelihood_samples[i], x[i]) for i in range(len(x))])
             else:
@@ -445,6 +448,7 @@ class ModelTransfuser():
     # Estimate the Maximum A Posteriori (MAP)
     def _map_kde(self, samples):
         """Find the joint mode of the multivariate distribution"""
+        samples = np.asarray(samples, dtype=np.float32)
         kde = gaussian_kde(samples.T)  # KDE expects (n_dims, n_samples)
         
         # Start optimization from the mean

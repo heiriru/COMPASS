@@ -32,6 +32,18 @@
       "label": "dpm_order2_reverse_sde",
       "method": "dpm",
       "order": 2
+    },
+    {
+      "label": "euler_probability_flow_ode",
+      "method": "euler",
+      "order": 1,
+      "equation": "probability_flow_ode"
+    },
+    {
+      "label": "heun_probability_flow_ode",
+      "method": "heun",
+      "order": 2,
+      "equation": "probability_flow_ode"
     }
   ],
   "ellipse_method_configs": [
@@ -49,6 +61,18 @@
       "label": "dpm_order2_reverse_sde",
       "method": "dpm",
       "order": 2
+    },
+    {
+      "label": "euler_probability_flow_ode",
+      "method": "euler",
+      "order": 1,
+      "equation": "probability_flow_ode"
+    },
+    {
+      "label": "heun_probability_flow_ode",
+      "method": "heun",
+      "order": 2,
+      "equation": "probability_flow_ode"
     }
   ],
   "ellipse_timestep_sweep": [
@@ -57,6 +81,587 @@
     100,
     200
   ],
+  "map_runtime_benchmark_configs": [
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 25,
+      "setting": "N=100  T=25"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 50,
+      "setting": "N=100  T=50"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 100,
+      "setting": "N=100  T=100"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 200,
+      "setting": "N=100  T=200"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 25,
+      "setting": "N=500  T=25"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 50,
+      "setting": "N=500  T=50"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 100,
+      "setting": "N=500  T=100"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 200,
+      "setting": "N=500  T=200"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 25,
+      "setting": "N=1000  T=25"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 50,
+      "setting": "N=1000  T=50"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 100,
+      "setting": "N=1000  T=100"
+    },
+    {
+      "family": "Euler SDE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 200,
+      "setting": "N=1000  T=200"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 25,
+      "setting": "N=100  T=25"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 50,
+      "setting": "N=100  T=50"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 100,
+      "setting": "N=100  T=100"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 200,
+      "setting": "N=100  T=200"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 25,
+      "setting": "N=500  T=25"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 50,
+      "setting": "N=500  T=50"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 100,
+      "setting": "N=500  T=100"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 200,
+      "setting": "N=500  T=200"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 25,
+      "setting": "N=1000  T=25"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 50,
+      "setting": "N=1000  T=50"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 100,
+      "setting": "N=1000  T=100"
+    },
+    {
+      "family": "DPM order 1 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 1,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 200,
+      "setting": "N=1000  T=200"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 25,
+      "setting": "N=100  T=25"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 50,
+      "setting": "N=100  T=50"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 100,
+      "setting": "N=100  T=100"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 100,
+      "timesteps": 200,
+      "setting": "N=100  T=200"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 25,
+      "setting": "N=500  T=25"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 50,
+      "setting": "N=500  T=50"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 100,
+      "setting": "N=500  T=100"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 500,
+      "timesteps": 200,
+      "setting": "N=500  T=200"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 25,
+      "setting": "N=1000  T=25"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 50,
+      "setting": "N=1000  T=50"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 100,
+      "setting": "N=1000  T=100"
+    },
+    {
+      "family": "DPM order 2 SDE",
+      "kind": "sample",
+      "method": "dpm",
+      "order": 2,
+      "equation": "reverse_sde",
+      "num_samples": 1000,
+      "timesteps": 200,
+      "setting": "N=1000  T=200"
+    },
+    {
+      "family": "Euler PF-ODE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "probability_flow_ode",
+      "num_samples": 100,
+      "timesteps": 100,
+      "setting": "N=100  T=100"
+    },
+    {
+      "family": "Euler PF-ODE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "probability_flow_ode",
+      "num_samples": 500,
+      "timesteps": 100,
+      "setting": "N=500  T=100"
+    },
+    {
+      "family": "Euler PF-ODE",
+      "kind": "sample",
+      "method": "euler",
+      "order": 1,
+      "equation": "probability_flow_ode",
+      "num_samples": 1000,
+      "timesteps": 100,
+      "setting": "N=1000  T=100"
+    },
+    {
+      "family": "Heun PF-ODE",
+      "kind": "sample",
+      "method": "heun",
+      "order": 2,
+      "equation": "probability_flow_ode",
+      "num_samples": 100,
+      "timesteps": 100,
+      "setting": "N=100  T=100"
+    },
+    {
+      "family": "Heun PF-ODE",
+      "kind": "sample",
+      "method": "heun",
+      "order": 2,
+      "equation": "probability_flow_ode",
+      "num_samples": 500,
+      "timesteps": 100,
+      "setting": "N=500  T=100"
+    },
+    {
+      "family": "Heun PF-ODE",
+      "kind": "sample",
+      "method": "heun",
+      "order": 2,
+      "equation": "probability_flow_ode",
+      "num_samples": 1000,
+      "timesteps": 100,
+      "setting": "N=1000  T=100"
+    },
+    {
+      "family": "PF-ODE exact",
+      "kind": "pfode",
+      "divergence": "exact",
+      "timesteps": 25,
+      "setting": "T=25"
+    },
+    {
+      "family": "PF-ODE exact",
+      "kind": "pfode",
+      "divergence": "exact",
+      "timesteps": 50,
+      "setting": "T=50"
+    },
+    {
+      "family": "PF-ODE exact",
+      "kind": "pfode",
+      "divergence": "exact",
+      "timesteps": 100,
+      "setting": "T=100"
+    },
+    {
+      "family": "PF-ODE exact",
+      "kind": "pfode",
+      "divergence": "exact",
+      "timesteps": 200,
+      "setting": "T=200"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 25,
+      "hutchinson_samples": 1,
+      "setting": "T=25  H=1"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 25,
+      "hutchinson_samples": 4,
+      "setting": "T=25  H=4"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 25,
+      "hutchinson_samples": 16,
+      "setting": "T=25  H=16"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 25,
+      "hutchinson_samples": 64,
+      "setting": "T=25  H=64"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 50,
+      "hutchinson_samples": 1,
+      "setting": "T=50  H=1"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 50,
+      "hutchinson_samples": 4,
+      "setting": "T=50  H=4"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 50,
+      "hutchinson_samples": 16,
+      "setting": "T=50  H=16"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 50,
+      "hutchinson_samples": 64,
+      "setting": "T=50  H=64"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 100,
+      "hutchinson_samples": 1,
+      "setting": "T=100  H=1"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 100,
+      "hutchinson_samples": 4,
+      "setting": "T=100  H=4"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 100,
+      "hutchinson_samples": 16,
+      "setting": "T=100  H=16"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 100,
+      "hutchinson_samples": 64,
+      "setting": "T=100  H=64"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 200,
+      "hutchinson_samples": 1,
+      "setting": "T=200  H=1"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 200,
+      "hutchinson_samples": 4,
+      "setting": "T=200  H=4"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 200,
+      "hutchinson_samples": 16,
+      "setting": "T=200  H=16"
+    },
+    {
+      "family": "PF-ODE Hutchinson",
+      "kind": "pfode",
+      "divergence": "hutchinson",
+      "timesteps": 200,
+      "hutchinson_samples": 64,
+      "setting": "T=200  H=64"
+    }
+  ],
+  "xspace_map_grid_size": 96,
+  "xspace_mc_samples": 20000,
+  "xspace_mc_seed": 2027,
   "data_mean": [
     0.00026755069848150015,
     0.665564239025116

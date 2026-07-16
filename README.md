@@ -83,12 +83,22 @@ sbimodel.train(train_data, val_data=val_data, path=path, device="cuda")
 
 To sample from the posterior distribution, you can use the `sample()` function and provide the observations `x` and the observational uncertainties `err` (optional):
 ```python
-# Sample from the posterior distribution
+# Reverse-SDE sampling remains the default
 posterior_samples = sbimodel.sample(x=observations, err=observations_err, timesteps=100)
+
+# Deterministic probability-flow ODE sampling (Heun is the default ODE solver)
+posterior_samples_pfode = sbimodel.sample(
+    x=observations,
+    err=observations_err,
+    timesteps=100,
+    equation="probability_flow_ode",
+)
+
+# A first-order PF-ODE baseline is also available with method="euler"
 ```
 To sample from the Likelihood function, you can again use the `sample()` function and provide the Maximum-A-Posteriori $\hat\theta$ values in `theta` and the standard deviation `err` (optional):
 ```python
-# Samlpe from the likelihood function
+# Sample from the likelihood function
 likelihood_samples = sbimodel.sample(theta=theta_hat, err=std_theta_hat, timesteps=100)
 ```
 

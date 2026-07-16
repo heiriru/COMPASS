@@ -200,6 +200,116 @@ def test_vesde_sampler_regression():
     assert ((std_ratio > 0.9) & (std_ratio < 1.1)).all()
 
 
+def test_pfode_sampler_heun_vesde():
+    mean_err, std_ratio = _sample_posterior(
+        VESDE(sigma=25.0), "heun", equation="probability_flow_ode")
+    print(f"VESDE PF-ODE Heun: mean err {mean_err.tolist()} sigma, "
+          f"std ratio {std_ratio.tolist()}")
+    assert mean_err.max() < 0.10
+    assert ((std_ratio > 0.9) & (std_ratio < 1.1)).all()
+
+
+def test_pfode_sampler_heun_vpsde():
+    mean_err, std_ratio = _sample_posterior(
+        VPSDE(), "heun", equation="probability_flow_ode")
+    print(f"VPSDE PF-ODE Heun: mean err {mean_err.tolist()} sigma, "
+          f"std ratio {std_ratio.tolist()}")
+    assert mean_err.max() < 0.10
+    assert ((std_ratio > 0.9) & (std_ratio < 1.1)).all()
+
+
+def test_pfode_sampler_euler():
+    mean_err, std_ratio = _sample_posterior(
+        VESDE(sigma=25.0), "euler", equation="probability_flow_ode")
+    print(f"VESDE PF-ODE Euler: mean err {mean_err.tolist()} sigma, "
+          f"std ratio {std_ratio.tolist()}")
+    assert mean_err.max() < 0.10
+    assert ((std_ratio > 0.85) & (std_ratio < 1.15)).all()
+
+
+def test_pfode_sampler_defaults_trajectory_and_validation():
+    torch.manual_seed(5)
+    sde = VESDE(sigma=25.0)
+    x_obs = MU0 + 0.4 * torch.randn(2)
+    sbim = MockSBIm(DiffusedPosteriorScore, sde)
+    samples = sbim.sampler.sample(
+        world_size=1, data=x_obs, condition_mask=MASK,
+        timesteps=20, eps=2e-3, num_samples=32,
+        method=None, equation="probability_flow_ode",
+        save_trajectory=True, device="cpu", verbose=False)
+    assert samples.shape == (1, 32, 4)
+    assert sbim.sampler.method == "heun"
+    assert sbim.sampler.data_t.shape == (1, 20, 32, 4)
+    expected_x = x_obs.reshape(1, 1, 2).expand(20, 32, 2)
+    assert torch.allclose(sbim.sampler.data_t[0, :, :, 2:], expected_x)
+
+    try:
+        sbim.sampler.sample(
+            world_size=1, data=x_obs, condition_mask=MASK,
+            method="dpm", equation="probability_flow_ode",
+            num_samples=2, device="cpu", verbose=False)
+    except ValueError as exc:
+        assert "not valid" in str(exc)
+    else:
+        raise AssertionError("PF-ODE must reject the reverse-SDE DPM method")
+
+
+def test_pfode_public_sampling_paths_and_batched_masks():
+    from compass.ScoreBasedInferenceModel import ScoreBasedInferenceModel
+
+    class IndependentGaussianScore(torch.nn.Module):
+        def __init__(self, sde, mean, var):
+            super().__init__()
+            self.sde = sde
+            self.mean = mean
+            self.var = var
+
+        def forward(self, x, t, c, return_attn_weights=False):
+            sigma = self.sde.sigma_t(t).to(x.device)
+            alpha = self.sde.alpha_t(t).to(x.device)
+            score = -(x - alpha * self.mean.to(x.device)) / (
+                alpha**2 * self.var + sigma**2)
+            out = sigma * score
+            if return_attn_weights:
+                return out, torch.zeros(1)
+            return out
+
+    torch.manual_seed(6)
+    mean = torch.tensor([-1.2, 0.7, 2.1, -0.4])
+    model = ScoreBasedInferenceModel(
+        nodes_size=4, sde_type="vesde", sigma=25.0,
+        hidden_size=8, depth=1, num_heads=1, mlp_ratio=1)
+    model.model = IndependentGaussianScore(model.sde, mean, var=0.2)
+
+    posterior = model.sample(
+        x=torch.zeros(1, 2), timesteps=40, eps=2e-3, num_samples=512,
+        cfg_alpha=1.0, equation="probability_flow_ode",
+        device="cpu", verbose=False)
+    likelihood = model.sample(
+        theta=torch.zeros(1, 2), timesteps=40, eps=2e-3, num_samples=512,
+        equation="probability_flow_ode", device="cpu", verbose=False)
+    unconditional = model.sample(
+        timesteps=40, eps=2e-3, num_samples=512,
+        equation="probability_flow_ode", device="cpu", verbose=False)
+
+    assert posterior.shape == (1, 512, 2)
+    assert likelihood.shape == (1, 512, 2)
+    assert unconditional.shape == (1, 512, 4)
+    assert torch.allclose(posterior.mean((0, 1)), mean[:2], atol=0.12)
+    assert torch.allclose(likelihood.mean((0, 1)), mean[2:], atol=0.12)
+    assert torch.allclose(unconditional.mean((0, 1)), mean, atol=0.12)
+    assert abs(model.sampler.timesteps_list[-1].item() - 2e-3) < 1e-6
+
+    row_masks = torch.tensor([[0., 0., 1., 1.], [1., 1., 0., 0.]])
+    batched = model.sample(
+        x=torch.zeros(2, 2), condition_mask=row_masks,
+        timesteps=30, num_samples=64, equation="probability_flow_ode",
+        device="cpu", verbose=False)
+    assert batched.shape == (2, 64, 2)
+    assert torch.allclose(batched[0].mean(0), mean[:2], atol=0.2)
+    assert torch.allclose(batched[1].mean(0), mean[2:], atol=0.2)
+
+
 def test_vpsde_end_to_end_training():
     """Train a tiny VPSDE model on the linear-Gaussian joint and check the
     sampled posterior and the PF-ODE likelihood are in the right place."""
@@ -245,5 +355,10 @@ if __name__ == "__main__":
     test_vpsde_sampler_dpm()
     test_vpsde_sampler_euler()
     test_vesde_sampler_regression()
+    test_pfode_sampler_heun_vesde()
+    test_pfode_sampler_heun_vpsde()
+    test_pfode_sampler_euler()
+    test_pfode_sampler_defaults_trajectory_and_validation()
+    test_pfode_public_sampling_paths_and_batched_masks()
     test_vpsde_end_to_end_training()
     print("All PF-ODE / VPSDE analytic tests passed.")

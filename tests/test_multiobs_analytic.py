@@ -109,6 +109,47 @@ def test_gauss_correction_estimated_precision():
         assert ((std_ratio > 0.8) & (std_ratio < 1.2)).all()
 
 
+def test_pfode_gauss_correction():
+    for n in [5, 50]:
+        mean_err, std_ratio = _sample(
+            n, "gauss", method="heun", equation="probability_flow_ode")
+        print(f"PF-ODE gauss n={n}: mean err {mean_err:.2f} sigma, "
+              f"std ratio {std_ratio.tolist()}")
+        assert mean_err < 0.25
+        assert ((std_ratio > 0.8) & (std_ratio < 1.2)).all()
+
+
+def test_pfode_gauss_estimated_precision():
+    mean_err, std_ratio = _sample(
+        5, "gauss", method="heun", equation="probability_flow_ode",
+        use_est_precision=True)
+    print(f"PF-ODE gauss(est): mean err {mean_err:.2f} sigma, "
+          f"std ratio {std_ratio.tolist()}")
+    assert mean_err < 0.25
+    assert ((std_ratio > 0.8) & (std_ratio < 1.2)).all()
+
+
+def test_pfode_uncorrected_and_fnpe_validation():
+    mean_err, std_ratio = _sample(
+        5, "uncorrected", method="heun", equation="probability_flow_ode")
+    assert mean_err < 1.0
+    assert torch.isfinite(std_ratio).all()
+
+    sbim = MockSBIm(LinearGaussianModel, 4)
+    mos = MultiObsSampler(sbim)
+    try:
+        mos.sample(
+            world_size=1, data=torch.zeros(2, 2),
+            condition_mask=torch.tensor([0., 0., 1., 1.]),
+            hierarchy=[0, 1], prior=(MU0, SIG0), correction="fnpe",
+            method="heun", equation="probability_flow_ode",
+            num_samples=2, device="cpu", verbose=False)
+    except ValueError as exc:
+        assert "not compatible" in str(exc)
+    else:
+        raise AssertionError("PF-ODE must reject correction='fnpe'")
+
+
 def test_fnpe_langevin():
     # F-NPSE (Eq. 7) with annealed Langevin: means must be right; the width is
     # limited by Langevin mixing and allowed a generous margin.
@@ -228,6 +269,9 @@ def test_hierarchical_shared_and_local():
 if __name__ == "__main__":
     test_gauss_correction_analytic_precision()
     test_gauss_correction_estimated_precision()
+    test_pfode_gauss_correction()
+    test_pfode_gauss_estimated_precision()
+    test_pfode_uncorrected_and_fnpe_validation()
     test_fnpe_langevin()
     test_multimodal_two_modes()
     test_hierarchical_shared_and_local()

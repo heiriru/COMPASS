@@ -35,6 +35,12 @@ class Sampler():
         self.SBIm = SBIm
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
+        # ScoreBasedInferenceModel creates its public PFODE engine after the
+        # samplers; lightweight test doubles may not create one at all.
+        from .PFODE import PFODE
+        self.pfode = getattr(self.SBIm, "pfode", None)
+        if self.pfode is None:
+            self.pfode = PFODE(self.SBIm)
 
         #############################################
     # ----- Main Sampling Loop -----
@@ -43,7 +49,8 @@ class Sampler():
     def sample(self, world_size, data, err=None, condition_mask=None, 
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
+               device="cpu", verbose=True, method=None, equation="reverse_sde",
+               save_trajectory=False, result_dict=None):
         """
         Sample from the model using the specified method
 
@@ -70,9 +77,26 @@ class Sampler():
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Sampling method to use (euler, dpm)
+            method: Solver method. Defaults to dpm for reverse_sde and heun for
+                    probability_flow_ode.
+            equation: Equation to solve (reverse_sde or probability_flow_ode).
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
+
+        if equation not in ("reverse_sde", "probability_flow_ode"):
+            raise ValueError(
+                "equation must be 'reverse_sde' or 'probability_flow_ode'.")
+        if method is None:
+            method = "dpm" if equation == "reverse_sde" else "heun"
+        valid_methods = {
+            "reverse_sde": ("euler", "dpm"),
+            "probability_flow_ode": ("euler", "heun"),
+        }
+        if method not in valid_methods[equation]:
+            allowed = ", ".join(valid_methods[equation])
+            raise ValueError(
+                f"Sampling method '{method}' is not valid for equation='{equation}'. "
+                f"Choose from: {allowed}.")
 
         # Set parameters
         self.world_size = world_size
@@ -82,6 +106,7 @@ class Sampler():
         self.cfg_alpha = cfg_alpha
         self.verbose = verbose
         self.method = method
+        self.equation = equation
         self.save_trajectory = save_trajectory
 
         if method == "dpm":
@@ -124,12 +149,8 @@ class Sampler():
         # resolves the small-noise end far better than a uniform time grid.
         # lambda(t) = sigma(t)/alpha(t) is the noise scale of the rescaled state
         # y = x/alpha(t); for the VESDE (alpha=1) it equals sigma(t).
-        one = torch.ones(1, device=self.device)
-        lam_max = self.sde.lambda_t(one)
-        lam_min = self.sde.lambda_t(self.eps * one)
-        lams = torch.logspace(torch.log10(lam_max).item(), torch.log10(lam_min).item(),
-                              self.timesteps, device=self.device)
-        self.timesteps_list = self.sde.time_of_lambda(lams)
+        _, self.timesteps_list = self.pfode.lambda_grid(
+            self.timesteps, self.eps, self.device, descending=True)
 
         # Set up Attention Interpretation
         self.return_attn_weights = True
@@ -147,19 +168,31 @@ class Sampler():
             data_batch = self._initial_sample(data_batch, condition_mask_batch)
             
             # Get samples for this batch
-            if self.method == "euler":
+            if self.equation == "reverse_sde" and self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch)
-            elif self.method == "dpm":
+            elif self.equation == "reverse_sde" and self.method == "dpm":
                 samples = self._dpm_sampler(data_batch, condition_mask_batch,
                                             order=self.order, snr=self.snr, corrector_steps_interval=self.corrector_steps_interval,
                                             corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps)
-            else:
-                raise ValueError(f"Sampling method {self.method} not recognized.")
+            elif self.equation == "probability_flow_ode":
+                def score_fn(state, time):
+                    return self._get_score(
+                        state, time.reshape(-1, 1), condition_mask_batch, self.cfg_alpha)
 
-            # Solvers run in the rescaled y-space; convert back to x = alpha * y
-            # on the latent dims (alpha = 1 for VESDE).
-            alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(samples.device)
-            samples = samples * (alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
+                samples, trajectory = self.pfode.sample(
+                    data_batch, condition_mask_batch, score_fn,
+                    timesteps=self.timesteps, eps=self.eps, method=self.method,
+                    verbose=self.verbose, save_trajectory=self.save_trajectory)
+                if self.save_trajectory:
+                    self.data_t = trajectory
+            else:
+                raise RuntimeError("Unreachable sampling configuration.")
+
+            if self.equation == "reverse_sde":
+                # Reverse-SDE solvers run in rescaled y-space.
+                alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(samples.device)
+                samples = samples * (
+                    alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
 
             # Store samples
             all_samples.append(samples)
