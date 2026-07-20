@@ -208,7 +208,7 @@ class ModelTransfuser():
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
                device="cuda", verbose=False, method=None, equation="reverse_sde",
                likelihood_method="pfode", map_method="score", criterion="aic",
-               log_prob_timesteps=100):
+               log_prob_timesteps=100, log_prob_divergence="exact"):
         """
         Compare the models on the provided observations.
         The results are saved in the self.stats dictionary and the provided path.
@@ -259,6 +259,8 @@ class ModelTransfuser():
                                 "aic"   - (default) corrected Akaike IC (AICc)
                                 "bic"   - Bayesian (Schwarz) IC: k*ln(n) - 2*logL
             log_prob_timesteps: Integration nodes of the PF-ODE likelihood solver.
+            log_prob_divergence: Divergence evaluator for PF-ODE likelihoods:
+                                "exact" (default), "hutchinson", or "learned".
         """
 
         if not self.trained_models:
@@ -302,7 +304,12 @@ class ModelTransfuser():
             posterior_samples = posterior_samples.cpu().numpy()
 
             # Inference Attention weights
-            self.stats[model_name]["attn_weights"] = model.sampler.all_attn_weights
+            active_sampler = (
+                model.multi_obs_sampler if multi_obs_inference else model.sampler
+            )
+            self.stats[model_name]["attn_weights"] = getattr(
+                active_sampler, "all_attn_weights", None,
+            )
 
             ####################
             # MAP estimation
@@ -358,6 +365,7 @@ class ModelTransfuser():
                 joint_eval[:, ~c_bool] = MAP_posterior
                 log_probs = model.log_prob(joint_eval, condition_mask=(1 - condition_mask),
                                            timesteps=log_prob_timesteps, eps=eps,
+                                           divergence=log_prob_divergence,
                                            device=device, verbose=verbose).float()
             elif likelihood_method == "kde":
                 # Legacy: sample from the likelihood at the MAP and evaluate a KDE

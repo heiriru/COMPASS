@@ -85,6 +85,7 @@ class MultiObsSampler():
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
                device="cpu", verbose=True, method=None, equation="reverse_sde",
+               inference_time_grid="log_sigma",
                save_trajectory=False, result_dict=None):
         """
         Sample from the multi-observation posterior via compositional score modeling.
@@ -106,11 +107,11 @@ class MultiObsSampler():
                     (mean, std) of tensors/lists/floats of length len(hierarchy).
                     Defaults to a standard normal N(0, 1) (correct if the model was
                     trained on parameters standardized to zero mean and unit variance).
-            correction: Composition rule: "gauss" (default), "uncorrected" or "fnpe".
-            posterior_precision: Optional estimate of the single-observation posterior
-                    precision on the hierarchy dimensions, used by the "gauss" correction.
-                    Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
-                    If None, it is estimated by sampling the single-observation
+            correction: Composition rule: "gauss" (diagonal Gaussian), "gauss_full"
+            posterior_precision: Single-observation posterior precision for a Gaussian
+                    correction. For "gauss", shape is (H,) or (N, H); for
+                    "gauss_full", shape is (H, H) or (N, H, H). If omitted, it is
+                    estimated from single-observation posterior samples.
                     posteriors once with the standard sampler.
             precision_est_samples: Number of samples per observation for the automatic
                     precision estimation.
@@ -134,6 +135,10 @@ class MultiObsSampler():
             method: Solver method. Defaults to dpm for reverse_sde and heun for
                     probability_flow_ode.
             equation: Equation to solve (reverse_sde or probability_flow_ode).
+            inference_time_grid: Integration-node placement for reverse-SDE
+                    sampling. ``"log_sigma"`` (default) spaces nodes uniformly
+                    in log noise scale; ``"uniform_t"`` spaces them uniformly in
+                    diffusion time. Both use the same start/end noise levels.
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -151,8 +156,12 @@ class MultiObsSampler():
             raise ValueError(
                 f"Sampling method '{method}' is not valid for equation='{equation}'. "
                 f"Choose from: {allowed}.")
+        if inference_time_grid not in ("log_sigma", "uniform_t"):
+            raise ValueError(
+                "inference_time_grid must be 'log_sigma' or 'uniform_t'.")
 
         # Set parameters
+        self.inference_time_grid = inference_time_grid
         self.world_size = world_size
         self.timesteps = timesteps
         self.eps = eps
@@ -173,8 +182,10 @@ class MultiObsSampler():
             self.snr = snr
             self.order = order
 
-        if correction not in ("gauss", "uncorrected", "fnpe"):
-            raise ValueError(f"Unknown correction '{correction}'. Choose from 'gauss', 'uncorrected', 'fnpe'.")
+        if correction not in ("gauss", "gauss_full", "uncorrected", "fnpe"):
+            raise ValueError(
+                "Unknown correction. Choose from 'gauss', 'gauss_full', "
+                "'uncorrected', or 'fnpe'.")
         if correction == "fnpe" and equation == "probability_flow_ode":
             raise ValueError(
                 "correction='fnpe' is not compatible with probability_flow_ode: "
@@ -194,18 +205,34 @@ class MultiObsSampler():
         # Resolve the Gaussian prior over the hierarchy dimensions
         self.prior_mean, self.prior_std = self._resolve_prior(prior)
 
-        # Posterior precision estimates for the Gaussian correction
-        if correction == "gauss":
+        # Posterior precision estimates for the Gaussian composition rules.
+        if correction in ("gauss", "gauss_full"):
             if posterior_precision is None:
                 if verbose:
-                    print("Estimating single-observation posterior precisions for the 'gauss' correction ...")
-                posterior_precision = self._estimate_posterior_precision(
+                    print(
+                        "Estimating single-observation posterior precisions for "
+                        f"the '{correction}' correction ..."
+                    )
+                estimate = (
+                    self._estimate_posterior_precision
+                    if correction == "gauss"
+                    else self._estimate_posterior_precision_matrix
+                )
+                posterior_precision = estimate(
                     data, condition_mask,
                     num_samples=precision_est_samples,
                     timesteps=precision_est_timesteps or timesteps,
                     eps=eps, device=device if world_size <= 1 else "cuda:0",
-                    method=method, equation=equation)
-            self.posterior_precision = self._validate_precision(torch.as_tensor(posterior_precision, dtype=torch.float32))
+                    method=method, equation=equation,
+                )
+            validate = (
+                self._validate_precision
+                if correction == "gauss"
+                else self._validate_precision_matrix
+            )
+            self.posterior_precision = validate(
+                torch.as_tensor(posterior_precision, dtype=torch.float32)
+            )
         else:
             self.posterior_precision = None
 
@@ -268,9 +295,25 @@ class MultiObsSampler():
                     Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
                 sigma_stop = (1.0 / Lambda_star).sqrt().min()
                 sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
-            sigmas = torch.logspace(torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
-                                    self.timesteps, device=self.device)
-            self.timesteps_list = self.sde.time_of_sigma(sigmas)
+            elif self.correction == "gauss_full":
+                Lambda_star = self._full_composed_precision()
+                max_precision = torch.linalg.eigvalsh(Lambda_star).max()
+                sigma_stop = torch.rsqrt(max_precision)
+                sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
+            if self.inference_time_grid == "log_sigma":
+                sigmas = torch.logspace(
+                    torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
+                    self.timesteps, device=self.device,
+                )
+                self.timesteps_list = self.sde.time_of_sigma(sigmas)
+            else:
+                # Keep the endpoints equal to the log-sigma grid.  In particular,
+                # Gaussian composition may stop above eps once the composed
+                # posterior is narrower than the score model can resolve.
+                t_min = self.sde.time_of_sigma(sigma_min).reshape(-1)[0]
+                self.timesteps_list = torch.linspace(
+                    1.0, t_min.item(), self.timesteps, device=self.device,
+                )
 
         # Loop over data samples
         all_samples = []
@@ -282,34 +325,40 @@ class MultiObsSampler():
             # Draw samples from initial noise distribution
             data_batch = self._initial_sample(data_batch, condition_mask_batch)
 
-            # Get samples for this batch
             if self.equation == "reverse_sde" and self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch, idx)
             elif self.equation == "reverse_sde" and self.method == "dpm":
-                samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
-                                            order=self.order, snr=self.snr, corrector_steps_interval=self.corrector_steps_interval,
-                                            corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps)
+                samples = self._dpm_sampler(
+                    data_batch, condition_mask_batch, idx,
+                    order=self.order, snr=self.snr,
+                    corrector_steps_interval=self.corrector_steps_interval,
+                    corrector_steps=self.corrector_steps,
+                    final_corrector_steps=self.final_corrector_steps,
+                )
             elif self.equation == "reverse_sde" and self.method == "langevin":
-                samples = self._langevin_sampler(data_batch, condition_mask_batch, idx,
-                                                 snr=self.snr, steps_per_level=self.corrector_steps)
+                samples = self._langevin_sampler(
+                    data_batch, condition_mask_batch, idx,
+                    snr=self.snr, steps_per_level=self.corrector_steps,
+                )
             elif self.equation == "probability_flow_ode":
                 def score_fn(state, time):
                     return self._get_score(
-                        state, time.reshape(-1, 1), condition_mask_batch, idx, self.cfg_alpha)
+                        state, time.reshape(-1, 1), condition_mask_batch, idx, self.cfg_alpha
+                    )
 
                 samples, trajectory = self.pfode.sample(
                     data_batch, condition_mask_batch, score_fn,
                     timesteps=self.timesteps, eps=self.eps, method=self.method,
-                    verbose=self.verbose, save_trajectory=self.save_trajectory)
+                    verbose=self.verbose, save_trajectory=self.save_trajectory,
+                )
                 if self.save_trajectory:
                     self.data_t = trajectory
             else:
                 raise RuntimeError("Unreachable sampling configuration.")
 
-            # Final analytic denoising step (gauss correction only)
-            if self.correction == "gauss":
+            # Final analytic denoising for both Gaussian composition rules.
+            if self.correction in ("gauss", "gauss_full"):
                 samples = self._final_denoise(samples, condition_mask_batch, idx)
-
             # Store samples
             all_samples.append(samples)
             indices.append(idx)
@@ -368,21 +417,69 @@ class MultiObsSampler():
         return precision.cpu()
 
     def _validate_precision(self, precision):
-        """
-        Bring the precision estimates to shape (num_hierarchy,) or (n_obs, num_hierarchy) and
-        make sure the composed precision (1-n)*Lambda_prior + sum_j Lambda_j stays positive
-        (Gloeckler et al. 2024). Where it does not, the deficit is distributed over the
-        individual precisions.
-        """
+        """Validate diagonal precisions and keep the composed precision positive."""
         precision = torch.atleast_2d(precision.float())  # (n_obs or 1, H)
         n = precision.shape[0]
         if n > 1:
             prior_precision = 1.0 / self.prior_std**2
             composed = (1 - n) * prior_precision + precision.sum(dim=0)
             deficit = torch.clamp(-composed, min=0.0)
-            nudge = deficit / (n - 1) + torch.where(deficit > 0, torch.full_like(deficit, 0.1), torch.zeros_like(deficit))
+            nudge = deficit / (n - 1) + torch.where(
+                deficit > 0, torch.full_like(deficit, 0.1), torch.zeros_like(deficit)
+            )
             precision = precision + nudge
         return precision
+
+    def _estimate_posterior_precision_matrix(
+        self, data, condition_mask, num_samples, timesteps, eps, device, method, equation,
+    ):
+        """Moment-match each single-observation posterior with a full Gaussian."""
+        samples = self.SBIm.sampler.sample(
+            world_size=1, data=data, condition_mask=condition_mask,
+            timesteps=timesteps, eps=eps, num_samples=num_samples,
+            device=device, verbose=self.verbose, method=method, equation=equation,
+        )
+        values = samples[:, :, self.hierarchy]
+        centered = values - values.mean(dim=1, keepdim=True)
+        denominator = max(values.shape[1] - 1, 1)
+        covariance = torch.einsum("nsi,nsj->nij", centered, centered) / denominator
+        dimension = covariance.shape[-1]
+        identity = torch.eye(dimension, dtype=covariance.dtype, device=covariance.device)
+        scale = covariance.diagonal(dim1=-2, dim2=-1).mean(dim=-1).clamp_min(1e-8)
+        covariance = covariance + (1e-6 * scale).reshape(-1, 1, 1) * identity
+        return torch.linalg.inv(covariance).cpu()
+
+    def _validate_precision_matrix(self, precision):
+        """Validate SPD full precisions and keep their composed precision SPD."""
+        if precision.ndim == 2:
+            precision = precision.unsqueeze(0)
+        h = len(self.hierarchy)
+        if precision.ndim != 3 or precision.shape[-2:] != (h, h):
+            raise ValueError(
+                "Full Gaussian posterior_precision must have shape (H, H) or (N, H, H)."
+            )
+        precision = 0.5 * (precision.float() + precision.float().transpose(-1, -2))
+        identity = torch.eye(h, dtype=precision.dtype, device=precision.device)
+        minimum = torch.linalg.eigvalsh(precision).amin(dim=-1)
+        precision = precision + torch.clamp(1e-6 - minimum, min=0.0).reshape(-1, 1, 1) * identity
+        n = precision.shape[0]
+        if n > 1:
+            composed = self._full_composed_precision(precision)
+            minimum = torch.linalg.eigvalsh(composed).min()
+            if minimum <= 0:
+                precision = precision + ((-minimum + 1e-6) / (n - 1) + 0.1) * identity
+        return precision
+
+    def _full_composed_precision(self, precision=None):
+        """Return (1-N) Lambda_prior + sum_j Lambda_j for full Gaussian fusion."""
+        precision = self.posterior_precision if precision is None else precision
+        n = precision.shape[0] if precision.shape[0] > 1 else self.num_observations
+        prior_precision = torch.diag(1.0 / self.prior_std**2)
+        if precision.shape[0] == 1:
+            composed = (1 - n) * prior_precision + n * precision[0]
+        else:
+            composed = (1 - n) * prior_precision + precision.sum(dim=0)
+        return 0.5 * (composed + composed.transpose(-1, -2))
 
     #############################################
     # ----- Multi-GPU setup -----
@@ -548,6 +645,27 @@ class MultiObsSampler():
             Lambda = (1 - n) * Lambda_prior + Lambda_sum                          # (1, H)
             composed = ((1 - n) * Lambda_prior * prior_score + weighted_sum) / Lambda
 
+        elif self.correction == "gauss_full":
+            # The same Gaussian composition rule as "gauss", but retain the
+            # complete H x H precision matrices instead of their diagonal.
+            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
+            h_size = len(h)
+            identity = torch.eye(h_size, dtype=scores.dtype, device=x.device)
+            inverse_variance = 1.0 / var_t.reshape(())
+            Lambda_prior = torch.diag(1.0 / self.prior_std**2) + inverse_variance * identity
+            Lambda_j = self.posterior_precision + inverse_variance * identity
+            if Lambda_j.shape[0] == 1:
+                Lambda_sum = n * Lambda_j[0]
+                weighted_sum = torch.einsum("ij,bsj->bsi", Lambda_j[0], sum_scores)
+            else:
+                Lambda_sum = Lambda_j.sum(dim=0)
+                weighted_sum = torch.einsum("nij,nsj->si", Lambda_j, scores[:, :, h]).unsqueeze(0)
+            Lambda = (1 - n) * Lambda_prior + Lambda_sum
+            prior_weighted = torch.einsum("ij,bsj->bsi", Lambda_prior, prior_score)
+            numerator = (1 - n) * prior_weighted + weighted_sum
+            composed = torch.linalg.solve(Lambda, numerator.squeeze(0).transpose(0, 1))
+            composed = composed.transpose(0, 1).unsqueeze(0)
+
         # Clamp the denoised prediction of the composed score as well. Not valid for
         # "fnpe": its bridging-density score does not have the diffused-posterior
         # form theta + var_t * s = E[theta_0|theta_t] that the clamp assumes.
@@ -561,37 +679,33 @@ class MultiObsSampler():
         return scores
 
     def _final_denoise(self, x, condition_mask, idx):
-        """
-        Analytic denoising (Tweedie) step from the final diffusion time t_end to t=0
-        on the shared (hierarchy) dimensions.
-
-        The reverse diffusion stops at sigma_m(eps), so the samples follow the
-        posterior *convolved* with N(0, sigma_m(eps)^2) -- a visible overdispersion
-        once the composed posterior gets narrower than sigma_m(eps) (it contracts
-        like 1/sqrt(n)). Under the Gaussian (posterior-precision) approximation
-        already used by the "gauss" correction, p(theta_0 | theta_t_end) is Gaussian
-        with mean theta + sigma^2 * score(theta) and precision Lambda* + 1/sigma^2,
-        where Lambda* = (1-n) Lambda_prior + sum_j Lambda_j is the composed posterior
-        precision at t=0. Drawing from it removes the leftover noise exactly.
-        """
+        """Sample the final Gaussian conditional after stopping reverse diffusion."""
         h = self.hierarchy
         t_end = self.timesteps_list[-1].reshape(-1, 1)
         var_end = self.sde.marginal_prob_std(t_end).to(x.device)**2
-
         score = self._get_score(x, t_end, condition_mask, idx, self.cfg_alpha)
-
-        n = self.num_observations
-        Lambda_prior = 1.0 / self.prior_std**2
-        if self.posterior_precision.shape[0] == 1:
-            Lambda_star = (1 - n) * Lambda_prior + n * self.posterior_precision[0]
-        else:
-            Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
-        var_denoise = 1.0 / (Lambda_star + 1.0 / var_end)                     # (1, H)
-
         noise = self._shared_noise(x)
         x = x.clone()
-        x[:, :, h] = x[:, :, h] + var_end * score[:, :, h] \
-                     + torch.sqrt(var_denoise) * noise[:, :, h]
+
+        if self.correction == "gauss":
+            n = self.num_observations
+            Lambda_prior = 1.0 / self.prior_std**2
+            if self.posterior_precision.shape[0] == 1:
+                Lambda_star = (1 - n) * Lambda_prior + n * self.posterior_precision[0]
+            else:
+                Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
+            var_denoise = 1.0 / (Lambda_star + 1.0 / var_end)
+            noise_h = torch.sqrt(var_denoise) * noise[:, :, h]
+        else:
+            h_size = len(h)
+            identity = torch.eye(h_size, dtype=x.dtype, device=x.device)
+            Lambda_star = self._full_composed_precision()
+            covariance = torch.linalg.inv(Lambda_star + identity / var_end.reshape(()))
+            covariance = 0.5 * (covariance + covariance.transpose(-1, -2))
+            factor = torch.linalg.cholesky(covariance)
+            noise_h = noise[:, :, h] @ factor.transpose(-1, -2)
+
+        x[:, :, h] = x[:, :, h] + var_end * score[:, :, h] + noise_h
         return x
 
     def _shared_noise(self, x):

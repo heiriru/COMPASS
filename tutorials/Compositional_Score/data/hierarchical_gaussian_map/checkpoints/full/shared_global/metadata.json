@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "model_name": "Shared Global",
+  "nodes_size": 4,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3.0,
+    "hidden_size": 32,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "training": {
+    "seed": 7,
+    "train_n": 100000,
+    "val_n": 5000,
+    "batch_size": 256,
+    "max_epochs": 500,
+    "lr": 0.001,
+    "patience": 25,
+    "time_sampling": "mixture"
+  },
+  "joint_mean": [
+    -0.0036773132160305977,
+    0.002437393181025982,
+    -0.0016019052127376199,
+    -0.0061676823534071445
+  ],
+  "joint_std": [
+    1.5017915964126587,
+    0.9959185719490051,
+    1.8080917596817017,
+    1.8089724779129028
+  ]
+}

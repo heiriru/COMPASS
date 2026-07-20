@@ -1,0 +1,47 @@
+{
+  "families": [
+    "original",
+    "vertical",
+    "horizontal"
+  ],
+  "simulators": {
+    "original": "x=(t,t^2)+eps",
+    "vertical": "x=(t,t^2+b)+eps",
+    "horizontal": "x=(t+b,t^2)+eps"
+  },
+  "t_prior": {
+    "distribution": "uniform",
+    "low": -2.0,
+    "high": 2.0
+  },
+  "b_prior": {
+    "distribution": "normal",
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "epsilon_std": 0.1,
+  "test_offset": 1.0,
+  "offset_in_epsilon_std": 10.0,
+  "n_observations": [
+    5,
+    10,
+    25,
+    50
+  ],
+  "repeats": 1,
+  "quick_smoke_configuration": true,
+  "quadrature_points": 401,
+  "selection_criteria": [
+    "aicc",
+    "bic",
+    "exact_evidence"
+  ],
+  "network": {
+    "sde_type": "vesde",
+    "sigma": 3.0,
+    "hidden_size": 40,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  }
+}

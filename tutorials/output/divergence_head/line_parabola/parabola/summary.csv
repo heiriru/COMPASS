@@ -1,0 +1,7 @@
+category,primary_metric,secondary_metric,secondary_value,status,value
+head fidelity,head_vs_exact_correlation,head_vs_exact_nrmse,0.07605952957961547,PASS,0.9945134832311034
+underlying score quality,stage2_analytic_score_rmse,stage2_over_stage1_rmse,0.9666542389610961,PASS,1.2863397028551904
+overall likelihood accuracy,learned_vs_exact_mae_per_dim,learned_vs_analytic_mae,0.6902820752939065,WARN,0.11171766463667154
+fine-tuning degradation,score_error_ratio,exact_likelihood_error_ratio,1.0300435121461324,PASS,0.9666542389610961
+speedup,median_exact_over_learned,runtime_masks,2,PASS,2.760508942404467
+model trace vs analytic drift,no_head_exact_vs_analytic_nrmse,trained_exact_vs_analytic_nrmse,0.19681678469469774,PASS,0.1968196045745724

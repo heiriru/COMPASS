@@ -1,0 +1,124 @@
+{
+  "autocvd_selection": [
+    9
+  ],
+  "config": {
+    "batch_size": 256,
+    "density_grid_size": 45,
+    "density_timesteps": 100,
+    "depth": 3,
+    "divergence_loss_weight": 1.0,
+    "divergence_target": "exact",
+    "divergence_warmup_epochs": 5,
+    "drift_samples": 256,
+    "drift_time_levels": 24,
+    "early_stopping_patience": 10,
+    "eps": 0.001,
+    "experiment_version": 1,
+    "hidden_size": 64,
+    "hutchinson_samples": 1,
+    "learning_rate": 0.001,
+    "log_prob_batch_size": 512,
+    "log_prob_samples": 512,
+    "log_prob_timesteps": 100,
+    "mlp_ratio": 2,
+    "n_test": 2000,
+    "n_train": 30000,
+    "n_validation": 4000,
+    "num_heads": 4,
+    "runtime_batch_size": 256,
+    "runtime_repetitions": 5,
+    "runtime_samples": 256,
+    "runtime_timesteps": 50,
+    "runtime_warmups": 1,
+    "sde_type": "vesde",
+    "seed": 1729,
+    "sigma": 25.0,
+    "stage1_max_epochs": 80,
+    "stage2_max_epochs": 40,
+    "time_sampling": "mixture"
+  },
+  "cpu": {
+    "active": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fraction": 0.05555555555555555,
+    "logical": 72,
+    "thread_environment": {
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4",
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4"
+    }
+  },
+  "device": "cuda",
+  "summary_details": {
+    "exact_vs_analytic": {
+      "bias": 0.1673839070061914,
+      "correlation": 0.9381361460241487,
+      "mae": 0.3083734211587922,
+      "nrmse": 0.2322467463029873,
+      "rmse": 0.40143904914475953
+    },
+    "head_vs_analytic": {
+      "bias": 0.1623073235822486,
+      "correlation": 0.9303609409027194,
+      "mae": 0.3212876658813637,
+      "nrmse": 0.24061423879520538,
+      "rmse": 0.4159022796669205
+    },
+    "head_vs_exact": {
+      "bias": -0.005076583423942793,
+      "correlation": 0.9856266083189607,
+      "mae": 0.08079369015952882,
+      "nrmse": 0.07837605250359454,
+      "rmse": 0.1148417056424638
+    },
+    "stage1_exact_vs_analytic_log_prob": {
+      "bias": -0.5850998100305743,
+      "correlation": 0.6228974063388024,
+      "mae": 0.823080620397636,
+      "nrmse": 0.8461691342240214,
+      "rmse": 1.0622380959074793
+    },
+    "stage1_score": {
+      "bias": 0.03811884280157171,
+      "correlation": 0.9140884290238214,
+      "mae": 0.4636849973769765,
+      "nrmse": 0.5236343889856252,
+      "rmse": 1.0323494774896467
+    },
+    "stage2_exact_vs_analytic_log_prob": {
+      "bias": -0.577868688147778,
+      "correlation": 0.6277695475261802,
+      "mae": 0.8156413245250775,
+      "nrmse": 0.8309464768063353,
+      "rmse": 1.0431283387962802
+    },
+    "stage2_learned_vs_analytic_log_prob": {
+      "bias": -0.6113618567998357,
+      "correlation": 0.5533906598688644,
+      "mae": 0.9086133722756373,
+      "nrmse": 0.9310521981140192,
+      "rmse": 1.1687960173849519
+    },
+    "stage2_learned_vs_exact_log_prob": {
+      "bias": -0.03349316865205765,
+      "correlation": 0.9617131753826913,
+      "mae": 0.2398779671639204,
+      "nrmse": 0.187832390357105,
+      "rmse": 0.2996783193706828
+    },
+    "stage2_score": {
+      "bias": -0.01744828955150131,
+      "correlation": 0.9122272943934752,
+      "mae": 0.4676200744927163,
+      "nrmse": 0.5200652568314196,
+      "rmse": 1.025312904277518
+    }
+  },
+  "training_fingerprint": "070f367e7b917403b1fa294c03ae337aed48ff2834d5990083ec7d9be821ba73"
+}

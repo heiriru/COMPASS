@@ -1,5 +1,3 @@
-# Fast sampling performance outputs
+# Fast sampling performance
 
-`raw_results.csv` contains one row per training scheme, sampler variant, model seed, observation, step budget, and sampling seed. `summary.csv` reports the median symmetrised Gaussian KL and 10--90% bands across those rows.
-
-The legacy time-space DPM and drift-only Euler settings are tutorial-only reference implementations. They permit one-change-at-a-time comparisons against the current sigma-space DPM and Euler--Maruyama implementations.
+Gaussian outputs are stored in gaussian/. Banana-posterior outputs are stored in banana/. Run tutorials/fast_sampling_performance.py to regenerate both suites. Files directly in this directory predate the split and are not read by the current benchmark.

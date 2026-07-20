@@ -1,0 +1,161 @@
+{
+  "problem": "line_parabola",
+  "models": [
+    {
+      "family": "line",
+      "output": "/export/home/rheinric/COMPASS/tutorials/output/divergence_head/line_parabola/line",
+      "warnings": [],
+      "summary": {
+        "head_vs_exact": {
+          "mae": 0.05816572492390319,
+          "rmse": 0.08706663284543611,
+          "nrmse": 0.024301080705461216,
+          "bias": -0.011204915716209345,
+          "correlation": 0.9993129334226403
+        },
+        "no_head_exact_vs_analytic": {
+          "mae": 0.5662421102315633,
+          "rmse": 0.8460119378607042,
+          "nrmse": 0.20165455007987648,
+          "bias": 0.4456631029051305,
+          "correlation": 0.9721206254445542
+        },
+        "trained_exact_vs_analytic": {
+          "mae": 0.5415474428147646,
+          "rmse": 0.8034380840387695,
+          "nrmse": 0.19150668933060863,
+          "bias": 0.4494242147327667,
+          "correlation": 0.9783800985541988
+        },
+        "head_vs_analytic": {
+          "mae": 0.5315556983820685,
+          "rmse": 0.784409881145362,
+          "nrmse": 0.1869711461289352,
+          "bias": 0.4382192990165574,
+          "correlation": 0.9792688934082678
+        },
+        "stage1_score": {
+          "mae": 0.6356079663658557,
+          "rmse": 1.1918823773072336,
+          "nrmse": 0.2457134191747049,
+          "bias": 0.045135654525368066,
+          "correlation": 0.9694380245501203
+        },
+        "stage2_score": {
+          "mae": 0.5750900092091721,
+          "rmse": 1.054477317731451,
+          "nrmse": 0.21738657447670112,
+          "bias": 0.02191289975750886,
+          "correlation": 0.9767785602847959
+        },
+        "stage1_exact_vs_analytic_log_prob": {
+          "mae": 0.6639371387130698,
+          "rmse": 0.8195491769680326,
+          "nrmse": 0.5573614296453798,
+          "bias": -0.5768404761884363,
+          "correlation": 0.7124184520857212
+        },
+        "stage2_exact_vs_analytic_log_prob": {
+          "mae": 0.6391210519791751,
+          "rmse": 0.768020610632659,
+          "nrmse": 0.5223177297584347,
+          "bias": -0.5402825012737266,
+          "correlation": 0.7311234604748125
+        },
+        "stage2_learned_vs_analytic_log_prob": {
+          "mae": 0.6574290067884544,
+          "rmse": 0.7962109195795752,
+          "nrmse": 0.5414894784934237,
+          "bias": -0.5621990925256164,
+          "correlation": 0.7162115322891989
+        },
+        "stage2_learned_vs_exact_log_prob": {
+          "mae": 0.0811468381434679,
+          "rmse": 0.11353240033204445,
+          "nrmse": 0.11461177654181844,
+          "bias": -0.021916591251889866,
+          "correlation": 0.9875424880509537
+        }
+      }
+    },
+    {
+      "family": "parabola",
+      "output": "/export/home/rheinric/COMPASS/tutorials/output/divergence_head/line_parabola/parabola",
+      "warnings": [
+        "learned-versus-exact log-probability MAE exceeds 0.10 per latent dimension"
+      ],
+      "summary": {
+        "head_vs_exact": {
+          "mae": 0.24330767873605644,
+          "rmse": 0.4069877813620162,
+          "nrmse": 0.07605952957961547,
+          "bias": -0.012154917905314101,
+          "correlation": 0.9945134832311034
+        },
+        "no_head_exact_vs_analytic": {
+          "mae": 0.7296157071211842,
+          "rmse": 1.2260777949390724,
+          "nrmse": 0.1968196045745724,
+          "bias": 0.6985470541421713,
+          "correlation": 0.9812999384281161
+        },
+        "trained_exact_vs_analytic": {
+          "mae": 0.7245180663109144,
+          "rmse": 1.2260602286396878,
+          "nrmse": 0.19681678469469774,
+          "bias": 0.684306123882133,
+          "correlation": 0.9791423270799182
+        },
+        "head_vs_analytic": {
+          "mae": 0.728631577271669,
+          "rmse": 1.1905529954607645,
+          "nrmse": 0.19111688569753818,
+          "bias": 0.6721512059768189,
+          "correlation": 0.9822403263750802
+        },
+        "stage1_score": {
+          "mae": 0.6313189934613411,
+          "rmse": 1.330713352312688,
+          "nrmse": 0.23451907732100782,
+          "bias": 0.08361968131472741,
+          "correlation": 0.9741750793181719
+        },
+        "stage2_score": {
+          "mae": 0.6155224883303901,
+          "rmse": 1.2863397028551904,
+          "nrmse": 0.22669886020959729,
+          "bias": 0.09359207541421627,
+          "correlation": 0.9759190807332133
+        },
+        "stage1_exact_vs_analytic_log_prob": {
+          "mae": 0.6911761356706534,
+          "rmse": 0.8542712411960833,
+          "nrmse": 0.4234207680563692,
+          "bias": -0.647771104598721,
+          "correlation": 0.7148916269121348
+        },
+        "stage2_exact_vs_analytic_log_prob": {
+          "mae": 0.7119414942977915,
+          "rmse": 0.8861924500745384,
+          "nrmse": 0.43924256109914916,
+          "bias": -0.663596444502155,
+          "correlation": 0.6942867997979694
+        },
+        "stage2_learned_vs_analytic_log_prob": {
+          "mae": 0.6902820752939065,
+          "rmse": 0.8951518269487039,
+          "nrmse": 0.44368328911903915,
+          "bias": -0.6370996386306287,
+          "correlation": 0.6763481401221426
+        },
+        "stage2_learned_vs_exact_log_prob": {
+          "mae": 0.2234353292733431,
+          "rmse": 0.3065510174768659,
+          "nrmse": 0.2151612908316902,
+          "bias": 0.0264968058715264,
+          "correlation": 0.9258368539816316
+        }
+      }
+    }
+  ]
+}

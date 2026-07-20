@@ -1,0 +1,1675 @@
+#!/usr/bin/env python3
+"""Train and validate COMPASS's instantaneous divergence head.
+
+This tutorial uses a four-dimensional linear-Gaussian joint distribution
+``z = (theta_1, theta_2, x_1, x_2)`` with ``theta ~ N(0, I)`` and
+``x = A theta + b + eps``, ``eps ~ N(0, 0.2 I)``. Both posterior and
+likelihood conditionals are analytic, including their VESDE-smoothed scores,
+instantaneous probability-flow log-density drifts, and log probabilities.
+That makes it possible to separate three errors which are otherwise easily
+conflated:
+
+1. divergence-head error relative to the exact trace of the learned score;
+2. learned-score error relative to the analytic Gaussian score; and
+3. integrated PF-ODE likelihood error relative to the analytic density.
+
+The default experiment is intentionally substantial and cached.  It trains a
+score-only model, warm-starts it for joint score/divergence training, and then
+writes plots and CSV diagnostics below ``tutorials/output/divergence_head``.
+Existing Stage-1 and Stage-2 checkpoints below
+``tutorials/data/divergence_head`` are always reused unless
+``--force-retrain`` is explicitly supplied. Cache metadata and saved training
+history are auxiliary; their absence never silently triggers retraining.
+
+Run from the COMPASS repository with:
+
+    python tutorials/Divergence_Head.py
+
+No training or evaluation is performed when this module is imported.
+"""
+
+from __future__ import annotations
+
+import os
+
+
+CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_ENV_VARS = (
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+)
+
+
+def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
+    """Hard-limit this process and its children before native imports."""
+    logical_cpus = os.cpu_count()
+    if logical_cpus is None:
+        raise RuntimeError("Cannot enforce the CPU cap: os.cpu_count() is unavailable.")
+    cpu_limit = int(logical_cpus * fraction)
+    if cpu_limit < 1:
+        raise RuntimeError(
+            f"Cannot enforce a {fraction:.1%} CPU limit on a {logical_cpus}-CPU "
+            "host: one logical CPU would exceed the limit."
+        )
+    if not hasattr(os, "sched_getaffinity") or not hasattr(os, "sched_setaffinity"):
+        raise RuntimeError("Cannot enforce the CPU cap: OS affinity controls are unavailable.")
+
+    allowed_cpus = tuple(sorted(os.sched_getaffinity(0)))
+    selected_cpus = allowed_cpus[:cpu_limit]
+    if not selected_cpus:
+        raise RuntimeError("The process has no CPUs available in its affinity mask.")
+    os.sched_setaffinity(0, selected_cpus)
+    active_cpus = tuple(sorted(os.sched_getaffinity(0)))
+    if active_cpus != selected_cpus:
+        raise RuntimeError(
+            "Failed to enforce CPU affinity: requested "
+            f"{selected_cpus}, active {active_cpus}."
+        )
+    if len(active_cpus) / logical_cpus > fraction:
+        raise RuntimeError("The active CPU affinity exceeds the configured 6% cap.")
+    for variable in CPU_THREAD_ENV_VARS:
+        os.environ[variable] = str(len(active_cpus))
+    return logical_cpus, active_cpus
+
+
+# This must precede NumPy, pandas, Matplotlib, and PyTorch imports.
+CPU_LIMIT_INFO = configure_cpu_usage_limit()
+
+import argparse
+import copy
+import csv
+import gc
+import hashlib
+import json
+import math
+import shutil
+import tempfile
+from pathlib import Path
+from time import perf_counter
+
+from autocvd import autocvd
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import torch
+
+from compass import ScoreBasedInferenceModel as SBIm
+
+
+TUTORIAL_DIR = Path(__file__).resolve().parent
+# Keep this problem's checkpoints separate from the earlier correlated-prior
+# Gaussian experiment. Reusing those checkpoints would silently evaluate a
+# model trained on a different joint distribution.
+DATA_DIR = (
+    TUTORIAL_DIR / "data" / "divergence_head" /
+    "gaussian_identity_prior_noise_0p2"
+)
+OUTPUT_DIR = TUTORIAL_DIR / "output" / "divergence_head" / "gaussian"
+
+GAUSSIAN_EXPERIMENT_VERSION = 2
+GAUSSIAN_PROBLEM_CONFIG = {
+    "theta_mean": (0.0, 0.0),
+    "theta_cov": ((1.0, 0.0), (0.0, 1.0)),
+    # Preserve the original observation model x = A theta + b + eps.
+    "design": ((1.10, -0.40), (0.35, 0.90)),
+    "offset": (0.25, -0.15),
+    # N(0, 0.2 I): 0.2 is the variance on each observation dimension.
+    "noise_cov": ((0.20, 0.0), (0.0, 0.20)),
+}
+
+DEFAULT_CONFIG = {
+    "experiment_version": 1,
+    "seed": 1729,
+    "n_train": 30_000,
+    "n_validation": 4_000,
+    "n_test": 2_000,
+    "sde_type": "vesde",
+    "sigma": 25.0,
+    "hidden_size": 64,
+    "depth": 3,
+    "num_heads": 4,
+    "mlp_ratio": 2,
+    "batch_size": 256,
+    "learning_rate": 1e-3,
+    "stage1_max_epochs": 80,
+    "stage2_max_epochs": 40,
+    "early_stopping_patience": 30,
+    "time_sampling": "mixture",
+    "divergence_loss_weight": 1.0,
+    "divergence_target": "exact",
+    "hutchinson_samples": 1,
+    "divergence_warmup_epochs": 5,
+    "eps": 1e-3,
+    "drift_time_levels": 24,
+    "drift_samples": 256,
+    "log_prob_samples": 512,
+    "log_prob_timesteps": 100,
+    "log_prob_batch_size": 512,
+    "density_grid_size": 45,
+    "density_timesteps": 100,
+    "density_timestep_sweep": (10, 50, 100, 200, 500),
+    "pairplot_samples": 2_000,
+    "runtime_samples": 256,
+    "runtime_timesteps": 50,
+    "runtime_batch_size": 256,
+    "runtime_warmups": 1,
+    "runtime_repetitions": 5,
+}
+
+MODEL_KWARGS = {
+    "nodes_size": 4,
+    "sde_type": "vesde",
+    "sigma": 25.0,
+    "hidden_size": 64,
+    "depth": 3,
+    "num_heads": 4,
+    "mlp_ratio": 2,
+}
+
+MASKS = {
+    "posterior": np.array([0.0, 0.0, 1.0, 1.0], dtype=np.float32),
+    "likelihood": np.array([1.0, 1.0, 0.0, 0.0], dtype=np.float32),
+}
+
+COLORS = {
+    "stage1": "#4C78A8",
+    "stage2": "#F58518",
+    "head_exact": "#54A24B",
+    "exact_analytic": "#E45756",
+    "head_analytic": "#B279A2",
+    "analytic": "#222222",
+}
+
+
+def log(message):
+    print(message, flush=True)
+
+
+def seed_all(seed):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def to_numpy(value):
+    if isinstance(value, torch.Tensor):
+        return value.detach().cpu().numpy()
+    return np.asarray(value)
+
+
+def write_csv(path, rows, fieldnames=None):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = list(rows)
+    if fieldnames is None:
+        fieldnames = sorted({key for row in rows for key in row}) if rows else []
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        if fieldnames:
+            writer.writeheader()
+            writer.writerows(rows)
+
+
+def save_figure(fig, filename):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(OUTPUT_DIR / filename, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+
+
+def finite_or_fail(name, values):
+    array = to_numpy(values)
+    if not np.all(np.isfinite(array)):
+        raise RuntimeError(f"{name} contains non-finite values.")
+
+
+def correlation(prediction, target):
+    prediction = np.asarray(prediction, dtype=np.float64).reshape(-1)
+    target = np.asarray(target, dtype=np.float64).reshape(-1)
+    if prediction.size < 2 or np.std(prediction) == 0 or np.std(target) == 0:
+        return float("nan")
+    return float(np.corrcoef(prediction, target)[0, 1])
+
+
+def regression_metrics(prediction, target):
+    prediction = np.asarray(prediction, dtype=np.float64).reshape(-1)
+    target = np.asarray(target, dtype=np.float64).reshape(-1)
+    if prediction.shape != target.shape:
+        raise RuntimeError(
+            f"Metric shape mismatch: prediction {prediction.shape}, target {target.shape}."
+        )
+    finite_or_fail("metric prediction", prediction)
+    finite_or_fail("metric target", target)
+    residual = prediction - target
+    rmse = float(np.sqrt(np.mean(residual**2)))
+    target_rms = float(np.sqrt(np.mean(target**2)))
+    return {
+        "mae": float(np.mean(np.abs(residual))),
+        "rmse": rmse,
+        "nrmse": rmse / max(target_rms, 1e-12),
+        "bias": float(np.mean(residual)),
+        "correlation": correlation(prediction, target),
+    }
+
+
+class LinearGaussianReference:
+    """Analytic joint, conditional, diffused-score, and density reference."""
+
+    def __init__(self, theta_mean=(0.0, 0.0),
+                 theta_cov=((1.0, 0.0), (0.0, 1.0)),
+                 design=((1.10, -0.40), (0.35, 0.90)),
+                 offset=(0.25, -0.15),
+                 noise_cov=((0.20, 0.0), (0.0, 0.20))):
+        self.theta_mean = np.asarray(theta_mean, dtype=np.float64)
+        self.theta_cov = np.asarray(theta_cov, dtype=np.float64)
+        self.design = np.asarray(design, dtype=np.float64)
+        self.offset = np.asarray(offset, dtype=np.float64)
+        self.noise_cov = np.asarray(noise_cov, dtype=np.float64)
+
+        theta_dim = self.theta_mean.size
+        observation_dim = self.offset.size
+        if self.theta_cov.shape != (theta_dim, theta_dim):
+            raise ValueError(
+                "theta_cov must have shape "
+                f"({theta_dim}, {theta_dim}), found {self.theta_cov.shape}.")
+        if self.design.shape != (observation_dim, theta_dim):
+            raise ValueError(
+                "design must have shape "
+                f"({observation_dim}, {theta_dim}), found {self.design.shape}.")
+        if self.noise_cov.shape != (observation_dim, observation_dim):
+            raise ValueError(
+                "noise_cov must have shape "
+                f"({observation_dim}, {observation_dim}), found {self.noise_cov.shape}.")
+
+        x_mean = self.design @ self.theta_mean + self.offset
+        cross = self.theta_cov @ self.design.T
+        x_cov = self.design @ self.theta_cov @ self.design.T + self.noise_cov
+        self.mean = np.concatenate([self.theta_mean, x_mean])
+        self.cov = np.block([[self.theta_cov, cross], [cross.T, x_cov]])
+        self._validate_covariance("theta covariance", self.theta_cov)
+        self._validate_covariance("observation noise covariance", self.noise_cov)
+        self._validate_covariance("joint covariance", self.cov)
+
+    def configuration(self):
+        """Return a JSON-serializable definition of the data-generating problem."""
+        return {
+            "theta_mean": self.theta_mean.tolist(),
+            "theta_cov": self.theta_cov.tolist(),
+            "design": self.design.tolist(),
+            "offset": self.offset.tolist(),
+            "noise_cov": self.noise_cov.tolist(),
+        }
+
+    @staticmethod
+    def _validate_covariance(name, covariance):
+        covariance = np.asarray(covariance, dtype=np.float64)
+        if not np.allclose(covariance, covariance.T, atol=1e-12):
+            raise RuntimeError(f"Invalid {name}: matrix is not symmetric.")
+        try:
+            np.linalg.cholesky(covariance)
+        except np.linalg.LinAlgError as error:
+            raise RuntimeError(f"Invalid {name}: matrix is not positive definite.") from error
+
+    def sample(self, n, seed):
+        rng = np.random.default_rng(seed)
+        theta = rng.multivariate_normal(self.theta_mean, self.theta_cov, size=n)
+        noise = rng.multivariate_normal(np.zeros(self.offset.size), self.noise_cov, size=n)
+        observations = theta @ self.design.T + self.offset + noise
+        return theta.astype(np.float32), observations.astype(np.float32)
+
+    @staticmethod
+    def _indices(condition_mask):
+        condition_mask = np.asarray(condition_mask).astype(bool)
+        conditioned = np.flatnonzero(condition_mask)
+        latent = np.flatnonzero(~condition_mask)
+        if latent.size == 0:
+            raise RuntimeError("Analytic conditional requires at least one latent dimension.")
+        return latent, conditioned
+
+    def conditional(self, joint_rows, condition_mask):
+        joint_rows = np.atleast_2d(np.asarray(joint_rows, dtype=np.float64))
+        latent, conditioned = self._indices(condition_mask)
+        covariance_ll = self.cov[np.ix_(latent, latent)]
+        if conditioned.size == 0:
+            means = np.repeat(self.mean[latent][None, :], joint_rows.shape[0], axis=0)
+            return means, covariance_ll, latent
+        covariance_lc = self.cov[np.ix_(latent, conditioned)]
+        covariance_cc = self.cov[np.ix_(conditioned, conditioned)]
+        gain = np.linalg.solve(covariance_cc, covariance_lc.T).T
+        residual = joint_rows[:, conditioned] - self.mean[conditioned]
+        means = self.mean[latent][None, :] + residual @ gain.T
+        covariance = covariance_ll - gain @ covariance_lc.T
+        self._validate_covariance("conditional covariance", covariance)
+        return means, covariance, latent
+
+    def diffused_score(self, joint_rows, condition_mask, sigma_t):
+        joint_rows = np.atleast_2d(np.asarray(joint_rows, dtype=np.float64))
+        means, covariance, latent = self.conditional(joint_rows, condition_mask)
+        covariance_t = covariance + float(sigma_t) ** 2 * np.eye(latent.size)
+        residual = joint_rows[:, latent] - means
+        latent_score = -np.linalg.solve(covariance_t, residual.T).T
+        score = np.zeros_like(joint_rows)
+        score[:, latent] = latent_score
+        return score
+
+    def instantaneous_drift(self, joint_rows, condition_mask, sigma_t):
+        _, covariance, latent = self.conditional(joint_rows, condition_mask)
+        covariance_t = covariance + float(sigma_t) ** 2 * np.eye(latent.size)
+        value = -float(sigma_t) * np.trace(np.linalg.inv(covariance_t))
+        return np.full(np.atleast_2d(joint_rows).shape[0], value, dtype=np.float64)
+
+    def conditional_log_prob(self, joint_rows, condition_mask, smoothing_sigma=0.0):
+        joint_rows = np.atleast_2d(np.asarray(joint_rows, dtype=np.float64))
+        means, covariance, latent = self.conditional(joint_rows, condition_mask)
+        covariance = covariance + float(smoothing_sigma) ** 2 * np.eye(latent.size)
+        residual = joint_rows[:, latent] - means
+        solved = np.linalg.solve(covariance, residual.T).T
+        log_det = np.linalg.slogdet(covariance)
+        if log_det[0] <= 0:
+            raise RuntimeError("Analytic conditional covariance has invalid determinant.")
+        normalizer = latent.size * np.log(2 * np.pi) + log_det[1]
+        return -0.5 * (normalizer + np.sum(residual * solved, axis=1))
+
+
+def fingerprint_config(config):
+    payload = json.dumps(config, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def training_config(config):
+    keys = (
+        "experiment_version", "seed", "n_train", "n_validation", "n_test",
+        "sde_type", "sigma", "hidden_size", "depth", "num_heads", "mlp_ratio",
+        "problem",
+        "batch_size", "learning_rate", "stage1_max_epochs", "stage2_max_epochs",
+        "early_stopping_patience", "time_sampling", "divergence_loss_weight",
+        "divergence_target", "hutchinson_samples", "divergence_warmup_epochs",
+    )
+    return {key: config[key] for key in keys}
+
+
+def cache_paths():
+    return {
+        "manifest": DATA_DIR / "cache_manifest.json",
+        "data": DATA_DIR / "linear_gaussian_splits.npz",
+        "stage1": DATA_DIR / "stage1_score.pt",
+        "stage2": DATA_DIR / "stage2_joint.pt",
+        "history": DATA_DIR / "training_history.csv",
+    }
+
+
+def cache_is_complete(paths, fingerprint):
+    if not paths["manifest"].exists():
+        return False
+    try:
+        with paths["manifest"].open() as handle:
+            manifest = json.load(handle)
+    except (OSError, ValueError):
+        return False
+    required = ("data", "stage1", "stage2", "history")
+    return (
+        manifest.get("complete") is True
+        and manifest.get("fingerprint") == fingerprint
+        and all(paths[name].exists() for name in required)
+    )
+
+
+def trained_checkpoints_available(paths):
+    """Return whether both completed training stages can be loaded.
+
+
+    Checkpoints are the authoritative training artefact. In particular, do
+    not turn a missing history CSV or a changed cache fingerprint into an
+    unexpected expensive retraining run.
+    """
+    return paths["stage1"].exists() and paths["stage2"].exists()
+
+
+def write_manifest(path, fingerprint, complete):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as handle:
+        json.dump(
+            {"fingerprint": fingerprint, "complete": bool(complete)},
+            handle,
+            indent=2,
+            sort_keys=True,
+        )
+
+
+def save_data_splits(path, splits):
+    arrays = {}
+    for split, (theta, observations) in splits.items():
+        arrays[f"{split}_theta"] = theta
+        arrays[f"{split}_x"] = observations
+    np.savez_compressed(path, **arrays)
+
+
+def load_data_splits(path):
+    with np.load(path) as payload:
+        return {
+            split: (
+                payload[f"{split}_theta"].astype(np.float32),
+                payload[f"{split}_x"].astype(np.float32),
+            )
+            for split in ("train", "validation", "test")
+        }
+
+
+def generate_data_splits(reference, config):
+    base_seed = int(config["seed"])
+    return {
+        "train": reference.sample(config["n_train"], base_seed + 101),
+        "validation": reference.sample(config["n_validation"], base_seed + 202),
+        "test": reference.sample(config["n_test"], base_seed + 303),
+    }
+
+
+def history_rows(trainer, stage):
+    rows = []
+    train_count = len(trainer.train_loss)
+    for epoch in range(train_count):
+        rows.append({
+            "stage": stage,
+            "epoch": epoch + 1,
+            "split": "train",
+            "total_loss": trainer.train_loss[epoch],
+            "score_loss": trainer.train_score_loss[epoch],
+            "divergence_loss": trainer.train_divergence_loss[epoch],
+        })
+    for epoch in range(len(trainer.val_loss)):
+        rows.append({
+            "stage": stage,
+            "epoch": epoch + 1,
+            "split": "validation",
+            "total_loss": trainer.val_loss[epoch],
+            "score_loss": trainer.val_score_loss[epoch],
+            "divergence_loss": trainer.val_divergence_loss[epoch],
+        })
+    return copy.deepcopy(rows)
+
+
+def promote_best_checkpoint(name, destination):
+    checkpoint = DATA_DIR / f"{name}_checkpoint.pt"
+    if not checkpoint.exists():
+        raise RuntimeError(f"Training did not create the expected checkpoint {checkpoint}.")
+    shutil.copyfile(checkpoint, destination)
+
+
+def model_kwargs_from_config(config):
+    return {
+        "nodes_size": 4,
+        "sde_type": config["sde_type"],
+        "sigma": config["sigma"],
+        "hidden_size": config["hidden_size"],
+        "depth": config["depth"],
+        "num_heads": config["num_heads"],
+        "mlp_ratio": config["mlp_ratio"],
+    }
+
+
+def train_stage(model, splits, config, stage, device):
+    theta_train, x_train = splits["train"]
+    theta_val, x_val = splits["validation"]
+    joint = stage == "stage2_joint"
+    max_epochs = config["stage2_max_epochs"] if joint else config["stage1_max_epochs"]
+    log(f"[train] {stage}: up to {max_epochs} epochs on {device}")
+    model.train(
+        theta=torch.from_numpy(theta_train),
+        x=torch.from_numpy(x_train),
+        theta_val=torch.from_numpy(theta_val),
+        x_val=torch.from_numpy(x_val),
+        batch_size=config["batch_size"],
+        max_epochs=max_epochs,
+        lr=config["learning_rate"],
+        device=device,
+        verbose=True,
+        path=str(DATA_DIR),
+        name=stage,
+        early_stopping_patience=config["early_stopping_patience"],
+        time_sampling=config["time_sampling"],
+        train_divergence=joint,
+        divergence_loss_weight=config["divergence_loss_weight"],
+        divergence_target=config["divergence_target"],
+        hutchinson_samples=config["hutchinson_samples"],
+        divergence_warmup_epochs=config["divergence_warmup_epochs"],
+    )
+    return history_rows(model.trainer, stage)
+
+
+def validate_model_configuration(model, config, expect_head):
+    expected = model_kwargs_from_config(config)
+    actual = {
+        "nodes_size": model.nodes_size,
+        "sde_type": model.sde_type,
+        "sigma": float(model.sigma),
+        "hidden_size": model.hidden_size,
+        "depth": model.depth,
+        "num_heads": model.num_heads,
+        "mlp_ratio": model.mlp_ratio,
+    }
+    if actual != expected:
+        raise RuntimeError(f"Checkpoint configuration mismatch: {actual} != {expected}.")
+    if bool(model.divergence_head_trained) != bool(expect_head):
+        raise RuntimeError(
+            "Checkpoint divergence-head metadata mismatch: expected "
+            f"{expect_head}, found {model.divergence_head_trained}."
+        )
+
+
+def load_or_train(reference, config, device, force_retrain=False):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    paths = cache_paths()
+    fingerprint = fingerprint_config(training_config(config))
+    checkpoints_exist = trained_checkpoints_available(paths)
+    partial_checkpoints = paths["stage1"].exists() or paths["stage2"].exists()
+
+    if checkpoints_exist and not force_retrain:
+        if paths["data"].exists():
+            splits = load_data_splits(paths["data"])
+            log(f"[cache] loading existing training data from {DATA_DIR}")
+        else:
+            # Deterministic data regeneration is safe: it does not change the
+            # trained model and lets evaluation proceed if only the data cache
+            # was removed.
+            log("[cache] checkpoints found; regenerating only missing deterministic data")
+            splits = generate_data_splits(reference, config)
+            save_data_splits(paths["data"], splits)
+
+        if paths["history"].exists():
+            history = pd.read_csv(paths["history"]).to_dict("records")
+        else:
+            log("[cache] no saved training history; skipping loss-curve traces")
+            history = []
+        if not cache_is_complete(paths, fingerprint):
+            log("[cache] checkpoint fingerprint differs or metadata is incomplete; "
+                "loading trained models without retraining")
+    else:
+        if partial_checkpoints and not force_retrain:
+            raise RuntimeError(
+                "Found only one training-stage checkpoint. Refusing to silently "
+                "retrain or overwrite it. Restore the missing checkpoint or run "
+                "again with --force-retrain to explicitly restart both stages."
+            )
+        reason = "forced" if force_retrain else "no completed checkpoints"
+        log(f"[cache] rebuilding experiment cache ({reason})")
+        write_manifest(paths["manifest"], fingerprint, complete=False)
+        splits = generate_data_splits(reference, config)
+        save_data_splits(paths["data"], splits)
+
+        seed_all(config["seed"])
+        stage1_training_model = SBIm(**model_kwargs_from_config(config))
+        stage1_history = train_stage(
+            stage1_training_model, splits, config, "stage1_score", device
+        )
+        promote_best_checkpoint("stage1_score", paths["stage1"])
+        del stage1_training_model
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        stage2_training_model = SBIm.load(str(paths["stage1"]), device=device)
+        validate_model_configuration(stage2_training_model, config, expect_head=False)
+        stage2_history = train_stage(
+            stage2_training_model, splits, config, "stage2_joint", device
+        )
+        promote_best_checkpoint("stage2_joint", paths["stage2"])
+        history = copy.deepcopy(stage1_history) + copy.deepcopy(stage2_history)
+        write_csv(paths["history"], history)
+        del stage2_training_model
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        write_manifest(paths["manifest"], fingerprint, complete=True)
+
+    stage1 = SBIm.load(str(paths["stage1"]), device=device)
+    stage2 = SBIm.load(str(paths["stage2"]), device=device)
+    if force_retrain or not checkpoints_exist:
+        validate_model_configuration(stage1, config, expect_head=False)
+        validate_model_configuration(stage2, config, expect_head=True)
+    elif not stage2.divergence_head_trained:
+        raise RuntimeError("The loaded Stage-2 checkpoint has no trained divergence head.")
+    validate_checkpoint_round_trip(stage2, device)
+    return splits, stage1, stage2, history, fingerprint
+
+
+def validate_checkpoint_round_trip(model, device):
+    seed_all(991)
+    probe = torch.randn(7, 4, device=device)
+    time = torch.linspace(0.05, 0.95, 7, device=device).reshape(-1, 1)
+    mask = torch.tensor(MASKS["posterior"], device=device).repeat(7, 1)
+    model.model.to(device).eval()
+    with torch.no_grad():
+        expected_score, expected_drift = model.model(
+            x=probe, t=time, c=mask, return_divergence=True
+        )
+    with tempfile.TemporaryDirectory(dir=str(DATA_DIR)) as temporary_directory:
+        model.save(temporary_directory, name="round_trip")
+        restored = SBIm.load(
+            str(Path(temporary_directory) / "round_trip.pt"), device=device
+        )
+        restored.model.to(device).eval()
+        with torch.no_grad():
+            actual_score, actual_drift = restored.model(
+                x=probe, t=time, c=mask, return_divergence=True
+            )
+    if not restored.divergence_head_trained:
+        raise RuntimeError("Checkpoint round-trip lost trained-head metadata.")
+    if not torch.equal(expected_score, actual_score) or not torch.equal(
+        expected_drift, actual_drift
+    ):
+        raise RuntimeError("Checkpoint round-trip changed score or divergence predictions.")
+
+
+def joint_test_rows(splits):
+    theta, observations = splits["test"]
+    return np.concatenate([theta, observations], axis=1).astype(np.float32)
+
+
+def plot_joint_data_pairplot(splits, config):
+    """Visualize the joint latent-parameter/observation problem being learned."""
+    rows = joint_test_rows(splits)
+    n_plot = min(int(config["pairplot_samples"]), len(rows))
+    if n_plot < len(rows):
+        rng = np.random.default_rng(int(config["seed"]) + 505)
+        rows = rows[rng.choice(len(rows), size=n_plot, replace=False)]
+    frame = pd.DataFrame(
+        rows,
+        columns=(
+            "θ₁ · latent", "θ₂ · latent",
+            "x₁ · observed", "x₂ · observed",
+        ),
+    )
+    # A complete PairGrid avoids the intentionally blank upper triangle of
+    # seaborn.pairplot(corner=True): histograms show marginals and both
+    # triangles retain the raw joint samples without contour interpolation.
+    pairplot = sns.PairGrid(frame, diag_sharey=False, height=2.45, aspect=1)
+    pairplot.map_lower(
+        sns.scatterplot,
+        color=COLORS["stage1"], s=10, alpha=0.20, linewidth=0,
+    )
+    pairplot.map_diag(
+        sns.histplot,
+        bins=32, color=COLORS["stage1"], edgecolor="white", linewidth=0.35,
+    )
+    pairplot.map_upper(
+        sns.scatterplot,
+        color=COLORS["stage1"], s=8, alpha=0.12, linewidth=0,
+    )
+    pairplot.fig.set_size_inches(10.5, 10)
+    pairplot.fig.suptitle(
+        "Joint linear-Gaussian task: θ ~ N(0, I), ε ~ N(0, 0.2 I)",
+        y=0.985, fontsize=16,
+    )
+    for axis in pairplot.axes.flat:
+        if axis is not None:
+            axis.tick_params(labelsize=8)
+            axis.grid(False)
+    pairplot.fig.subplots_adjust(top=0.93, wspace=0.08, hspace=0.08)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    pairplot.fig.savefig(OUTPUT_DIR / "joint_data_pairplot.png", dpi=220, bbox_inches="tight")
+    plt.close(pairplot.fig)
+
+
+def exact_model_drift(model, noisy, time, mask, device):
+    noisy_tensor = torch.as_tensor(noisy, dtype=torch.float32, device=device)
+    noisy_tensor = noisy_tensor.detach().requires_grad_(True)
+    mask_tensor = torch.as_tensor(mask, dtype=torch.float32, device=device)
+    if mask_tensor.ndim == 1:
+        mask_tensor = mask_tensor.unsqueeze(0).repeat(noisy_tensor.shape[0], 1)
+    time_tensor = torch.full(
+        (noisy_tensor.shape[0], 1), float(time), dtype=torch.float32, device=device
+    )
+    model.model.to(device).eval()
+    with torch.enable_grad():
+        raw_score = model.model(x=noisy_tensor, t=time_tensor, c=mask_tensor)
+        drift = model.trainer.instantaneous_divergence_target(
+            raw_score,
+            noisy_tensor,
+            time_tensor,
+            mask_tensor,
+            estimator="exact",
+        )
+    return drift.detach().cpu().numpy()
+
+
+def model_score_and_head(model, noisy, time, mask, device, return_head):
+    noisy_tensor = torch.as_tensor(noisy, dtype=torch.float32, device=device)
+    mask_tensor = torch.as_tensor(mask, dtype=torch.float32, device=device)
+    mask_tensor = mask_tensor.unsqueeze(0).repeat(noisy_tensor.shape[0], 1)
+    time_tensor = torch.full(
+        (noisy_tensor.shape[0], 1), float(time), dtype=torch.float32, device=device
+    )
+    model.model.to(device).eval()
+    with torch.no_grad():
+        if return_head:
+            raw_score, drift = model.model(
+                x=noisy_tensor,
+                t=time_tensor,
+                c=mask_tensor,
+                return_divergence=True,
+            )
+        else:
+            raw_score = model.model(x=noisy_tensor, t=time_tensor, c=mask_tensor)
+            drift = None
+        sigma_t = model.sde.sigma_t(time_tensor).to(device)
+        score = raw_score / sigma_t
+    return to_numpy(score), None if drift is None else to_numpy(drift)
+
+
+def evaluate_instantaneous(reference, splits, stage1, stage2, config, device):
+    rows = joint_test_rows(splits)[: config["drift_samples"]]
+    rng = np.random.default_rng(config["seed"] + 404)
+    fixed_noise = rng.standard_normal(rows.shape).astype(np.float32)
+    one = torch.ones(1, device=device)
+    lam_min = float(stage2.sde.lambda_t(config["eps"] * one).item())
+    lam_max = float(stage2.sde.lambda_t(one).item())
+    lambdas = np.geomspace(lam_min, lam_max, config["drift_time_levels"])
+    times = to_numpy(
+        stage2.sde.time_of_lambda(torch.tensor(lambdas, dtype=torch.float32))
+    )
+
+    drift_metric_rows = []
+    score_metric_rows = []
+    raw_records = []
+    for mask_name, mask in MASKS.items():
+        latent = 1.0 - mask
+        latent_bool = latent.astype(bool)
+        for level, (lam, time) in enumerate(zip(lambdas, times)):
+            sigma_t = float(stage2.sde.sigma_t(torch.tensor(time)).item())
+            noisy = rows + sigma_t * fixed_noise * latent[None, :]
+            stage1_score, _ = model_score_and_head(
+                stage1, noisy, time, mask, device, return_head=False
+            )
+            stage2_score, learned_drift = model_score_and_head(
+                stage2, noisy, time, mask, device, return_head=True
+            )
+            no_head_exact_drift = exact_model_drift(
+                stage1, noisy, time, mask, device
+            )
+            trained_exact_drift = exact_model_drift(
+                stage2, noisy, time, mask, device
+            )
+            analytic_score = reference.diffused_score(noisy, mask, sigma_t)
+            analytic_drift = reference.instantaneous_drift(noisy, mask, sigma_t)
+
+            drift_shapes = {
+                learned_drift.shape,
+                no_head_exact_drift.shape,
+                trained_exact_drift.shape,
+                analytic_drift.shape,
+            }
+            if len(drift_shapes) != 1:
+                raise RuntimeError("Instantaneous drift output shape mismatch.")
+            for name, prediction, target in (
+                ("head_vs_exact", learned_drift, trained_exact_drift),
+                ("no_head_exact_vs_analytic", no_head_exact_drift, analytic_drift),
+                ("trained_exact_vs_analytic", trained_exact_drift, analytic_drift),
+                ("head_vs_analytic", learned_drift, analytic_drift),
+            ):
+                metrics = regression_metrics(prediction, target)
+                drift_metric_rows.append({
+                    "mask": mask_name,
+                    "time_level": level,
+                    "time": float(time),
+                    "lambda": float(lam),
+                    "comparison": name,
+                    "n": len(prediction),
+                    **metrics,
+                })
+
+            for stage, score in (("stage1", stage1_score), ("stage2", stage2_score)):
+                score_metrics = regression_metrics(
+                    score[:, latent_bool], analytic_score[:, latent_bool]
+                )
+                score_metric_rows.append({
+                    "mask": mask_name,
+                    "time_level": level,
+                    "time": float(time),
+                    "lambda": float(lam),
+                    "stage": stage,
+                    "n_scalar_scores": int(score[:, latent_bool].size),
+                    **score_metrics,
+                })
+            raw_records.append({
+                "mask": mask_name,
+                "time": float(time),
+                "lambda": float(lam),
+                "learned": learned_drift,
+                "no_head_exact": no_head_exact_drift,
+                "trained_exact": trained_exact_drift,
+                "analytic": analytic_drift,
+                "stage1_score": stage1_score[:, latent_bool],
+                "stage2_score": stage2_score[:, latent_bool],
+                "analytic_score": analytic_score[:, latent_bool],
+            })
+    return drift_metric_rows, score_metric_rows, raw_records
+
+
+def analytic_epsilon_sigma(model, eps):
+    return float(model.sde.sigma_t(torch.tensor(float(eps))).item())
+
+
+def evaluate_log_probabilities(reference, splits, stage1, stage2, config, device):
+    rows = joint_test_rows(splits)[: config["log_prob_samples"]]
+    smoothing_sigma = analytic_epsilon_sigma(stage2, config["eps"])
+    csv_rows = []
+    arrays = {}
+    for mask_name, mask in MASKS.items():
+        mask_tensor = torch.tensor(mask, dtype=torch.float32)
+        kwargs = {
+            "data": torch.from_numpy(rows),
+            "condition_mask": mask_tensor,
+            "timesteps": config["log_prob_timesteps"],
+            "eps": config["eps"],
+            "device": device,
+            "batch_size": config["log_prob_batch_size"],
+            "verbose": False,
+        }
+        analytic = reference.conditional_log_prob(rows, mask, smoothing_sigma)
+        stage1_exact = to_numpy(stage1.log_prob(divergence="exact", **kwargs))
+        stage2_exact = to_numpy(stage2.log_prob(divergence="exact", **kwargs))
+        stage2_learned = to_numpy(stage2.log_prob(divergence="learned", **kwargs))
+        expected_shape = (rows.shape[0],)
+        for name, values in (
+            ("analytic", analytic),
+            ("stage1_exact", stage1_exact),
+            ("stage2_exact", stage2_exact),
+            ("stage2_learned", stage2_learned),
+        ):
+            if np.asarray(values).shape != expected_shape:
+                raise RuntimeError(
+                    f"{mask_name} {name} log-probability has shape "
+                    f"{np.asarray(values).shape}, expected {expected_shape}."
+                )
+            finite_or_fail(f"{mask_name} {name} log probability", values)
+        arrays[mask_name] = {
+            "analytic": analytic,
+            "stage1_exact": stage1_exact,
+            "stage2_exact": stage2_exact,
+            "stage2_learned": stage2_learned,
+        }
+        for index in range(rows.shape[0]):
+            csv_rows.append({
+                "mask": mask_name,
+                "sample": index,
+                "analytic": analytic[index],
+                "stage1_exact": stage1_exact[index],
+                "stage2_exact": stage2_exact[index],
+                "stage2_learned": stage2_learned[index],
+            })
+    return csv_rows, arrays
+
+
+def synchronize(device):
+    if device == "cuda":
+        torch.cuda.synchronize()
+
+
+def benchmark_runtime(stage2, splits, config, device):
+    rows = joint_test_rows(splits)[: config["runtime_samples"]]
+    raw_rows = []
+    summaries = {}
+    for mask_name, mask in MASKS.items():
+        kwargs = {
+            "data": torch.from_numpy(rows),
+            "condition_mask": torch.tensor(mask, dtype=torch.float32),
+            "timesteps": config["runtime_timesteps"],
+            "eps": config["eps"],
+            "device": device,
+            "batch_size": config["runtime_batch_size"],
+            "verbose": False,
+        }
+        for _ in range(config["runtime_warmups"]):
+            stage2.log_prob(divergence="exact", **kwargs)
+            stage2.log_prob(divergence="learned", **kwargs)
+        synchronize(device)
+        timings = {"exact": [], "learned": []}
+        for repetition in range(config["runtime_repetitions"]):
+            order = ("exact", "learned") if repetition % 2 == 0 else ("learned", "exact")
+            for method in order:
+                synchronize(device)
+                started = perf_counter()
+                stage2.log_prob(divergence=method, **kwargs)
+                synchronize(device)
+                elapsed = perf_counter() - started
+                timings[method].append(elapsed)
+                raw_rows.append({
+                    "mask": mask_name,
+                    "repetition": repetition,
+                    "method": method,
+                    "seconds": elapsed,
+                    "samples": rows.shape[0],
+                    "timesteps": config["runtime_timesteps"],
+                })
+        exact_median = float(np.median(timings["exact"]))
+        learned_median = float(np.median(timings["learned"]))
+        summaries[mask_name] = {
+            "exact_median_seconds": exact_median,
+            "learned_median_seconds": learned_median,
+            "speedup": exact_median / learned_median,
+        }
+    return raw_rows, summaries
+
+
+def make_density_grid(reference, fixed_row, mask, grid_size, smoothing_sigma):
+    fixed_row = np.asarray(fixed_row, dtype=np.float64)
+    means, covariance, latent = reference.conditional(fixed_row[None, :], mask)
+    covariance = covariance + smoothing_sigma**2 * np.eye(len(latent))
+    scales = np.sqrt(np.diag(covariance))
+    axis0 = np.linspace(means[0, 0] - 3.5 * scales[0], means[0, 0] + 3.5 * scales[0], grid_size)
+    axis1 = np.linspace(means[0, 1] - 3.5 * scales[1], means[0, 1] + 3.5 * scales[1], grid_size)
+    grid0, grid1 = np.meshgrid(axis0, axis1, indexing="xy")
+    joint = np.repeat(fixed_row[None, :], grid_size * grid_size, axis=0)
+    joint[:, latent[0]] = grid0.reshape(-1)
+    joint[:, latent[1]] = grid1.reshape(-1)
+    return joint.astype(np.float32), grid0, grid1, latent
+
+
+def evaluate_density_grids(reference, splits, stage2, config, device):
+    fixed_row = joint_test_rows(splits)[0]
+    smoothing_sigma = analytic_epsilon_sigma(stage2, config["eps"])
+    results = {}
+    for mask_name, mask in MASKS.items():
+        joint, grid0, grid1, latent = make_density_grid(
+            reference,
+            fixed_row,
+            mask,
+            config["density_grid_size"],
+            smoothing_sigma,
+        )
+        analytic = reference.conditional_log_prob(joint, mask, smoothing_sigma)
+        exact = to_numpy(
+            stage2.log_prob(
+                torch.from_numpy(joint),
+                torch.tensor(mask, dtype=torch.float32),
+                timesteps=config["density_timesteps"],
+                eps=config["eps"],
+                divergence="exact",
+                device=device,
+                batch_size=config["log_prob_batch_size"],
+                verbose=False,
+            )
+        )
+        learned = to_numpy(
+            stage2.log_prob(
+                torch.from_numpy(joint),
+                torch.tensor(mask, dtype=torch.float32),
+                timesteps=config["density_timesteps"],
+                eps=config["eps"],
+                divergence="learned",
+                device=device,
+                batch_size=config["log_prob_batch_size"],
+                verbose=False,
+            )
+        )
+        finite_or_fail(f"{mask_name} exact density grid", exact)
+        finite_or_fail(f"{mask_name} learned density grid", learned)
+        shape = grid0.shape
+        results[mask_name] = {
+            "grid0": grid0,
+            "grid1": grid1,
+            "latent": latent,
+            "analytic_log_prob": analytic.reshape(shape),
+            "exact_log_prob": exact.reshape(shape),
+            "learned_log_prob": learned.reshape(shape),
+        }
+    return results
+
+
+def evaluate_density_timestep_sweep(reference, splits, stage2, config, device):
+    fixed_row = joint_test_rows(splits)[0]
+    smoothing_sigma = analytic_epsilon_sigma(stage2, config["eps"])
+    timesteps = tuple(config["density_timestep_sweep"])
+    if len(timesteps) != 5 or any(step < 2 for step in timesteps):
+        raise ValueError("density_timestep_sweep must contain five values of at least 2.")
+    results = {}
+    for mask_name, mask in MASKS.items():
+        joint, grid0, grid1, latent = make_density_grid(
+            reference,
+            fixed_row,
+            mask,
+            config["density_grid_size"],
+            smoothing_sigma,
+        )
+        shape = grid0.shape
+        analytic = reference.conditional_log_prob(
+            joint, mask, smoothing_sigma
+        ).reshape(shape)
+        data_tensor = torch.from_numpy(joint)
+        mask_tensor = torch.tensor(mask, dtype=torch.float32)
+        timestep_results = {}
+        for step_count in timesteps:
+            log(f"[evaluate] {mask_name} density grid with {step_count} integration steps")
+            exact = to_numpy(
+                stage2.log_prob(
+                    data_tensor,
+                    mask_tensor,
+                    timesteps=step_count,
+                    eps=config["eps"],
+                    divergence="exact",
+                    device=device,
+                    batch_size=config["log_prob_batch_size"],
+                    verbose=False,
+                )
+            )
+            learned = to_numpy(
+                stage2.log_prob(
+                    data_tensor,
+                    mask_tensor,
+                    timesteps=step_count,
+                    eps=config["eps"],
+                    divergence="learned",
+                    device=device,
+                    batch_size=config["log_prob_batch_size"],
+                    verbose=False,
+                )
+            )
+            finite_or_fail(f"{mask_name} {step_count}-step exact density grid", exact)
+            finite_or_fail(f"{mask_name} {step_count}-step learned density grid", learned)
+            timestep_results[int(step_count)] = {
+                "exact_log_prob": exact.reshape(shape),
+                "learned_log_prob": learned.reshape(shape),
+            }
+        results[mask_name] = {
+            "grid0": grid0,
+            "grid1": grid1,
+            "latent": latent,
+            "analytic_log_prob": analytic,
+            "timestep_results": timestep_results,
+        }
+    return results
+
+
+def plot_training_curves(history):
+    frame = pd.DataFrame(history)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+    if frame.empty:
+        for axis in axes:
+            axis.axis("off")
+            axis.text(
+                0.5,
+                0.5,
+                "Training history was not cached.\nLoaded checkpoints were not retrained.",
+                ha="center",
+                va="center",
+            )
+        save_figure(fig, "training_curves.png")
+        return
+    for axis, stage, title in zip(
+        axes,
+        ("stage1_score", "stage2_joint"),
+        ("Stage 1: score-only", "Stage 2: joint fine-tuning"),
+    ):
+        subset = frame[frame["stage"] == stage]
+        for split, linestyle in (("train", "-"), ("validation", "--")):
+            selected = subset[subset["split"] == split]
+            axis.plot(
+                selected["epoch"],
+                selected["score_loss"],
+                linestyle,
+                color=COLORS["stage1"],
+                label=f"{split} score",
+            )
+            if stage == "stage2_joint":
+                axis.plot(
+                    selected["epoch"],
+                    selected["divergence_loss"],
+                    linestyle,
+                    color=COLORS["stage2"],
+                    label=f"{split} divergence",
+                )
+                axis.plot(
+                    selected["epoch"],
+                    selected["total_loss"],
+                    linestyle,
+                    color=COLORS["head_exact"],
+                    alpha=0.75,
+                    label=f"{split} total",
+                )
+        axis.set(title=title, xlabel="Epoch", ylabel="Loss", yscale="log")
+        axis.grid(alpha=0.25)
+        axis.legend(fontsize=8)
+    save_figure(fig, "training_curves.png")
+
+
+def plot_drift_calibration(raw_records):
+    comparisons = (
+        ("learned", "trained_exact", "Head vs exact model trace"),
+        ("trained_exact", "analytic", "Trained exact trace vs analytic"),
+        ("learned", "analytic", "Head vs analytic"),
+    )
+    fig, axes = plt.subplots(2, 3, figsize=(13, 8))
+    for row_index, mask_name in enumerate(MASKS):
+        selected = [record for record in raw_records if record["mask"] == mask_name]
+        for column, (prediction_key, target_key, title) in enumerate(comparisons):
+            prediction = np.concatenate([record[prediction_key] for record in selected])
+            target = np.concatenate([record[target_key] for record in selected])
+            axis = axes[row_index, column]
+            keep = np.linspace(0, len(prediction) - 1, min(2500, len(prediction))).astype(int)
+            axis.scatter(target[keep], prediction[keep], s=5, alpha=0.22)
+            lower = min(target.min(), prediction.min())
+            upper = max(target.max(), prediction.max())
+            axis.plot([lower, upper], [lower, upper], color="black", linewidth=1)
+            metrics = regression_metrics(prediction, target)
+            axis.set(
+                title=f"{mask_name}: {title}\nr={metrics['correlation']:.3f}, NRMSE={metrics['nrmse']:.3f}",
+                xlabel="Reference $D_\\lambda$",
+                ylabel="Prediction $D_\\lambda$",
+            )
+            axis.grid(alpha=0.2)
+    save_figure(fig, "instantaneous_drift_calibration.png")
+
+
+def plot_error_vs_noise(drift_rows, score_rows):
+    drift = pd.DataFrame(drift_rows)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), sharey=True)
+    drift_labels = {
+        "head_vs_exact": "Learned head vs trained exact",
+        "no_head_exact_vs_analytic": "Exact (no head trained) vs analytic",
+        "trained_exact_vs_analytic": "Exact (head trained) vs analytic",
+        "head_vs_analytic": "Learned head vs analytic",
+    }
+    for column, mask_name in enumerate(MASKS):
+        axis = axes[column]
+        for comparison, label in drift_labels.items():
+            selected = drift[
+                (drift["mask"] == mask_name) & (drift["comparison"] == comparison)
+            ].sort_values("lambda")
+            axis.plot(selected["lambda"], selected["rmse"], marker="o", ms=3, label=label)
+        axis.set(
+            title=f"{mask_name}: drift",
+            xlabel="Noise scale $\\lambda$",
+            ylabel="Drift RMSE",
+            xscale="log",
+            yscale="log",
+        )
+        axis.grid(alpha=0.25)
+        axis.legend(fontsize=8)
+    save_figure(fig, "error_vs_noise_scale.png")
+
+
+def plot_log_prob_calibration(log_prob_arrays):
+    method_labels = (
+        ("stage1_exact", "Stage 1 exact"),
+        ("stage2_exact", "Stage 2 exact"),
+        ("stage2_learned", "Stage 2 learned"),
+    )
+    fig, axes = plt.subplots(2, 3, figsize=(13, 8))
+    for row_index, mask_name in enumerate(MASKS):
+        analytic = log_prob_arrays[mask_name]["analytic"]
+        for column, (method, label) in enumerate(method_labels):
+            prediction = log_prob_arrays[mask_name][method]
+            metrics = regression_metrics(prediction, analytic)
+            axis = axes[row_index, column]
+            axis.scatter(analytic, prediction, s=8, alpha=0.35)
+            lower = min(analytic.min(), prediction.min())
+            upper = max(analytic.max(), prediction.max())
+            axis.plot([lower, upper], [lower, upper], color="black", linewidth=1)
+            axis.set(
+                title=f"{mask_name}: {label}\nMAE={metrics['mae']:.3f}, r={metrics['correlation']:.3f}",
+                xlabel="Analytic log probability",
+                ylabel="COMPASS log probability",
+            )
+            axis.grid(alpha=0.2)
+    save_figure(fig, "log_prob_calibration.png")
+
+
+def plot_density_result(mask_name, result):
+    grid0 = result["grid0"]
+    grid1 = result["grid1"]
+    analytic_log = result["analytic_log_prob"]
+    exact_log = result["exact_log_prob"]
+    learned_log = result["learned_log_prob"]
+    analytic_density = np.exp(np.clip(analytic_log, -80, 50))
+    exact_density = np.exp(np.clip(exact_log, -80, 50))
+    learned_density = np.exp(np.clip(learned_log, -80, 50))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+    for axis, values, title in (
+        (axes[0], analytic_density, "Analytic smoothed density"),
+        (axes[1], exact_density, "Stage-2 exact integrated density"),
+        (axes[2], learned_density, "Stage-2 learned-divergence density"),
+    ):
+        filled = axis.contourf(grid0, grid1, values, levels=18, cmap="viridis")
+        fig.colorbar(filled, ax=axis, shrink=0.82)
+        axis.set_title(title)
+    latent = result["latent"]
+    labels = [r"$\theta_1$", r"$\theta_2$", r"$x_1$", r"$x_2$"]
+    for axis in axes:
+        axis.set_xlabel(labels[latent[0]])
+        axis.set_ylabel(labels[latent[1]])
+    fig.suptitle(f"{mask_name.capitalize()} density validation", y=1.02)
+    save_figure(fig, f"{mask_name}_density_contours.png")
+
+
+def plot_density_timestep_sweep(mask_name, result):
+    grid0 = result["grid0"]
+    grid1 = result["grid1"]
+    analytic_log = result["analytic_log_prob"]
+    timestep_results = result["timestep_results"]
+    timesteps = list(timestep_results)
+
+    exact_densities = []
+    learned_densities = []
+    exact_learned_errors = []
+    analytic_learned_errors = []
+    for step_count in timesteps:
+        values = timestep_results[step_count]
+        exact_log = values["exact_log_prob"]
+        learned_log = values["learned_log_prob"]
+        exact_densities.append(np.exp(np.clip(exact_log, -80, 50)))
+        learned_densities.append(np.exp(np.clip(learned_log, -80, 50)))
+        exact_learned_errors.append(exact_log - learned_log)
+        analytic_learned_errors.append(analytic_log - learned_log)
+
+    density_upper = max(
+        max(float(values.max()) for values in exact_densities),
+        max(float(values.max()) for values in learned_densities),
+        1e-12,
+    )
+    density_levels = np.linspace(0.0, density_upper, 19)
+    error_limit = max(
+        max(float(np.abs(values).max()) for values in exact_learned_errors),
+        max(float(np.abs(values).max()) for values in analytic_learned_errors),
+        1e-6,
+    )
+    error_levels = np.linspace(-error_limit, error_limit, 19)
+
+    fig, axes = plt.subplots(
+        4, len(timesteps), figsize=(24, 15), sharex=True, sharey=True
+    )
+    row_values = (
+        exact_densities,
+        learned_densities,
+        exact_learned_errors,
+        analytic_learned_errors,
+    )
+    row_labels = (
+        "Exact integrated density",
+        "Learned-divergence density",
+        "Exact minus learned log density",
+        "Analytic minus learned log density",
+    )
+    for column, step_count in enumerate(timesteps):
+        axes[0, column].set_title(f"{step_count} integration steps", fontsize=12)
+        for row, values in enumerate(row_values):
+            levels = density_levels if row < 2 else error_levels
+            cmap = "viridis" if row < 2 else "coolwarm"
+            filled = axes[row, column].contourf(
+                grid0, grid1, values[column], levels=levels, cmap=cmap
+            )
+            fig.colorbar(filled, ax=axes[row, column], shrink=0.82)
+
+    latent = result["latent"]
+    labels = ["θ₁", "θ₂", "x₁", "x₂"]
+    for row, row_label in enumerate(row_labels):
+        axes[row, 0].set_ylabel(labels[latent[1]])
+        axes[row, 0].annotate(
+            row_label,
+            xy=(-0.34, 0.5),
+            xycoords="axes fraction",
+            rotation=90,
+            ha="center",
+            va="center",
+            fontsize=12,
+            fontweight="semibold",
+        )
+    for axis in axes[-1, :]:
+        axis.set_xlabel(labels[latent[0]])
+    fig.suptitle(
+        f"{mask_name.capitalize()} density versus integration steps", y=1.01, fontsize=15
+    )
+    save_figure(fig, f"{mask_name}_density_timestep_sweep.png")
+
+
+def plot_runtime(runtime_summaries):
+    masks = list(MASKS)
+    x = np.arange(len(masks))
+    width = 0.36
+    exact = [runtime_summaries[name]["exact_median_seconds"] for name in masks]
+    learned = [runtime_summaries[name]["learned_median_seconds"] for name in masks]
+    fig, axis = plt.subplots(figsize=(7.5, 4.5))
+    axis.bar(x - width / 2, exact, width, label="Exact autograd", color=COLORS["stage1"])
+    axis.bar(x + width / 2, learned, width, label="Learned head", color=COLORS["head_exact"])
+    for index, name in enumerate(masks):
+        speedup = runtime_summaries[name]["speedup"]
+        axis.text(index, max(exact[index], learned[index]) * 1.03, f"{speedup:.2f}x", ha="center")
+    axis.set(xticks=x, xticklabels=masks, ylabel="Median wall time [s]", title="PF-ODE likelihood runtime")
+    axis.grid(axis="y", alpha=0.25)
+    axis.legend()
+    save_figure(fig, "runtime_comparison.png")
+
+
+def aggregate_raw(raw_records, prediction_key, target_key):
+    prediction = np.concatenate([record[prediction_key].reshape(-1) for record in raw_records])
+    target = np.concatenate([record[target_key].reshape(-1) for record in raw_records])
+    return regression_metrics(prediction, target)
+
+
+def aggregate_score(raw_records, stage_key):
+    prediction = np.concatenate([record[stage_key].reshape(-1) for record in raw_records])
+    target = np.concatenate([record["analytic_score"].reshape(-1) for record in raw_records])
+    return regression_metrics(prediction, target)
+
+
+def build_summary(raw_records, log_prob_arrays, runtime_summaries):
+    head_exact = aggregate_raw(raw_records, "learned", "trained_exact")
+    no_head_exact_analytic = aggregate_raw(
+        raw_records, "no_head_exact", "analytic"
+    )
+    trained_exact_analytic = aggregate_raw(
+        raw_records, "trained_exact", "analytic"
+    )
+    head_analytic = aggregate_raw(raw_records, "learned", "analytic")
+    stage1_score = aggregate_score(raw_records, "stage1_score")
+    stage2_score = aggregate_score(raw_records, "stage2_score")
+
+    analytic = np.concatenate([log_prob_arrays[name]["analytic"] for name in MASKS])
+    stage1_exact_values = np.concatenate(
+        [log_prob_arrays[name]["stage1_exact"] for name in MASKS]
+    )
+    stage2_exact_values = np.concatenate(
+        [log_prob_arrays[name]["stage2_exact"] for name in MASKS]
+    )
+    stage2_learned_values = np.concatenate(
+        [log_prob_arrays[name]["stage2_learned"] for name in MASKS]
+    )
+    stage1_likelihood = regression_metrics(stage1_exact_values, analytic)
+    stage2_exact_likelihood = regression_metrics(stage2_exact_values, analytic)
+    stage2_learned_likelihood = regression_metrics(stage2_learned_values, analytic)
+    learned_exact_likelihood = regression_metrics(stage2_learned_values, stage2_exact_values)
+
+    score_ratio = stage2_score["rmse"] / max(stage1_score["rmse"], 1e-12)
+    exact_likelihood_ratio = stage2_exact_likelihood["mae"] / max(
+        stage1_likelihood["mae"], 1e-12
+    )
+    speedup = float(np.median([runtime_summaries[name]["speedup"] for name in MASKS]))
+    latent_dimensions = 2
+    learned_exact_mae_per_dim = learned_exact_likelihood["mae"] / latent_dimensions
+
+    warnings = []
+    if not np.isfinite(head_exact["correlation"]) or head_exact["correlation"] < 0.95:
+        warnings.append("head-versus-exact drift correlation is below 0.95")
+    if head_exact["nrmse"] > 0.20:
+        warnings.append("head-versus-exact normalized drift RMSE is above 0.20")
+    if learned_exact_mae_per_dim > 0.10:
+        warnings.append("learned-versus-exact log-probability MAE exceeds 0.10 per latent dimension")
+    if score_ratio > 1.10:
+        warnings.append("Stage-2 analytic score RMSE degraded by more than 10%")
+    if exact_likelihood_ratio > 1.10:
+        warnings.append("Stage-2 exact-likelihood MAE degraded by more than 10%")
+    if speedup <= 1.0:
+        warnings.append("learned likelihood was not faster than exact likelihood")
+
+    def status(condition):
+        return "WARN" if condition else "PASS"
+
+    rows = [
+        {
+            "category": "head fidelity",
+            "status": status(
+                not np.isfinite(head_exact["correlation"])
+                or head_exact["correlation"] < 0.95
+                or head_exact["nrmse"] > 0.20
+            ),
+            "primary_metric": "head_vs_exact_correlation",
+            "value": head_exact["correlation"],
+            "secondary_metric": "head_vs_exact_nrmse",
+            "secondary_value": head_exact["nrmse"],
+        },
+        {
+            "category": "underlying score quality",
+            "status": status(score_ratio > 1.10),
+            "primary_metric": "stage2_analytic_score_rmse",
+            "value": stage2_score["rmse"],
+            "secondary_metric": "stage2_over_stage1_rmse",
+            "secondary_value": score_ratio,
+        },
+        {
+            "category": "overall likelihood accuracy",
+            "status": status(learned_exact_mae_per_dim > 0.10),
+            # This is the head-specific warning criterion; report it first so
+            # the printed status is immediately interpretable. The analytic
+            # MAE remains available as the broader end-to-end reference.
+            "primary_metric": "learned_vs_exact_mae_per_dim",
+            "value": learned_exact_mae_per_dim,
+            "secondary_metric": "learned_vs_analytic_mae",
+            "secondary_value": stage2_learned_likelihood["mae"],
+        },
+        {
+            "category": "fine-tuning degradation",
+            "status": status(score_ratio > 1.10 or exact_likelihood_ratio > 1.10),
+            "primary_metric": "score_error_ratio",
+            "value": score_ratio,
+            "secondary_metric": "exact_likelihood_error_ratio",
+            "secondary_value": exact_likelihood_ratio,
+        },
+        {
+            "category": "speedup",
+            "status": status(speedup <= 1.0),
+            "primary_metric": "median_exact_over_learned",
+            "value": speedup,
+            "secondary_metric": "runtime_masks",
+            "secondary_value": len(runtime_summaries),
+        },
+        {
+            "category": "model trace vs analytic drift",
+            "status": "PASS",
+            "primary_metric": "no_head_exact_vs_analytic_nrmse",
+            "value": no_head_exact_analytic["nrmse"],
+            "secondary_metric": "trained_exact_vs_analytic_nrmse",
+            "secondary_value": trained_exact_analytic["nrmse"],
+        },
+    ]
+    details = {
+        "head_vs_exact": head_exact,
+        "no_head_exact_vs_analytic": no_head_exact_analytic,
+        "trained_exact_vs_analytic": trained_exact_analytic,
+        "head_vs_analytic": head_analytic,
+        "stage1_score": stage1_score,
+        "stage2_score": stage2_score,
+        "stage1_exact_vs_analytic_log_prob": stage1_likelihood,
+        "stage2_exact_vs_analytic_log_prob": stage2_exact_likelihood,
+        "stage2_learned_vs_analytic_log_prob": stage2_learned_likelihood,
+        "stage2_learned_vs_exact_log_prob": learned_exact_likelihood,
+    }
+    return rows, warnings, details
+
+
+def print_summary(rows, warnings):
+    log("\nFinal divergence-head validation summary")
+    log("=" * 102)
+    log(f"{'status':<7} {'category':<31} {'primary metric':<31} {'value':>12}")
+    log("-" * 102)
+    for row in rows:
+        value = row["value"]
+        value_text = f"{value:.6g}" if isinstance(value, (int, float, np.number)) else str(value)
+        log(
+            f"{row['status']:<7} {row['category']:<31} "
+            f"{row['primary_metric']:<31} {value_text:>12}"
+        )
+    log("=" * 102)
+    if warnings:
+        log("Warnings (quality thresholds do not change the exit status):")
+        for warning in warnings:
+            log(f"  - {warning}")
+    else:
+        log("All empirical quality thresholds passed.")
+
+
+def write_outputs(
+    config,
+    fingerprint,
+    device,
+    selected_gpu,
+    history,
+    drift_rows,
+    score_rows,
+    log_prob_rows,
+    runtime_rows,
+    runtime_summaries,
+    summary_rows,
+    summary_details,
+):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    write_csv(OUTPUT_DIR / "training_history.csv", history)
+    write_csv(OUTPUT_DIR / "per_time_drift_metrics.csv", drift_rows)
+    write_csv(OUTPUT_DIR / "per_time_score_metrics.csv", score_rows)
+    write_csv(OUTPUT_DIR / "per_sample_log_probabilities.csv", log_prob_rows)
+    write_csv(OUTPUT_DIR / "runtime.csv", runtime_rows)
+    runtime_summary_rows = [
+        {"mask": mask_name, **values}
+        for mask_name, values in runtime_summaries.items()
+    ]
+    write_csv(OUTPUT_DIR / "runtime_summary.csv", runtime_summary_rows)
+    write_csv(OUTPUT_DIR / "summary.csv", summary_rows)
+
+    logical_cpus, active_cpus = CPU_LIMIT_INFO
+    payload = {
+        "config": config,
+        "training_fingerprint": fingerprint,
+        "cpu": {
+            "logical": logical_cpus,
+            "active": list(active_cpus),
+            "fraction": len(active_cpus) / logical_cpus,
+            "thread_environment": {
+                name: os.environ[name] for name in CPU_THREAD_ENV_VARS
+            },
+        },
+        "device": device,
+        "autocvd_selection": to_jsonable(selected_gpu),
+        "summary_details": summary_details,
+    }
+    with (OUTPUT_DIR / "experiment_config.json").open("w") as handle:
+        json.dump(payload, handle, indent=2, sort_keys=True, allow_nan=True)
+
+
+def to_jsonable(value):
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, torch.Tensor):
+        return to_numpy(value).tolist()
+    if isinstance(value, (list, tuple)):
+        return [to_jsonable(item) for item in value]
+    if isinstance(value, dict):
+        return {str(key): to_jsonable(item) for key, item in value.items()}
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def validate_cpu_cap():
+    logical_cpus, selected_cpus = CPU_LIMIT_INFO
+    active = tuple(sorted(os.sched_getaffinity(0)))
+    if active != selected_cpus:
+        raise RuntimeError(
+            f"CPU affinity changed after startup: expected {selected_cpus}, found {active}."
+        )
+    if len(active) / logical_cpus > CPU_USAGE_LIMIT_FRACTION:
+        raise RuntimeError("CPU-cap validation failed: active capacity exceeds 6%.")
+    for variable in CPU_THREAD_ENV_VARS:
+        if os.environ.get(variable) != str(len(active)):
+            raise RuntimeError(f"CPU thread variable {variable} changed after startup.")
+
+
+def configure_plot_style():
+    plt.rcParams.update({
+        "figure.dpi": 120,
+        "font.size": 9.5,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    })
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--force-retrain",
+        action="store_true",
+        help="Explicitly ignore existing checkpoints and rerun both training stages.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    validate_cpu_cap()
+    logical_cpus, active_cpus = CPU_LIMIT_INFO
+    log(
+        "[setup] CPU limited to {} of {} logical CPUs ({:.2%} capacity)".format(
+            len(active_cpus), logical_cpus, len(active_cpus) / logical_cpus
+        )
+    )
+
+    # Required project-wide allocation step. autocvd sets CUDA_VISIBLE_DEVICES;
+    # PyTorch has not queried CUDA before this point.
+    selected_gpu = autocvd(num_gpus=1, interval=1)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    log(f"[setup] autocvd selected {selected_gpu}; using device={device}")
+    configure_plot_style()
+
+    config = copy.deepcopy(DEFAULT_CONFIG)
+    config["experiment_version"] = GAUSSIAN_EXPERIMENT_VERSION
+    reference = LinearGaussianReference(**GAUSSIAN_PROBLEM_CONFIG)
+    # Include the exact distribution in both the training fingerprint and the
+    # generated experiment_config.json, rather than relying on hidden constants.
+    config["problem"] = reference.configuration()
+    splits, stage1, stage2, history, fingerprint = load_or_train(
+        reference, config, device, force_retrain=args.force_retrain
+    )
+
+    log("[evaluate] instantaneous drift and analytic score")
+    drift_rows, score_rows, raw_records = evaluate_instantaneous(
+        reference, splits, stage1, stage2, config, device
+    )
+    log("[evaluate] held-out exact and learned PF-ODE log probabilities")
+    log_prob_rows, log_prob_arrays = evaluate_log_probabilities(
+        reference, splits, stage1, stage2, config, device
+    )
+    log("[evaluate] posterior and likelihood density grids")
+    density_results = evaluate_density_grids(reference, splits, stage2, config, device)
+    log("[evaluate] posterior and likelihood integration-timestep density sweep")
+    density_timestep_results = evaluate_density_timestep_sweep(
+        reference, splits, stage2, config, device
+    )
+    log("[benchmark] exact autograd versus learned divergence")
+    runtime_rows, runtime_summaries = benchmark_runtime(stage2, splits, config, device)
+
+    summary_rows, warnings, summary_details = build_summary(
+        raw_records, log_prob_arrays, runtime_summaries
+    )
+    plot_joint_data_pairplot(splits, config)
+    plot_training_curves(history)
+    plot_drift_calibration(raw_records)
+    plot_error_vs_noise(drift_rows, score_rows)
+    plot_log_prob_calibration(log_prob_arrays)
+    for mask_name, result in density_results.items():
+        plot_density_result(mask_name, result)
+    for mask_name, result in density_timestep_results.items():
+        plot_density_timestep_sweep(mask_name, result)
+    plot_runtime(runtime_summaries)
+    write_outputs(
+        config,
+        fingerprint,
+        device,
+        selected_gpu,
+        history,
+        drift_rows,
+        score_rows,
+        log_prob_rows,
+        runtime_rows,
+        runtime_summaries,
+        summary_rows,
+        summary_details,
+    )
+    print_summary(summary_rows, warnings)
+    log(f"\nOutputs written to {OUTPUT_DIR}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,897 @@
+{
+  ".vscode/settings.json": {
+    "mtime": 1781100224.6157014,
+    "ast_hash": "88a61d02e263fb4872b6af79d60b6e35",
+    "semantic_hash": ""
+  },
+  ".zenodo.json": {
+    "mtime": 1781100224.6197016,
+    "ast_hash": "d97360ca6f9c1ec4a2d2bee1efd87e81",
+    "semantic_hash": ""
+  },
+  "pyproject.toml": {
+    "mtime": 1781100224.6477022,
+    "ast_hash": "a954c5ce03ec4482409a3f052aabcaa1",
+    "semantic_hash": ""
+  },
+  "src/compass/ConditionTransformer.py": {
+    "mtime": 1784205266.1747558,
+    "ast_hash": "c4e7661f4ad9cd4841f0683812ec1a5d",
+    "semantic_hash": ""
+  },
+  "src/compass/ModelTransfuser.py": {
+    "mtime": 1784204507.8243208,
+    "ast_hash": "92ebe38af6916ae3823f622a3ccb27ef",
+    "semantic_hash": ""
+  },
+  "src/compass/MultiObsSampler.py": {
+    "mtime": 1784032316.9736056,
+    "ast_hash": "6b5b6a5de66e0b1ddc9b76df149d7ca2",
+    "semantic_hash": ""
+  },
+  "src/compass/PFODE.py": {
+    "mtime": 1784204489.123965,
+    "ast_hash": "1ebf0b6bf41b14d4f811f41eb200a6f5",
+    "semantic_hash": ""
+  },
+  "src/compass/SDE.py": {
+    "mtime": 1783517845.930968,
+    "ast_hash": "7261515bf6f3f16b26e0b1e30a137e26",
+    "semantic_hash": ""
+  },
+  "src/compass/Sampler.py": {
+    "mtime": 1784032316.9696057,
+    "ast_hash": "da767889fb89dcb4f81eb123260edcbb",
+    "semantic_hash": ""
+  },
+  "src/compass/ScoreBasedInferenceModel.py": {
+    "mtime": 1784205318.91576,
+    "ast_hash": "d654dfe0cc2c549c56eaf0797dd2c9c6",
+    "semantic_hash": ""
+  },
+  "src/compass/Trainer.py": {
+    "mtime": 1784205629.4096723,
+    "ast_hash": "737737de1ec85d1b2ce3689309f2ab1a",
+    "semantic_hash": ""
+  },
+  "src/compass/__init__.py": {
+    "mtime": 1781100224.6757026,
+    "ast_hash": "f5c0ba7bdceeaf7159e24b65bf437fc9",
+    "semantic_hash": ""
+  },
+  "tests/test_instantaneous_divergence.py": {
+    "mtime": 1784206587.2639127,
+    "ast_hash": "9569257570c68e64897cac096d740bd0",
+    "semantic_hash": ""
+  },
+  "tests/test_multiobs_analytic.py": {
+    "mtime": 1784032398.775184,
+    "ast_hash": "1b2c19bf74260f2cd11193ae752fa07e",
+    "semantic_hash": ""
+  },
+  "tests/test_pfode_vpsde_analytic.py": {
+    "mtime": 1784032398.771184,
+    "ast_hash": "2903db7bd2deb65daa8186fce78739d0",
+    "semantic_hash": ""
+  },
+  "tests/test_variable_param_count.py": {
+    "mtime": 1783517845.974969,
+    "ast_hash": "299353af0f64c32267e7c818ed0354a9",
+    "semantic_hash": ""
+  },
+  "tutorials/Compositional_Inference.py": {
+    "mtime": 1784219090.733166,
+    "ast_hash": "58bc0c2c81220c9346839760ff09fc23",
+    "semantic_hash": ""
+  },
+  "tutorials/Divergence_Head.py": {
+    "mtime": 1784219008.8756137,
+    "ast_hash": "33b84f76a7772410bdeb6aac7430c5ef",
+    "semantic_hash": ""
+  },
+  "tutorials/Gaussians_VP_test.py": {
+    "mtime": 1783951329.8393822,
+    "ast_hash": "763ae8e44c640b044d85c7cb5ff05311",
+    "semantic_hash": ""
+  },
+  "tutorials/Population_Dynamics.py": {
+    "mtime": 1784068324.7839754,
+    "ast_hash": "9dc1fb78dc8ce1d0250900a17d13aa09",
+    "semantic_hash": ""
+  },
+  "tutorials/Probability_Flow_validation.py": {
+    "mtime": 1784395114.0698888,
+    "ast_hash": "be5d6ed064cebd44f90413acfd17c8e2",
+    "semantic_hash": ""
+  },
+  "tutorials/data/PF_ODE_validation/normalization.json": {
+    "mtime": 1783518186.529388,
+    "ast_hash": "ca19c7502bfdd0d1776907328635625f",
+    "semantic_hash": ""
+  },
+  "tutorials/data/divergence_head/cache_manifest.json": {
+    "mtime": 1784209673.9306946,
+    "ast_hash": "f9d71014ca4ca47eba9748c6a021cc13",
+    "semantic_hash": ""
+  },
+  "tutorials/fast_sampling_performance.py": {
+    "mtime": 1784398688.345777,
+    "ast_hash": "429c1ed06e29f92e0a993685e62a1ef4",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/experiment_config.json": {
+    "mtime": 1784395282.509138,
+    "ast_hash": "ec916b932e6fc18fbf0bc3026df33555",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/run_config.json": {
+    "mtime": 1784215788.3465424,
+    "ast_hash": "ea7e82562c4ee43013abd62387fb5350",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/experiment_config.json": {
+    "mtime": 1784219335.2738051,
+    "ast_hash": "328ba8b4017e54dc751a8a5987b275c2",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/experiment_config.json": {
+    "mtime": 1784212930.956721,
+    "ast_hash": "725cd960dc36499238187f27c57540a1",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/experiment_config.json": {
+    "mtime": 1783943772.349014,
+    "ast_hash": "e90ce78bf50a52927c80676bad37a938",
+    "semantic_hash": ""
+  },
+  ".github/workflows/release.yml": {
+    "mtime": 1781100224.6077013,
+    "ast_hash": "5f175e1552be731c33e018cd5ed271a3",
+    "semantic_hash": ""
+  },
+  "CHANGELOG.md": {
+    "mtime": 1781100224.6237016,
+    "ast_hash": "920be583b0373771cd76f0de971c6870",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1784032129.8899944,
+    "ast_hash": "2aa8ea3e7fc6722cd7303070d63df16f",
+    "semantic_hash": ""
+  },
+  "docs/index.html": {
+    "mtime": 1781100224.643702,
+    "ast_hash": "d57ce527ab6eb38dcecb5ad5676f0865",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/README.md": {
+    "mtime": 1784397653.010261,
+    "ast_hash": "934c58d4732afcec5b50439479d3d70e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/README.md": {
+    "mtime": 1784391348.8652253,
+    "ast_hash": "6f83c4e88a237271e6b561f77d5c5341",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/README.md": {
+    "mtime": 1784398023.2451863,
+    "ast_hash": "c585d6eced8b14600234c99afda72a16",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/README.md": {
+    "mtime": 1784209399.005459,
+    "ast_hash": "630f0b8595f8286cb80dfb0167442ea9",
+    "semantic_hash": ""
+  },
+  "data/variable_params/model_probs_cumulative.png": {
+    "mtime": 1783785135.181002,
+    "ast_hash": "95db908f9e25d64781e713b78ce5e6c6",
+    "semantic_hash": ""
+  },
+  "data/variable_params/model_probs_violin.png": {
+    "mtime": 1783785131.0729241,
+    "ast_hash": "4207d0456a9a04996c9650e1716da2b4",
+    "semantic_hash": ""
+  },
+  "docs/COMPASS_logo.png": {
+    "mtime": 1781100224.639702,
+    "ast_hash": "e35f76c36a33d535c8956f3483160e05",
+    "semantic_hash": ""
+  },
+  "tutorials/data/gaussians/avg_attention_map.png": {
+    "mtime": 1783517846.1069715,
+    "ast_hash": "f62a4726e1655674999bbaf853943602",
+    "semantic_hash": ""
+  },
+  "tutorials/data/gaussians/layer_attention.png": {
+    "mtime": 1783517846.1149716,
+    "ast_hash": "17e715818afcef023ab7b3012755eb98",
+    "semantic_hash": ""
+  },
+  "tutorials/data/gaussians/model_probs_cumulative.png": {
+    "mtime": 1783517846.1349719,
+    "ast_hash": "e3b31ebd54c11b427c9f53b0b4934b8b",
+    "semantic_hash": ""
+  },
+  "tutorials/data/gaussians/model_probs_violin.png": {
+    "mtime": 1783517846.1469722,
+    "ast_hash": "ab559ec7c6d5af8cac5e0f0d203e6508",
+    "semantic_hash": ""
+  },
+  "tutorials/data/gaussians/selected_attention_map.png": {
+    "mtime": 1783517846.1549723,
+    "ast_hash": "faab9975cbe81d5b5c95698754a5d575",
+    "semantic_hash": ""
+  },
+  "tutorials/data/population_dynamics/pp_dynamics.png": {
+    "mtime": 1781100224.959708,
+    "ast_hash": "f2a8e009c2c0502e8e466fef5280579e",
+    "semantic_hash": ""
+  },
+  "tutorials/data/population_dynamics/pp_predictions.png": {
+    "mtime": 1781100224.967708,
+    "ast_hash": "e4dbabbcd794193f92e0e1dbf276b12e",
+    "semantic_hash": ""
+  },
+  "tutorials/data/population_dynamics/pp_predictions_short.png": {
+    "mtime": 1781100224.9797084,
+    "ast_hash": "afa770a72e160b5ad05a3a411f91600a",
+    "semantic_hash": ""
+  },
+  "tutorials/data/variable_params/model_probs_cumulative.png": {
+    "mtime": 1783517846.2069733,
+    "ast_hash": "f72ac8c07ab82fc09dd539c751bf80d8",
+    "semantic_hash": ""
+  },
+  "tutorials/data/variable_params/model_probs_violin.png": {
+    "mtime": 1783517846.2189736,
+    "ast_hash": "a6b7ced038f90989b988b2647fc358b5",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/likelihood_ellipses_pfode_methods.png": {
+    "mtime": 1784056100.9882061,
+    "ast_hash": "b6c2f5f7f6a287b5034d89fe54b54609",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/likelihood_ellipses_selected.png": {
+    "mtime": 1784055953.2815056,
+    "ast_hash": "636010b1aefb762e42fb5880b54643e5",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/map_accuracy_vs_runtime.png": {
+    "mtime": 1784123662.3311725,
+    "ast_hash": "06e6625db0f6b58802ac9b5627c0ad3f",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/pairplot.png": {
+    "mtime": 1784395284.2091708,
+    "ast_hash": "38538e65c92c8fcc0de9f5401ba8ba1d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/pfode_hutchinson_2d_likelihood_diagnostic.png": {
+    "mtime": 1784125550.3033159,
+    "ast_hash": "da6e2ffdb56468ec0474032a0948eacd",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/posterior_samples_one_observation.png": {
+    "mtime": 1784056179.2936492,
+    "ast_hash": "c1e3bc0554f8398771281667e8c7930f",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/xspace_likelihood_map_accuracy_vs_runtime_line_to_line.png": {
+    "mtime": 1784394824.4922986,
+    "ast_hash": "6d6271ca2cf93c95a8649b390cd3d589",
+    "semantic_hash": ""
+  },
+  "tutorials/output/PF_ODE_validation/xspace_likelihood_map_accuracy_vs_runtime_parabola_to_parabola.png": {
+    "mtime": 1784394825.5083182,
+    "ast_hash": "f3c2910a323fa5dbe28a0b8dd0a4c7c7",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/logistic_prey/model_probs_cumulative.png": {
+    "mtime": 1784071865.6281605,
+    "ast_hash": "adee9b3bbe3add1faaad12570b4e2b9e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/logistic_prey/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784071860.616068,
+    "ast_hash": "000f773d1b5bbd82f29c450d18d440e3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/logistic_prey/model_probs_violin.png": {
+    "mtime": 1784071862.8201087,
+    "ast_hash": "307dc187d4011a077d54517fb3ba3bad",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/logistic_prey/model_probs_violin_no_penalty.png": {
+    "mtime": 1784071859.8240533,
+    "ast_hash": "b8f2636ea5fe98a9286949349608d868",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/lotka-volterra/model_probs_cumulative.png": {
+    "mtime": 1784071383.5149095,
+    "ast_hash": "34ea6c76dc237bccabfbbc2b515a1adc",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/lotka-volterra/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784071378.4188116,
+    "ast_hash": "6ea3ed419080637d4191090c2363906e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/lotka-volterra/model_probs_violin.png": {
+    "mtime": 1784071380.4948516,
+    "ast_hash": "936169e32bb7af36859cf3afbfa9e53a",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/lotka-volterra/model_probs_violin_no_penalty.png": {
+    "mtime": 1784071377.6427968,
+    "ast_hash": "5025ac9c1bd2b3c2c425f072c5c4d83d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/rosenzweig-macarthur/model_probs_cumulative.png": {
+    "mtime": 1784072815.450011,
+    "ast_hash": "d8aad46c51581ce2768257a92b719871",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/rosenzweig-macarthur/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784072810.5099173,
+    "ast_hash": "69d7942ffafd6bf8b6260efc52ec018d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/rosenzweig-macarthur/model_probs_violin.png": {
+    "mtime": 1784072812.6659582,
+    "ast_hash": "f4970f4817818530dcb63f2254ba882a",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/rosenzweig-macarthur/model_probs_violin_no_penalty.png": {
+    "mtime": 1784072809.397896,
+    "ast_hash": "2bbc12363d0714746bf6fa2595882c52",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/satiated_predator/model_probs_cumulative.png": {
+    "mtime": 1784072339.9090147,
+    "ast_hash": "89a8102f0378c6c03cf69b4e9154fdf9",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/satiated_predator/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784072335.5369325,
+    "ast_hash": "5d70b2ff6a19efaa497d98264641ff52",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/satiated_predator/model_probs_violin.png": {
+    "mtime": 1784072337.164963,
+    "ast_hash": "11ee6307d83404321d5a31237e5c8ea6",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/pfode_heun_exact/satiated_predator/model_probs_violin_no_penalty.png": {
+    "mtime": 1784072334.7529178,
+    "ast_hash": "ab342e338b38776c0666de8139f97628",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/logistic_prey/model_probs_cumulative.png": {
+    "mtime": 1784069676.7256074,
+    "ast_hash": "3454e25ef7c5152b40e049b5620a14f2",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/logistic_prey/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784069672.1135201,
+    "ast_hash": "000f773d1b5bbd82f29c450d18d440e3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/logistic_prey/model_probs_violin.png": {
+    "mtime": 1784069674.001556,
+    "ast_hash": "488ad0e8ae69c29c7b59ce3eee88d193",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/logistic_prey/model_probs_violin_no_penalty.png": {
+    "mtime": 1784069671.3455055,
+    "ast_hash": "7762f896a5127987d4842ad6bdc465aa",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/lotka-volterra/model_probs_cumulative.png": {
+    "mtime": 1784069066.6220403,
+    "ast_hash": "741ab960235baf5c2e88cb142d8624c9",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/lotka-volterra/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784069061.7139473,
+    "ast_hash": "bded09630d2ab7026dea047e1f9e2814",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/lotka-volterra/model_probs_violin.png": {
+    "mtime": 1784069063.8019867,
+    "ast_hash": "c55d7a0a20444f4a9d23230ec2f7e253",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/lotka-volterra/model_probs_violin_no_penalty.png": {
+    "mtime": 1784069060.9419324,
+    "ast_hash": "05ff7e7ba65128c76550e16b00f3ea69",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/rosenzweig-macarthur/model_probs_cumulative.png": {
+    "mtime": 1784070908.6537647,
+    "ast_hash": "5df0b4e957a4fb53c1bcc547dea1f1f9",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/rosenzweig-macarthur/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784070903.7136693,
+    "ast_hash": "8fba5bd0318131f6cd98e83280de7bae",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/rosenzweig-macarthur/model_probs_violin.png": {
+    "mtime": 1784070905.8457105,
+    "ast_hash": "c907b32957d76e3addc4caa1dbfc8515",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/rosenzweig-macarthur/model_probs_violin_no_penalty.png": {
+    "mtime": 1784070902.9256542,
+    "ast_hash": "9fa0c6bcd281f4bb2bb7515226b57789",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/satiated_predator/model_probs_cumulative.png": {
+    "mtime": 1784070290.285736,
+    "ast_hash": "89a8102f0378c6c03cf69b4e9154fdf9",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/satiated_predator/model_probs_histogram_no_penalty.png": {
+    "mtime": 1784070285.6816456,
+    "ast_hash": "5d70b2ff6a19efaa497d98264641ff52",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/satiated_predator/model_probs_violin.png": {
+    "mtime": 1784070287.3176777,
+    "ast_hash": "11ee6307d83404321d5a31237e5c8ea6",
+    "semantic_hash": ""
+  },
+  "tutorials/output/Population_Dynamics/reverse_sde/satiated_predator/model_probs_violin_no_penalty.png": {
+    "mtime": 1784070284.89363,
+    "ast_hash": "ab342e338b38776c0666de8139f97628",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/01_contract/contract_checks.png": {
+    "mtime": 1784215800.1107652,
+    "ast_hash": "bb01fb83e8d721c1fe0b12c16b37dd7d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/01_contract/problem_pairplot.png": {
+    "mtime": 1784216217.4866679,
+    "ast_hash": "dbbc3349ba97324cc61dd23a8255aaeb",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/02_sampler_comparison/problem_pairplot.png": {
+    "mtime": 1784216217.806674,
+    "ast_hash": "9e75e1d92191514ca79ba2093354b2b4",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/02_sampler_comparison/sampler_comparison_n10.png": {
+    "mtime": 1784212772.745708,
+    "ast_hash": "b6ca480eb2f915ce13b7feb8cce8f3fc",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/03_observation_scaling/problem_pairplot.png": {
+    "mtime": 1784216218.1546805,
+    "ast_hash": "05085772493188b3c3eab29673ad08ef",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/03_observation_scaling/samplers_vs_observation_count.png": {
+    "mtime": 1784219146.1942177,
+    "ast_hash": "510c2ed8353bb1a3d036d9389ad0bdc7",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/04_time_sampling/problem_pairplot.png": {
+    "mtime": 1784216218.4746866,
+    "ast_hash": "0c906b11a20c52bdfec091f2add8627d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/04_time_sampling/training_time_sampling_effect.png": {
+    "mtime": 1784206103.6267025,
+    "ast_hash": "1aa2e0d8c90ab06c1ddb5dc528bd5c39",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/05_multi_vs_individual/multi_vs_individual_vs_references.png": {
+    "mtime": 1784206125.067111,
+    "ast_hash": "baadf500cfd680276475e535c3f200c1",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/05_multi_vs_individual/problem_pairplot.png": {
+    "mtime": 1784216218.7946925,
+    "ast_hash": "b5dbd180758619cf6b9c76111584d380",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/06a_population_globals/population_mu_variance_vs_mcmc.png": {
+    "mtime": 1784206385.740075,
+    "ast_hash": "93d06f1b53a12996e615341e5536cd23",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/06a_population_globals/problem_pairplot.png": {
+    "mtime": 1784216219.4267046,
+    "ast_hash": "12fe037751945d7639c639baa41f8564",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/06b_shared_local/problem_pairplot.png": {
+    "mtime": 1784216220.1027174,
+    "ast_hash": "6de035954f7a96acb5a5ef38e161696b",
+    "semantic_hash": ""
+  },
+  "tutorials/output/compositional_inference/06b_shared_local/shared_and_local_recovery.png": {
+    "mtime": 1784206636.2488456,
+    "ast_hash": "b8c8103be659f112285682ef69b2761a",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/error_vs_noise_scale.png": {
+    "mtime": 1784219325.0776095,
+    "ast_hash": "8e9e226144b9cd2930fbb8c86b3f92a0",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/instantaneous_drift_calibration.png": {
+    "mtime": 1784219324.469598,
+    "ast_hash": "96ab5c4448afe7eef658e0fc7eab0a00",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/joint_data_pairplot.png": {
+    "mtime": 1784219322.6255631,
+    "ast_hash": "ea4c894f53b256121014995eeae56602",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/likelihood_density_contours.png": {
+    "mtime": 1784219328.465674,
+    "ast_hash": "e66527203d682f4ae3ce23bbe57d3a14",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/likelihood_density_timestep_sweep.png": {
+    "mtime": 1784219335.0498006,
+    "ast_hash": "ebf6804953ae1052eca8d52aba346521",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/log_prob_calibration.png": {
+    "mtime": 1784219325.985627,
+    "ast_hash": "1b938748acdbdecc4899528c33b45bf3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/posterior_density_contours.png": {
+    "mtime": 1784219327.149649,
+    "ast_hash": "a4b3fe2394d01bce44374fb8ce435667",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/posterior_density_timestep_sweep.png": {
+    "mtime": 1784219331.7217357,
+    "ast_hash": "0d0aab95a04dd1d38aa5c04366f36848",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/runtime_comparison.png": {
+    "mtime": 1784219335.2378044,
+    "ast_hash": "fd1e827edef71b70fd474905679c939c",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head/training_curves.png": {
+    "mtime": 1784219323.4415786,
+    "ast_hash": "b012d3405e6fb1234f0d132494018f98",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/error_vs_noise_scale.png": {
+    "mtime": 1784216256.0273976,
+    "ast_hash": "eb5aed34eb93fe7ab656cfa2ea113309",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/instantaneous_drift_calibration.png": {
+    "mtime": 1784212927.0926473,
+    "ast_hash": "96ab5c4448afe7eef658e0fc7eab0a00",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/joint_data_pairplot.png": {
+    "mtime": 1784215619.8953545,
+    "ast_hash": "5ca4048a942668705009a2b29a9f3f40",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/likelihood_density_contours.png": {
+    "mtime": 1784217720.883177,
+    "ast_hash": "e66527203d682f4ae3ce23bbe57d3a14",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/likelihood_density_timestep_sweep.png": {
+    "mtime": 1784218806.4797754,
+    "ast_hash": "ebf6804953ae1052eca8d52aba346521",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/log_prob_calibration.png": {
+    "mtime": 1784212929.4926932,
+    "ast_hash": "1b938748acdbdecc4899528c33b45bf3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/posterior_density_contours.png": {
+    "mtime": 1784217719.779156,
+    "ast_hash": "a4b3fe2394d01bce44374fb8ce435667",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/posterior_density_timestep_sweep.png": {
+    "mtime": 1784218803.0717108,
+    "ast_hash": "0d0aab95a04dd1d38aa5c04366f36848",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/runtime_comparison.png": {
+    "mtime": 1784212930.9207203,
+    "ast_hash": "faf7ca98a90d4a76f8bea832c2755eb3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/divergence_head_backup/training_curves.png": {
+    "mtime": 1784214390.5040972,
+    "ast_hash": "298d6359ca7773a326a7610b55bc158b",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/dpm_ablation.png": {
+    "mtime": 1784391344.5011418,
+    "ast_hash": "07405870f552caec33932fb2abce682d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/euler_ablation.png": {
+    "mtime": 1784391345.033152,
+    "ast_hash": "5a6c7ced4b29b465cea903bb4f8a3a12",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/low_step_distributions.png": {
+    "mtime": 1784391346.3771777,
+    "ast_hash": "f288b3fe07bf13919f7037cb434b3b08",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/pareto.png": {
+    "mtime": 1784391345.97717,
+    "ast_hash": "7ba868ffbbb621350460767fe7f02e6e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/posterior_examples.png": {
+    "mtime": 1784391347.853206,
+    "ast_hash": "ace7011fdee31d53c580b4630e343945",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/sampler_pairplot.png": {
+    "mtime": 1784391348.8572252,
+    "ast_hash": "ff22c39fb414e9282884ed5e60d8aa74",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/shape_ablation.png": {
+    "mtime": 1784391347.01719,
+    "ast_hash": "1e9140f4849278a998d303d388a6207b",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/training_calibration_comparison.png": {
+    "mtime": 1784391343.9011304,
+    "ast_hash": "9f052e13555350df2ac33cbf4099f6f7",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/training_noise_diagnostic.png": {
+    "mtime": 1784391343.4091208,
+    "ast_hash": "0cfe456cb92f06dc9c6a4cc123fe8f49",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/banana/training_time_sampling.png": {
+    "mtime": 1784391342.4171019,
+    "ast_hash": "cc04f37195b9d2688c54aff4f7bc4c81",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/dpm_ablation.png": {
+    "mtime": 1784398019.8131218,
+    "ast_hash": "ad645a96bae7811f49c43a148ee8bff3",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/euler_ablation.png": {
+    "mtime": 1784398020.3891325,
+    "ast_hash": "9a049f5dfb57ed132e83b4a2c242cd21",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/low_step_distributions.png": {
+    "mtime": 1784398021.9171615,
+    "ast_hash": "8e675649d125631ba0669eaea70833f5",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/pareto.png": {
+    "mtime": 1784398021.5331542,
+    "ast_hash": "511c28ae2b14b796dc93b9664a2fe054",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/posterior_examples.png": {
+    "mtime": 1784398022.2571678,
+    "ast_hash": "7e367ae5e8e1187d939a12aa13a8469d",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/sampler_pairplot.png": {
+    "mtime": 1784398023.2411864,
+    "ast_hash": "cb1f80cddfa1621756ee9c36e3b16d42",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/training_calibration_comparison.png": {
+    "mtime": 1784398019.129109,
+    "ast_hash": "21baf55238ab307592f279e5aa3e5dec",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/training_noise_diagnostic.png": {
+    "mtime": 1784398018.6290996,
+    "ast_hash": "c24c499bb6498c81965071ae1ccfcb92",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance/gaussian/training_time_sampling.png": {
+    "mtime": 1784398017.8370845,
+    "ast_hash": "438d9262f8d2a1da088e61c0bf4189eb",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/dpm_ablation.png": {
+    "mtime": 1784209396.6214137,
+    "ast_hash": "bb243f063d2d28d2733c64e492413e0a",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/euler_ablation.png": {
+    "mtime": 1784209397.2494256,
+    "ast_hash": "b23f75e1938801f02bfadc46191d717e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/low_step_distributions.png": {
+    "mtime": 1784209399.001459,
+    "ast_hash": "5542bc25136d7888dd08c1e7989989da",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/pareto.png": {
+    "mtime": 1784209398.3854473,
+    "ast_hash": "c8974d1f8ac498d023317a723f81aa36",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/performance_tradeoff.png": {
+    "mtime": 1784135845.837711,
+    "ast_hash": "90f7667cde11cb77e11fee5f8f51d823",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/posterior_comparison.png": {
+    "mtime": 1784135845.3777022,
+    "ast_hash": "fffbcc87453c401f173fc4079a25679c",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/posterior_examples.png": {
+    "mtime": 1784190655.5841532,
+    "ast_hash": "d9fbf2a3c4074ea2106aaa3ac5b5945b",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/training_calibration_comparison.png": {
+    "mtime": 1784213166.001197,
+    "ast_hash": "13649ed712a8ceb83827e53abb493485",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/training_noise_diagnostic.png": {
+    "mtime": 1784209395.8813994,
+    "ast_hash": "a5fbe3a3351c4bee3e2bc1ba5941c22e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/fast_sampling_performance_backup/training_time_sampling.png": {
+    "mtime": 1784209395.1293852,
+    "ast_hash": "4b709990cb7e5851344b2d83a20fadf9",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_calibration.png": {
+    "mtime": 1783946849.3124633,
+    "ast_hash": "4360cab1c656e5c3f75ed77bbbe8c3c8",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_hyperparameter_sweep.png": {
+    "mtime": 1783949168.4456434,
+    "ast_hash": "668cc9049dc9cf538ed8b043073000bd",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_hyperparameter_sweep_aic.png": {
+    "mtime": 1783949170.185677,
+    "ast_hash": "42c5459c38e971aa4b2bc9fb0c6ca2ab",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_hyperparameter_sweep_aicc.png": {
+    "mtime": 1783949172.8097277,
+    "ast_hash": "a693c28d15df6477089d0be8cf5a77f6",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_hyperparameter_sweep_bic.png": {
+    "mtime": 1783949175.1337726,
+    "ast_hash": "6eec309cbfe708f7bb7cae262d376dff",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_ic_calibration.png": {
+    "mtime": 1783946849.980476,
+    "ast_hash": "245d3b6c4bd1c4e50ab8a7b9c6603ec1",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_compass_ic_convergence.png": {
+    "mtime": 1783946852.4045227,
+    "ast_hash": "c09cafbbfa35bbdc03d50fc401309fc6",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/baseline_convergence.png": {
+    "mtime": 1783946850.964495,
+    "ast_hash": "70c1231876ea5c13bcc9f10029aef7eb",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/gaussian_hypotheses_pairplot.png": {
+    "mtime": 1783955473.20761,
+    "ast_hash": "2baf9ae69cad53d67af89ce4cf9d78e4",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/gaussian_hypotheses_pairplot_ab_0.png": {
+    "mtime": 1783955479.115723,
+    "ast_hash": "a2eb1a775d4ec678cce39f6c9c76a9f7",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/gaussian_hypotheses_pairplot_ab_0p3.png": {
+    "mtime": 1783955476.2796686,
+    "ast_hash": "83269ca38f5fc2b88b62e4418756901e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/gaussian_model_parameter_counts.png": {
+    "mtime": 1783943772.7810223,
+    "ast_hash": "5a619b9464eef2014c548e88f5c3ea01",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/axis-scaled_circle_3p/model_probs_cumulative.png": {
+    "mtime": 1783955686.779702,
+    "ast_hash": "cf84ab8881251528836886717751c0ee",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/axis-scaled_circle_3p/model_probs_histogram_no_penalty.png": {
+    "mtime": 1783955681.5076008,
+    "ast_hash": "d13f1370e86aafec971114a9a68a261f",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/axis-scaled_circle_3p/model_probs_violin.png": {
+    "mtime": 1783955683.499639,
+    "ast_hash": "54da239b19d406fb8a71d2b2e200da65",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/axis-scaled_circle_3p/model_probs_violin_no_penalty.png": {
+    "mtime": 1783955680.7515862,
+    "ast_hash": "83f607cbf981a2e27510d99c1732efd0",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/circle_1p/model_probs_cumulative.png": {
+    "mtime": 1783955549.1410632,
+    "ast_hash": "1b77ce6cf4b53b60a1eeafad044efe27",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/circle_1p/model_probs_histogram_no_penalty.png": {
+    "mtime": 1783955543.6609583,
+    "ast_hash": "9c03d80335967ceb49d69a533b88c39c",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/circle_1p/model_probs_violin.png": {
+    "mtime": 1783955545.7209978,
+    "ast_hash": "06683942757e39a117aaf414affc3330",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/circle_1p/model_probs_violin_no_penalty.png": {
+    "mtime": 1783955542.808942,
+    "ast_hash": "bf87245447c601a16bccf97db4d2d18e",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/horizontally_scaled_circle_2p/model_probs_cumulative.png": {
+    "mtime": 1783955618.1303852,
+    "ast_hash": "70b861707eebf03037a7acb16b88a702",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/horizontally_scaled_circle_2p/model_probs_histogram_no_penalty.png": {
+    "mtime": 1783955612.7782826,
+    "ast_hash": "8d83b8bd0ef3ad79c2098cc0966b2592",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/horizontally_scaled_circle_2p/model_probs_violin.png": {
+    "mtime": 1783955614.9103236,
+    "ast_hash": "62298d28b5a6a5c0cb875bb41da805e8",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/horizontally_scaled_circle_2p/model_probs_violin_no_penalty.png": {
+    "mtime": 1783955611.9822674,
+    "ast_hash": "93098f4e9457889f6bcfb15120d4be05",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/model_probs_cumulative.png": {
+    "mtime": 1783949988.2334921,
+    "ast_hash": "36f5fb219f5e5aeb9517df0169d11ea7",
+    "semantic_hash": ""
+  },
+  "tutorials/output/nested_circle_models_VP_fixed_prior_sigma=0.1/mtf_plot_comparison/model_probs_violin.png": {
+    "mtime": 1783949984.0734117,
+    "ast_hash": "aa06ed5406de20ee08ce39a1e79895e7",
+    "semantic_hash": ""
+  }
+}

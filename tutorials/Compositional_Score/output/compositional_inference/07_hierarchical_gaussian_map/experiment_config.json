@@ -1,0 +1,109 @@
+{
+  "data_dir": "/export/home/rheinric/COMPASS/tutorials/Compositional_Score/data/hierarchical_gaussian_map",
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/Compositional_Score/output/compositional_inference/07_hierarchical_gaussian_map",
+  "device": "cuda",
+  "seed": 7,
+  "quick": false,
+  "train_n": 100000,
+  "val_n": 5000,
+  "n_observations": [
+    2,
+    5,
+    10,
+    25,
+    50
+  ],
+  "n_runs": 100,
+  "num_samples": 1000,
+  "timesteps": 50,
+  "max_epochs": 500,
+  "patience": 25,
+  "force_data": false,
+  "force_train": false,
+  "model_names": [
+    "Shared Global",
+    "Fully Local"
+  ],
+  "sigma_g": 1.5,
+  "sigma_local": 1.0,
+  "sigma_x": 0.15,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3.0,
+    "hidden_size": 32,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 4
+  },
+  "training_batch_size": 256,
+  "training_lr": 0.001,
+  "joint_mean": [
+    -0.0036773132160305977,
+    0.002437393181025982,
+    -0.0016019052127376199,
+    -0.0061676823534071445
+  ],
+  "joint_std": [
+    1.5017915964126587,
+    0.9959185719490051,
+    1.8080917596817017,
+    1.8089724779129028
+  ],
+  "dataset_path": "/export/home/rheinric/COMPASS/tutorials/Compositional_Score/data/hierarchical_gaussian_map/datasets_full.npz",
+  "global_sharing_atol": 1e-06,
+  "ambiguous_weight_threshold": 0.65,
+  "map_method": "hierarchical sampling plus score-based local refinement",
+  "likelihood_method": "COMPASS probability-flow ODE, exact divergence",
+  "effective_sample_size_definition": "N independent observation pairs",
+  "parameter_roles": {
+    "correct_hierarchy": {
+      "Shared Global": {
+        "global_indices": [
+          0
+        ],
+        "local_indices": [
+          1
+        ]
+      },
+      "Fully Local": {
+        "global_indices": [],
+        "local_indices": [
+          0,
+          1
+        ]
+      }
+    },
+    "all_local": {
+      "Shared Global": {
+        "global_indices": [],
+        "local_indices": [
+          0,
+          1
+        ]
+      },
+      "Fully Local": {
+        "global_indices": [],
+        "local_indices": [
+          0,
+          1
+        ]
+      }
+    },
+    "all_global": {
+      "Shared Global": {
+        "global_indices": [
+          0,
+          1
+        ],
+        "local_indices": []
+      },
+      "Fully Local": {
+        "global_indices": [
+          0,
+          1
+        ],
+        "local_indices": []
+      }
+    }
+  }
+}

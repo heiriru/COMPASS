@@ -1,0 +1,190 @@
+{
+  "autocvd_selection": [
+    9
+  ],
+  "config": {
+    "batch_size": 256,
+    "checkpoints": {
+      "exact_head_trained": {
+        "divergence": "exact",
+        "divergence_head_trained": true,
+        "path": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola/stage2_joint.pt"
+      },
+      "exact_no_head": {
+        "divergence": "exact",
+        "divergence_head_trained": false,
+        "path": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola/stage1_exact_no_head.pt"
+      },
+      "learned_head": {
+        "divergence": "learned",
+        "divergence_head_trained": true,
+        "path": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola/stage2_joint.pt"
+      }
+    },
+    "density_grid_size": 35,
+    "density_timestep_sweep": [
+      10,
+      50,
+      100,
+      200,
+      500
+    ],
+    "density_timesteps": 100,
+    "depth": 3,
+    "divergence_loss_weight": 1.0,
+    "divergence_target": "exact",
+    "divergence_warmup_epochs": 5,
+    "drift_samples": 96,
+    "drift_time_levels": 18,
+    "early_stopping_patience": 75,
+    "eps": 0.001,
+    "experiment_version": 1,
+    "family": "parabola",
+    "hidden_size": 64,
+    "hutchinson_samples": 1,
+    "learning_rate": 0.001,
+    "likelihood_convergence_samples": 512,
+    "likelihood_convergence_steps": [
+      100,
+      200,
+      500
+    ],
+    "log_prob_batch_size": 512,
+    "log_prob_samples": 192,
+    "log_prob_timesteps": 100,
+    "mlp_ratio": 2,
+    "model": {
+      "depth": 3,
+      "hidden_size": 64,
+      "mlp_ratio": 2,
+      "nodes_size": 3,
+      "num_heads": 4,
+      "sde_type": "vesde",
+      "sigma": 25.0
+    },
+    "n_test": 2000,
+    "n_train": 100000,
+    "n_validation": 1000,
+    "normalization": {
+      "theta_mean": [
+        -0.005730453412979841
+      ],
+      "theta_std": [
+        1.1564621925354004
+      ],
+      "x_mean": [
+        -0.006360518746078014,
+        1.3376986980438232
+      ],
+      "x_std": [
+        1.1603758335113525,
+        1.196689248085022
+      ]
+    },
+    "num_heads": 4,
+    "pairplot_samples": 2000,
+    "problem": "line_parabola",
+    "runtime_batch_size": 256,
+    "runtime_repetitions": 3,
+    "runtime_samples": 96,
+    "runtime_timesteps": 50,
+    "runtime_warmups": 1,
+    "sde_type": "vesde",
+    "seed": 1729,
+    "sigma": 25.0,
+    "source_cache": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola",
+    "stage1_max_epochs": 300,
+    "stage2_max_epochs": 200,
+    "time_sampling": "mixture"
+  },
+  "cpu": {
+    "active": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fraction": 0.05555555555555555,
+    "logical": 72,
+    "thread_environment": {
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4",
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4"
+    }
+  },
+  "device": "cuda",
+  "summary_details": {
+    "head_vs_analytic": {
+      "bias": 0.6721512059768189,
+      "correlation": 0.9822403263750802,
+      "mae": 0.728631577271669,
+      "nrmse": 0.19111688569753818,
+      "rmse": 1.1905529954607645
+    },
+    "head_vs_exact": {
+      "bias": -0.012154917905314101,
+      "correlation": 0.9945134832311034,
+      "mae": 0.24330767873605644,
+      "nrmse": 0.07605952957961547,
+      "rmse": 0.4069877813620162
+    },
+    "no_head_exact_vs_analytic": {
+      "bias": 0.6985470541421713,
+      "correlation": 0.9812999384281161,
+      "mae": 0.7296157071211842,
+      "nrmse": 0.1968196045745724,
+      "rmse": 1.2260777949390724
+    },
+    "stage1_exact_vs_analytic_log_prob": {
+      "bias": -0.647771104598721,
+      "correlation": 0.7148916269121348,
+      "mae": 0.6911761356706534,
+      "nrmse": 0.4234207680563692,
+      "rmse": 0.8542712411960833
+    },
+    "stage1_score": {
+      "bias": 0.08361968131472741,
+      "correlation": 0.9741750793181719,
+      "mae": 0.6313189934613411,
+      "nrmse": 0.23451907732100782,
+      "rmse": 1.330713352312688
+    },
+    "stage2_exact_vs_analytic_log_prob": {
+      "bias": -0.663596444502155,
+      "correlation": 0.6942867997979694,
+      "mae": 0.7119414942977915,
+      "nrmse": 0.43924256109914916,
+      "rmse": 0.8861924500745384
+    },
+    "stage2_learned_vs_analytic_log_prob": {
+      "bias": -0.6370996386306287,
+      "correlation": 0.6763481401221426,
+      "mae": 0.6902820752939065,
+      "nrmse": 0.44368328911903915,
+      "rmse": 0.8951518269487039
+    },
+    "stage2_learned_vs_exact_log_prob": {
+      "bias": 0.0264968058715264,
+      "correlation": 0.9258368539816316,
+      "mae": 0.2234353292733431,
+      "nrmse": 0.2151612908316902,
+      "rmse": 0.3065510174768659
+    },
+    "stage2_score": {
+      "bias": 0.09359207541421627,
+      "correlation": 0.9759190807332133,
+      "mae": 0.6155224883303901,
+      "nrmse": 0.22669886020959729,
+      "rmse": 1.2863397028551904
+    },
+    "trained_exact_vs_analytic": {
+      "bias": 0.684306123882133,
+      "correlation": 0.9791423270799182,
+      "mae": 0.7245180663109144,
+      "nrmse": 0.19681678469469774,
+      "rmse": 1.2260602286396878
+    }
+  },
+  "training_fingerprint": "611094f82d9256135255fc7172a049e0fb44b78aa5ab08d495361d46833d9815"
+}

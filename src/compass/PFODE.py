@@ -148,6 +148,8 @@ class PFODE():
                             one backward pass per latent dimension -- preferred
                             for the low-dimensional problems COMPASS targets.
                             "hutchinson" uses a Rademacher trace estimator.
+                            "learned" uses the trained instantaneous divergence
+                            head without backward passes.
             hutchinson_samples: Number of probe vectors for "hutchinson".
             device:         Device to run on.
             batch_size:     Points per integration batch.
@@ -156,6 +158,15 @@ class PFODE():
         Returns:
             log_prob: tensor of shape (num_points,) on CPU.
         """
+        if divergence not in ("exact", "hutchinson", "learned"):
+            raise ValueError(f"Unknown divergence method '{divergence}'")
+        if divergence == "learned" and not getattr(
+                self.SBIm, "divergence_head_trained", False):
+            raise RuntimeError(
+                "Learned divergence was requested, but this model's divergence "
+                "head has not been trained. Fine-tune with "
+                "train_divergence=True or use divergence='exact'.")
+
         model = self.SBIm.model.to(device)
         was_training = model.training
         model.eval()
@@ -199,13 +210,14 @@ class PFODE():
             lam0, lam1 = lams[i], lams[i + 1]
 
             def evaluate(state, time):
-                return self._score_and_div(state, time, condition_mask, latent,
-                                           divergence, hutchinson_samples)
+                return self._score_and_drift(
+                    state, time, condition_mask, latent,
+                    divergence, hutchinson_samples)
 
-            y, div0, div1 = self._state_step(
+            y, drift0, drift1 = self._state_step(
                 y, lam0, lam1, ts[i], ts[i + 1], latent, evaluate, "heun")
             h = lam1 - lam0
-            I = I + 0.5 * h * (lam0 * div0 + lam1 * div1)
+            I = I + 0.5 * h * (drift0 + drift1)
 
         # Gaussian prior of the SDE at t=1 in the rescaled variables,
         # p_1(y) ~ N(mu_1, lambda_max^2). Instead of assuming mu_1 = 0 (which
@@ -215,9 +227,9 @@ class PFODE():
         # O(Var(data)/lambda_max^2), hence (y - mu_1)^2 / (2 lambda_max^2)
         # = lambda_max^2 * s_1(y)^2 / 2. This makes the evaluation independent
         # of the data location, so no normalization of the data is required.
-        s_end, _ = self._score_and_div(y, ts[-1], condition_mask, latent,
-                                       divergence, hutchinson_samples,
-                                       compute_div=False)
+        s_end, _ = self._score_and_drift(
+            y, ts[-1], condition_mask, latent,
+            divergence, hutchinson_samples, compute_drift=False)
         d = latent.sum(dim=-1)
         log_prior = (-0.5 * torch.log(2 * torch.pi * lams[-1]**2) * d
                      - 0.5 * lams[-1]**2 * (s_end**2 * latent).sum(dim=-1))
@@ -225,12 +237,18 @@ class PFODE():
         # Change of variables x = alpha * y at the data end.
         return log_prior - I - d * torch.log(alpha_eps)
 
-    def _score_and_div(self, y, t, condition_mask, latent, divergence, hutchinson_samples,
-                       compute_div=True):
-        """Score s_y = alpha * s_x and its divergence w.r.t. y over the latent dims.
+    def _score_and_drift(self, y, t, condition_mask, latent, divergence,
+                         hutchinson_samples, compute_drift=True):
+        """Return score s_y and instantaneous log-density drift D_lambda.
 
         The network approximates s_x = model(x,t,c)/sigma(t) with x = alpha(t) y on
-        the latent dims; div_y(s_y) = alpha^2 * div_x(s_x).
+        the latent dims. For dy/dlambda = -lambda*s_y,
+
+            D_lambda = -div_y(dy/dlambda)
+                     = lambda * div_y(s_y)
+                     = alpha * trace(d model_output / dx)
+
+        where the trace is restricted to latent dimensions.
         """
         sde = self.sde
         alpha = sde.alpha_t(t).to(y.device)
@@ -239,11 +257,19 @@ class PFODE():
 
         x = y * (alpha * latent + condition_mask)
 
-        if not compute_div:
+        if not compute_drift:
             with torch.no_grad():
                 out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
                 s_x = out / sigma
             return (alpha * s_x).detach(), None
+
+        if divergence == "learned":
+            with torch.no_grad():
+                out, drift = self.SBIm.model(
+                    x=x, t=t_vec, c=condition_mask,
+                    return_divergence=True)
+                s_x = out / sigma
+            return (alpha * s_x).detach(), drift.detach()
 
         with torch.enable_grad():
             x = x.detach().requires_grad_(True)
@@ -254,25 +280,25 @@ class PFODE():
                 # One backward pass per latent dimension: exact and deterministic,
                 # cheap for the low-dimensional joints COMPASS works with.
                 latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
-                div = torch.zeros(y.shape[0], device=y.device)
+                trace = torch.zeros(y.shape[0], device=y.device)
                 for k, j in enumerate(latent_dims):
-                    grad_j = torch.autograd.grad(s_x[:, j].sum(), x,
+                    grad_j = torch.autograd.grad(out[:, j].sum(), x,
                                                  retain_graph=(k < len(latent_dims) - 1))[0]
-                    div = div + grad_j[:, j] * latent[:, j]
+                    trace = trace + grad_j[:, j] * latent[:, j]
             elif divergence == "hutchinson":
-                div = torch.zeros(y.shape[0], device=y.device)
+                trace = torch.zeros(y.shape[0], device=y.device)
                 for k in range(hutchinson_samples):
                     v = (torch.randint(0, 2, y.shape, device=y.device).float() * 2 - 1) * latent
-                    grad_v = torch.autograd.grad((s_x * v).sum(), x,
+                    grad_v = torch.autograd.grad((out * v).sum(), x,
                                                  retain_graph=(k < hutchinson_samples - 1))[0]
-                    div = div + (grad_v * v).sum(dim=-1)
-                div = div / hutchinson_samples
+                    trace = trace + (grad_v * v).sum(dim=-1)
+                trace = trace / hutchinson_samples
             else:
                 raise ValueError(f"Unknown divergence method '{divergence}'")
 
         s_y = (alpha * s_x).detach()
-        div_y = (alpha**2 * div).detach()
-        return s_y, div_y
+        drift = (alpha * trace).detach()
+        return s_y, drift
 
     #############################################
     # ----- Score-ascent MAP -----

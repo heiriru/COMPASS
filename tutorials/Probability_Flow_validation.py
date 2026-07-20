@@ -1,3 +1,43 @@
+import os
+
+
+CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_ENV_VARS = (
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+)
+
+
+def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
+    """Hard-limit this script and its children to a fraction of host CPU capacity."""
+    logical_cpus = os.cpu_count() or 1
+    cpu_limit = int(logical_cpus * fraction)
+    if cpu_limit < 1:
+        raise RuntimeError(
+            f"Cannot enforce a {fraction:.1%} CPU limit on a {logical_cpus}-CPU host."
+        )
+
+    allowed_cpus = sorted(os.sched_getaffinity(0))
+    selected_cpus = tuple(allowed_cpus[:cpu_limit])
+    if not selected_cpus:
+        raise RuntimeError("The process has no CPUs available in its affinity mask.")
+    os.sched_setaffinity(0, selected_cpus)
+
+    thread_limit = len(selected_cpus)
+    for variable in CPU_THREAD_ENV_VARS:
+        os.environ[variable] = str(thread_limit)
+    return logical_cpus, selected_cpus
+
+
+# This must run before importing NumPy/SciPy/PyTorch so their thread pools inherit
+# the limit. Spawned sampler processes inherit both the affinity and environment.
+CPU_LIMIT_INFO = None
+if __name__ == "__main__":
+    CPU_LIMIT_INFO = configure_cpu_usage_limit()
+
+
 from autocvd import autocvd
 from contextlib import nullcontext
 from pathlib import Path
@@ -39,6 +79,14 @@ TRAIN_LR = 1e-3
 TRAIN_EARLY_STOPPING_PATIENCE = 20
 TRAIN_VERBOSE = True
 PRETRAINED_ONLY = False
+
+# Optional instantaneous divergence head. Keeping this False preserves the
+# original tutorial, checkpoints, and exact/Hutchinson likelihood diagnostics.
+TRAIN_DIVERGENCE = False
+DIVERGENCE_LOSS_WEIGHT = 1.0
+DIVERGENCE_TARGET = "exact"
+DIVERGENCE_HUTCHINSON_SAMPLES = 1
+DIVERGENCE_WARMUP_EPOCHS = 5
 
 MODEL_KWARGS = dict(
     sde_type="vesde",
@@ -82,7 +130,9 @@ POSTERIOR_SAMPLE_METHOD_ROWS = [
             {"label": "heun_probability_flow_ode", "plot_label": "Heun ODE", "kind": "sample", "method": "heun", "order": 2, "equation": "probability_flow_ode"},
             {"label": "pfode_exact", "plot_label": "ODE exact", "kind": "pfode", "divergence": "exact"},
             {"label": "pfode_hutchinson", "plot_label": "ODE Hutchinson", "kind": "pfode", "divergence": "hutchinson"},
-        ],
+        ] + ([
+            {"label": "pfode_learned", "plot_label": "ODE learned drift", "kind": "pfode", "divergence": "learned"},
+        ] if TRAIN_DIVERGENCE else []),
     },
 ]
 
@@ -92,7 +142,9 @@ POSTERIOR_PFODE_TRACE_CONFIGS = [
     {"plot_label": "Hutchinson (4 traces)", "divergence": "hutchinson", "hutchinson_samples": 4},
     {"plot_label": "Hutchinson (16 traces)", "divergence": "hutchinson", "hutchinson_samples": 16},
     {"plot_label": "Hutchinson (64 traces)", "divergence": "hutchinson", "hutchinson_samples": 64},
-]
+] + ([
+    {"plot_label": "Learned drift", "divergence": "learned"},
+] if TRAIN_DIVERGENCE else [])
 
 # Settings for the two-dimensional likelihood diagnostic. Keep the grid and
 # number of repetitions modest by default: each panel requires a full PF-ODE
@@ -105,7 +157,8 @@ HUTCHINSON_2D_GRID_SIZE = 64
 XSPACE_MAP_GRID_SIZE = 96
 XSPACE_MC_SAMPLES = 20_000
 XSPACE_MC_SEED = 2027
-XSPACE_BENCHMARK_FILENAME = "xspace_likelihood_map_accuracy_runtime_benchmark.csv"
+# A new filename prevents a later run from reusing pre-alignment grid results.
+XSPACE_BENCHMARK_FILENAME = "xspace_likelihood_map_accuracy_runtime_benchmark_grid_aligned.csv"
 
 ELLIPSE_METHOD_CONFIGS = [
     {"label": "euler_reverse_sde", "method": "euler", "order": 1},
@@ -321,6 +374,32 @@ def promote_best_checkpoint(model_name, overwrite=False):
     raise FileNotFoundError(f"Expected {final_path} or {checkpoint_path} after training.")
 
 
+def train_model(model_name, model, data, device, train_divergence=None):
+    """Train or fine-tune one model with the tutorial's opt-in settings."""
+    if train_divergence is None:
+        train_divergence = TRAIN_DIVERGENCE
+    model.train(
+        theta=data["train_theta"],
+        x=data["train_x"],
+        theta_val=data.get("val_theta"),
+        x_val=data.get("val_x"),
+        batch_size=TRAIN_BATCH_SIZE,
+        max_epochs=TRAIN_MAX_EPOCHS,
+        lr=TRAIN_LR,
+        device=device,
+        verbose=TRAIN_VERBOSE,
+        path=str(DATA_DIR),
+        name=model_name,
+        early_stopping_patience=TRAIN_EARLY_STOPPING_PATIENCE,
+        train_divergence=train_divergence,
+        divergence_loss_weight=DIVERGENCE_LOSS_WEIGHT,
+        divergence_target=DIVERGENCE_TARGET,
+        hutchinson_samples=DIVERGENCE_HUTCHINSON_SAMPLES,
+        divergence_warmup_epochs=DIVERGENCE_WARMUP_EPOCHS,
+    )
+    promote_best_checkpoint(model_name, overwrite=True)
+
+
 def load_or_train_models(mtf, model_names, device):
     paths = checkpoint_paths(model_names)
     missing = [name for name, path in paths.items() if not path.exists()]
@@ -332,21 +411,10 @@ def load_or_train_models(mtf, model_names, device):
             log(f"[train] training {model_name}")
             model = mtf.models_dict[model_name]
             data = mtf.data_dict[model_name]
-            model.train(
-                theta=data["train_theta"],
-                x=data["train_x"],
-                theta_val=data.get("val_theta"),
-                x_val=data.get("val_x"),
-                batch_size=TRAIN_BATCH_SIZE,
-                max_epochs=TRAIN_MAX_EPOCHS,
-                lr=TRAIN_LR,
-                device=device,
-                verbose=TRAIN_VERBOSE,
-                path=str(DATA_DIR),
-                name=model_name,
-                early_stopping_patience=TRAIN_EARLY_STOPPING_PATIENCE,
-            )
-            promote_best_checkpoint(model_name, overwrite=True)
+            # Stage 1 remains ordinary score training. If requested, the loaded
+            # score checkpoint is warm-started with the head in stage 2 below.
+            train_model(model_name, model, data, device,
+                        train_divergence=False)
             torch.cuda.empty_cache()
     else:
         log(f"[model] found all pretrained checkpoints in {DATA_DIR}; loading")
@@ -365,6 +433,14 @@ def load_or_train_models(mtf, model_names, device):
         )
         if checkpoint_kwargs != MODEL_KWARGS:
             raise RuntimeError(f"Checkpoint {path} uses {checkpoint_kwargs}, expected {MODEL_KWARGS}.")
+        if TRAIN_DIVERGENCE and not model.divergence_head_trained:
+            if PRETRAINED_ONLY:
+                raise RuntimeError(
+                    f"Checkpoint {path} has no trained divergence head.")
+            log(f"[train] fine-tuning instantaneous divergence head for {model_name}")
+            train_model(model_name, model, mtf.data_dict[model_name], device,
+                        train_divergence=True)
+            model = SBIm.load(str(path), device=device)
         models[model_name] = model
     return models
 
@@ -1458,7 +1534,7 @@ def plot_posterior_pfode_hutchinson_trace_samples(mtf, data_mean, data_std, devi
         sharex=True, sharey="row",
     )
     axes = np.atleast_2d(axes)
-    colors = ["#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#D55E00"]
+    colors = ["#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#D55E00", "#0072B2"]
     x_grid = np.linspace(-2.0, 0.5, 512)
 
     for row_index, spec in enumerate(MODEL_SPECS):
@@ -1626,14 +1702,40 @@ def plot_map_accuracy_runtime_benchmark(mtf, data_mean, data_std, device):
 
 
 
-def xspace_likelihood_map_grid(data_mean, data_std, grid_size=XSPACE_MAP_GRID_SIZE):
-    """Return a common raw-space-covering likelihood grid in normalized x units."""
+def xspace_benchmark_theta_values():
+    """Return the ten true theta values used in the x-space MAP benchmark."""
+    return torch.linspace(-1.5, 1.5, 10, dtype=torch.float32).reshape(-1, 1)
+
+
+def xspace_likelihood_map_grid(
+    data_mean, data_std, theta_values=None, grid_size=XSPACE_MAP_GRID_SIZE,
+):
+    """Return a normalized likelihood grid, optionally containing true modes.
+
+    The PF-ODE likelihood methods select a discrete grid maximum.  When
+    ``theta_values`` are supplied, both Line and Parabola likelihood modes for
+    those theta values are inserted into the coordinate arrays, ensuring a
+    matched-model true x-space MAP can be selected exactly rather than being
+    limited by grid quantization.
+    """
     raw_lower = torch.tensor([-2.6, -1.6], dtype=torch.float32)
     raw_upper = torch.tensor([2.6, 4.6], dtype=torch.float32)
     lower = normalize_x(raw_lower.unsqueeze(0), data_mean, data_std)[0]
     upper = normalize_x(raw_upper.unsqueeze(0), data_mean, data_std)[0]
-    return (np.linspace(float(lower[0]), float(upper[0]), grid_size),
-            np.linspace(float(lower[1]), float(upper[1]), grid_size))
+    x_grid = np.linspace(float(lower[0]), float(upper[0]), grid_size)
+    y_grid = np.linspace(float(lower[1]), float(upper[1]), grid_size)
+    if theta_values is None:
+        return x_grid, y_grid
+
+    raw_modes = torch.cat([
+        model_mean(theta_values[:, 0], "line"),
+        model_mean(theta_values[:, 0], "parabola"),
+    ])
+    normalized_modes = normalize_x(raw_modes, data_mean, data_std).numpy()
+    return (
+        np.unique(np.concatenate([x_grid, normalized_modes[:, 0]])),
+        np.unique(np.concatenate([y_grid, normalized_modes[:, 1]])),
+    )
 
 
 def analytic_likelihood_map(theta, family, data_mean, data_std):
@@ -1721,8 +1823,10 @@ def load_or_create_xspace_mc_reference(rows, data_mean, data_std):
 
 def collect_xspace_likelihood_runtime_benchmark(mtf, data_mean, data_std, device):
     """For ten theta values, benchmark posterior MAP followed by x-space likelihood MAP."""
-    theta_true = torch.linspace(-1.5, 1.5, 10, dtype=torch.float32).reshape(-1, 1)
-    x_grid, y_grid = xspace_likelihood_map_grid(data_mean, data_std)
+    theta_true = xspace_benchmark_theta_values()
+    x_grid, y_grid = xspace_likelihood_map_grid(
+        data_mean, data_std, theta_values=theta_true,
+    )
     configs = map_runtime_benchmark_configs()
     checkpoint_path = OUTPUT_DIR / XSPACE_BENCHMARK_FILENAME
     checkpoint_columns_to_drop = ["mc_map_x1", "mc_map_x2", "mc_absolute_offset"]
@@ -1837,46 +1941,80 @@ def collect_xspace_likelihood_runtime_benchmark(mtf, data_mean, data_std, device
     return detail
 
 
-def plot_xspace_likelihood_map_accuracy_runtime_benchmark(mtf, data_mean, data_std, device):
-    """Create the additional x-space likelihood-MAP accuracy/runtime plot."""
-    detail = collect_xspace_likelihood_runtime_benchmark(mtf, data_mean, data_std, device)
-    summary = detail.groupby(["config_index", "method_family", "setting"], as_index=False).agg(
+def plot_xspace_likelihood_map_accuracy_runtime_summary(summary):
+    """Plot separate matched-family x-space MAP accuracy/runtime summaries."""
+    colors = {
+        "Euler SDE": "#B279A2", "DPM order 1 SDE": "#4C78A8", "DPM order 2 SDE": "#F58518",
+        "Euler PF-ODE": "#0072B2", "Heun PF-ODE": "#D55E00", "PF-ODE exact": "#009E73",
+        "PF-ODE Hutchinson": "#CC79A7",
+    }
+    for model_name, filename in (
+        ("Line", "xspace_likelihood_map_accuracy_vs_runtime_line_to_line.png"),
+        (
+            "Parabola",
+            "xspace_likelihood_map_accuracy_vs_runtime_parabola_to_parabola.png",
+        ),
+    ):
+        model_summary = summary[summary["true_model"] == model_name]
+        fig, ax = plt.subplots(figsize=(12.5, 8.0))
+        for family, group in model_summary.groupby("method_family", sort=False):
+            ax.scatter(
+                group["runtime_seconds_per_theta"], group["mean_absolute_offset"],
+                s=30, color=colors[family], label=family, alpha=0.85,
+            )
+            for _, row in group.iterrows():
+                ax.annotate(
+                    row["setting"],
+                    (
+                        row["runtime_seconds_per_theta"],
+                        row["mean_absolute_offset"],
+                    ),
+                    xytext=(4, 4), textcoords="offset points",
+                    fontsize=5, alpha=0.8,
+                )
+        ax.set_xscale("log")
+        ax.set_xlabel("mean posterior-MAP plus likelihood-MAP time per true theta (s)")
+        ax.set_ylabel("mean x-space likelihood-MAP offset")
+        ax.set_title(
+            "x-space likelihood MAP accuracy versus inference runtime\n"
+            f"{model_name}-generated data inferred with the {model_name} model; "
+            "mean over 10 true theta values",
+        )
+        ax.grid(True, color="0.92")
+        ax.legend(title="learned likelihood method", frameon=False, fontsize=8)
+        sns.despine(ax=ax)
+        fig.tight_layout()
+        save_figure(fig, filename)
+
+
+def summarise_xspace_likelihood_map_accuracy_runtime(detail):
+    """Average matched-model x-space MAP errors over theta.
+
+    Only Line-generated data inferred with the Line model and Parabola-generated
+    data inferred with the Parabola model are included.  Each plotted row is
+    one method configuration for one data/model family, averaged over the ten
+    true theta values.
+    """
+    matched = detail[detail["true_model"] == detail["inferred_model"]]
+    per_family = matched.groupby(
+        ["config_index", "method_family", "setting", "true_model"],
+        as_index=False,
+    ).agg(
         mean_absolute_offset=("absolute_offset", "mean"),
         std_absolute_offset=("absolute_offset", "std"),
         mean_analytic_absolute_offset=("analytic_absolute_offset", "mean"),
         mean_mc_absolute_offset=("mc_absolute_offset", "mean"),
         runtime_seconds_per_theta=("runtime_seconds_per_theta", "mean"),
     )
+    return per_family
+
+
+def plot_xspace_likelihood_map_accuracy_runtime_benchmark(mtf, data_mean, data_std, device):
+    """Create separate matched-model x-space likelihood-MAP benchmark plots."""
+    detail = collect_xspace_likelihood_runtime_benchmark(mtf, data_mean, data_std, device)
+    summary = summarise_xspace_likelihood_map_accuracy_runtime(detail)
     save_csv(summary.to_dict("records"), "xspace_likelihood_map_accuracy_runtime_benchmark_summary.csv")
-    colors = {
-        "Euler SDE": "#B279A2", "DPM order 1 SDE": "#4C78A8", "DPM order 2 SDE": "#F58518",
-        "Euler PF-ODE": "#0072B2", "Heun PF-ODE": "#D55E00", "PF-ODE exact": "#009E73",
-        "PF-ODE Hutchinson": "#CC79A7",
-    }
-    fig, ax = plt.subplots(figsize=(12.5, 8.0))
-    for family, group in summary.groupby("method_family", sort=False):
-        ax.errorbar(group["runtime_seconds_per_theta"], group["mean_absolute_offset"],
-                    yerr=group["std_absolute_offset"], fmt="o", ms=5, capsize=3,
-                    color=colors[family], label=family, alpha=0.85)
-        for _, row in group.iterrows():
-            ax.annotate(row["setting"], (row["runtime_seconds_per_theta"], row["mean_absolute_offset"]),
-                        xytext=(4, 4), textcoords="offset points", fontsize=5, alpha=0.8)
-    # These references use the same inferred theta_MAP as each learned method.
-    # They make the likelihood-estimation error visible separately from MAP error.
-    ax.scatter(summary["runtime_seconds_per_theta"], summary["mean_analytic_absolute_offset"],
-               marker="D", s=22, color="black", alpha=0.65, label="analytical likelihood MAP")
-    if summary["mean_mc_absolute_offset"].notna().any():
-        ax.scatter(summary["runtime_seconds_per_theta"], summary["mean_mc_absolute_offset"],
-                   marker="x", s=26, color="0.25", alpha=0.65, label="cached Monte-Carlo likelihood MAP")
-    ax.set_xscale("log")
-    ax.set_xlabel("mean posterior-MAP plus likelihood-MAP time per true theta (s)")
-    ax.set_ylabel("mean x-space likelihood-MAP offset (plus/minus 1 SD)")
-    ax.set_title("x-space likelihood MAP accuracy versus inference runtime")
-    ax.grid(True, color="0.92")
-    ax.legend(title="learned likelihood method", frameon=False, fontsize=8)
-    sns.despine(ax=ax)
-    fig.tight_layout()
-    save_figure(fig, "xspace_likelihood_map_accuracy_vs_runtime.png")
+    plot_xspace_likelihood_map_accuracy_runtime_summary(summary)
     return detail, summary
 
 def save_config(data_mean, data_std):
@@ -1910,6 +2048,12 @@ def save_config(data_mean, data_std):
 
 
 def main():
+    logical_cpus, selected_cpus = CPU_LIMIT_INFO
+    log(
+        "[setup] CPU limited to {} of {} logical CPUs ({:.2%} capacity)".format(
+            len(selected_cpus), logical_cpus, len(selected_cpus) / logical_cpus
+        )
+    )
     log("[setup] selecting a free CUDA device")
     autocvd(num_gpus=1, interval=1)
     DATA_DIR.mkdir(parents=True, exist_ok=True)

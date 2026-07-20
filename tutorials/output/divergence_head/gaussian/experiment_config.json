@@ -1,0 +1,172 @@
+{
+  "autocvd_selection": [
+    9
+  ],
+  "config": {
+    "batch_size": 256,
+    "density_grid_size": 45,
+    "density_timestep_sweep": [
+      10,
+      50,
+      100,
+      200,
+      500
+    ],
+    "density_timesteps": 100,
+    "depth": 3,
+    "divergence_loss_weight": 1.0,
+    "divergence_target": "exact",
+    "divergence_warmup_epochs": 5,
+    "drift_samples": 256,
+    "drift_time_levels": 24,
+    "early_stopping_patience": 30,
+    "eps": 0.001,
+    "experiment_version": 2,
+    "hidden_size": 64,
+    "hutchinson_samples": 1,
+    "learning_rate": 0.001,
+    "log_prob_batch_size": 512,
+    "log_prob_samples": 512,
+    "log_prob_timesteps": 100,
+    "mlp_ratio": 2,
+    "n_test": 2000,
+    "n_train": 30000,
+    "n_validation": 4000,
+    "num_heads": 4,
+    "pairplot_samples": 2000,
+    "problem": {
+      "design": [
+        [
+          1.1,
+          -0.4
+        ],
+        [
+          0.35,
+          0.9
+        ]
+      ],
+      "noise_cov": [
+        [
+          0.2,
+          0.0
+        ],
+        [
+          0.0,
+          0.2
+        ]
+      ],
+      "offset": [
+        0.25,
+        -0.15
+      ],
+      "theta_cov": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "theta_mean": [
+        0.0,
+        0.0
+      ]
+    },
+    "runtime_batch_size": 256,
+    "runtime_repetitions": 5,
+    "runtime_samples": 256,
+    "runtime_timesteps": 50,
+    "runtime_warmups": 1,
+    "sde_type": "vesde",
+    "seed": 1729,
+    "sigma": 25.0,
+    "stage1_max_epochs": 80,
+    "stage2_max_epochs": 40,
+    "time_sampling": "mixture"
+  },
+  "cpu": {
+    "active": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fraction": 0.05555555555555555,
+    "logical": 72,
+    "thread_environment": {
+      "MKL_NUM_THREADS": "4",
+      "NUMEXPR_NUM_THREADS": "4",
+      "OMP_NUM_THREADS": "4",
+      "OPENBLAS_NUM_THREADS": "4"
+    }
+  },
+  "device": "cuda",
+  "summary_details": {
+    "exact_vs_analytic": {
+      "bias": 0.15804312632099046,
+      "correlation": 0.9796359678839736,
+      "mae": 0.2037784343340763,
+      "nrmse": 0.19052715793286734,
+      "rmse": 0.26546048146988876
+    },
+    "head_vs_analytic": {
+      "bias": 0.15770123574475312,
+      "correlation": 0.9786414749977034,
+      "mae": 0.20537212149200904,
+      "nrmse": 0.19125471784459624,
+      "rmse": 0.26647418684691326
+    },
+    "head_vs_exact": {
+      "bias": -0.000341890576237347,
+      "correlation": 0.9973705455092803,
+      "mae": 0.029739719505111378,
+      "nrmse": 0.03531743349292306,
+      "rmse": 0.04137545701355134
+    },
+    "stage1_exact_vs_analytic_log_prob": {
+      "bias": -0.5363846663411992,
+      "correlation": 0.6136012784212282,
+      "mae": 0.7969229336158157,
+      "nrmse": 0.6774839808789074,
+      "rmse": 1.0225758982091442
+    },
+    "stage1_score": {
+      "bias": 0.045554148829089314,
+      "correlation": 0.8883760853906293,
+      "mae": 0.4848711556761633,
+      "nrmse": 0.6714229714587808,
+      "rmse": 1.116660340751768
+    },
+    "stage2_exact_vs_analytic_log_prob": {
+      "bias": -0.4648854606811243,
+      "correlation": 0.6876192321890235,
+      "mae": 0.7034693024694909,
+      "nrmse": 0.5937965527908067,
+      "rmse": 0.8962603699290761
+    },
+    "stage2_learned_vs_analytic_log_prob": {
+      "bias": -0.5006490452241439,
+      "correlation": 0.6692613026335679,
+      "mae": 0.7441021653842019,
+      "nrmse": 0.6199528886528695,
+      "rmse": 0.935740032021322
+    },
+    "stage2_learned_vs_exact_log_prob": {
+      "bias": -0.03576358454301953,
+      "correlation": 0.9897764334394401,
+      "mae": 0.10315493354573846,
+      "nrmse": 0.07294752832001322,
+      "rmse": 0.13040626308677156
+    },
+    "stage2_score": {
+      "bias": -0.0068355763913320496,
+      "correlation": 0.9535746935197947,
+      "mae": 0.2718096456336994,
+      "nrmse": 0.316127190665803,
+      "rmse": 0.5257590393173583
+    }
+  },
+  "training_fingerprint": "0f79c76c286881fc96a3bed737bb7a12850d9e0d1a5ccd6cbeee37838f96a692"
+}
