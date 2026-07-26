@@ -44,10 +44,7 @@ class Trainer():
     #############################################
     def train(self, world_size, train_data, val_data=None,
               max_epochs=500, early_stopping_patience=20, batch_size=128, lr=1e-3,
-              path=None, name="Model", device="cpu", verbose=True, time_sampling="mixture",
-              train_divergence=False, divergence_loss_weight=1.0,
-              divergence_target="exact", hutchinson_samples=1,
-              divergence_warmup_epochs=5):
+              path=None, name="Model", device="cpu", verbose=True, time_sampling="mixture"):
 
         """
         Training function for the score prediction task
@@ -73,13 +70,6 @@ class Trainer():
                     "log_sigma": noise scales log-uniform between sigma_m(eps)
                         and sigma_m(1).
                     "mixture" (default): 50/50 mix of both.
-            train_divergence: Jointly train the instantaneous log-density drift head.
-            divergence_loss_weight: Final weight of the divergence regression loss.
-            divergence_target: Trace estimator used for supervision ("exact" or
-                    "hutchinson").
-            hutchinson_samples: Probe vectors per batch for Hutchinson supervision.
-            divergence_warmup_epochs: Epochs over which to linearly ramp the
-                    divergence loss weight.
         """
         start_time = time.time()
 
@@ -101,17 +91,6 @@ class Trainer():
         self.verbose = verbose
         self.eps = 1e-3 # Epsilon for numerical stability and endpoint in diffusion process
         self.time_sampling = time_sampling
-        self.train_divergence = bool(train_divergence)
-        self.divergence_loss_weight = float(divergence_loss_weight)
-        self.divergence_target = divergence_target
-        self.hutchinson_samples = int(hutchinson_samples)
-        self.divergence_warmup_epochs = int(divergence_warmup_epochs)
-        if self.divergence_target not in ("exact", "hutchinson"):
-            raise ValueError("divergence_target must be 'exact' or 'hutchinson'.")
-        if self.hutchinson_samples < 1:
-            raise ValueError("hutchinson_samples must be at least 1.")
-        if self.divergence_warmup_epochs < 0:
-            raise ValueError("divergence_warmup_epochs must be non-negative.")
 
         if self.world_size > 1:
             mp.spawn(self._train_loop, args=(train_data, val_data), nprocs=self.world_size)
@@ -126,11 +105,6 @@ class Trainer():
             print(f"Training took {training_time:.1f} minutes")
 
     def _train_loop(self, rank, train_data, val_data):
-
-        # The new head is completely opt-in. Freeze it for legacy score-only
-        # training so optimizers and DDP see exactly the original trainable path.
-        for parameter in self.SBIm.model.divergence_head.parameters():
-            parameter.requires_grad_(self.train_divergence)
 
         # Set device distribution
         if self.world_size > 1:
@@ -150,53 +124,28 @@ class Trainer():
         patience_counter = 0
         self.train_loss = []
         self.val_loss = []
-        self.train_score_loss = []
-        self.train_divergence_loss = []
-        self.val_score_loss = []
-        self.val_divergence_loss = []
 
         # Set optimizer
-        optimizer = schedulefree.AdamWScheduleFree(
-            (parameter for parameter in self.model.parameters()
-             if parameter.requires_grad),
-            lr=self.lr)
+        optimizer = schedulefree.AdamWScheduleFree(self.model.parameters(), lr=self.lr)
 
         for epoch in range(self.max_epochs):
             # Train
             if self.world_size > 1: dist.barrier()
 
-            train_result_process = self._run_epoch(
-                epoch, data_loader, optimizer, is_train=True,
-                return_components=self.train_divergence)
+            train_loss_process = self._run_epoch(epoch, data_loader, optimizer, is_train=True)
             
             if self.world_size > 1:
                 # Wait for all processes to finish training
                 dist.barrier()
 
-                if self.train_divergence:
-                    train_metrics_all = []
-                    for metric in train_result_process:
-                        gathered = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
-                        dist.all_gather(gathered, torch.tensor(metric).to(self.device))
-                        train_metrics_all.append(torch.mean(torch.stack(gathered)).item())
-                else:
-                    # Preserve the legacy single-loss collective exactly.
-                    gathered = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
-                    dist.all_gather(
-                        gathered, torch.tensor(train_result_process).to(self.device))
-                    train_loss = torch.mean(torch.stack(gathered)).item()
-                    train_metrics_all = (train_loss, train_loss, 0.0)
+                # Gather losses from all processes
+                epoch_train_loss = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
+                dist.all_gather(epoch_train_loss, torch.tensor(train_loss_process).to(self.device))
+                train_loss_all = torch.mean(torch.stack(epoch_train_loss)).item()
             else:
-                train_metrics_all = (train_result_process
-                                     if self.train_divergence
-                                     else (train_result_process,
-                                           train_result_process, 0.0))
-
-            train_loss_all, train_score_loss_all, train_divergence_loss_all = train_metrics_all
+                train_loss_all = train_loss_process
 
             self.train_loss.append(train_loss_all)
-            self.train_score_loss.append(train_score_loss_all)
-            self.train_divergence_loss.append(train_divergence_loss_all)
 
             # Early stopping on training loss if no validation data is provided
             if val_data is None and train_loss_all < best_val_loss:
@@ -210,37 +159,20 @@ class Trainer():
 
             # Validate
             if val_data is not None:
-                val_result_process = self._run_epoch(
-                    epoch, val_loader, optimizer, is_train=False,
-                    return_components=self.train_divergence)
+                val_loss_process = self._run_epoch(epoch, val_loader, optimizer, is_train=False)
 
                 if self.world_size > 1:
                     # Wait for all processes to finish validation
                     dist.barrier()
 
-                    if self.train_divergence:
-                        val_metrics_all = []
-                        for metric in val_result_process:
-                            gathered = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
-                            dist.all_gather(gathered, torch.tensor(metric).to(self.device))
-                            val_metrics_all.append(torch.mean(torch.stack(gathered)).item())
-                    else:
-                        gathered = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
-                        dist.all_gather(
-                            gathered, torch.tensor(val_result_process).to(self.device))
-                        val_loss = torch.mean(torch.stack(gathered)).item()
-                        val_metrics_all = (val_loss, val_loss, 0.0)
+                    # Gather losses from all processes
+                    epoch_val_loss = [torch.zeros(1).to(self.device) for _ in range(self.world_size)]
+                    dist.all_gather(epoch_val_loss, torch.tensor(val_loss_process).to(self.device))
+                    val_loss_all = torch.mean(torch.stack(epoch_val_loss)).item()
                 else:
-                    val_metrics_all = (val_result_process
-                                       if self.train_divergence
-                                       else (val_result_process,
-                                             val_result_process, 0.0))
-
-                val_loss_all, val_score_loss_all, val_divergence_loss_all = val_metrics_all
+                    val_loss_all = val_loss_process
 
                 self.val_loss.append(val_loss_all)
-                self.val_score_loss.append(val_score_loss_all)
-                self.val_divergence_loss.append(val_divergence_loss_all)
 
                 # Early stopping
                 if val_loss_all < best_val_loss:
@@ -259,8 +191,6 @@ class Trainer():
                     print(f'--- Epoch: {epoch+1:3d} --- Training Loss: {train_loss_all:8.3f} --- Validation Loss: {val_loss_all:8.3f} ---')
                 else:
                     print(f'--- Epoch: {epoch+1:3d} --- Training Loss: {train_loss_all:8.3f} ---')
-                if self.train_divergence:
-                    print(f'    Score: {train_score_loss_all:8.3f} --- Divergence: {train_divergence_loss_all:8.3f}')
                 print()
                 time.sleep(0.2)
 
@@ -274,8 +204,7 @@ class Trainer():
                 self._save_checkpoint(name=self.name)
             dist.destroy_process_group()
         
-    def _run_epoch(self, epoch, data_loader, optimizer, is_train,
-                   return_components=False):
+    def _run_epoch(self, epoch, data_loader, optimizer, is_train):
         if self.world_size > 1:
             data_loader.sampler.set_epoch(epoch)
 
@@ -287,42 +216,25 @@ class Trainer():
             optimizer.eval()
 
         total_loss = 0
-        total_score_loss = 0
-        total_divergence_loss = 0
         batch_count = 0
 
         show_progress = self.verbose if is_train else False
         for batch in tqdm.tqdm(data_loader, disable=not show_progress):
             if is_train:
                 optimizer.zero_grad()
-
-            if return_components:
-                loss, score_loss, divergence_loss = self._run_batch(
-                    batch, epoch=epoch, return_components=True)
-            else:
-                loss = self._run_batch(batch, epoch=epoch)
-                score_loss = loss
-                divergence_loss = loss.new_zeros(())
+            
+            loss = self._run_batch(batch)
             total_loss += loss.item() / batch[0].shape[0]
-            if return_components:
-                total_score_loss += score_loss.item() / batch[0].shape[0]
-                total_divergence_loss += divergence_loss.item() / batch[0].shape[0]
             batch_count += 1
 
             if is_train:
                 loss.backward()
                 if self.world_size > 1: dist.barrier()
                 optimizer.step()
-                if self.train_divergence:
-                    self.SBIm.divergence_head_trained = True
 
-        if not return_components:
-            return total_loss / batch_count
-        return (total_loss / batch_count,
-                total_score_loss / batch_count,
-                total_divergence_loss / batch_count)
+        return total_loss / batch_count
 
-    def _run_batch(self, batch, epoch=0, return_components=False):
+    def _run_batch(self, batch):
         # Get data
         data, condition_mask, idx = self._prepare_batch(batch, self.device)
 
@@ -333,78 +245,12 @@ class Trainer():
         x_1 = torch.randn_like(data)*(1-condition_mask) + data*condition_mask
         # Calculate x at time t in diffusion process
         x_t = self.SBIm.forward_diffusion_sample(data, timesteps, x_1, condition_mask)
-        if self.train_divergence:
-            x_t = x_t.detach().requires_grad_(True)
-            raw_score, divergence = self.model(
-                x=x_t, t=timesteps, c=condition_mask,
-                return_divergence=True)
-            score = self.SBIm.output_scale_function(timesteps, raw_score)
-            divergence_target = self.instantaneous_divergence_target(
-                raw_score, x_t, timesteps, condition_mask,
-                estimator=self.divergence_target,
-                hutchinson_samples=self.hutchinson_samples)
-            divergence_loss = self.divergence_loss_fn(
-                divergence, divergence_target, condition_mask)
-        else:
-            score = self._get_score(x_t, timesteps, condition_mask)
-            divergence_loss = score.new_zeros(())
+        # Get score
+        score = self._get_score(x_t, timesteps, condition_mask)
+        # Calculate loss
+        loss = self.loss_fn(score, timesteps, x_1, condition_mask)
 
-        score_loss = self.loss_fn(score, timesteps, x_1, condition_mask)
-        loss = score_loss + self._divergence_weight(epoch) * divergence_loss
-
-        components = (loss, score_loss, divergence_loss)
-        return components if return_components else loss
-
-    def _divergence_weight(self, epoch):
-        if not self.train_divergence:
-            return 0.0
-        if self.divergence_warmup_epochs == 0:
-            return self.divergence_loss_weight
-        warmup = min((epoch + 1) / self.divergence_warmup_epochs, 1.0)
-        return self.divergence_loss_weight * warmup
-
-    def instantaneous_divergence_target(self, raw_score, x, timestep,
-                                        condition_mask, estimator="exact",
-                                        hutchinson_samples=1):
-        """Return D_lambda = alpha * trace(d raw_score / dx) on latent nodes.
-
-        The returned target is detached: divergence regression therefore does
-        not introduce second derivatives or update the score through its target.
-        """
-        latent = 1 - condition_mask
-        trace = torch.zeros(x.shape[0], device=x.device, dtype=x.dtype)
-
-        if estimator == "exact":
-            latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
-            for j in latent_dims:
-                grad_j = torch.autograd.grad(
-                    raw_score[:, j].sum(), x, retain_graph=True,
-                    create_graph=False)[0]
-                trace = trace + grad_j[:, j] * latent[:, j]
-        elif estimator == "hutchinson":
-            for _ in range(int(hutchinson_samples)):
-                probe = (torch.randint(0, 2, x.shape, device=x.device,
-                                       dtype=torch.int64).to(x.dtype) * 2 - 1) * latent
-                grad_v = torch.autograd.grad(
-                    (raw_score * probe).sum(), x, retain_graph=True,
-                    create_graph=False)[0]
-                trace = trace + (grad_v * probe).sum(dim=-1)
-            trace = trace / int(hutchinson_samples)
-        else:
-            raise ValueError(f"Unknown divergence target estimator '{estimator}'.")
-
-        alpha = self.sde.alpha_t(timestep).to(x.device).reshape(-1)
-        return (alpha * trace).detach()
-
-    @staticmethod
-    def divergence_loss_fn(prediction, target, condition_mask):
-        """Dimension-normalized MSE for scalar latent divergence targets."""
-        latent_count = (1 - condition_mask).sum(dim=-1)
-        valid = latent_count > 0
-        if not valid.any():
-            return prediction.sum() * 0
-        residual = (prediction[valid] - target[valid]) / latent_count[valid]
-        return torch.mean(residual**2)
+        return loss
 
     def _sample_timesteps(self, batch_size):
         """Draw diffusion times according to the configured time_sampling scheme."""
@@ -521,8 +367,7 @@ class Trainer():
                 'hidden_size': self.SBIm.hidden_size,
                 'depth': self.SBIm.depth,
                 'num_heads': self.SBIm.num_heads,
-                'mlp_ratio': self.SBIm.mlp_ratio,
-                'divergence_head_trained': self.SBIm.divergence_head_trained,
+                'mlp_ratio': self.SBIm.mlp_ratio
             }
             torch.save(state_dict, f"{self.path}/{name}.pt")
         else:

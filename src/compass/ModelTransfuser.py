@@ -14,7 +14,6 @@ from scipy.stats import norm, gaussian_kde
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import PowerNorm
-from matplotlib.lines import Line2D
 
 import seaborn as sns
 
@@ -206,9 +205,9 @@ class ModelTransfuser():
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
                prior=None, correction="gauss",
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cuda", verbose=False, method=None, equation="reverse_sde",
+               device="cuda", verbose=False, method="dpm",
                likelihood_method="pfode", map_method="score", criterion="aic",
-               log_prob_timesteps=100, log_prob_divergence="exact"):
+               log_prob_timesteps=100):
         """
         Compare the models on the provided observations.
         The results are saved in the self.stats dictionary and the provided path.
@@ -236,10 +235,9 @@ class ModelTransfuser():
             final_corrector_steps: Final corrector steps for the model
             device:         Device to run inference on
             verbose:        (bool) Whether to show inference progress
-            method:         Solver method. Defaults to "dpm" for reverse_sde
-                                and "heun" for probability_flow_ode.
-            equation:       Equation used for posterior and legacy likelihood sampling:
-                                "reverse_sde" (default) or "probability_flow_ode".
+            method:         (string) Method used to solve the SDE during inference.
+                                "dpm"   - (default) Using the DPM-Solver for infernce with order 'order'
+                                "euler" - Using the Euler-Maruyama method for inference
             likelihood_method: (string) How the per-observation likelihood
                                 log p(x_i | theta_MAP,i) is evaluated:
                                 "pfode" - (default) directly through the probability-flow
@@ -259,8 +257,6 @@ class ModelTransfuser():
                                 "aic"   - (default) corrected Akaike IC (AICc)
                                 "bic"   - Bayesian (Schwarz) IC: k*ln(n) - 2*logL
             log_prob_timesteps: Integration nodes of the PF-ODE likelihood solver.
-            log_prob_divergence: Divergence evaluator for PF-ODE likelihoods:
-                                "exact" (default), "hutchinson", or "learned".
         """
 
         if not self.trained_models:
@@ -299,17 +295,11 @@ class ModelTransfuser():
                                             multi_obs_inference=multi_obs_inference, hierarchy=hierarchy,
                                             prior=prior, correction=correction,
                                             order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                            device=device, verbose=verbose, method=method,
-                                            equation=equation)
+                                            device=device, verbose=verbose, method=method)
             posterior_samples = posterior_samples.cpu().numpy()
 
             # Inference Attention weights
-            active_sampler = (
-                model.multi_obs_sampler if multi_obs_inference else model.sampler
-            )
-            self.stats[model_name]["attn_weights"] = getattr(
-                active_sampler, "all_attn_weights", None,
-            )
+            self.stats[model_name]["attn_weights"] = model.sampler.all_attn_weights
 
             ####################
             # MAP estimation
@@ -365,7 +355,6 @@ class ModelTransfuser():
                 joint_eval[:, ~c_bool] = MAP_posterior
                 log_probs = model.log_prob(joint_eval, condition_mask=(1 - condition_mask),
                                            timesteps=log_prob_timesteps, eps=eps,
-                                           divergence=log_prob_divergence,
                                            device=device, verbose=verbose).float()
             elif likelihood_method == "kde":
                 # Legacy: sample from the likelihood at the MAP and evaluate a KDE
@@ -374,8 +363,7 @@ class ModelTransfuser():
                                                 multi_obs_inference=multi_obs_inference, hierarchy=hierarchy,
                                                 prior=prior, correction=correction,
                                                 order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                                device=device, verbose=verbose, method=method,
-                                                equation=equation)
+                                                device=device, verbose=verbose, method=method)
                 likelihood_samples = likelihood_samples.cpu().numpy()
                 log_probs = torch.tensor([self._log_prob(likelihood_samples[i], x[i]) for i in range(len(x))])
             else:
@@ -392,17 +380,11 @@ class ModelTransfuser():
             param_count = posterior_samples.shape[-1]
             self.stats[model_name]["param_count"] = param_count
             sample_size = x.shape[0]
-            # Store the unpenalized fit and both information criteria. The
-            # legacy "AIC" entry remains the selected criterion used for model
-            # weights, so criterion="bic" keeps returning BIC through that key.
-            neg2_log_likelihood = (-2 * log_probs).sum()
-            aicc_per_obs = self._aicc(log_probs, param_count, sample_size)
-            bic_per_obs = self._bic(log_probs, param_count, sample_size)
-            selected_ic_per_obs = self._ic(log_probs, param_count, sample_size)
-            self.stats[model_name]["neg2_log_likelihood"] = neg2_log_likelihood
-            self.stats[model_name]["AICc"] = aicc_per_obs.sum()
-            self.stats[model_name]["BIC"] = bic_per_obs.sum()
-            self.stats[model_name]["AIC"] = selected_ic_per_obs.sum()
+            # Per-observation AICc (guards the small-sample term automatically),
+            # summed over observations to match the per-observation formulation
+            # used for obs_probs and the cumulative plot.
+            aicc_per_obs = self._ic(log_probs, param_count, sample_size)
+            self.stats[model_name]["AIC"] = aicc_per_obs.sum()
 
 
         # Calculate Model Probabilitys from AICs.
@@ -410,15 +392,13 @@ class ModelTransfuser():
         # AICc gets the highest probability.
         aics = [self.stats[model_name]["AIC"] for model_name in self.stats.keys()]
         aics = torch.tensor(aics)
-        delta_aics = aics - aics.min()
-        model_probs = self.softmax(-0.5 * delta_aics)
+        model_probs = self.softmax(-0.5 * aics)
 
         # Calculate Probability of each observation
         param_counts = torch.tensor([self.stats[model_name]["param_count"] for model_name in self.stats.keys()])
         log_probs = torch.stack([self.stats[model_name]["log_probs"] for model_name in self.stats.keys()])
         individual_aicc = self._ic(log_probs, param_counts.unsqueeze(1), x.shape[0])
-        individual_delta_aicc = individual_aicc - individual_aicc.min(dim=0, keepdim=True).values
-        probs = self.softmax(-0.5 * individual_delta_aicc)
+        probs = self.softmax(-0.5 * individual_aicc)
 
         for i, model_name in enumerate(self.stats.keys()):
             self.stats[model_name]["model_prob"] = model_probs[i].item()
@@ -456,7 +436,6 @@ class ModelTransfuser():
     # Estimate the Maximum A Posteriori (MAP)
     def _map_kde(self, samples):
         """Find the joint mode of the multivariate distribution"""
-        samples = np.asarray(samples, dtype=np.float32)
         kde = gaussian_kde(samples.T)  # KDE expects (n_dims, n_samples)
         
         # Start optimization from the mean
@@ -504,14 +483,6 @@ class ModelTransfuser():
         # Guard n < 1 (cumulative plot evaluates n = 0 terms elsewhere)
         n = torch.clamp(n, min=1.0)
         return k * torch.log(n) - 2 * ll
-
-    #---------------------------
-    # Akaike Information Criterion
-    def _aic(self, log_likelihood, k):
-        """Plain Akaike Information Criterion: AIC = 2k - 2*logL."""
-        ll = torch.as_tensor(log_likelihood, dtype=torch.float32)
-        k = torch.as_tensor(k, dtype=torch.float32)
-        return 2 * k - 2 * ll
 
     #---------------------------
     # Corrected Akaike Information Criterion
@@ -615,184 +586,79 @@ class ModelTransfuser():
         if len(model_names) < n_models:
             n_models = len(model_names)
 
+        legend_cols = 1 if len(model_names) < 6 else 2
+
         # plt.style.use('ggplot')
 
         #---------------------------
-        sample_size = model_log_probs.shape[1]
-        # AICc is valid only when n - k - 1 > 0 for every candidate model.
-        aicc_first_valid_observation = int(param_counts.max().item()) + 2
-        palette = sns.color_palette("dark", n_colors=n_models)
-        legend_handles = [
-            Line2D([0], [0], color=palette[index], linewidth=3, label=model_names[index])
-            for index in range(n_models)
-        ]
-        legend_handles.append(
-            Line2D(
-                [0], [0], color="black", linestyle="--", linewidth=2,
-                label=(
-                    f"AICc valid from $n={aicc_first_valid_observation}$ "
-                    r"($n > k + 1$)"
-                ),
-            )
-        )
-        # Independent baseline: the original single-panel violin layout using
-        # likelihood-only probabilities, with no information-criterion penalty.
-        no_penalty_probabilities = torch.nn.functional.softmax(model_log_probs, dim=0)
-        baseline_model_labels = [name.replace(", ", "\n") for name in model_names[:n_models]]
-        baseline_fig, baseline_axis = plt.subplots(figsize=(12, 6), dpi=500)
-        sns.violinplot(
-            data=no_penalty_probabilities.T[:, :n_models],
-            ax=baseline_axis,
-            palette=palette,
-            cut=2,
-            inner_kws=dict(box_width=5, whis_width=2, color="k"),
-        )
-        baseline_axis.set_xticks(range(n_models), baseline_model_labels)
-        baseline_axis.tick_params(axis="x", which="major", labelsize=16)
-        baseline_axis.tick_params(axis="y", which="major", labelsize=16)
-        baseline_axis.set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        baseline_axis.set_ylim(0.0, 1.0)
-        baseline_axis.set_title("No parameter penalty", fontsize=18, pad=12)
-        sns.despine(ax=baseline_axis)
-        baseline_fig.tight_layout()
-        if path is not None:
-            baseline_fig.savefig(f"{path}/model_probs_violin_no_penalty.png")
-        if show:
-            plt.show()
-        plt.close(baseline_fig)
+        # Plot violin plot of model probabilities
+        plt.figure(figsize=(12, 6), dpi=500)
+        model_names_violin = [name.replace(", ", "\n") for name in model_names[:n_models]]
+        sns.violinplot(data=model_obs_probs.T[:,:n_models],label=model_names_violin, palette=sns.color_palette("dark"), inner_kws=dict(box_width=5, whis_width=2, color="k"))
 
-        # Exact binned distributions in the same categorical layout as the
-        # violin plot.  Bin widths encode observation counts; no KDE is used.
-        histogram_fig, histogram_axis = plt.subplots(figsize=(12, 6), dpi=500)
-        bin_edges = np.linspace(0.0, 1.0, 31)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-        bin_height = 0.95 * (bin_edges[1] - bin_edges[0])
-        histogram_counts = [
-            np.histogram(
-                no_penalty_probabilities[model_index].detach().cpu().numpy(),
-                bins=bin_edges,
-            )[0]
-            for model_index in range(n_models)
-        ]
-        max_count = max(counts.max() for counts in histogram_counts)
-        for model_index, counts in enumerate(histogram_counts):
-            widths = 0.8 * counts / max_count if max_count else counts
-            histogram_axis.barh(
-                bin_centers, widths, height=bin_height,
-                left=model_index - widths / 2,
-                color=palette[model_index], edgecolor="white", linewidth=0.3,
-            )
-        histogram_axis.set_xticks(range(n_models), baseline_model_labels)
-        histogram_axis.set_xlim(-0.6, n_models - 0.4)
-        histogram_axis.set_ylim(0.0, 1.0)
-        histogram_axis.set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        histogram_axis.set_title("No parameter penalty", fontsize=18, pad=12)
-        histogram_axis.tick_params(axis="x", which="major", labelsize=16)
-        histogram_axis.tick_params(axis="y", which="major", labelsize=16)
-        sns.despine(ax=histogram_axis)
-        histogram_fig.tight_layout()
-        if path is not None:
-            histogram_fig.savefig(f"{path}/model_probs_histogram_no_penalty.png")
-        if show:
-            plt.show()
-        plt.close(histogram_fig)
+        if model_names != "":
+            plt.xticks(ticks=range(n_models), labels=model_names_violin)
+            plt.tick_params(axis='x', which='major', labelsize=16)
 
-        per_observation_criteria = {
-            "No parameter penalty": -2 * model_log_probs,
-            "AICc penalty": self._aicc(model_log_probs, param_counts.unsqueeze(1), sample_size),
-            "BIC penalty": self._bic(model_log_probs, param_counts.unsqueeze(1), sample_size),
-        }
-        fig, axes = plt.subplots(1, 3, figsize=(18, 7), dpi=500, sharey=True)
-        for axis, (title, criterion_values) in zip(axes, per_observation_criteria.items()):
-            delta_criterion = criterion_values - criterion_values.min(dim=0, keepdim=True).values
-            probabilities = torch.nn.functional.softmax(-0.5 * delta_criterion, dim=0)
-            sns.violinplot(
-                data=probabilities.T[:, :n_models],
-                ax=axis,
-                palette=palette,
-                cut=2,
-                inner_kws=dict(box_width=5, whis_width=2, color="k"),
-            )
-            # Retain the full KDE tail inside the probability domain and clip
-            # only any extrapolation beyond its valid [0, 1] boundaries.
-            axis.set_ylim(0.0, 1.0)
-            axis.tick_params(axis="x", bottom=False, labelbottom=False)
-            axis.tick_params(axis='both', which='major', labelsize=14)
-            axis.set_xlabel("")
-            axis.set_title(title, fontsize=18, pad=12)
-        axes[0].set_ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
-        fig.legend(handles=legend_handles, loc="lower center", fontsize=14,
-                   frameon=False, ncol=len(legend_handles))
-        fig.tight_layout(rect=(0, 0.08, 1, 1))
+        plt.tick_params(axis='y', which='major', labelsize=16)
+        plt.ylabel(r"$P(\mathcal{M} | x_i)$", fontsize=20)
+        sns.despine()
+        plt.tight_layout()
 
         if path is not None:
-            fig.savefig(f"{path}/model_probs_violin.png")
+            plt.savefig(f"{path}/model_probs_violin.png")
         if show:
             plt.show()
-        plt.close(fig)
+        plt.close()
 
         #---------------------------
-        # Plot cumulative model probabilities for all penalty regimes.
+        # Plot cumulative model probabilities
+
+        # Calculate mean model probabilities for N observations
         self._aicc_warned_once = getattr(self, "_aicc_warned_once", False)
-        cumulative_probabilities = {
-            "No parameter penalty": [],
-            "AIC penalty": [],
-            "AICc penalty": [],
-            "BIC penalty": [],
-        }
-        for _ in range(50):
-            all_criterion_probabilities = {name: [] for name in cumulative_probabilities}
-            for i in range(model_log_probs.shape[1] + 1):
-                if i == 0:
-                    N_log_probs = torch.zeros_like(model_log_probs[:, 0]).unsqueeze(0)
-                else:
+        avg_model_probs = []
+        for n in range(50):
+            all_N_AICc = []
+            for i in range(0,model_log_probs.shape[1]+1):
+                if i != 0:
                     idx = torch.randperm(model_log_probs.shape[1])[:i]
-                    N_log_probs = model_log_probs[:, idx].T
+                    N_log_probs = model_log_probs[:,idx].T
+                    # k = physical parameter count per model; guard small samples.
+                    N_AICc = self._ic(N_log_probs, param_counts, i)
+                elif i == 0:
+                    N_AICc = torch.zeros_like(model_log_probs[:,0]).unsqueeze(0)
 
-                total_log_probs = N_log_probs.sum(0)
-                criterion_values = {
-                    "No parameter penalty": -2 * total_log_probs,
-                    "AIC penalty": self._aic(total_log_probs, param_counts),
-                    "AICc penalty": self._aicc(total_log_probs, param_counts, i),
-                    "BIC penalty": self._bic(total_log_probs, param_counts, i),
-                }
-                for name, values in criterion_values.items():
-                    delta_criterion = values - values.min()
-                    all_criterion_probabilities[name].append(
-                        torch.nn.functional.softmax(-0.5 * delta_criterion, dim=0)
-                    )
+                all_N_AICc.append(torch.nn.functional.softmax(-0.5 * N_AICc.sum(0),0).T)
+            all_N_AICc = torch.stack(all_N_AICc)
+            avg_model_probs.append(all_N_AICc)
 
-            for name, probabilities in all_criterion_probabilities.items():
-                cumulative_probabilities[name].append(torch.stack(probabilities))
+        avg_model_probs = torch.stack(avg_model_probs)
+        avg_mean = avg_model_probs.mean(0)
+        avg_std = avg_model_probs.std(0)/torch.sqrt(torch.tensor(avg_model_probs.shape[0]))
 
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12), dpi=500, sharex=True, sharey=True)
-        observation_counts = torch.arange(model_log_probs.shape[1] + 1)
-        for axis, (title, repetitions) in zip(axes.flat, cumulative_probabilities.items()):
-            if title == "AICc penalty":
-                axis.axvspan(0, aicc_first_valid_observation, color="0.5", alpha=0.12, zorder=0)
-                axis.axvline(aicc_first_valid_observation, color="black", linestyle="--", linewidth=2, zorder=1)
-            mean_probabilities = torch.stack(repetitions).mean(0)
-            for model_index in range(n_models):
-                axis.plot(
-                    observation_counts,
-                    mean_probabilities[:, model_index],
-                    linewidth=3,
-                    color=palette[model_index],
-                )
-            axis.set_title(title, fontsize=18)
-            axis.tick_params(axis='both', which='major', labelsize=14)
-            axis.set_xlabel("# Observations", fontsize=16)
-            axis.set_ylabel(r"$P(\mathcal{M} | x_0,..., x_i)$", fontsize=16)
-            sns.despine(ax=axis)
-
-        fig.legend(handles=legend_handles, loc="lower center", fontsize=14,
-                   frameon=False, ncol=len(legend_handles))
-        fig.tight_layout(rect=(0, 0.08, 1, 1))
+        plt.figure(figsize=(12, 6), dpi=500)
+        palette = sns.color_palette("dark", n_colors=n_models)
+        for n in range(n_models):
+            plt.errorbar(
+            torch.arange(0, model_log_probs.shape[1]+1).T,
+            avg_mean[:, n], yerr=avg_std[:, n],
+            label=model_names[n], marker='o', markersize=6, linewidth=3, elinewidth=1, capsize=2,
+            color=palette[n]
+            )
+        if model_names != "":
+            plt.legend(title="Models", loc='right', fontsize=15, title_fontsize=16, frameon=True, ncol=legend_cols)
+    
+        plt.tick_params(axis='both', which='major', labelsize=16)
+        plt.xlabel("# Observations", fontsize=20)
+        plt.ylabel(r"$P(\mathcal{M} | x_0,..., x_i)$", fontsize=20)
+        # plt.grid(True)
+        sns.despine()
+        plt.tight_layout()
         if path is not None:
-            fig.savefig(f"{path}/model_probs_cumulative.png")
+            plt.savefig(f"{path}/model_probs_cumulative.png")
         if show:
             plt.show()
-        plt.close(fig)
+        plt.close()
 
     #---------------------------
     # Attention Heatmap plotting

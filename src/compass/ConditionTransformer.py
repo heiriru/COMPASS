@@ -14,8 +14,7 @@ import math
     - TimestepEmbedder: Embeds scalar timesteps into vector representations.
     - Mlp: MLP for Output of Self-Attention
     - TransformerBlock: A ConditionTransformer block with adaptive layer norm zero (adaLN-Zero) conditioning.
-    - FinalLayer: The score-prediction layer of ConditionTransformer.
-    - DivergenceHead: Predicts the instantaneous PF-ODE log-density drift.
+    - FinalLayer: The final layer of ConditionTransformer.
     - ConditionTransformer: Transformer model for diffusion models.
 """
 
@@ -209,48 +208,6 @@ class FinalLayer(nn.Module):
         return x.squeeze(-1)
 
 #############################################
-# ----- Instantaneous Divergence Head -----
-#############################################
-
-class DivergenceHead(nn.Module):
-    """Predict the scalar instantaneous PF-ODE log-density drift.
-
-    The condition mask is supplied explicitly because the requested trace is
-    taken only over latent nodes. The head otherwise shares the complete
-    transformer backbone with the score prediction, as in F2D2.
-    """
-
-    def __init__(self, hidden_size, nodes_size, time_embedding_size=256):
-        super().__init__()
-        self.hidden_size = hidden_size
-        self.nodes_size = nodes_size
-
-        self.norm_final = nn.LayerNorm(
-            (nodes_size, hidden_size), elementwise_affine=False, eps=1e-6)
-        self.adaLN_modulation = nn.Sequential(
-            nn.SiLU(),
-            nn.Linear(time_embedding_size, 2 * nodes_size * hidden_size, bias=True),
-        )
-
-        hidden_1 = hidden_size
-        hidden_2 = max(hidden_size // 2, 16)
-        self.mlp = nn.Sequential(
-            nn.Linear(nodes_size * hidden_size + nodes_size, hidden_1),
-            nn.SiLU(),
-            nn.Linear(hidden_1, hidden_2),
-            nn.SiLU(),
-            nn.Linear(hidden_2, 1),
-        )
-
-    def forward(self, x, t, c):
-        shift, scale = self.adaLN_modulation(t).reshape(
-            -1, self.nodes_size, 2 * self.hidden_size).chunk(2, dim=-1)
-        x = modulate(self.norm_final(x), shift, scale)
-        x = nn.functional.silu(x).flatten(1)
-        x = torch.cat([x, c.to(dtype=x.dtype)], dim=-1)
-        return self.mlp(x).squeeze(-1)
-
-#############################################
 # ----- ConditionTransformer Model -----
 #############################################
 
@@ -278,19 +235,8 @@ class ConditionTransformer(nn.Module):
         self.blocks = nn.ModuleList([
             TransformerBlock(hidden_size, num_heads, nodes_size, mlp_ratio=mlp_ratio) for _ in range(depth)
         ])
-        self.final_layer = FinalLayer(hidden_size, nodes_size)
-
-        # Initialize the legacy score path before constructing the optional
-        # head. This preserves the random-number consumption and therefore the
-        # seeded initialization of pre-divergence COMPASS models.
+        self.final_layer = FinalLayer(hidden_size, nodes_size)                   
         self.initialize_weights()
-        rng_state = torch.random.get_rng_state()
-        self.divergence_head = DivergenceHead(
-            hidden_size, nodes_size, time_embedding_size=time_embedding_size)
-        self.initialize_divergence_head()
-        # The optional head must not advance the caller's RNG relative to the
-        # legacy constructor (important when several seeded models are created).
-        torch.random.set_rng_state(rng_state)
 
     def initialize_weights(self):
         # Initialize transformer layers:
@@ -313,21 +259,8 @@ class ConditionTransformer(nn.Module):
         # Zero-out output layers:
         nn.init.constant_(self.final_layer.adaLN_modulation[-1].weight, 0)
         nn.init.constant_(self.final_layer.adaLN_modulation[-1].bias, 0)
-
-    def initialize_divergence_head(self):
-        """Initialize only the opt-in head without perturbing the score path."""
-        for module in self.divergence_head.modules():
-            if isinstance(module, nn.Linear):
-                nn.init.xavier_uniform_(module.weight)
-                if module.bias is not None:
-                    nn.init.constant_(module.bias, 0)
-        nn.init.constant_(self.divergence_head.adaLN_modulation[-1].weight, 0)
-        nn.init.constant_(self.divergence_head.adaLN_modulation[-1].bias, 0)
-        nn.init.constant_(self.divergence_head.mlp[-1].weight, 0)
-        nn.init.constant_(self.divergence_head.mlp[-1].bias, 0)
     
-    def forward(self, x, t, c, return_attn_weights=False,
-                return_divergence=False):
+    def forward(self, x, t, c, return_attn_weights=False):
         """
         Forward pass of ConditionTransformer.
         Args:
@@ -335,8 +268,6 @@ class ConditionTransformer(nn.Module):
             t:   (N,) tensor of diffusion timesteps
             c:   (N,) tensor of data conditions (latent or conditioned)
             return_attn_weights: (bool) Whether to return attention weights for interpretability.
-            return_divergence: (bool) Whether to return the instantaneous
-                PF-ODE log-density drift prediction.
         
         Returns:
             x:   (N, C, H, W) tensor of transformed outputs
@@ -355,16 +286,10 @@ class ConditionTransformer(nn.Module):
             for block in self.blocks:
                 x = block(x, c, t, return_attn_weights)
         
-        divergence = self.divergence_head(x, t, c) if return_divergence else None
         x = self.final_layer(x, t)
 
-        if return_attn_weights and return_divergence:
-            all_attn_weights = torch.stack(all_attn_weights, dim=0)
-            return x, divergence, all_attn_weights
-        elif return_attn_weights:
+        if return_attn_weights:
             all_attn_weights = torch.stack(all_attn_weights, dim=0)
             return x, all_attn_weights
-        elif return_divergence:
-            return x, divergence
         else:
             return x

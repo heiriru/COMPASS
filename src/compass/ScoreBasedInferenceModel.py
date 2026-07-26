@@ -52,18 +52,16 @@ class ScoreBasedInferenceModel(nn.Module):
         self.model = ConditionTransformer(nodes_size=self.nodes_size, hidden_size=hidden_size, 
                                        depth=depth, num_heads=num_heads, mlp_ratio=mlp_ratio)
         self.model.to(device)
-        self.divergence_head_trained = False
         
         # Init Trainer
         self.trainer = Trainer(self)
 
-        # Shared probability-flow ODE engine (likelihood, MAP and sampling).
-        # Initialize it first so both samplers reuse this exact instance.
-        self.pfode = PFODE(self)
-
-        # Init Samplers
+        # Init Sampler
         self.sampler = Sampler(self)
         self.multi_obs_sampler = MultiObsSampler(self)
+
+        # Init probability-flow ODE engine (log-probability evaluation, MAP)
+        self.pfode = PFODE(self)
         
     #############################################
     # ----- Forward Diffusion -----
@@ -100,9 +98,7 @@ class ScoreBasedInferenceModel(nn.Module):
     def train(self, theta, x, theta_val=None, x_val=None,
                 batch_size=128, max_epochs=500, lr=1e-3, device="cpu",
                 verbose=True, path=None, name="Model", early_stopping_patience=20,
-                time_sampling="mixture", train_divergence=False,
-                divergence_loss_weight=1.0, divergence_target="exact",
-                hutchinson_samples=1, divergence_warmup_epochs=5):
+                time_sampling="mixture"):
         """
         Train the model on the provided data
 
@@ -121,12 +117,6 @@ class ScoreBasedInferenceModel(nn.Module):
             early_stopping_patience: Number of epochs to wait before early stopping
             time_sampling: Diffusion-time sampling scheme during training
                     ("mixture" (default), "uniform" or "log_sigma"); see Trainer.train
-            train_divergence: Jointly train the instantaneous PF-ODE
-                    log-density drift head.
-            divergence_loss_weight: Final divergence regression loss weight.
-            divergence_target: "exact" (default) or "hutchinson" trace targets.
-            hutchinson_samples: Probe count for Hutchinson training targets.
-            divergence_warmup_epochs: Linear loss-weight warmup duration.
         """
 
         # Combine theta and x into a single tensor
@@ -143,13 +133,7 @@ class ScoreBasedInferenceModel(nn.Module):
 
         self.trainer.train(world_size=world_size, train_data=train_data, val_data=val_data,
                             max_epochs=max_epochs, early_stopping_patience=early_stopping_patience, batch_size=batch_size, lr=lr,
-                            path=path, name=name, device=device, verbose=verbose,
-                            time_sampling=time_sampling,
-                            train_divergence=train_divergence,
-                            divergence_loss_weight=divergence_loss_weight,
-                            divergence_target=divergence_target,
-                            hutchinson_samples=hutchinson_samples,
-                            divergence_warmup_epochs=divergence_warmup_epochs)
+                            path=path, name=name, device=device, verbose=verbose, time_sampling=time_sampling)
 
     #############################################
     # ----- Sample -----
@@ -160,9 +144,7 @@ class ScoreBasedInferenceModel(nn.Module):
                prior=None, correction="gauss", posterior_precision=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method=None, equation="reverse_sde",
-               inference_time_grid="log_sigma",
-               save_trajectory=False):
+               device="cpu", verbose=True, method="dpm", save_trajectory=False):
         """
         Sample from the model using the specified method
 
@@ -182,11 +164,9 @@ class ScoreBasedInferenceModel(nn.Module):
                     observations (defaults to all latent variables)
             prior: Gaussian prior over the hierarchy dimensions as a tuple (mean, std),
                     each of length len(hierarchy). Defaults to N(0, 1).
-            correction: Score composition rule: "gauss" (diagonal Gaussian),
-                    "gauss_full" (full-covariance Gaussian), "uncorrected", or "fnpe".
+            correction: Score composition rule: "gauss" (default), "uncorrected" or "fnpe"
             posterior_precision: Optional precision estimate of the single-observation
-                    posteriors on the hierarchy dimensions. For "gauss_full", pass
-                    a full (H, H) or per-observation (N, H, H) precision matrix.
+                    posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
             precision_est_samples: Samples per observation for the automatic estimate
             precision_est_timesteps: Diffusion steps for the automatic estimate
@@ -201,12 +181,7 @@ class ScoreBasedInferenceModel(nn.Module):
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Solver method. Defaults to dpm for reverse_sde and heun for
-                    probability_flow_ode.
-            equation: Equation to solve (reverse_sde or probability_flow_ode).
-            inference_time_grid: For multi-observation reverse-SDE sampling,
-                    ``"log_sigma"`` (default) or ``"uniform_t"`` integration
-                    nodes. Both retain the same start and end times.
+            method: Sampling method to use (euler, dpm)
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -241,10 +216,9 @@ class ScoreBasedInferenceModel(nn.Module):
             world_size = 1
             
         if multi_obs_inference == False:
-            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
+            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                    verbose=verbose, method=method, equation=equation,
-                                    save_trajectory=save_trajectory)
+                                    verbose=verbose, method=method, save_trajectory=save_trajectory)
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
@@ -252,29 +226,16 @@ class ScoreBasedInferenceModel(nn.Module):
                 raise NotImplementedError(
                     "Multi-observation (compositional) inference currently assumes a "
                     "VESDE; the composition corrections are not implemented for the VPSDE.")
-            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
                                       prior=prior, correction=correction, posterior_precision=posterior_precision,
                                       precision_est_samples=precision_est_samples, precision_est_timesteps=precision_est_timesteps,
                                       denoise_clamp=denoise_clamp,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                      verbose=verbose, method=method, equation=equation,
-                                      inference_time_grid=inference_time_grid,
-                                      save_trajectory=save_trajectory)
+                                      verbose=verbose, method=method, save_trajectory=save_trajectory)
 
-        # Return only latent values. Per-row masks are supported as long as each
-        # row has the same latent dimensionality, which is required for a tensor.
-        latent_mask = (1 - condition_mask).bool()
-        if latent_mask.dim() == 1:
-            samples = samples[:, :, latent_mask]
-        else:
-            latent_counts = latent_mask.sum(dim=-1)
-            if not torch.all(latent_counts == latent_counts[0]):
-                raise ValueError(
-                    "All condition_mask rows must have the same number of latent dimensions.")
-            samples = torch.stack(
-                [samples[i, :, latent_mask[i]] for i in range(samples.shape[0])],
-                dim=0)
-
+        # just return the sampled values
+        samples = samples[:,:,(1-condition_mask).bool()] 
+        
         return samples
     
     #############################################
@@ -300,10 +261,7 @@ class ScoreBasedInferenceModel(nn.Module):
                             shape (nodes_size,) or (num_points, nodes_size).
             timesteps:      Integration nodes of the 2nd-order Heun solver.
             eps:            Diffusion end time (density is smoothed by sigma(eps)).
-            divergence:     "exact" (default), "hutchinson", or "learned".
-                            Learned mode uses the instantaneous divergence head
-                            and requires a checkpoint trained with
-                            train_divergence=True.
+            divergence:     "exact" (default) or "hutchinson".
             hutchinson_samples: Probe vectors if divergence="hutchinson".
             device:         Device to run on.
             batch_size:     Points per integration batch.
@@ -339,8 +297,7 @@ class ScoreBasedInferenceModel(nn.Module):
                 'hidden_size': self.hidden_size,
                 'depth': self.depth,
                 'num_heads': self.num_heads,
-                'mlp_ratio': self.mlp_ratio,
-                'divergence_head_trained': self.divergence_head_trained,
+                'mlp_ratio': self.mlp_ratio
             }
 
         torch.save(state_dict, f"{path}/{name}.pt")
@@ -366,15 +323,7 @@ class ScoreBasedInferenceModel(nn.Module):
             mlp_ratio=checkpoint['mlp_ratio']
         )
 
-        incompatible = model.model.load_state_dict(
-            checkpoint['model_state_dict'], strict=False)
-        missing = [key for key in incompatible.missing_keys
-                   if not key.startswith('divergence_head.')]
-        if missing or incompatible.unexpected_keys:
-            raise RuntimeError(
-                "Checkpoint is incompatible with ConditionTransformer: "
-                f"missing={missing}, unexpected={incompatible.unexpected_keys}")
-        model.divergence_head_trained = bool(
-            checkpoint.get('divergence_head_trained', False))
+        model.model.load_state_dict(checkpoint['model_state_dict'])
 
         return model
+    

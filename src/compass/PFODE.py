@@ -39,87 +39,6 @@ class PFODE():
         self.SBIm = SBIm
         self.sde = SBIm.sde
 
-    def lambda_grid(self, timesteps, eps, device, descending=False, dtype=torch.float32):
-        """Return the common log-lambda integration grid and matching diffusion times."""
-        if not isinstance(timesteps, int) or timesteps < 2:
-            raise ValueError("timesteps must be an integer greater than or equal to 2.")
-        if not 0 < float(eps) < 1:
-            raise ValueError("eps must lie strictly between 0 and 1.")
-
-        one = torch.ones(1, device=device, dtype=dtype)
-        lam_min = self.sde.lambda_t(float(eps) * one)
-        lam_max = self.sde.lambda_t(one)
-        start, end = (lam_max, lam_min) if descending else (lam_min, lam_max)
-        lams = torch.logspace(torch.log10(start).item(), torch.log10(end).item(),
-                              timesteps, device=device, dtype=dtype)
-        return lams, self.sde.time_of_lambda(lams)
-
-    @staticmethod
-    def _state_step(y, lam0, lam1, t0, t1, latent, evaluate, method):
-        """Take one Euler or Heun step for dy/dlambda = -lambda * score_y.
-
-        The evaluator returns (score_y, auxiliary). The auxiliary values let
-        likelihood integration use this exact same state step while carrying the
-        score divergence alongside it.
-        """
-        h = lam1 - lam0
-        score0, aux0 = evaluate(y, t0)
-        y_pred = y + h * (-lam0 * score0) * latent
-        if method == "euler":
-            return y_pred, aux0, None
-        if method != "heun":
-            raise ValueError(f"Unknown probability-flow ODE method '{method}'.")
-
-        score1, aux1 = evaluate(y_pred, t1)
-        y_next = y + 0.5 * h * (-lam0 * score0 - lam1 * score1) * latent
-        return y_next, aux0, aux1
-
-    @torch.no_grad()
-    def sample(self, y, condition_mask, score_fn, timesteps=50, eps=1e-3,
-               method="heun", verbose=False, save_trajectory=False):
-        """Sample by integrating the probability-flow ODE from noise to data.
-
-        y must contain centered terminal Gaussian noise on latent dimensions.
-        score_fn receives a rescaled state and scalar diffusion time and returns
-        the corresponding score in y-space.
-        """
-        if method not in ("euler", "heun"):
-            raise ValueError("PF-ODE sampling method must be 'euler' or 'heun'.")
-
-        latent = 1 - condition_mask
-        lams, ts = self.lambda_grid(timesteps, eps, y.device, descending=True,
-                                    dtype=y.dtype)
-
-        # Estimate the conditional terminal mean with Tweedie's relation, while
-        # retaining the original centered Gaussian draw around that mean.
-        endpoint_score = score_fn(y, ts[0])
-        endpoint_mean = y + lams[0]**2 * endpoint_score
-        y = y + endpoint_mean * latent
-
-        trajectory = []
-        if save_trajectory:
-            alpha = self.sde.alpha_t(ts[0]).to(y.device)
-            trajectory.append((y * (alpha * latent + condition_mask)).detach().cpu())
-
-        def evaluate(state, time):
-            return score_fn(state, time), None
-
-        for i in tqdm.tqdm(range(timesteps - 1), disable=not verbose,
-                           desc="PF-ODE sample"):
-            y, _, _ = self._state_step(y, lams[i], lams[i + 1], ts[i], ts[i + 1],
-                                       latent, evaluate, method)
-            if save_trajectory:
-                alpha = self.sde.alpha_t(ts[i + 1]).to(y.device)
-                trajectory.append((y * (alpha * latent + condition_mask)).detach().cpu())
-
-        alpha_eps = self.sde.alpha_t(ts[-1]).to(y.device)
-        samples = y * (alpha_eps * latent + condition_mask)
-        if save_trajectory:
-            trajectory = torch.stack(trajectory, dim=1)
-        else:
-            trajectory = None
-        return samples.detach(), trajectory
-
     #############################################
     # ----- Log-probability -----
     #############################################
@@ -148,8 +67,6 @@ class PFODE():
                             one backward pass per latent dimension -- preferred
                             for the low-dimensional problems COMPASS targets.
                             "hutchinson" uses a Rademacher trace estimator.
-                            "learned" uses the trained instantaneous divergence
-                            head without backward passes.
             hutchinson_samples: Number of probe vectors for "hutchinson".
             device:         Device to run on.
             batch_size:     Points per integration batch.
@@ -158,15 +75,6 @@ class PFODE():
         Returns:
             log_prob: tensor of shape (num_points,) on CPU.
         """
-        if divergence not in ("exact", "hutchinson", "learned"):
-            raise ValueError(f"Unknown divergence method '{divergence}'")
-        if divergence == "learned" and not getattr(
-                self.SBIm, "divergence_head_trained", False):
-            raise RuntimeError(
-                "Learned divergence was requested, but this model's divergence "
-                "head has not been trained. Fine-tune with "
-                "train_divergence=True or use divergence='exact'.")
-
         model = self.SBIm.model.to(device)
         was_training = model.training
         model.eval()
@@ -194,7 +102,13 @@ class PFODE():
         sde = self.sde
         latent = (1 - condition_mask)
 
-        lams, ts = self.lambda_grid(timesteps, eps, device, dtype=data.dtype)
+        one = torch.ones(1, device=device)
+        lam_min = sde.lambda_t(eps * one).item()
+        lam_max = sde.lambda_t(one).item()
+        lams = torch.logspace(torch.log10(torch.tensor(lam_min)),
+                              torch.log10(torch.tensor(lam_max)),
+                              timesteps, device=device)
+        ts = sde.time_of_lambda(lams)
 
         # Rescaled state y = x / alpha(t) on the latent dims; conditioned dims
         # enter the network unscaled (they are never diffused during training).
@@ -208,16 +122,16 @@ class PFODE():
         for i in tqdm.tqdm(range(timesteps - 1), disable=not verbose,
                            desc="PF-ODE log-prob"):
             lam0, lam1 = lams[i], lams[i + 1]
-
-            def evaluate(state, time):
-                return self._score_and_drift(
-                    state, time, condition_mask, latent,
-                    divergence, hutchinson_samples)
-
-            y, drift0, drift1 = self._state_step(
-                y, lam0, lam1, ts[i], ts[i + 1], latent, evaluate, "heun")
             h = lam1 - lam0
-            I = I + 0.5 * h * (drift0 + drift1)
+
+            s0, div0 = self._score_and_div(y, ts[i], condition_mask, latent,
+                                           divergence, hutchinson_samples)
+            y_pred = y + h * (-lam0 * s0) * latent
+            s1, div1 = self._score_and_div(y_pred, ts[i + 1], condition_mask, latent,
+                                           divergence, hutchinson_samples)
+
+            y = y + 0.5 * h * (-lam0 * s0 - lam1 * s1) * latent
+            I = I + 0.5 * h * (lam0 * div0 + lam1 * div1)
 
         # Gaussian prior of the SDE at t=1 in the rescaled variables,
         # p_1(y) ~ N(mu_1, lambda_max^2). Instead of assuming mu_1 = 0 (which
@@ -227,9 +141,9 @@ class PFODE():
         # O(Var(data)/lambda_max^2), hence (y - mu_1)^2 / (2 lambda_max^2)
         # = lambda_max^2 * s_1(y)^2 / 2. This makes the evaluation independent
         # of the data location, so no normalization of the data is required.
-        s_end, _ = self._score_and_drift(
-            y, ts[-1], condition_mask, latent,
-            divergence, hutchinson_samples, compute_drift=False)
+        s_end, _ = self._score_and_div(y, ts[-1], condition_mask, latent,
+                                       divergence, hutchinson_samples,
+                                       compute_div=False)
         d = latent.sum(dim=-1)
         log_prior = (-0.5 * torch.log(2 * torch.pi * lams[-1]**2) * d
                      - 0.5 * lams[-1]**2 * (s_end**2 * latent).sum(dim=-1))
@@ -237,18 +151,12 @@ class PFODE():
         # Change of variables x = alpha * y at the data end.
         return log_prior - I - d * torch.log(alpha_eps)
 
-    def _score_and_drift(self, y, t, condition_mask, latent, divergence,
-                         hutchinson_samples, compute_drift=True):
-        """Return score s_y and instantaneous log-density drift D_lambda.
+    def _score_and_div(self, y, t, condition_mask, latent, divergence, hutchinson_samples,
+                       compute_div=True):
+        """Score s_y = alpha * s_x and its divergence w.r.t. y over the latent dims.
 
         The network approximates s_x = model(x,t,c)/sigma(t) with x = alpha(t) y on
-        the latent dims. For dy/dlambda = -lambda*s_y,
-
-            D_lambda = -div_y(dy/dlambda)
-                     = lambda * div_y(s_y)
-                     = alpha * trace(d model_output / dx)
-
-        where the trace is restricted to latent dimensions.
+        the latent dims; div_y(s_y) = alpha^2 * div_x(s_x).
         """
         sde = self.sde
         alpha = sde.alpha_t(t).to(y.device)
@@ -257,19 +165,11 @@ class PFODE():
 
         x = y * (alpha * latent + condition_mask)
 
-        if not compute_drift:
+        if not compute_div:
             with torch.no_grad():
                 out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
                 s_x = out / sigma
             return (alpha * s_x).detach(), None
-
-        if divergence == "learned":
-            with torch.no_grad():
-                out, drift = self.SBIm.model(
-                    x=x, t=t_vec, c=condition_mask,
-                    return_divergence=True)
-                s_x = out / sigma
-            return (alpha * s_x).detach(), drift.detach()
 
         with torch.enable_grad():
             x = x.detach().requires_grad_(True)
@@ -280,25 +180,25 @@ class PFODE():
                 # One backward pass per latent dimension: exact and deterministic,
                 # cheap for the low-dimensional joints COMPASS works with.
                 latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
-                trace = torch.zeros(y.shape[0], device=y.device)
+                div = torch.zeros(y.shape[0], device=y.device)
                 for k, j in enumerate(latent_dims):
-                    grad_j = torch.autograd.grad(out[:, j].sum(), x,
+                    grad_j = torch.autograd.grad(s_x[:, j].sum(), x,
                                                  retain_graph=(k < len(latent_dims) - 1))[0]
-                    trace = trace + grad_j[:, j] * latent[:, j]
+                    div = div + grad_j[:, j] * latent[:, j]
             elif divergence == "hutchinson":
-                trace = torch.zeros(y.shape[0], device=y.device)
+                div = torch.zeros(y.shape[0], device=y.device)
                 for k in range(hutchinson_samples):
                     v = (torch.randint(0, 2, y.shape, device=y.device).float() * 2 - 1) * latent
-                    grad_v = torch.autograd.grad((out * v).sum(), x,
+                    grad_v = torch.autograd.grad((s_x * v).sum(), x,
                                                  retain_graph=(k < hutchinson_samples - 1))[0]
-                    trace = trace + (grad_v * v).sum(dim=-1)
-                trace = trace / hutchinson_samples
+                    div = div + (grad_v * v).sum(dim=-1)
+                div = div / hutchinson_samples
             else:
                 raise ValueError(f"Unknown divergence method '{divergence}'")
 
         s_y = (alpha * s_x).detach()
-        drift = (alpha * trace).detach()
-        return s_y, drift
+        div_y = (alpha**2 * div).detach()
+        return s_y, div_y
 
     #############################################
     # ----- Score-ascent MAP -----

@@ -1,7 +1,0 @@
---- COMPASS/src/compass/ModelTransfuser.py
-+++ COMPASS/src/compass/ModelTransfuser.py
-@@ -646,3 +654,4 @@
-             axis.set_xticks(range(n_models), model_names_violin)
-             axis.tick_params(axis='both', which='major', labelsize=14)
-             axis.set_xlabel("")
-+            axis.set_title(title, fontsize=18, pad=12)
