@@ -104,7 +104,8 @@ from compass import ModelTransfuser as MTf
 
 
 ROOT = Path(__file__).resolve().parent
-DEFAULT_OUTPUT = ROOT / "output" / "compositional_inference"
+# Keep outputs under tutorials/output regardless of the current working directory.
+DEFAULT_OUTPUT = ROOT.parent / "output" / "compositional_inference"
 
 # Shared Gaussian toy problem from the notebook.
 MU0, S0, SX = 0.0, 1.0, 1.0
@@ -118,7 +119,7 @@ POP_LOGV_MEAN, POP_LOGV_STD = math.log(0.7**2), 0.7
 
 TIME_SAMPLINGS = ("uniform", "log_sigma", "mixture")
 INFERENCE_TIME_GRIDS = ("log_sigma", "uniform_t")
-N_VALUES = (1, 2, 5, 10, 25, 50)
+N_VALUES = (1, 2, 5, 10, 25, 50, 100, 200)
 PAIRPLOT_SAMPLES = 4_000
 
 # Deliberately small global-mean Gaussian test (experiment 07).
@@ -163,6 +164,12 @@ class RunConfig:
     mcmc_thin: int = 8
 
 
+def checkpoint_dir(cfg: RunConfig, key: str) -> Path:
+    """Keep quick smoke-test checkpoints separate from full-quality checkpoints."""
+    quality = "quick" if cfg.train_samples <= 4_000 and cfg.max_epochs <= 3 else "full"
+    return cfg.output_dir / "models" / f"{key}_{quality}"
+
+
 @dataclass(frozen=True)
 class SamplerVariant:
     key: str
@@ -171,6 +178,7 @@ class SamplerVariant:
     correction: str
     corrector_steps: int
     snr: float = 0.1
+    equation: str = "reverse_sde"
 
 
 @dataclass(frozen=True)
@@ -227,6 +235,19 @@ SAMPLER_VARIANTS = (
     SamplerVariant("langevin_raw", "Langevin + uncorrected", "langevin", "uncorrected", 8),
     # F-NPSE is a bridging-density score and is valid only with annealed Langevin.
     SamplerVariant("langevin_fnpe", "Langevin + F-NPSE", "langevin", "fnpe", 8),
+)
+
+PFODE_GAUSS_VARIANT = SamplerVariant(
+    "pfode_gauss", "PF-ODE + Gaussian", "heun", "gauss", 0,
+    equation="probability_flow_ode",
+)
+
+# The observation-scaling plot compares PF-ODE + Gaussian in place of the
+# otherwise redundant DPM-2 + full Gaussian curve.
+OBSERVATION_SCALING_VARIANTS = (
+    SAMPLER_VARIANTS[0],
+    PFODE_GAUSS_VARIANT,
+    *SAMPLER_VARIANTS[2:],
 )
 
 
@@ -605,7 +626,7 @@ def load_or_train_gaussian_test(cfg: RunConfig, time_sampling: str) -> SBIm:
         if time_sampling == "mixture"
         else "gaussian_model_1_global_mean_uniform"
     )
-    model_dir = cfg.output_dir / "models" / key
+    model_dir = checkpoint_dir(cfg, key)
     checkpoint = model_dir / "Model_checkpoint.pt"
     if checkpoint.exists():
         print(f"Loading Gaussian Model 1 ({time_sampling}): {checkpoint}")
@@ -642,7 +663,7 @@ def load_or_train_gaussian_mtf_candidate(
     centre: float,
 ) -> SBIm:
     """Train one compact candidate likelihood for ModelTransfuser."""
-    model_dir = cfg.output_dir / "models" / f"gaussian_mtf_model_{model_index}"
+    model_dir = checkpoint_dir(cfg, f"gaussian_mtf_model_{model_index}")
     checkpoint = model_dir / "Model_checkpoint.pt"
     if checkpoint.exists():
         print(f"Loading Gaussian MTF Model {model_index}: {checkpoint}")
@@ -698,7 +719,7 @@ def load_or_train_parabola_models(cfg: RunConfig) -> dict[str, SBIm]:
     quick_suffix = "_quick" if cfg.train_samples <= 4_000 and cfg.max_epochs <= 3 else ""
     for family_index, family in enumerate(PARABOLA_FAMILIES):
         key = f"parabola_{family}_mixture{quick_suffix}"
-        model_dir = cfg.output_dir / "models" / key
+        model_dir = checkpoint_dir(cfg, key)
         checkpoint = model_dir / "Model_checkpoint.pt"
         if checkpoint.exists():
             print(f"Loading {PARABOLA_LABELS[family]} parabola: {checkpoint}")
@@ -736,7 +757,7 @@ def load_or_train(
     time_sampling: str = "mixture",
     hierarchical: bool = False,
 ) -> SBIm:
-    model_dir = cfg.output_dir / "models" / key
+    model_dir = checkpoint_dir(cfg, key)
     checkpoint = model_dir / "Model_checkpoint.pt"
     if checkpoint.exists():
         print(f"Loading {key}: {checkpoint}")
@@ -802,6 +823,7 @@ def sample_shared(
         timesteps=cfg.timesteps,
         order=2,
         method=variant.method,
+        equation=variant.equation,
         corrector_steps=variant.corrector_steps,
         snr=variant.snr,
         device=cfg.device,
@@ -968,6 +990,7 @@ def evaluate_sampler_grid(
     cfg: RunConfig,
     n_values: Iterable[int],
     repeats: int,
+    variants: Sequence[SamplerVariant] = SAMPLER_VARIANTS,
 ) -> tuple[list[dict], dict[str, np.ndarray]]:
     rows: list[dict] = []
     raw: dict[str, np.ndarray] = {}
@@ -981,7 +1004,12 @@ def evaluate_sampler_grid(
         for n in n_values:
             x = pool[:n]
             truth_mean, truth_std = analytic_shared(x)
-            for index, variant in enumerate(SAMPLER_VARIANTS):
+            all_seed_variants = (*SAMPLER_VARIANTS, PFODE_GAUSS_VARIANT)
+            for variant in variants:
+                index = next(
+                    index for index, candidate in enumerate(all_seed_variants)
+                    if candidate.key == variant.key
+                )
                 samples, runtime = sample_shared(
                     model, x, cfg, variant,
                     seed=cfg.seed + 10_000 * repeat + 100 * n + index,
@@ -1042,15 +1070,36 @@ def experiment_samplers(model: SBIm, cfg: RunConfig) -> None:
     save_figure(fig, out / "sampler_comparison_n10.png")
 
 
-def experiment_observation_scaling(model: SBIm, cfg: RunConfig) -> None:
+def experiment_observation_scaling(
+    model: SBIm,
+    cfg: RunConfig,
+    variants: Sequence[SamplerVariant] = OBSERVATION_SCALING_VARIANTS,
+    incremental: bool = False,
+) -> None:
     out = cfg.output_dir / "03_observation_scaling"
-    rows, raw = evaluate_sampler_grid(model, cfg, n_values=N_VALUES, repeats=cfg.repeats)
-    write_rows(out / "observation_scaling_metrics.csv", rows)
-    save_raw_data(out / "raw_plot_data.npz", **raw)
+    rows, raw = evaluate_sampler_grid(
+        model, cfg, n_values=N_VALUES, repeats=cfg.repeats, variants=variants,
+    )
+    metrics_path = out / "observation_scaling_metrics.csv"
+    raw_path = out / "raw_plot_data.npz"
+    if incremental:
+        if not metrics_path.exists() or not raw_path.exists():
+            raise FileNotFoundError(
+                "--sampler-variants updates an existing scaling run, but its CSV/NPZ "
+                f"files are missing under {out}."
+            )
+        selected_keys = {variant.key for variant in variants}
+        previous_rows = read_metric_rows(metrics_path)
+        rows = [
+            row for row in previous_rows if str(row["variant"]) not in selected_keys
+        ] + rows
+        raw = {**load_raw_data(raw_path), **raw}
+    write_rows(metrics_path, rows)
+    save_raw_data(raw_path, **raw)
     fig, axes = plt.subplots(2, 2, figsize=(10, 7.6))
     axes = axes.ravel()
     runtime_linestyles = ("-", "-", "-", "-", "-", (0, (1, 6)))
-    for variant_index, variant in enumerate(SAMPLER_VARIANTS):
+    for variant_index, variant in enumerate(OBSERVATION_SCALING_VARIANTS):
         chosen = [row for row in rows if row["variant"] == variant.key]
         for axis_index, (ax, value) in enumerate(
             zip(axes[:3], ("mean_error_sigma", "std_ratio", "runtime_seconds"))
@@ -1382,6 +1431,10 @@ def experiment_multi_vs_individual(model: SBIm, cfg: RunConfig) -> None:
     truth_mean, truth_std = analytic_shared(x)
     multi, multi_runtime = sample_shared(model, x, cfg, SAMPLER_VARIANTS[0], cfg.seed + 701)
     multi_values = tensor_numpy(multi[0, :, 0])
+    multi_fnpe, multi_fnpe_runtime = sample_shared(
+        model, x, cfg, SAMPLER_VARIANTS[5], cfg.seed + 702,
+    )
+    multi_fnpe_values = tensor_numpy(multi_fnpe[0, :, 0])
 
     individual_values: list[np.ndarray] = []
     individual_rows: list[dict] = []
@@ -1417,6 +1470,15 @@ def experiment_multi_vs_individual(model: SBIm, cfg: RunConfig) -> None:
             np.concatenate(individual_values), analytic_draws,
         ),
         "multi_runtime_seconds": multi_runtime,
+        "multi_fnpe_mean_error_sigma": abs(multi_fnpe_values.mean() - truth_mean) / truth_std,
+        "multi_fnpe_std_ratio": multi_fnpe_values.std(ddof=1) / truth_std,
+        "multi_fnpe_wasserstein_to_analytic": wasserstein_distance(
+            multi_fnpe_values, analytic_draws,
+        ),
+        "multi_fnpe_wasserstein_to_mcmc": wasserstein_distance(
+            multi_fnpe_values, mcmc_values,
+        ),
+        "multi_fnpe_runtime_seconds": multi_fnpe_runtime,
         "all_individual_runtime_seconds": individual_runtime,
         "mcmc_acceptance": acceptance,
     }]
@@ -1429,6 +1491,7 @@ def experiment_multi_vs_individual(model: SBIm, cfg: RunConfig) -> None:
         analytic_mean=truth_mean,
         analytic_std=truth_std,
         multi_samples=multi_values,
+        multi_fnpe_samples=multi_fnpe_values,
         individual_samples=np.stack(individual_values),
         mcmc_samples=mcmc_values,
         analytic_reference_draws=analytic_draws,
@@ -1445,7 +1508,9 @@ def experiment_multi_vs_individual(model: SBIm, cfg: RunConfig) -> None:
             label="analytic multi-observation")
     ax.plot(grid, gaussian_kde(mcmc_values)(grid), color="tab:orange", label="MCMC")
     ax.plot(grid, gaussian_kde(multi_values)(grid), color="tab:blue", linewidth=2.4,
-            label="COMPASS multi-observation")
+            label="COMPASS multi-observation (DPM-2 + Gaussian)")
+    ax.plot(grid, gaussian_kde(multi_fnpe_values)(grid), color="tab:green", linewidth=2.4,
+            label="COMPASS multi-observation (Langevin + F-NPSE)")
     ax.axvline(theta_true, color="tab:red", label="true theta")
     ax.set(xlabel="theta", ylabel="density", title="Multi-observation vs separate inference")
     ax.legend()
@@ -2566,7 +2631,7 @@ def replot_scaling(output_dir: Path) -> None:
     fig, axes = plt.subplots(2, 2, figsize=(10, 7.6))
     axes = axes.ravel()
     runtime_linestyles = ("-", "-", "-", "-", "-", (0, (1, 6)))
-    for variant_index, variant in enumerate(SAMPLER_VARIANTS):
+    for variant_index, variant in enumerate(OBSERVATION_SCALING_VARIANTS):
         chosen = [row for row in rows if row["variant"] == variant.key]
         if not chosen:
             continue
@@ -2662,7 +2727,10 @@ def replot_individual(output_dir: Path) -> None:
             label="analytic multi-observation")
     ax.plot(grid, gaussian_kde(raw["mcmc_samples"])(grid), color="tab:orange", label="MCMC")
     ax.plot(grid, gaussian_kde(raw["multi_samples"])(grid), color="tab:blue", linewidth=2.4,
-            label="COMPASS multi-observation")
+            label="COMPASS multi-observation (DPM-2 + Gaussian)")
+    if "multi_fnpe_samples" in raw:
+        ax.plot(grid, gaussian_kde(raw["multi_fnpe_samples"])(grid), color="tab:green",
+                linewidth=2.4, label="COMPASS multi-observation (Langevin + F-NPSE)")
     ax.axvline(float(raw["theta_true"]), color="tab:red", label="true theta")
     ax.set(xlabel="theta", ylabel="density", title="Multi-observation vs separate inference")
     ax.legend()
@@ -2804,6 +2872,11 @@ def main() -> None:
                         help="tiny wiring test; do not use results for conclusions")
     parser.add_argument("--plots-only", action="store_true",
                         help="regenerate figures from saved CSV/NPZ data; run no calculations")
+    parser.add_argument(
+        "--sampler-variants",
+        help=("comma-separated scaling sampler keys to recalculate in place; "
+              "for example: pfode_gauss"),
+    )
     args = parser.parse_args()
     logical_cpus, selected_cpus = CPU_LIMIT_INFO
     print(
@@ -2811,6 +2884,22 @@ def main() -> None:
         f"({len(selected_cpus) / logical_cpus:.2%} capacity)."
     )
     experiments = parse_experiments(args.experiments)
+    scaling_variants = OBSERVATION_SCALING_VARIANTS
+    if args.sampler_variants:
+        if experiments != ["scaling"] or args.plots_only:
+            parser.error("--sampler-variants requires --experiments scaling")
+        variants_by_key = {
+            variant.key: variant for variant in OBSERVATION_SCALING_VARIANTS
+        }
+        requested_keys = [
+            key.strip() for key in args.sampler_variants.split(",") if key.strip()
+        ]
+        unknown_keys = sorted(set(requested_keys) - set(variants_by_key))
+        if unknown_keys:
+            parser.error(
+                "unknown scaling sampler variants: " + ", ".join(unknown_keys)
+            )
+        scaling_variants = tuple(variants_by_key[key] for key in requested_keys)
     if args.plots_only:
         configure_plot_style()
         for name in experiments:
@@ -2827,6 +2916,8 @@ def main() -> None:
         payload = asdict(cfg)
         payload["output_dir"] = str(payload["output_dir"])
         payload["experiments"] = experiments
+        if args.sampler_variants:
+            payload["sampler_variants"] = [variant.key for variant in scaling_variants]
         json.dump(payload, handle, indent=2)
 
     shared_model = None
@@ -2838,7 +2929,10 @@ def main() -> None:
     runners = {
         "contract": lambda: experiment_contract(shared_model, cfg),
         "samplers": lambda: experiment_samplers(shared_model, cfg),
-        "scaling": lambda: experiment_observation_scaling(shared_model, cfg),
+        "scaling": lambda: experiment_observation_scaling(
+            shared_model, cfg, scaling_variants,
+            incremental=bool(args.sampler_variants),
+        ),
         "time": lambda: experiment_time_sampling(cfg),
         "time-grid": lambda: experiment_time_sampling_sampler_grid(
             {

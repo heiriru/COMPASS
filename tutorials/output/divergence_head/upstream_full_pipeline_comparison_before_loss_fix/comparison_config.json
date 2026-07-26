@@ -1,0 +1,103 @@
+{
+  "checkpoints": {
+    "banana": {
+      "current_stage1": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/banana/banana/stage1_exact_no_head.pt",
+      "current_stage2": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/banana/banana/stage2_joint.pt",
+      "upstream_historical": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/upstream_full_pipeline/banana/upstream_score.pt"
+    },
+    "gaussian": {
+      "current_stage1": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/gaussian_identity_prior_noise_0p2/stage1_score.pt",
+      "current_stage2": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/gaussian_identity_prior_noise_0p2/stage2_joint.pt",
+      "upstream_historical": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/upstream_full_pipeline/gaussian/upstream_score.pt"
+    },
+    "line": {
+      "current_stage1": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/line/stage1_exact_no_head.pt",
+      "current_stage2": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/line/stage2_joint.pt",
+      "upstream_historical": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/upstream_full_pipeline/line/upstream_score.pt"
+    },
+    "parabola": {
+      "current_stage1": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola/stage1_exact_no_head.pt",
+      "current_stage2": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/line_parabola/parabola/stage2_joint.pt",
+      "upstream_historical": "/export/home/rheinric/COMPASS/tutorials/data/divergence_head/upstream_full_pipeline/parabola/upstream_score.pt"
+    }
+  },
+  "comparison_role": "historical upstream score-only training + upstream exact PF-ODE versus current Stage-1 and Stage-2 models + current exact PF-ODE",
+  "current_commit": "7c6448cd0164736ae48f7c98f5f6773634be5307",
+  "current_repository": "/export/home/rheinric/COMPASS",
+  "density_timesteps": 100,
+  "eps": 0.001,
+  "output": "/export/home/rheinric/COMPASS/tutorials/output/divergence_head/upstream_full_pipeline_comparison",
+  "sample_count": 64,
+  "timestep_sweep": [
+    10,
+    50,
+    100,
+    200,
+    500
+  ],
+  "training_configs": {
+    "banana": {
+      "batch_size": 256,
+      "depth": 3,
+      "early_stopping_patience": 75,
+      "hidden_size": 64,
+      "learning_rate": 0.001,
+      "max_epochs": 300,
+      "mlp_ratio": 2,
+      "nodes_size": 4,
+      "num_heads": 4,
+      "sde_type": "vesde",
+      "seed": 1729,
+      "sigma": 25.0,
+      "time_sampling": "mixture"
+    },
+    "gaussian": {
+      "batch_size": 256,
+      "depth": 3,
+      "early_stopping_patience": 30,
+      "hidden_size": 64,
+      "learning_rate": 0.001,
+      "max_epochs": 80,
+      "mlp_ratio": 2,
+      "nodes_size": 4,
+      "num_heads": 4,
+      "sde_type": "vesde",
+      "seed": 1729,
+      "sigma": 25.0,
+      "time_sampling": "mixture"
+    },
+    "line": {
+      "batch_size": 256,
+      "depth": 3,
+      "early_stopping_patience": 75,
+      "hidden_size": 64,
+      "learning_rate": 0.001,
+      "max_epochs": 300,
+      "mlp_ratio": 2,
+      "nodes_size": 3,
+      "num_heads": 4,
+      "sde_type": "vesde",
+      "seed": 1729,
+      "sigma": 25.0,
+      "time_sampling": "mixture"
+    },
+    "parabola": {
+      "batch_size": 256,
+      "depth": 3,
+      "early_stopping_patience": 75,
+      "hidden_size": 64,
+      "learning_rate": 0.001,
+      "max_epochs": 300,
+      "mlp_ratio": 2,
+      "nodes_size": 3,
+      "num_heads": 4,
+      "sde_type": "vesde",
+      "seed": 1729,
+      "sigma": 25.0,
+      "time_sampling": "mixture"
+    }
+  },
+  "upstream_commit": "926f580a879e4b05e914ff77a5d574c7dfeda8e9",
+  "upstream_repository": "https://github.com/bGuenes/COMPASS.git",
+  "upstream_worktree": "/tmp/compass-bguenes-pfode-926f580"
+}

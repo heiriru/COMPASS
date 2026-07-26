@@ -2,18 +2,21 @@
   "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference",
   "device": "cuda",
   "seed": 7,
-  "train_samples": 4000,
-  "validation_samples": 500,
-  "max_epochs": 3,
-  "patience": 2,
+  "train_samples": 50000,
+  "validation_samples": 3000,
+  "max_epochs": 80,
+  "patience": 15,
   "batch_size": 256,
-  "posterior_samples": 250,
-  "timesteps": 12,
-  "repeats": 1,
-  "mcmc_steps": 3000,
-  "mcmc_burn": 500,
-  "mcmc_thin": 5,
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "repeats": 3,
+  "mcmc_steps": 40000,
+  "mcmc_burn": 8000,
+  "mcmc_thin": 8,
   "experiments": [
-    "parabola"
+    "scaling"
+  ],
+  "sampler_variants": [
+    "pfode_gauss"
   ]
 }

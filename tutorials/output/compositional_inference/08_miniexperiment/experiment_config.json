@@ -1,0 +1,120 @@
+{
+  "output_dir": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/08_miniexperiment",
+  "device": "cuda",
+  "seed": 42,
+  "quick": true,
+  "train_n": 10000,
+  "val_n": 1000,
+  "n_values": [
+    2,
+    5,
+    10
+  ],
+  "n_runs": 3,
+  "posterior_samples": 96,
+  "timesteps": 14,
+  "max_epochs": 50,
+  "patience": 10,
+  "force_train": false,
+  "t_values": [
+    -1.0,
+    0.0,
+    1.0
+  ],
+  "c_true_values": [
+    0.0,
+    0.6
+  ],
+  "sigma_x": 0.15,
+  "parameter_prior_std": {
+    "a": 1.0,
+    "c": 1.0,
+    "b": 1.5
+  },
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3.0,
+    "hidden_size": 48,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 3
+  },
+  "global_tolerance": 1e-06,
+  "effective_parameter_definition": "k = d_G + N*d_L",
+  "likelihood": "COMPASS PF-ODE exact-divergence likelihood in physical x units",
+  "map": "COMPASS hierarchical sampling plus score MAP refinement of local coordinates",
+  "parameter_roles": {
+    "correct": {
+      "linear": {
+        "global": [
+          0
+        ],
+        "local": [
+          1
+        ]
+      },
+      "quadratic": {
+        "global": [
+          0,
+          1
+        ],
+        "local": [
+          2
+        ]
+      }
+    },
+    "curvature_local": {
+      "linear": {
+        "global": [
+          0
+        ],
+        "local": [
+          1
+        ]
+      },
+      "quadratic": {
+        "global": [
+          0
+        ],
+        "local": [
+          1,
+          2
+        ]
+      }
+    },
+    "all_local": {
+      "linear": {
+        "global": [],
+        "local": [
+          0,
+          1
+        ]
+      },
+      "quadratic": {
+        "global": [],
+        "local": [
+          0,
+          1,
+          2
+        ]
+      }
+    },
+    "all_global": {
+      "linear": {
+        "global": [
+          0,
+          1
+        ],
+        "local": []
+      },
+      "quadratic": {
+        "global": [
+          0,
+          1,
+          2
+        ],
+        "local": []
+      }
+    }
+  }
+}
