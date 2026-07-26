@@ -6,13 +6,24 @@ posterior for a linear-Gaussian toy model, so any error in the multi-observation
 samples is attributable to the composition / sampling machinery, not to training.
 The sampled posterior is compared against the analytic multi-observation posterior.
 
-Runs on CPU in a few minutes:
+Runs on a CUDA GPU in a few minutes:
     python tests/test_multiobs_analytic.py
 or with pytest:
     pytest tests/test_multiobs_analytic.py
 """
 import os
 import sys
+
+# Keep this standalone executable from consuming more than 6% of host CPUs.
+_cpu_limit = int(os.cpu_count() * 0.06)
+if _cpu_limit < 1:
+    raise RuntimeError("The 6% CPU cap permits fewer than one logical CPU.")
+_available_cpus = sorted(os.sched_getaffinity(0))
+_cpu_limit = min(_cpu_limit, len(_available_cpus))
+os.sched_setaffinity(0, set(_available_cpus[:_cpu_limit]))
+for _thread_var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ[_thread_var] = str(_cpu_limit)
+print(f"Using {_cpu_limit} logical CPU(s) ({100 * _cpu_limit / os.cpu_count():.1f}% of host capacity).")
 
 import torch
 
@@ -21,15 +32,20 @@ from compass.MultiObsSampler import MultiObsSampler
 from compass.Sampler import Sampler
 from compass.SDE import VESDE
 
-MU0 = torch.tensor([-2.3, -2.89])
-SIG0 = torch.tensor([0.3, 0.3])
-SIGX = torch.tensor([0.5, 0.5])
+if not torch.cuda.is_available():
+    raise RuntimeError("test_multiobs_analytic.py requires a CUDA-capable GPU.")
+
+DEVICE = torch.device("cuda")
+MU0 = torch.tensor([-2.3, -2.89], device=DEVICE)
+SIG0 = torch.tensor([0.3, 0.3], device=DEVICE)
+SIGX = torch.tensor([0.5, 0.5], device=DEVICE)
 
 
 class MockSBIm:
     """Minimal stand-in for ScoreBasedInferenceModel."""
     def __init__(self, model_cls, nodes):
         self.sde = VESDE(sigma=25.0)
+        self.sde.sigma = self.sde.sigma.to(DEVICE)
         self.model = model_cls(self.sde)
         self.sampler = Sampler(self)
         self.nodes_size = nodes
@@ -67,13 +83,13 @@ def analytic_posterior(x_all):
 
 def _sample(n_obs, correction, method="dpm", timesteps=50, use_est_precision=False, **kw):
     torch.manual_seed(42)
-    theta_true = MU0 + SIG0 * torch.randn(2)
-    x_all = theta_true + SIGX * torch.randn(n_obs, 2)
+    theta_true = MU0 + SIG0 * torch.randn(2, device=DEVICE)
+    x_all = theta_true + SIGX * torch.randn(n_obs, 2, device=DEVICE)
     m_star, s_star = analytic_posterior(x_all)
 
     sbim = MockSBIm(LinearGaussianModel, 4)
     mos = MultiObsSampler(sbim)
-    mask = torch.tensor([0., 0., 1., 1.])
+    mask = torch.tensor([0., 0., 1., 1.], device=DEVICE)
     post_prec = None
     if correction == "gauss" and not use_est_precision:
         post_prec = (1 / SIG0**2 + 1 / SIGX**2).repeat(n_obs, 1)
@@ -84,7 +100,7 @@ def _sample(n_obs, correction, method="dpm", timesteps=50, use_est_precision=Fal
         hierarchy=[0, 1], prior=(MU0, SIG0),
         correction=correction, posterior_precision=post_prec,
         precision_est_samples=500,
-        method=method, device="cpu", verbose=False, **kw)
+        method=method, device=DEVICE, verbose=False, **kw)
 
     th = samples[0, :, :2]   # shared dims are synchronized across observation rows
     mean_err_sigma = (th.mean(0) - m_star).abs().max().item() / s_star.max().item()
@@ -139,11 +155,11 @@ def test_pfode_uncorrected_and_fnpe_validation():
     mos = MultiObsSampler(sbim)
     try:
         mos.sample(
-            world_size=1, data=torch.zeros(2, 2),
-            condition_mask=torch.tensor([0., 0., 1., 1.]),
+            world_size=1, data=torch.zeros(2, 2, device=DEVICE),
+            condition_mask=torch.tensor([0., 0., 1., 1.], device=DEVICE),
             hierarchy=[0, 1], prior=(MU0, SIG0), correction="fnpe",
             method="heun", equation="probability_flow_ode",
-            num_samples=2, device="cpu", verbose=False)
+            num_samples=2, device=DEVICE, verbose=False)
     except ValueError as exc:
         assert "not compatible" in str(exc)
     else:
@@ -186,19 +202,19 @@ def test_multimodal_two_modes():
             return out
 
     torch.manual_seed(3)
-    theta_true = torch.randn(2)
+    theta_true = torch.randn(2, device=DEVICE)
     n = 5
-    comp = (torch.rand(n, 1) < 0.5).float()
-    x_all = (comp*theta_true + (1-comp)*(-theta_true)) + (0.5**0.5)*torch.randn(n, 2)
+    comp = (torch.rand(n, 1, device=DEVICE) < 0.5).float()
+    x_all = (comp*theta_true + (1-comp)*(-theta_true)) + (0.5**0.5)*torch.randn(n, 2, device=DEVICE)
 
     sbim = MockSBIm(MixtureModel, 4)
     mos = MultiObsSampler(sbim)
-    mask = torch.tensor([0., 0., 1., 1.])
+    mask = torch.tensor([0., 0., 1., 1.], device=DEVICE)
     samples = mos.sample(world_size=1, data=x_all, condition_mask=mask,
                          timesteps=100, num_samples=4000, hierarchy=[0, 1],
                          prior=(0.0, 1.0), correction="gauss",
                          precision_est_samples=500,
-                         method="dpm", device="cpu", verbose=False)
+                         method="dpm", device=DEVICE, verbose=False)
     th = samples[0, :, :2]
     d_plus = ((th - theta_true)**2).sum(1)
     d_minus = ((th + theta_true)**2).sum(1)
@@ -218,7 +234,7 @@ def test_hierarchical_shared_and_local():
             self.sde = sde
             P = torch.tensor([[1/S0G**2 + 1/SX_**2, 1/SX_**2],
                               [1/SX_**2, 1/S0L**2 + 1/SX_**2]])
-            self.Sigma_post = torch.linalg.inv(P)
+            self.register_buffer("Sigma_post", torch.linalg.inv(P))
 
         def forward(self, x, t, c, return_attn_weights=False):
             std_t = self.sde.marginal_prob_std(t).to(x.device)
@@ -227,7 +243,7 @@ def test_hierarchical_shared_and_local():
             b[:, 0] = MUG / S0G**2 + xo[:, 0] / SX_**2
             b[:, 1] = xo[:, 0] / SX_**2
             m = b @ self.Sigma_post.T
-            Sig_t = self.Sigma_post + std_t**2 * torch.eye(2)
+            Sig_t = self.Sigma_post + std_t**2 * torch.eye(2, device=theta.device)
             score = torch.linalg.solve(Sig_t, (m - theta).unsqueeze(-1)).squeeze(-1)
             out = torch.zeros_like(x)
             out[:, :2] = std_t * score
@@ -240,8 +256,8 @@ def test_hierarchical_shared_and_local():
     # corrector steps at every level.
     for n, csi, cs, snr in [(5, 5, 5, 0.1), (50, 1, 10, 0.2), (200, 1, 10, 0.2)]:
         torch.manual_seed(7)
-        tg = MUG + S0G*torch.randn(1)
-        x_all = (tg + S0L*torch.randn(n) + SX_*torch.randn(n)).unsqueeze(1)
+        tg = MUG + S0G*torch.randn(1, device=DEVICE)
+        x_all = (tg + S0L*torch.randn(n, device=DEVICE) + SX_*torch.randn(n, device=DEVICE)).unsqueeze(1)
         lam = 1/S0G**2 + n/(S0L**2 + SX_**2)
         m_star = (MUG/S0G**2 + x_all.sum()/(S0L**2 + SX_**2)) / lam
         s_star = (1/lam)**0.5
@@ -249,12 +265,12 @@ def test_hierarchical_shared_and_local():
         sbim = MockSBIm(HierModel, 3)
         mos = MultiObsSampler(sbim)
         samples = mos.sample(world_size=1, data=x_all,
-                             condition_mask=torch.tensor([0., 0., 1.]),
+                             condition_mask=torch.tensor([0., 0., 1.], device=DEVICE),
                              timesteps=100, num_samples=2000, hierarchy=[0],
                              prior=([MUG], [S0G]), correction="gauss",
                              posterior_precision=torch.full((n, 1), 1/S0G**2 + 1/(S0L**2 + SX_**2)),
                              corrector_steps_interval=csi, corrector_steps=cs, snr=snr,
-                             method="dpm", device="cpu", verbose=False)
+                             method="dpm", device=DEVICE, verbose=False)
         th_g = samples[0, :, 0]
         mean_err = abs(th_g.mean() - m_star).item() / s_star
         std_ratio = th_g.std().item() / s_star

@@ -1,0 +1,50 @@
+{
+  "trained_models": [
+    "Model 1"
+  ],
+  "training_time_samplings": [
+    "uniform",
+    "mixture"
+  ],
+  "model_1_mean": -4.0,
+  "observation_variance": 1.0,
+  "mean_is_global_during_creation": true,
+  "mean_is_global_during_inference": true,
+  "training_group_size": 20,
+  "n_observations": [
+    5,
+    10,
+    25,
+    50
+  ],
+  "variants": [
+    {
+      "key": "dpm_gauss_uniform_uniform_t",
+      "training_time_sampling": "uniform",
+      "method": "dpm",
+      "correction": "gauss",
+      "inference_time_grid": "uniform_t"
+    },
+    {
+      "key": "dpm_gauss_mixture_log_sigma",
+      "training_time_sampling": "mixture",
+      "method": "dpm",
+      "correction": "gauss",
+      "inference_time_grid": "log_sigma"
+    },
+    {
+      "key": "langevin_fnpe_mixture_log_sigma",
+      "training_time_sampling": "mixture",
+      "method": "langevin",
+      "correction": "fnpe",
+      "inference_time_grid": "log_sigma"
+    }
+  ],
+  "network": {
+    "nodes_size": 2,
+    "hidden_size": 16,
+    "depth": 2,
+    "num_heads": 2,
+    "mlp_ratio": 2
+  }
+}

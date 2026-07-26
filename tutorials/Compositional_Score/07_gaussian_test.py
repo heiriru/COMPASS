@@ -834,6 +834,7 @@ def plot_metric_by_configuration(
     ylabel: str,
     path: Path,
     analytic_reference: bool = False,
+    dashed_ablations: bool = False,
 ) -> None:
     fig, axis = plt.subplots(figsize=(6.6, 4.4))
     for configuration, marker in zip(CONFIGURATIONS, ("o", "s", "^")):
@@ -844,7 +845,13 @@ def plot_metric_by_configuration(
             )
             for n in n_values
         ]
-        axis.plot(n_values, means, marker=marker, label=CONFIGURATION_LABELS[configuration])
+        axis.plot(
+            n_values,
+            means,
+            marker=marker,
+            linestyle="--" if dashed_ablations and configuration != "correct_hierarchy" else "-",
+            label=CONFIGURATION_LABELS[configuration],
+        )
     if analytic_reference:
         posterior_std = [
             (1.0 / SIGMA_G**2 + 2.0 * n / SIGMA_X**2) ** -0.5
@@ -1016,7 +1023,7 @@ def create_plots(
     )
     plot_metric_by_configuration(
         rows, cfg.n_observations, "local_rmse", "Local-parameter RMSE",
-        plot_dir / "local_rmse.png",
+        plot_dir / "local_rmse.png", dashed_ablations=True,
     )
     plot_sharing_error(rows, cfg.n_observations, plot_dir / "sharing_error.png")
     plot_model_weights(rows, invalid_rows, cfg.n_observations, plot_dir / "model_weight.png")

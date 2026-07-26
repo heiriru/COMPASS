@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "model": "linear",
+  "parameter_names": [
+    "a",
+    "b"
+  ],
+  "train_n": 10000,
+  "val_n": 1000,
+  "seed": 42,
+  "batch_size": 256,
+  "max_epochs": 50,
+  "patience": 10,
+  "learning_rate": 0.001,
+  "model_kwargs": {
+    "sde_type": "vesde",
+    "sigma": 3.0,
+    "hidden_size": 48,
+    "depth": 4,
+    "num_heads": 4,
+    "mlp_ratio": 3
+  },
+  "theta_std": [
+    1.0,
+    1.5
+  ],
+  "x_std": [
+    1.8090052604675293,
+    1.507481336593628,
+    1.8090052604675293
+  ]
+}
