@@ -122,6 +122,19 @@ INFERENCE_TIME_GRIDS = ("log_sigma", "uniform_t")
 N_VALUES = (1, 2, 5, 10, 25, 50, 100, 200)
 PAIRPLOT_SAMPLES = 4_000
 
+# Publication-quality settings for the coupled global/local score model.
+# The versioned checkpoint key prevents reuse of the earlier 32-wide network.
+SHARED_LOCAL_HQ_TRAIN_SAMPLES = 200_000
+SHARED_LOCAL_HQ_VALIDATION_SAMPLES = 20_000
+SHARED_LOCAL_HQ_MAX_EPOCHS = 300
+SHARED_LOCAL_HQ_PATIENCE = 40
+SHARED_LOCAL_HQ_BATCH_SIZE = 512
+SHARED_LOCAL_HQ_LR = 3e-4
+SHARED_LOCAL_HQ_MODEL_KWARGS = {
+    "sde_type": "vesde", "sigma": 8.0, "hidden_size": 128,
+    "depth": 6, "num_heads": 8, "mlp_ratio": 4,
+}
+
 # Deliberately small global-mean Gaussian test (experiment 07).
 GAUSSIAN_TEST_MEANS = (-4.0, 4.0)
 GAUSSIAN_TEST_OBSERVATION_STD = 1.0
@@ -781,6 +794,41 @@ def load_or_train(
         device=cfg.device,
         verbose=False,
         path=str(model_dir),
+    )
+    print(f"  trained in {(time.perf_counter() - started) / 60:.1f} minutes")
+    return model
+
+
+def load_or_train_shared_local(cfg: RunConfig) -> SBIm:
+    """Load or train the high-capacity score model for p(g, l | x)."""
+    if cfg.train_samples <= 4_000 and cfg.max_epochs <= 3:
+        return load_or_train(
+            cfg, "shared_local_mixture", 3, simulate_hierarchical_pairs,
+            time_sampling="mixture", hierarchical=True,
+        )
+
+    model_dir = checkpoint_dir(cfg, "shared_local_mixture_hq_v1")
+    checkpoint = model_dir / "Model_checkpoint.pt"
+    if checkpoint.exists():
+        print(f"Loading high-quality shared/local model: {checkpoint}")
+        return SBIm.load(str(checkpoint), device=cfg.device)
+
+    seed_all(cfg.seed + 1_190)
+    theta_train, x_train = simulate_hierarchical_pairs(SHARED_LOCAL_HQ_TRAIN_SAMPLES)
+    theta_val, x_val = simulate_hierarchical_pairs(SHARED_LOCAL_HQ_VALIDATION_SAMPLES)
+    model = SBIm(nodes_size=3, device=cfg.device, **SHARED_LOCAL_HQ_MODEL_KWARGS)
+    print(
+        "Training publication-quality shared/local score model "
+        f"on {SHARED_LOCAL_HQ_TRAIN_SAMPLES:,} simulations..."
+    )
+    started = time.perf_counter()
+    model.train(
+        theta=theta_train, x=x_train, theta_val=theta_val, x_val=x_val,
+        batch_size=SHARED_LOCAL_HQ_BATCH_SIZE,
+        max_epochs=SHARED_LOCAL_HQ_MAX_EPOCHS,
+        early_stopping_patience=SHARED_LOCAL_HQ_PATIENCE,
+        lr=SHARED_LOCAL_HQ_LR, time_sampling="mixture",
+        device=cfg.device, verbose=False, path=str(model_dir),
     )
     print(f"  trained in {(time.perf_counter() - started) / 60:.1f} minutes")
     return model
@@ -1626,11 +1674,31 @@ def exact_hierarchical_posterior(x: torch.Tensor) -> tuple[np.ndarray, np.ndarra
 
 
 def experiment_shared_local(cfg: RunConfig) -> None:
+    """Validate learned p(g, local | x) against its exact Gaussian posterior."""
     out = cfg.output_dir / "06b_shared_local"
-    model = load_or_train(
-        cfg, "shared_local_mixture", 3, simulate_hierarchical_pairs,
-        time_sampling="mixture", hierarchical=True,
+    out.mkdir(parents=True, exist_ok=True)
+    quick_run = cfg.train_samples <= 4_000 and cfg.max_epochs <= 3
+    model_specification = {
+        "generative_model": "g ~ N(0,1); local_i ~ N(0,1); x_i = g + local_i + epsilon_i",
+        "observation_noise": "epsilon_i ~ N(0, 0.5^2)",
+        "learned_conditional": "p(g, local_i | x_i)",
+        "inference_target": "p(g, local_1, ..., local_N | x_1, ..., x_N)",
+        "global_indices": [0], "local_indices": [1],
+        "score_architecture": (
+            {"sde_type": "vesde", "sigma": 8.0, "hidden_size": 32,
+             "depth": 3, "num_heads": 4, "mlp_ratio": 2}
+            if quick_run else SHARED_LOCAL_HQ_MODEL_KWARGS
+        ),
+        "training_simulations": (cfg.train_samples if quick_run else SHARED_LOCAL_HQ_TRAIN_SAMPLES),
+        "validation_simulations": (cfg.validation_samples if quick_run else SHARED_LOCAL_HQ_VALIDATION_SAMPLES),
+        "quality": "quick" if quick_run else "high",
+        "training_time_sampling": "mixture",
+        "note": "Quick mode deliberately uses a smaller smoke-test model.",
+    }
+    (out / "model_specification.json").write_text(
+        json.dumps(model_specification, indent=2) + "\n"
     )
+    model = load_or_train_shared_local(cfg)
     seed_all(cfg.seed + 1_200)
     n = 30
     global_true = float(MUG + S0G * torch.randn(()))
@@ -1671,6 +1739,26 @@ def experiment_shared_local(cfg: RunConfig) -> None:
             "compass_std": local_samples[index].std(ddof=1),
             "shared_synchronization_max_abs": synchronization_error,
         })
+    global_row = rows[0]
+    local_rows = rows[1:]
+    quality_summary = {
+        "global_mean_error_in_analytic_std": float(
+            abs(global_row["compass_mean"] - global_row["analytic_mean"])
+            / global_row["analytic_std"]
+        ),
+        "global_std_ratio": float(global_row["compass_std"] / global_row["analytic_std"]),
+        "local_mean_absolute_error_in_analytic_std": float(np.mean([
+            abs(row["compass_mean"] - row["analytic_mean"]) / row["analytic_std"]
+            for row in local_rows
+        ])),
+        "local_mean_std_ratio": float(np.mean([
+            row["compass_std"] / row["analytic_std"] for row in local_rows
+        ])),
+        "shared_synchronization_max_abs": synchronization_error,
+    }
+    (out / "quality_summary.json").write_text(
+        json.dumps(quality_summary, indent=2) + "\n"
+    )
     write_rows(out / "shared_local_metrics.csv", rows)
     save_raw_data(
         out / "raw_plot_data.npz",

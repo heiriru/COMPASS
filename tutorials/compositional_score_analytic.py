@@ -83,6 +83,15 @@ VARIANTS = (
 )
 
 
+PFODE_GAUSSIAN = Variant(
+    "PF-ODE + Gaussian",
+    "heun",
+    "gauss",
+    equation="probability_flow_ode",
+    corrector_steps=0,
+)
+
+
 class MockSBIm:
     """Minimal score-based model wrapper used by the COMPASS samplers."""
 
@@ -208,34 +217,160 @@ def finish(fig: plt.Figure, path: Path) -> None:
 
 
 def plot_scaling(rows: list[dict], output: Path, filename: str, title: str) -> None:
-    fig, axes = plt.subplots(2, 2, figsize=(10.5, 7.2))
-    axes = axes.ravel()
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.0))
     for variant in VARIANTS:
         color = COLORS[variant.label]
-        for ax, metric in zip(axes[:3], ("mean_error_sigma", "std_ratio", "runtime_seconds")):
+        for ax, metric in zip(axes, ("mean_error_sigma", "std_ratio")):
             xs, ys, spread = summarise(rows, variant.label, metric)
             ax.plot(xs, ys, "o-", color=color, label=variant.label)
             ax.fill_between(xs, ys - spread, ys + spread, color=color, alpha=.13)
-        xs, errors, _ = summarise(rows, variant.label, "mean_error_sigma")
-        _, runtime, _ = summarise(rows, variant.label, "runtime_seconds")
-        axes[3].plot(runtime, errors, "o-", color=color, label=variant.label)
-        for n_observations, x, y in zip(xs, runtime, errors):
-            axes[3].annotate(str(n_observations), (x, y), xytext=(3, 3),
-                             textcoords="offset points", fontsize=7, color=color)
     axes[0].set(title="Posterior-centre accuracy",
                 ylabel="Euclidean normalized mean error")
     axes[1].set(title="Posterior-width accuracy", ylabel="sample std / analytic std")
     axes[1].axhline(1, color="black", ls="--", lw=1)
-    axes[2].set(title="End-to-end sampling cost", ylabel="inference time (s)", yscale="log")
-    axes[3].set(title="Accuracy-cost trade-off (labels show N)",
-                xlabel="inference time (s)", ylabel="Euclidean normalized mean error",
-                xscale="log", yscale="log")
-    for ax in axes[:3]:
+    for ax in axes:
         ax.set(xscale="log", xlabel="observations N")
     axes[0].legend(loc="upper left")
     fig.suptitle(title)
     finish(fig, output / filename)
 
+
+def gaussian_density(grid: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """Evaluate the Gaussian fitted to one-dimensional sampler output."""
+    mean = float(values.mean())
+    std = float(values.std(ddof=1))
+    return np.exp(-0.5 * ((grid - mean) / std) ** 2) / (std * np.sqrt(2 * np.pi))
+
+
+def plot_dpm_vs_pfode(
+    observations: torch.Tensor,
+    output: Path,
+    device: torch.device,
+    mu0: torch.Tensor,
+    sig0: torch.Tensor,
+    sigx: torch.Tensor,
+    samples: int,
+    timesteps: int,
+) -> None:
+    """Compare only local DPM + Gaussian with PF-ODE + Gaussian."""
+    truth_mean, truth_std = posterior(observations, mu0, sig0, sigx)
+    dpm_values, _ = sample_multi(
+        observations, VARIANTS[1], 30_001, device, mu0, sig0, sigx,
+        samples, timesteps,
+    )
+    pfode_values, _ = sample_multi(
+        observations, PFODE_GAUSSIAN, 30_002, device, mu0, sig0, sigx,
+        samples, timesteps,
+    )
+
+    centre = float(truth_mean[0])
+    width = float(truth_std[0])
+    grid = np.linspace(centre - 5 * width, centre + 5 * width, 500)
+    dpm_theta = dpm_values[:, 0].detach().cpu().numpy()
+    pfode_theta = pfode_values[:, 0].detach().cpu().numpy()
+
+    fig, ax = plt.subplots(figsize=(7.2, 4.5))
+    ax.plot(
+        grid, gaussian_density(grid, pfode_theta),
+        color="#E69F00", linewidth=2.8, label="PF-ODE + Gaussian", zorder=2,
+    )
+    ax.plot(
+        grid, gaussian_density(grid, dpm_theta),
+        color="#56B4E9", linewidth=3.0, linestyle=":",
+        label="local DPM + Gaussian", zorder=3,
+    )
+    ax.set(
+        xlabel="shared parameter theta_1",
+        ylabel="density",
+        title="Local DPM + Gaussian vs PF-ODE + Gaussian",
+    )
+    ax.legend()
+    finish(fig, output / "multi_vs_individual_vs_references.png")
+
+
+def read_metric_rows(path: Path) -> list[dict]:
+    """Read the preserved inference-grid benchmark without rerunning sampling."""
+    with path.open(newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    for row in rows:
+        row["n_observations"] = int(float(row["n_observations"]))
+        row["repeat"] = int(float(row["repeat"]))
+        for metric in ("mean_error_sigma", "std_ratio"):
+            row[metric] = float(row[metric])
+    return rows
+
+
+def summarise_available(
+    rows: list[dict], label: str, metric: str
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Summarise at the observation counts present in saved benchmark rows."""
+    xs = np.asarray(sorted({
+        int(row["n_observations"]) for row in rows if row["variant"] == label
+    }))
+    values = [
+        np.asarray([
+            row[metric] for row in rows
+            if row["variant"] == label and row["n_observations"] == n
+        ])
+        for n in xs
+    ]
+    return (
+        xs,
+        np.asarray([item.mean() for item in values]),
+        np.asarray([item.std(ddof=0) for item in values]),
+    )
+
+
+def grid_variants() -> tuple[Variant, ...]:
+    return tuple(
+        Variant(
+            f"DPM + {correction}, {grid.replace('_', ' ')} grid",
+            "dpm",
+            correction,
+            inference_time_grid=grid,
+        )
+        for correction in ("gauss", "uncorrected")
+        for grid in ("log_sigma", "uniform_t")
+    )
+
+
+def plot_grid(rows: list[dict], output: Path, selected: bool = False) -> None:
+    """Plot inference-grid accuracy metrics, excluding obsolete sampling cost."""
+    variants = grid_variants()
+    if selected:
+        variants = tuple(
+            variant for variant in variants if variant.correction == "gauss"
+        )
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.0))
+    for variant in variants:
+        color = {
+            ("gauss", "log_sigma"): "#0072B2",
+            ("gauss", "uniform_t"): "#56B4E9",
+            ("uncorrected", "log_sigma"): "#D55E00",
+            ("uncorrected", "uniform_t"): "#E69F00",
+        }[(variant.correction, variant.inference_time_grid)]
+        line = "-" if variant.inference_time_grid == "log_sigma" else "--"
+        for ax, metric, title in zip(
+            axes,
+            ("mean_error_sigma", "std_ratio"),
+            ("Posterior-centre accuracy", "Posterior width"),
+        ):
+            xs, ys, spread = summarise_available(rows, variant.label, metric)
+            ax.plot(
+                xs, ys, marker="o", color=color, ls=line, label=variant.label
+            )
+            ax.fill_between(xs, ys - spread, ys + spread, color=color, alpha=.13)
+            ax.set(title=title, xscale="log", xlabel="observations N")
+    axes[0].set_ylabel("max mean error / analytic σ")
+    axes[1].set_ylabel("sample std / analytic std")
+    axes[1].axhline(1, color="black", ls="--", lw=1)
+    axes[0].legend(title="DPM composition and time grid")
+    name = (
+        "training_time_sampler_grid_selected_effect.png"
+        if selected
+        else "training_time_sampler_grid_effect.png"
+    )
+    finish(fig, output / name)
 
 
 def write_rows(rows: list[dict], path: Path) -> None:
@@ -313,6 +448,26 @@ def main() -> None:
             f"samplers_vs_observation_count_{name}.png",
             f"Prior std={prior_std:g}, likelihood std={likelihood_std:g}",
         )
+        if name == "prior0p3_likelihood0p5":
+            plot_scaling(
+                rows,
+                args.output,
+                "samplers_vs_observation_count.png",
+                f"Prior std={prior_std:g}, likelihood std={likelihood_std:g}",
+            )
+            _, comparison_observations, _ = make_problem(
+                10, 20_000, device, mu0, sig0, sigx
+            )
+            plot_dpm_vs_pfode(
+                comparison_observations, args.output, device, mu0, sig0, sigx,
+                args.num_samples, args.timesteps,
+            )
+
+    grid_metrics_path = args.output / "inference_grid_metrics.csv"
+    if grid_metrics_path.exists():
+        grid_rows = read_metric_rows(grid_metrics_path)
+        plot_grid(grid_rows, args.output)
+        plot_grid(grid_rows, args.output, selected=True)
 
     print(f"Saved two analytic compositional-score plots to {args.output}")
 

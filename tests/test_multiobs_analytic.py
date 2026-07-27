@@ -11,8 +11,11 @@ Runs on a CUDA GPU in a few minutes:
 or with pytest:
     pytest tests/test_multiobs_analytic.py
 """
+import argparse
+import csv
 import os
 import sys
+from pathlib import Path
 
 # Keep this standalone executable from consuming more than 6% of host CPUs.
 _cpu_limit = int(os.cpu_count() * 0.06)
@@ -223,9 +226,8 @@ def test_multimodal_two_modes():
     assert 0.4 < frac_plus < 0.6, f"mode weights unbalanced: {frac_plus:.2f}"
 
 
-def test_hierarchical_shared_and_local():
-    """Chempy-like structure: shared global theta_g, per-observation local theta_l,
-    x = theta_g + theta_l + eps; only theta_g (hierarchy=[0]) is composed."""
+def hierarchical_shared_and_local_metrics():
+    """Run the exact-score global/local benchmark and return plot-ready metrics."""
     S0G, S0L, SX_, MUG = 0.3, 0.4, 0.2, -2.5
 
     class HierModel(torch.nn.Module):
@@ -254,6 +256,7 @@ def test_hierarchical_shared_and_local():
     # Hierarchical models (strong global-local coupling the diagonal Gaussian
     # correction cannot capture at intermediate t) need dense Langevin correction:
     # corrector steps at every level.
+    rows = []
     for n, csi, cs, snr in [(5, 5, 5, 0.1), (50, 1, 10, 0.2), (200, 1, 10, 0.2)]:
         torch.manual_seed(7)
         tg = MUG + S0G*torch.randn(1, device=DEVICE)
@@ -280,9 +283,44 @@ def test_hierarchical_shared_and_local():
         # global-local coupling at intermediate t. Means stay accurate.
         assert mean_err < 0.35
         assert 0.8 < std_ratio < 1.7
+        rows.append({
+            "n_observations": n,
+            "mean_error_in_analytic_std": mean_err,
+            "posterior_std_ratio": std_ratio,
+            "mean_error_limit": 0.35,
+            "std_ratio_lower_limit": 0.8,
+            "std_ratio_upper_limit": 1.7,
+        })
+    return rows
+
+
+def test_hierarchical_shared_and_local():
+    hierarchical_shared_and_local_metrics()
+
+
+def write_metric_rows(path, rows):
+    """Write standalone metrics while keeping pytest side-effect free."""
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--hierarchical-only", action="store_true",
+                        help="run only the exact-score global/local validation")
+    parser.add_argument("--output-csv", type=Path,
+                        help="optionally save hierarchical metrics as CSV")
+    args = parser.parse_args()
+    if args.hierarchical_only:
+        metric_rows = hierarchical_shared_and_local_metrics()
+        if args.output_csv:
+            write_metric_rows(args.output_csv, metric_rows)
+            print(f"Wrote {args.output_csv}")
+        raise SystemExit(0)
     test_gauss_correction_analytic_precision()
     test_gauss_correction_estimated_precision()
     test_pfode_gauss_correction()
@@ -290,5 +328,8 @@ if __name__ == "__main__":
     test_pfode_uncorrected_and_fnpe_validation()
     test_fnpe_langevin()
     test_multimodal_two_modes()
-    test_hierarchical_shared_and_local()
+    metric_rows = hierarchical_shared_and_local_metrics()
+    if args.output_csv:
+        write_metric_rows(args.output_csv, metric_rows)
+        print(f"Wrote {args.output_csv}")
     print("All compositional score modeling tests passed.")

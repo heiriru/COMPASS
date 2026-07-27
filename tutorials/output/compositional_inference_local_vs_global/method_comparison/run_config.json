@@ -1,0 +1,49 @@
+{
+  "checkpoint": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/models/shared_local_mixture_full/Model_checkpoint.pt",
+  "reference": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/06b_shared_local/raw_plot_data.npz",
+  "n_observations": 30,
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "inference_seed": 1208,
+  "variants": {
+    "dpm2_gaussian": {
+      "title": "DPM2 + Gaussian composition",
+      "filename": "02a_dpm2_gaussian.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "gauss",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 10,
+        "final_corrector_steps": 3,
+        "snr": 0.2
+      },
+      "description": "Second-order probability-flow predictor with dense Langevin correctors and Gaussian score composition."
+    },
+    "pfode_gaussian": {
+      "title": "PF-ODE + Gaussian composition",
+      "filename": "02b_pfode_gaussian.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "gauss",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 0,
+        "final_corrector_steps": 0,
+        "snr": 0.2
+      },
+      "description": "Deterministic second-order probability-flow ODE integration in noise-scale space; all Langevin correctors disabled."
+    },
+    "langevin_fnpe": {
+      "title": "Annealed Langevin + F-NPSE composition",
+      "filename": "02c_langevin_fnpe.png",
+      "sample_kwargs": {
+        "method": "langevin",
+        "correction": "fnpe",
+        "corrector_steps": 10,
+        "snr": 0.2
+      },
+      "description": "Pure annealed Langevin dynamics targeting the F-NPSE bridging densities."
+    }
+  }
+}
