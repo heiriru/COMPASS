@@ -143,7 +143,12 @@ class ScoreBasedInferenceModel(nn.Module):
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
                prior=None, correction="gauss", posterior_precision=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
+               damping_at_data=1.0, damping_at_noise=None,
+               composition_batch_size=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
+               adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
+               adaptive_safety=0.9, adaptive_exponent=0.9,
+               adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False):
         """
         Sample from the model using the specified method
@@ -164,12 +169,18 @@ class ScoreBasedInferenceModel(nn.Module):
                     observations (defaults to all latent variables)
             prior: Gaussian prior over the hierarchy dimensions as a tuple (mean, std),
                     each of length len(hierarchy). Defaults to N(0, 1).
-            correction: Score composition rule: "gauss" (default), "uncorrected" or "fnpe"
+            correction: Score composition rule: "gauss" (default), "uncorrected",
+                    "fnpe", "damping", "gauss_damping" or "hybrid_damping"
             posterior_precision: Optional precision estimate of the single-observation
                     posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
             precision_est_samples: Samples per observation for the automatic estimate
             precision_est_timesteps: Diffusion steps for the automatic estimate
+            damping_at_data: Damping endpoint d(0) at the data end
+            damping_at_noise: Damping endpoint d(1) at the noise end; defaults
+                    to 1/sqrt(number of observations)
+            composition_batch_size: Optional observation mini-batch size for
+                    the unbiased plain damping estimator
 
             - DPM-Solver parameters -
             order: Order of DPM-Solver (1, 2 or 3)
@@ -178,10 +189,18 @@ class ScoreBasedInferenceModel(nn.Module):
             corrector_steps: Number of Langevin MCMC steps per iteration
             final_corrector_steps: Extra correction steps at the end
 
+            - Adaptive reverse-SDE parameters -
+            adaptive_abs_tol: Absolute local-error tolerance
+            adaptive_rel_tol: Relative local-error tolerance
+            adaptive_safety: Step-size safety multiplier
+            adaptive_exponent: Error-controller exponent
+            adaptive_max_evals: Maximum score evaluations
+            adaptive_initial_step: Optional initial diffusion-time step
+
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Sampling method to use (euler, dpm)
+            method: Sampling method to use (euler, dpm, langevin, adaptive)
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -230,7 +249,16 @@ class ScoreBasedInferenceModel(nn.Module):
                                       prior=prior, correction=correction, posterior_precision=posterior_precision,
                                       precision_est_samples=precision_est_samples, precision_est_timesteps=precision_est_timesteps,
                                       denoise_clamp=denoise_clamp,
+                                      damping_at_data=damping_at_data,
+                                      damping_at_noise=damping_at_noise,
+                                      composition_batch_size=composition_batch_size,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
+                                      adaptive_abs_tol=adaptive_abs_tol,
+                                      adaptive_rel_tol=adaptive_rel_tol,
+                                      adaptive_safety=adaptive_safety,
+                                      adaptive_exponent=adaptive_exponent,
+                                      adaptive_max_evals=adaptive_max_evals,
+                                      adaptive_initial_step=adaptive_initial_step,
                                       verbose=verbose, method=method, save_trajectory=save_trajectory)
 
         # just return the sampled values
@@ -282,6 +310,40 @@ class ScoreBasedInferenceModel(nn.Module):
         """
         return self.pfode.map_estimate(data=data, condition_mask=condition_mask, **kwargs)
 
+    def hierarchical_map_estimate(self, data, condition_mask, init=None,
+                                  hierarchy=None, prior=None, correction="gauss",
+                                  posterior_precision=None, denoise_clamp=5.0,
+                                  cfg_alpha=None, sigma_start=None,
+                                  damping_at_data=1.0,
+                                  damping_at_noise=None,
+                                  timesteps=100, eps=1e-3,
+                                  iterations_per_level=3,
+                                  max_iterations_per_level=None,
+                                  convergence_tol=1e-6, device="cpu"):
+        """Refine shared and local parameters with a compositional joint score.
+
+        Unlike :meth:`map_estimate`, this method treats rows as one hierarchical
+        posterior: hierarchy coordinates remain synchronized and receive the
+        multi-observation composed score.
+        """
+        if self.sde_type != "vesde":
+            raise NotImplementedError(
+                "Hierarchical MAP refinement currently uses the VESDE "
+                "multi-observation composition rules."
+            )
+        return self.multi_obs_sampler.map_estimate(
+            data=data, condition_mask=condition_mask, init=init,
+            hierarchy=hierarchy, prior=prior, correction=correction,
+            posterior_precision=posterior_precision,
+            denoise_clamp=denoise_clamp, cfg_alpha=cfg_alpha,
+            damping_at_data=damping_at_data,
+            damping_at_noise=damping_at_noise,
+            sigma_start=sigma_start, timesteps=timesteps, eps=eps,
+            iterations_per_level=iterations_per_level,
+            max_iterations_per_level=max_iterations_per_level,
+            convergence_tol=convergence_tol, device=device,
+        )
+
     #############################################
     # ----- Save & Load -----
     #############################################
@@ -326,4 +388,3 @@ class ScoreBasedInferenceModel(nn.Module):
         model.model.load_state_dict(checkpoint['model_state_dict'])
 
         return model
-    

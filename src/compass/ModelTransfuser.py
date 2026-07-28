@@ -1,6 +1,7 @@
 import os
 import sys
 import pickle
+import math
 import tqdm
 
 import torch
@@ -207,7 +208,9 @@ class ModelTransfuser():
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
                device="cuda", verbose=False, method="dpm",
                likelihood_method="pfode", map_method="score", criterion="aic",
-               log_prob_timesteps=100):
+               log_prob_timesteps=100, map_num_starts=8, map_timesteps=100,
+               map_iterations_per_level=3, map_max_iterations_per_level=None,
+               map_convergence_tol=1e-6):
         """
         Compare the models on the provided observations.
         The results are saved in the self.stats dictionary and the provided path.
@@ -251,12 +254,24 @@ class ModelTransfuser():
                                           the trained score network (mean-shift on the
                                           diffused posterior), initialized at the
                                           posterior sample mean.
+                                "joint_score" - estimate the joint mode of the marginal
+                                          posterior over all shared parameters from their
+                                          synchronized samples, then hold that shared vector
+                                          fixed during one local-only annealed score-ascent
+                                          pass; requires multi_obs_inference.
                                 "kde"   - legacy behavior: mode of a Gaussian KDE fitted
                                           to the posterior samples.
             criterion:      (string) Information criterion for model weights:
                                 "aic"   - (default) corrected Akaike IC (AICc)
                                 "bic"   - Bayesian (Schwarz) IC: k*ln(n) - 2*logL
             log_prob_timesteps: Integration nodes of the PF-ODE likelihood solver.
+            map_num_starts: Multivariate shared-KDE optimizer starts used by joint_score.
+            map_timesteps: Local-only annealing levels used by joint_score.
+            map_iterations_per_level: Local score-ascent iterations per annealing level.
+            map_max_iterations_per_level: Maximum alternating block iterations
+                                per level. Retained for backward compatibility with
+                                the former hierarchical optimizer.
+            map_convergence_tol: Numerical tolerance for shared-KDE mode optimization.
         """
 
         if not self.trained_models:
@@ -265,6 +280,24 @@ class ModelTransfuser():
 
         if criterion not in ("aic", "bic"):
             raise ValueError(f"criterion must be 'aic' or 'bic', got '{criterion}'")
+        if map_method not in ("score", "joint_score", "kde"):
+            raise ValueError(
+                f"map_method must be 'score', 'joint_score' or 'kde', got '{map_method}'"
+            )
+        if map_method == "joint_score" and not multi_obs_inference:
+            raise ValueError("map_method='joint_score' requires multi_obs_inference=True.")
+        if int(map_num_starts) < 1:
+            raise ValueError("map_num_starts must be at least 1.")
+        if int(map_timesteps) < 1 or int(map_iterations_per_level) < 1:
+            raise ValueError("map_timesteps and map_iterations_per_level must be at least 1.")
+        if (map_max_iterations_per_level is not None
+                and int(map_max_iterations_per_level) < int(map_iterations_per_level)):
+            raise ValueError(
+                "map_max_iterations_per_level must not be smaller than "
+                "map_iterations_per_level."
+            )
+        if float(map_convergence_tol) <= 0:
+            raise ValueError("map_convergence_tol must be positive.")
 
         self.stats = {}
         self.model_null_log_probs = {}
@@ -337,8 +370,54 @@ class ModelTransfuser():
                 MAP_posterior = joint_map[:, ~c_bool].float()
                 std_MAP_posterior = post_std
                 theta_hat = np.stack([MAP_posterior.numpy(), std_MAP_posterior.numpy()], axis=1)
+            elif map_method == "joint_score":
+                hier = hierarchy
+                if hier is None:
+                    hier = torch.where(~c_bool)[0].tolist()
+                hier = [int(index) for index in hier]
+                joint_map, shared_result = self._shared_then_local_map(
+                    model=model,
+                    posterior_samples=posterior_samples,
+                    x=x_t,
+                    condition_mask=condition_mask,
+                    hierarchy=hier,
+                    num_starts=map_num_starts,
+                    timesteps=map_timesteps,
+                    eps=eps,
+                    iterations_per_level=map_iterations_per_level,
+                    convergence_tol=map_convergence_tol,
+                    device=device,
+                )
+                MAP_posterior = joint_map[:, ~c_bool].float()
+                std_MAP_posterior = torch.tensor(
+                    posterior_samples.std(axis=1), dtype=torch.float
+                )
+                theta_hat = np.stack(
+                    [MAP_posterior.numpy(), std_MAP_posterior.numpy()], axis=1
+                )
+                # Preserve historical keys for saved-result consumers; these now
+                # describe multivariate shared-KDE candidates rather than full
+                # hierarchical score-ascent candidates.
+                self.stats[model_name]["joint_map_candidate_scores"] = shared_result[
+                    "candidate_log_densities"
+                ]
+                self.stats[model_name]["joint_map_selected_start"] = shared_result[
+                    "selected_start"
+                ]
+                self.stats[model_name]["joint_map_shared_map"] = shared_result[
+                    "shared_map"
+                ]
+                self.stats[model_name]["joint_map_shared_kde_starts"] = shared_result[
+                    "candidate_modes"
+                ]
+                self.stats[model_name]["joint_map_conditional_effective_samples"] = (
+                    shared_result["effective_sample_size"]
+                )
+                self.stats[model_name]["joint_map_strategy"] = (
+                    "shared_marginal_kde_then_fixed_shared_local_score"
+                )
             else:
-                raise ValueError(f"map_method must be 'score' or 'kde', got '{map_method}'")
+                raise ValueError(f"map_method must be 'score', 'joint_score' or 'kde', got '{map_method}'")
 
             # Storing MAP and std MAP
             self.stats[model_name]["MAP"] = theta_hat
@@ -434,6 +513,395 @@ class ModelTransfuser():
 
     #---------------------------
     # Estimate the Maximum A Posteriori (MAP)
+    @staticmethod
+    def _shared_marginal_kde_map(posterior_samples, condition_mask,
+                                 hierarchy, num_starts=8,
+                                 convergence_tol=1e-6):
+        """Jointly optimize a KDE over the synchronized shared sample block.
+
+        The KDE is fitted after coordinate-wise standardization but retains a
+        full covariance matrix, so correlations between shared parameters are
+        part of the mode optimization. A small covariance ridge also supports
+        rank-deficient shared samples. The returned kernel weights approximate
+        conditioning the joint samples on the selected shared mode and are used
+        to initialize the local MAP pass.
+        """
+        samples = torch.as_tensor(posterior_samples, dtype=torch.float64)
+        mask = torch.as_tensor(condition_mask, dtype=torch.bool)
+        if samples.dim() != 3:
+            raise ValueError(
+                "posterior_samples must have shape "
+                "(observations, samples, latent_dims)."
+            )
+        if mask.dim() != 1:
+            raise ValueError(
+                "joint_score currently requires a one-dimensional condition_mask."
+            )
+        if int(num_starts) < 1:
+            raise ValueError("map_num_starts must be at least 1.")
+        if float(convergence_tol) <= 0:
+            raise ValueError("map_convergence_tol must be positive.")
+
+        n_obs, n_samples, n_latent = samples.shape
+        if n_samples < 1:
+            raise ValueError("posterior_samples must contain at least one sample.")
+        latent_nodes = torch.where(~mask)[0].tolist()
+        if len(latent_nodes) != n_latent:
+            raise ValueError(
+                "Posterior samples and condition_mask have incompatible latent widths."
+            )
+        hierarchy = [int(index) for index in hierarchy]
+        if not hierarchy:
+            raise ValueError("joint_score requires at least one hierarchy coordinate.")
+        if len(set(hierarchy)) != len(hierarchy):
+            raise ValueError("hierarchy indices must be unique.")
+        if min(hierarchy) < 0 or max(hierarchy) >= mask.numel():
+            raise ValueError("hierarchy contains an out-of-range coordinate.")
+        if mask[hierarchy].any():
+            raise ValueError("Every hierarchy coordinate must be latent.")
+
+        latent_lookup = {node: position for position, node in enumerate(latent_nodes)}
+        shared_positions = [latent_lookup[index] for index in hierarchy]
+        shared = samples[:, :, shared_positions]
+        sync_error = (shared - shared[:1]).abs().max().item()
+        if sync_error > 1e-6:
+            raise ValueError(
+                "Compositional posterior samples are not synchronized on hierarchy "
+                f"coordinates (maximum deviation {sync_error:.3e})."
+            )
+
+        values = shared[0].numpy()
+        centre = values.mean(axis=0)
+        if n_samples == 1:
+            return {
+                "shared_map": torch.tensor(centre, dtype=torch.float32),
+                "sample_weights": torch.ones(1, dtype=torch.float32),
+                "candidate_modes": torch.tensor(centre[None], dtype=torch.float32),
+                "candidate_log_densities": torch.zeros(1, dtype=torch.float32),
+                "selected_start": 0,
+                "effective_sample_size": 1.0,
+                "bandwidth_factor": 0.0,
+            }
+
+        scale = values.std(axis=0, ddof=1)
+        scale_threshold = max(float(np.max(scale)) * 1e-8, 1e-10)
+        active = scale > scale_threshold
+        if not np.any(active):
+            weights = np.full(n_samples, 1.0 / n_samples)
+            return {
+                "shared_map": torch.tensor(centre, dtype=torch.float32),
+                "sample_weights": torch.tensor(weights, dtype=torch.float32),
+                "candidate_modes": torch.tensor(centre[None], dtype=torch.float32),
+                "candidate_log_densities": torch.zeros(1, dtype=torch.float32),
+                "selected_start": 0,
+                "effective_sample_size": float(n_samples),
+                "bandwidth_factor": 0.0,
+            }
+
+        standardized = (values[:, active] - centre[active]) / scale[active]
+        active_dim = standardized.shape[1]
+        bandwidth_factor = n_samples ** (-1.0 / (active_dim + 4.0))
+        sample_covariance = np.atleast_2d(
+            np.cov(standardized, rowvar=False, ddof=1)
+        )
+        covariance_scale = max(
+            float(np.trace(sample_covariance)) / active_dim, 1.0
+        )
+        kernel_covariance = (
+            bandwidth_factor**2 * sample_covariance
+            + 1e-6 * covariance_scale * np.eye(active_dim)
+        )
+        inverse_covariance = np.linalg.inv(kernel_covariance)
+        _, log_determinant = np.linalg.slogdet(kernel_covariance)
+        log_normalizer = 0.5 * (
+            active_dim * np.log(2 * np.pi) + log_determinant
+        )
+        log_sample_count = np.log(n_samples)
+
+        def log_density_and_gradient(point):
+            point = np.asarray(point, dtype=np.float64)
+            differences = standardized - point
+            quadratic = np.einsum(
+                "si,ij,sj->s", differences, inverse_covariance, differences
+            )
+            log_kernels = -0.5 * quadratic
+            log_sum = scipy.special.logsumexp(log_kernels)
+            kernel_weights = np.exp(log_kernels - log_sum)
+            gradient = (kernel_weights @ differences) @ inverse_covariance
+            log_density = log_sum - log_sample_count - log_normalizer
+            return float(log_density), gradient, kernel_weights
+
+        # Score a bounded, representative pool of observed shared samples. Each
+        # pool point is still evaluated against every posterior draw, but the
+        # number of candidate points does not grow without bound with S.
+        count = min(int(num_starts), n_samples)
+        pool_size = min(n_samples, max(128, 32 * count))
+        pool_indices = np.unique(
+            np.linspace(0, n_samples - 1, pool_size, dtype=int)
+        )
+        pool_log_densities = np.empty(len(pool_indices))
+        chunk_size = max(1, min(128, 1_000_000 // max(n_samples * active_dim, 1)))
+        for begin in range(0, len(pool_indices), chunk_size):
+            indices = pool_indices[begin:begin + chunk_size]
+            points = standardized[indices]
+            differences = standardized[None, :, :] - points[:, None, :]
+            quadratic = np.einsum(
+                "bsi,ij,bsj->bs",
+                differences, inverse_covariance, differences,
+            )
+            pool_log_densities[begin:begin + len(points)] = (
+                scipy.special.logsumexp(-0.5 * quadratic, axis=1)
+                - log_sample_count - log_normalizer
+            )
+
+        density_order = pool_indices[np.argsort(pool_log_densities)[::-1]]
+        selected_indices = []
+        for sample_index in density_order:
+            if not selected_indices:
+                selected_indices.append(int(sample_index))
+            else:
+                displacement = standardized[selected_indices] - standardized[sample_index]
+                separation = np.einsum(
+                    "si,ij,sj->s",
+                    displacement, inverse_covariance, displacement,
+                )
+                if float(separation.min()) > 1.0:
+                    selected_indices.append(int(sample_index))
+            if len(selected_indices) == count:
+                break
+        if len(selected_indices) < count:
+            for sample_index in density_order:
+                if int(sample_index) not in selected_indices:
+                    selected_indices.append(int(sample_index))
+                if len(selected_indices) == count:
+                    break
+
+        bounds = list(zip(standardized.min(axis=0), standardized.max(axis=0)))
+        candidate_points = []
+        candidate_scores = []
+        for sample_index in selected_indices:
+            def objective(point):
+                log_density, gradient, _ = log_density_and_gradient(point)
+                return -log_density, -gradient
+
+            optimized = optimize.minimize(
+                objective,
+                standardized[sample_index],
+                method="L-BFGS-B",
+                jac=True,
+                bounds=bounds,
+                tol=float(convergence_tol),
+                options={"maxiter": 200},
+            )
+            point = optimized.x if np.all(np.isfinite(optimized.x)) else standardized[sample_index]
+            log_density, _, _ = log_density_and_gradient(point)
+            candidate_points.append(point)
+            candidate_scores.append(log_density - np.log(scale[active]).sum())
+
+        selected_start = int(np.argmax(candidate_scores))
+        selected_point = candidate_points[selected_start]
+        shared_map = centre.copy()
+        shared_map[active] = (
+            centre[active] + scale[active] * selected_point
+        )
+        _, _, conditional_weights = log_density_and_gradient(selected_point)
+
+        candidate_modes = np.repeat(centre[None, :], len(candidate_points), axis=0)
+        candidate_modes[:, active] = (
+            centre[active][None, :]
+            + scale[active][None, :] * np.asarray(candidate_points)
+        )
+        effective_sample_size = float(1.0 / np.sum(conditional_weights**2))
+        return {
+            "shared_map": torch.tensor(shared_map, dtype=torch.float32),
+            "sample_weights": torch.tensor(conditional_weights, dtype=torch.float32),
+            "candidate_modes": torch.tensor(candidate_modes, dtype=torch.float32),
+            "candidate_log_densities": torch.tensor(candidate_scores, dtype=torch.float32),
+            "selected_start": selected_start,
+            "effective_sample_size": effective_sample_size,
+            "bandwidth_factor": float(bandwidth_factor),
+        }
+
+    @classmethod
+    def _shared_then_local_map(cls, model, posterior_samples, x,
+                               condition_mask, hierarchy, num_starts=8,
+                               timesteps=100, eps=1e-3,
+                               iterations_per_level=3,
+                               convergence_tol=1e-6, device="cpu"):
+        """Find the marginal shared MAP, freeze it, then refine local MAPs."""
+        samples = torch.as_tensor(posterior_samples, dtype=torch.float32)
+        observations = torch.as_tensor(x, dtype=torch.float32)
+        mask = torch.as_tensor(condition_mask, dtype=torch.bool)
+        if observations.dim() == 1:
+            observations = observations.unsqueeze(-1)
+        if observations.shape[0] != samples.shape[0]:
+            raise ValueError(
+                "Posterior samples and observations have incompatible row counts."
+            )
+        if int(mask.sum()) != observations.shape[1]:
+            raise ValueError(
+                "Observed width does not match the conditioned dimensions."
+            )
+
+        shared_result = cls._shared_marginal_kde_map(
+            samples, mask, hierarchy, num_starts=num_starts,
+            convergence_tol=convergence_tol,
+        )
+        weights = shared_result["sample_weights"]
+        conditional_latent_mean = torch.einsum("s,nsd->nd", weights, samples)
+
+        joint_init = torch.zeros(samples.shape[0], mask.numel(), dtype=torch.float32)
+        joint_init[:, mask] = observations
+        joint_init[:, ~mask] = conditional_latent_mean
+        hierarchy = [int(index) for index in hierarchy]
+        joint_init[:, hierarchy] = shared_result["shared_map"]
+
+        local_nodes = [
+            index for index in torch.where(~mask)[0].tolist()
+            if index not in hierarchy
+        ]
+        if local_nodes:
+            latent_nodes = torch.where(~mask)[0].tolist()
+            latent_lookup = {
+                node: position for position, node in enumerate(latent_nodes)
+            }
+            local_positions = [latent_lookup[index] for index in local_nodes]
+            local_samples = samples[:, :, local_positions]
+            local_mean = conditional_latent_mean[:, local_positions]
+            local_variance = torch.einsum(
+                "s,nsd->nd",
+                weights,
+                (local_samples - local_mean.unsqueeze(1)).square(),
+            )
+            sigma_start = max(
+                2.0 * float(local_variance.sqrt().max()), 1e-3
+            )
+            fixed_shared_mask = mask.clone()
+            fixed_shared_mask[hierarchy] = True
+            joint_map = model.map_estimate(
+                data=joint_init,
+                condition_mask=fixed_shared_mask.float(),
+                init=joint_init,
+                sigma_start=sigma_start,
+                timesteps=int(timesteps),
+                eps=float(eps),
+                iterations_per_level=int(iterations_per_level),
+                device=device,
+            )
+        else:
+            joint_map = joint_init
+
+        joint_map = torch.as_tensor(joint_map, dtype=torch.float32).clone()
+        joint_map[:, hierarchy] = shared_result["shared_map"]
+        joint_map[:, mask] = observations
+        return joint_map, shared_result
+
+    @staticmethod
+    def _joint_map_initializations(posterior_samples, x, condition_mask,
+                                   hierarchy, num_starts):
+        """Return coherent, diverse joint starts and local-neighbourhood scales."""
+        samples = torch.as_tensor(posterior_samples, dtype=torch.float32)
+        observations = torch.as_tensor(x, dtype=torch.float32)
+        mask = torch.as_tensor(condition_mask, dtype=torch.bool)
+        if samples.dim() != 3:
+            raise ValueError("posterior_samples must have shape (observations, samples, latent_dims).")
+        if mask.dim() != 1:
+            raise ValueError("joint_score currently requires a one-dimensional condition_mask.")
+        n_obs, n_samples, n_latent = samples.shape
+        if observations.shape[0] != n_obs or int((~mask).sum()) != n_latent:
+            raise ValueError("Posterior samples, observations and condition_mask have incompatible shapes.")
+        if int(mask.sum()) != observations.shape[1]:
+            raise ValueError("Observed width does not match the conditioned dimensions.")
+        if int(num_starts) < 1:
+            raise ValueError("map_num_starts must be at least 1.")
+        if n_samples < 1:
+            raise ValueError("posterior_samples must contain at least one sample.")
+
+        hierarchy = [int(index) for index in hierarchy]
+        if not hierarchy:
+            raise ValueError("joint_score requires at least one hierarchy coordinate.")
+        if len(set(hierarchy)) != len(hierarchy):
+            raise ValueError("hierarchy indices must be unique.")
+        if min(hierarchy) < 0 or max(hierarchy) >= mask.numel():
+            raise ValueError("hierarchy contains an out-of-range coordinate.")
+        if mask[hierarchy].any():
+            raise ValueError("Every hierarchy coordinate must be latent.")
+
+        joint = torch.zeros(n_obs, n_samples, mask.numel(), dtype=torch.float32)
+        joint[:, :, mask] = observations.unsqueeze(1).expand(-1, n_samples, -1)
+        joint[:, :, ~mask] = samples
+        sync_error = (joint[:, :, hierarchy] - joint[:1, :, hierarchy]).abs().max().item()
+        if sync_error > 1e-6:
+            raise ValueError(
+                "Compositional posterior samples are not synchronized on hierarchy "
+                f"coordinates (maximum deviation {sync_error:.3e})."
+            )
+
+        local = [index for index in torch.where(~mask)[0].tolist() if index not in hierarchy]
+        global_features = joint[0, :, hierarchy]
+        feature_parts = [global_features]
+        if local:
+            feature_parts.append(joint[:, :, local].permute(1, 0, 2).reshape(n_samples, -1))
+        features = torch.cat(feature_parts, dim=1)
+        feature_scale = features.std(dim=0, unbiased=False).clamp_min(1e-6)
+        block_scale = torch.full_like(feature_scale, math.sqrt(max(len(hierarchy), 1)))
+        if local:
+            block_scale[len(hierarchy):] = math.sqrt(n_obs * len(local))
+        standardized = (features - features.mean(dim=0)) / feature_scale / block_scale
+
+        count = min(int(num_starts), n_samples)
+        candidates = [joint.mean(dim=1)]
+        candidate_features = [features.mean(dim=0)]
+        if count > 1:
+            min_distance = (standardized**2).sum(dim=1)
+            selected = set()
+            for _ in range(count - 1):
+                for index in selected:
+                    min_distance[index] = -1
+                selected_index = int(torch.argmax(min_distance))
+                selected.add(selected_index)
+                candidates.append(joint[:, selected_index, :])
+                candidate_features.append(features[selected_index])
+                distance = ((standardized - standardized[selected_index])**2).sum(dim=1)
+                min_distance = torch.minimum(min_distance, distance)
+
+        neighbour_count = min(n_samples, max(8, int(np.ceil(n_samples / count))))
+        annealing_scales = []
+        latent_indices = torch.where(~mask)[0]
+        for feature in candidate_features:
+            standardized_feature = (
+                (feature - features.mean(dim=0)) / feature_scale / block_scale
+            )
+            distances = ((standardized - standardized_feature)**2).sum(dim=1)
+            neighbours = torch.topk(distances, neighbour_count, largest=False).indices
+            local_width = joint[:, neighbours][:, :, latent_indices].std(
+                dim=1, unbiased=False
+            ).max()
+            annealing_scales.append(max(2.0 * float(local_width), 1e-3))
+
+        return torch.stack(candidates, dim=1), annealing_scales
+
+    @staticmethod
+    def _hierarchical_candidate_scores(model, candidates, condition_mask,
+                                       hierarchy, prior, timesteps, eps,
+                                       device, verbose):
+        """Evaluate the composed joint log posterior for each refined candidate."""
+        n_obs, n_candidates, nodes_size = candidates.shape
+        flat = candidates.permute(1, 0, 2).reshape(n_candidates * n_obs, nodes_size)
+        single_log_prob = model.log_prob(
+            flat, condition_mask=condition_mask, timesteps=timesteps, eps=eps,
+            device=device, verbose=verbose,
+        ).reshape(n_candidates, n_obs)
+        prior_mean = torch.as_tensor(prior[0], dtype=torch.float32).flatten()
+        prior_std = torch.as_tensor(prior[1], dtype=torch.float32).flatten()
+        shared = candidates[0, :, list(hierarchy)]
+        log_prior = (
+            -torch.log(prior_std)
+            -0.5 * np.log(2 * np.pi)
+            -0.5 * ((shared - prior_mean) / prior_std)**2
+        ).sum(dim=1)
+        return single_log_prob.sum(dim=1) + (1 - n_obs) * log_prior
+
     def _map_kde(self, samples):
         """Find the joint mode of the multivariate distribution"""
         kde = gaussian_kde(samples.T)  # KDE expects (n_dims, n_samples)

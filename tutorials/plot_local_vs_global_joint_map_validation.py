@@ -1,0 +1,1119 @@
+#!/usr/bin/env python3
+"""Regenerate the global/local validation figures with score-MAP comparisons.
+
+The learned-score panels reuse existing posterior archives, find the mode of
+the sampled shared marginal, and then refine the local coordinates while that
+shared mode is fixed. They compare this shared-then-local estimate with the
+original score-MAP method, which fixes the shared coordinate at the posterior
+mean and refines each local coordinate separately.
+The exact-score panel runs the original analytic Gaussian experiment because
+its historical CSV does not contain MAP estimates.  Expensive MAP results are
+cached incrementally.
+
+Outputs default to ``tutorials/output/annealed_score_ascent``; the source
+artifacts under ``compositional_inference_local_vs_global`` are never modified.
+"""
+from __future__ import annotations
+
+import os
+import sys
+
+CPU_FRACTION = 0.06
+PLOTS_ONLY_REQUESTED = (
+    __name__ == "__main__" and "--plots-only" in sys.argv[1:]
+)
+if __name__ == "__main__":
+    logical_cpus = os.cpu_count() or 1
+    allowed_cpus = tuple(sorted(os.sched_getaffinity(0)))
+    cpu_count = max(1, min(len(allowed_cpus), int(logical_cpus * CPU_FRACTION)))
+    os.sched_setaffinity(0, allowed_cpus[:cpu_count])
+    for variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                     "NUMEXPR_NUM_THREADS"):
+        os.environ[variable] = str(cpu_count)
+    if not PLOTS_ONLY_REQUESTED:
+        from autocvd import autocvd
+        autocvd(num_gpus=1, interval=1)
+
+import argparse
+import csv
+import json
+import math
+from pathlib import Path
+import time
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+from compass import ModelTransfuser
+from compass import ScoreBasedInferenceModel as SBIm
+from compass.MultiObsSampler import MultiObsSampler
+from compass.PFODE import PFODE
+from compass.SDE import VESDE
+from hierarchy_dashboard import (
+    AMBER, BLUE, CORAL, GRID, INK, MUTED, PAPER, PURPLE, TEAL, WHITE,
+    _band_line, _format_n_axis, _read, _series, _setup_axis,
+    plot_model_pairplot,
+)
+
+ROOT = Path(__file__).resolve().parent
+INPUT_ROOT = ROOT / "output" / "compositional_inference_local_vs_global"
+BASE_EXPERIMENT = ROOT / "output" / "compositional_inference"
+DEFAULT_OUTPUT = ROOT / "output" / "annealed_score_ascent"
+DEFAULT_REFERENCE = BASE_EXPERIMENT / "06b_shared_local" / "raw_plot_data.npz"
+DEFAULT_CHECKPOINT = (
+    BASE_EXPERIMENT / "models" / "shared_local_mixture_full" / "Model_checkpoint.pt"
+)
+DEFAULT_HIERARCHY_CSV = (
+    BASE_EXPERIMENT / "08_miniexperiment" / "hierarchical_linear_quadratic_detailed.csv"
+)
+
+NAVY = "#17223B"
+GOLD = "#FFB703"
+MASK = torch.tensor([0.0, 0.0, 1.0])
+SCORE_MAP_MASK = torch.tensor([1.0, 0.0, 1.0])
+HIERARCHY = [0]
+NOMINAL_COVERAGE = np.linspace(0.0, 1.0, 11)
+JOINT_MAP_COLOR = TEAL
+SCORE_MAP_COLOR = PURPLE
+JOINT_MAP_STRATEGY = "shared_marginal_kde_then_fixed_shared_local_score"
+METHOD_TITLES = {
+    "dpm2_gaussian": "DPM2 + Gaussian composition",
+    "pfode_gaussian": "PF-ODE + Gaussian composition",
+    "langevin_fnpe": "Annealed Langevin + F-NPSE composition",
+}
+METHOD_FILENAMES = {
+    "dpm2_gaussian": "02a_dpm2_gaussian.png",
+    "pfode_gaussian": "02b_pfode_gaussian.png",
+    "langevin_fnpe": "02c_langevin_fnpe.png",
+}
+
+
+def configure_style() -> None:
+    mpl.rcParams.update({
+        "figure.dpi": 130, "savefig.dpi": 240, "font.size": 10,
+        "axes.titlesize": 13, "axes.titleweight": "bold", "axes.labelsize": 10,
+        "axes.spines.top": False, "axes.spines.right": False,
+        "axes.grid": True, "grid.alpha": 0.18, "grid.linewidth": 0.7,
+        "legend.frameon": False, "figure.facecolor": "white",
+    })
+
+
+def load_npz(path: Path) -> dict[str, np.ndarray]:
+    with np.load(path) as archive:
+        return {key: archive[key] for key in archive.files}
+
+
+def joint_map_cache_matches(
+    cached: dict[str, np.ndarray], args: argparse.Namespace,
+) -> bool:
+    """Return whether a cache was produced by the requested shared→local MAP."""
+    return (
+        str(cached.get("map_strategy", "")) == JOINT_MAP_STRATEGY
+        and int(cached.get("map_num_starts", -1)) == args.map_num_starts
+        and int(cached.get("map_timesteps", -1)) == args.map_timesteps
+        and int(cached.get("map_iterations", -1)) == args.map_iterations
+    )
+
+
+def normal_cdf(
+    value: np.ndarray | float, mean: float, std: float,
+) -> np.ndarray:
+    """Evaluate a Normal CDF without adding a SciPy dependency."""
+    if not math.isfinite(std) or std <= 0:
+        raise ValueError("Normal calibration requires a positive finite standard deviation.")
+    values = np.asarray(value, dtype=float)
+    standardized = (values - mean) / (std * math.sqrt(2.0))
+    return 0.5 * (
+        1.0 + np.vectorize(math.erf, otypes=[float])(standardized)
+    )
+
+
+def calibration_curve(
+    samples: np.ndarray,
+    analytic_mean: float,
+    analytic_std: float,
+    nominal: np.ndarray = NOMINAL_COVERAGE,
+) -> np.ndarray:
+    """Exact posterior mass inside empirical central quantile intervals."""
+    values = np.asarray(samples, dtype=float).reshape(-1)
+    if len(values) < 2 or not np.isfinite(values).all():
+        raise ValueError("Calibration requires at least two finite posterior samples.")
+    result = []
+    for coverage in np.asarray(nominal, dtype=float):
+        tail = (1.0 - coverage) / 2.0
+        lower, upper = np.quantile(values, (tail, 1.0 - tail))
+        result.append(float(
+            normal_cdf(upper, analytic_mean, analytic_std)
+            - normal_cdf(lower, analytic_mean, analytic_std)
+        ))
+    return np.asarray(result)
+
+
+def save_figure(fig: mpl.figure.Figure, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(path, bbox_inches="tight", facecolor=fig.get_facecolor())
+    plt.close(fig)
+    print(f"Wrote {path}")
+
+
+def load_score_checkpoint(path: Path, device: str) -> SBIm:
+    checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+    model = SBIm(
+        nodes_size=checkpoint["nodes_size"], sde_type=checkpoint["sde_type"],
+        sigma=checkpoint["sigma"], beta_min=checkpoint["beta_min"],
+        beta_max=checkpoint["beta_max"], hidden_size=checkpoint["hidden_size"],
+        depth=checkpoint["depth"], num_heads=checkpoint["num_heads"],
+        mlp_ratio=checkpoint["mlp_ratio"], device=device,
+    )
+    score_state = {
+        key: value for key, value in checkpoint["model_state_dict"].items()
+        if not key.startswith("divergence_head.")
+    }
+    model.model.load_state_dict(score_state, strict=True)
+    # ScoreBasedInferenceModel.train(...) is COMPASS's data-training API rather
+    # than nn.Module.train(mode), so calling model.eval() would dispatch to that
+    # incompatible override. Evaluation mode belongs on the score backbone.
+    model.model.eval()
+    return model
+
+
+def coherent_latent_samples(raw: dict[str, np.ndarray]) -> torch.Tensor:
+    local = torch.as_tensor(raw["compass_local_samples"], dtype=torch.float32)
+    shared = torch.as_tensor(raw["compass_global_samples"], dtype=torch.float32)
+    n_observations, n_samples = local.shape
+    if shared.shape != (n_samples,):
+        raise ValueError("Global and local posterior archives have incompatible shapes.")
+    result = torch.empty(n_observations, n_samples, 2)
+    result[:, :, 0] = shared.unsqueeze(0)
+    result[:, :, 1] = local
+    return result
+
+
+def joint_map_from_archive(
+    model: SBIm,
+    raw: dict[str, np.ndarray],
+    cache_path: Path,
+    args: argparse.Namespace,
+    device: str,
+) -> np.ndarray:
+    force_joint = args.force or args.force_joint_map
+    if cache_path.exists() and not force_joint:
+        cached = load_npz(cache_path)
+        if joint_map_cache_matches(cached, args):
+            print(f"Reusing {cache_path}")
+            return cached["joint_map_rows"]
+        print(f"Refreshing obsolete joint-MAP cache {cache_path}")
+
+    observations = torch.as_tensor(raw["x_observed"], dtype=torch.float32)
+    samples = coherent_latent_samples(raw)
+    started = time.perf_counter()
+    rows, shared_result = ModelTransfuser._shared_then_local_map(
+        model=model,
+        posterior_samples=samples,
+        x=observations,
+        condition_mask=MASK,
+        hierarchy=HIERARCHY,
+        num_starts=args.map_num_starts,
+        timesteps=args.map_timesteps,
+        eps=args.eps,
+        iterations_per_level=args.map_iterations,
+        device=device,
+    )
+    rows = rows.numpy()
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        cache_path,
+        joint_map_rows=rows,
+        shared_map=shared_result["shared_map"].numpy(),
+        candidate_modes=shared_result["candidate_modes"].numpy(),
+        candidate_scores=shared_result["candidate_log_densities"].numpy(),
+        selected_candidate=shared_result["selected_start"],
+        conditional_effective_samples=shared_result["effective_sample_size"],
+        map_strategy=np.asarray(JOINT_MAP_STRATEGY),
+        runtime_seconds=time.perf_counter() - started,
+        map_num_starts=args.map_num_starts,
+        map_timesteps=args.map_timesteps,
+        map_iterations=args.map_iterations,
+    )
+    print(f"Wrote {cache_path}")
+    return rows
+
+
+def score_map_from_archive(
+    model: SBIm,
+    raw: dict[str, np.ndarray],
+    cache_path: Path,
+    args: argparse.Namespace,
+    device: str,
+) -> np.ndarray:
+    """Compute the original per-observation score MAP from posterior means.
+
+    This matches ``ModelTransfuser.compare(..., map_method="score")`` for
+    multi-observation inference: the sampled shared parameter is fixed at its
+    joint posterior mean and annealed score ascent refines only each local
+    parameter.
+    """
+    if cache_path.exists() and not args.force:
+        print(f"Reusing {cache_path}")
+        return load_npz(cache_path)["score_map_rows"]
+
+    observations = torch.as_tensor(
+        raw["x_observed"], dtype=torch.float32,
+    ).flatten()
+    global_samples = torch.as_tensor(
+        raw["compass_global_samples"], dtype=torch.float32,
+    ).flatten()
+    local_samples = torch.as_tensor(
+        raw["compass_local_samples"], dtype=torch.float32,
+    )
+    if local_samples.dim() != 2 or local_samples.shape[0] != len(observations):
+        raise ValueError("Local posterior samples and observations have incompatible shapes.")
+    if local_samples.shape[1] != len(global_samples):
+        raise ValueError("Global and local posterior archives have incompatible shapes.")
+
+    initial_rows = torch.stack([
+        global_samples.mean().repeat(len(observations)),
+        local_samples.mean(dim=1),
+        observations,
+    ], dim=1)
+    posterior_scale = max(
+        float(global_samples.std(unbiased=False)),
+        float(local_samples.std(dim=1, unbiased=False).max()),
+    )
+
+    started = time.perf_counter()
+    rows = model.map_estimate(
+        data=initial_rows, condition_mask=SCORE_MAP_MASK, init=initial_rows,
+        sigma_start=max(2.0 * posterior_scale, 1e-3),
+        timesteps=args.map_timesteps, eps=args.eps,
+        iterations_per_level=args.map_iterations, device=device,
+    ).numpy()
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(
+        cache_path, score_map_rows=rows,
+        runtime_seconds=time.perf_counter() - started,
+        map_timesteps=args.map_timesteps,
+        map_iterations=args.map_iterations,
+    )
+    print(f"Wrote {cache_path}")
+    return rows
+
+
+def plot_shared_local_map(
+    raw: dict[str, np.ndarray],
+    joint_map_rows: np.ndarray,
+    score_map_rows: np.ndarray,
+    output: Path,
+    title: str,
+) -> None:
+    exact = raw["exact_joint_mean"]
+    covariance = raw["exact_joint_covariance"]
+    global_samples = raw["compass_global_samples"]
+    local_samples = raw["compass_local_samples"]
+    local_mean = local_samples.mean(axis=1)
+    local_std = local_samples.std(axis=1, ddof=1)
+    joint_local_map = joint_map_rows[:, 1]
+    joint_global_map = float(joint_map_rows[0, 0])
+    score_local_map = score_map_rows[:, 1]
+    score_global_map = float(score_map_rows[0, 0])
+    exact_local_std = np.sqrt(np.diag(covariance)[1:])
+    indices = np.arange(len(local_mean))
+
+    fig, axes = plt.subplots(1, 4, figsize=(18.8, 4.45))
+    fig.suptitle(title, fontsize=15, fontweight="bold", color=NAVY)
+    axes[0].hist(global_samples, bins=46, density=True, color=BLUE, alpha=0.68,
+                 label="COMPASS posterior")
+    grid = np.linspace(
+        exact[0] - 4 * np.sqrt(covariance[0, 0]),
+        exact[0] + 4 * np.sqrt(covariance[0, 0]), 400,
+    )
+    density = np.exp(-0.5 * (grid - exact[0])**2 / covariance[0, 0])
+    density /= np.sqrt(2 * np.pi * covariance[0, 0])
+    axes[0].plot(grid, density, color=NAVY, ls="--", lw=2, label="exact posterior")
+    axes[0].axvline(float(raw["global_truth"]), color=CORAL, ls=":", lw=2,
+                    label="true global")
+    axes[0].axvline(joint_global_map, color=JOINT_MAP_COLOR,
+                    ls=(0, (1.2, 2.0)), lw=2.6,
+                    label="COMPASS shared→local MAP")
+    axes[0].axvline(score_global_map, color=SCORE_MAP_COLOR, ls="-.", lw=2.2,
+                    label="COMPASS score MAP")
+    axes[0].set(xlabel="global parameter g", ylabel="density", title="Shared posterior")
+    axes[0].legend(fontsize=8.5)
+
+    axes[1].errorbar(
+        indices, local_mean, yerr=local_std, fmt="o", ms=3.8,
+        color=CORAL, ecolor="#F4A3B4", alpha=0.82, label="posterior mean ± σ",
+    )
+    axes[1].plot(indices, exact[1:], "_", ms=9, color=NAVY, label="exact MAP")
+    axes[1].scatter(
+        indices, joint_local_map, s=34, color=JOINT_MAP_COLOR, marker="D",
+        edgecolor="white", linewidth=0.5, zorder=6,
+        label="COMPASS shared→local MAP",
+    )
+    axes[1].scatter(
+        indices, score_local_map, s=31, color=SCORE_MAP_COLOR, marker="o",
+        edgecolor="white", linewidth=0.5, zorder=5, label="COMPASS score MAP",
+    )
+    axes[1].set(xlabel="observation", ylabel="local parameter ℓᵢ",
+                title=f"{len(indices)} local posteriors")
+    axes[1].legend(fontsize=8.2)
+
+    axes[2].scatter(
+        exact[1:], joint_local_map, color=JOINT_MAP_COLOR, marker="D", s=43,
+        edgecolor="white", linewidth=0.55,
+        label="COMPASS shared→local MAP",
+        zorder=6,
+    )
+    axes[2].scatter(
+        exact[1:], score_local_map, color=SCORE_MAP_COLOR, marker="o", s=38,
+        edgecolor="white", linewidth=0.55, label="COMPASS score MAP",
+        zorder=5,
+    )
+    lo = min(exact[1:].min(), joint_local_map.min(), score_local_map.min())
+    hi = max(exact[1:].max(), joint_local_map.max(), score_local_map.max())
+    padding = max(0.04 * (hi - lo), 1e-3)
+    axes[2].plot([lo - padding, hi + padding], [lo - padding, hi + padding],
+                 color=NAVY, ls="--", lw=1.6)
+    joint_mae_sigma = np.mean(
+        np.abs(joint_local_map - exact[1:]) / exact_local_std,
+    )
+    score_mae_sigma = np.mean(
+        np.abs(score_local_map - exact[1:]) / exact_local_std,
+    )
+    axes[2].text(
+        0.04, 0.94, f"joint mean |error| = {joint_mae_sigma:.2f} analytic σ",
+        transform=axes[2].transAxes, va="top", color=JOINT_MAP_COLOR,
+    )
+    axes[2].text(
+        0.04, 0.87, f"score mean |error| = {score_mae_sigma:.2f} analytic σ",
+        transform=axes[2].transAxes, va="top", color=SCORE_MAP_COLOR,
+    )
+    axes[2].set(
+        xlabel="exact local MAP", ylabel="estimated local MAP",
+        title="Local MAP recovery",
+    )
+    axes[2].legend(fontsize=8.2, loc="lower right")
+
+    exact_std = np.sqrt(np.diag(covariance))
+    global_calibration = calibration_curve(
+        global_samples, float(exact[0]), float(exact_std[0]),
+    )
+    local_calibrations = np.stack([
+        calibration_curve(
+            local_samples[index], float(exact[index + 1]),
+            float(exact_std[index + 1]),
+        )
+        for index in range(len(local_samples))
+    ])
+    local_calibration = local_calibrations.mean(axis=0)
+    global_gap = np.mean(np.abs(global_calibration - NOMINAL_COVERAGE))
+    local_gap = np.mean(np.abs(local_calibration - NOMINAL_COVERAGE))
+    calibration_axis = axes[3]
+    calibration_axis.plot(
+        [0, 1], [0, 1], color=NAVY, ls="--", lw=1.5, label="ideal",
+    )
+    calibration_axis.fill_between(
+        NOMINAL_COVERAGE,
+        local_calibrations.min(axis=0),
+        local_calibrations.max(axis=0),
+        color=CORAL, alpha=0.14, label="local min–max",
+    )
+    calibration_axis.plot(
+        NOMINAL_COVERAGE, global_calibration, "o-",
+        color=BLUE, lw=2.0, ms=4.2, label=f"global · gap {global_gap:.2f}",
+    )
+    calibration_axis.plot(
+        NOMINAL_COVERAGE, local_calibration, "s-",
+        color=CORAL, lw=2.0, ms=4.0, label=f"locals mean · gap {local_gap:.2f}",
+    )
+    calibration_axis.set(
+        xlabel="nominal central coverage",
+        ylabel="analytic mass in empirical interval",
+        title="Posterior calibration",
+        xlim=(0, 1), ylim=(0, 1),
+    )
+    calibration_axis.set_aspect("equal", adjustable="box")
+    calibration_axis.legend(fontsize=8.0, loc="lower right")
+    save_figure(fig, output)
+
+
+class ExactGaussianScore(torch.nn.Module):
+    """Exact diffused p(g, local | x) score for the figure-01 experiment."""
+
+    def __init__(self, sde: VESDE, mu_g: float, sigma_g: float,
+                 sigma_local: float, sigma_x: float):
+        super().__init__()
+        self.sde = sde
+        self.mu_g = mu_g
+        self.sigma_g = sigma_g
+        self.sigma_local = sigma_local
+        self.sigma_x = sigma_x
+        precision = torch.tensor([
+            [1 / sigma_g**2 + 1 / sigma_x**2, 1 / sigma_x**2],
+            [1 / sigma_x**2, 1 / sigma_local**2 + 1 / sigma_x**2],
+        ], dtype=torch.float32)
+        self.register_buffer("posterior_covariance", torch.linalg.inv(precision))
+
+    def forward(self, x, t, c, return_attn_weights=False):
+        noise_std = self.sde.marginal_prob_std(t).to(x.device).reshape(-1, 1)
+        if len(noise_std) == 1 and len(x) != 1:
+            noise_std = noise_std.expand(len(x), 1)
+        if len(noise_std) != len(x):
+            raise ValueError("Expected one diffusion time per score-evaluation row.")
+        observed = x[:, 2]
+        natural = torch.stack([
+            self.mu_g / self.sigma_g**2 + observed / self.sigma_x**2,
+            observed / self.sigma_x**2,
+        ], dim=1)
+        mean = natural @ self.posterior_covariance.T
+        covariance = (
+            self.posterior_covariance.unsqueeze(0)
+            + noise_std.square().unsqueeze(-1)
+            * torch.eye(2, device=x.device).unsqueeze(0)
+        )
+        score = torch.linalg.solve(
+            covariance, (mean - x[:, :2]).unsqueeze(-1),
+        ).squeeze(-1)
+        output = torch.zeros_like(x)
+        output[:, :2] = noise_std * score
+        return (output, torch.zeros(1, device=x.device)) if return_attn_weights else output
+
+
+class ExactInference:
+    def __init__(self, device: str, mu_g: float, sigma_g: float,
+                 sigma_local: float, sigma_x: float):
+        self.nodes_size = 3
+        self.sde_type = "vesde"
+        self.sde = VESDE(sigma=25.0)
+        self.sde.sigma = self.sde.sigma.to(device)
+        self.model = ExactGaussianScore(
+            self.sde, mu_g, sigma_g, sigma_local, sigma_x,
+        ).to(device)
+        self.multi_obs_sampler = MultiObsSampler(self)
+        self.pfode = PFODE(self)
+
+    def output_scale_function(self, t, value):
+        return value / self.sde.marginal_prob_std(t).to(value.device)
+
+    def log_prob(self, data, condition_mask, **kwargs):
+        return self.pfode.log_prob(data, condition_mask, **kwargs)
+
+    def hierarchical_map_estimate(self, data, condition_mask, **kwargs):
+        return self.multi_obs_sampler.map_estimate(data, condition_mask, **kwargs)
+
+
+def analytic_joint(
+    observations: torch.Tensor, mu_g: float, sigma_g: float,
+    sigma_local: float, sigma_x: float,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    values = observations.flatten().double()
+    n = len(values)
+    precision = torch.zeros(n + 1, n + 1, dtype=torch.float64)
+    precision[0, 0] = 1 / sigma_g**2 + n / sigma_x**2
+    precision[1:, 1:] = torch.eye(n) * (1 / sigma_local**2 + 1 / sigma_x**2)
+    precision[0, 1:] = 1 / sigma_x**2
+    precision[1:, 0] = 1 / sigma_x**2
+    natural = torch.zeros(n + 1, dtype=torch.float64)
+    natural[0] = mu_g / sigma_g**2 + values.sum() / sigma_x**2
+    natural[1:] = values / sigma_x**2
+    covariance = torch.linalg.inv(precision)
+    return (covariance @ natural).float(), covariance.float()
+
+
+def exact_map_metrics(args: argparse.Namespace, device: str) -> list[dict[str, float]]:
+    cache = args.output_dir / "map_cache" / "exact_score_global_map_metrics.csv"
+    if cache.exists() and not args.force:
+        print(f"Reusing {cache}")
+        with cache.open(newline="") as handle:
+            return [
+                {key: float(value) for key, value in row.items()}
+                for row in csv.DictReader(handle)
+            ]
+
+    mu_g, sigma_g, sigma_local, sigma_x = -2.5, 0.3, 0.4, 0.2
+    model = ExactInference(device, mu_g, sigma_g, sigma_local, sigma_x)
+    settings = {5: (5, 5, 0.1), 50: (1, 10, 0.2), 200: (1, 10, 0.2)}
+    rows = []
+    for n, (interval, correctors, snr) in settings.items():
+        torch.manual_seed(7)
+        true_g = mu_g + sigma_g * torch.randn(1, device=device)
+        observations = (
+            true_g + sigma_local * torch.randn(n, device=device)
+            + sigma_x * torch.randn(n, device=device)
+        ).reshape(-1, 1)
+        analytic_map, covariance = analytic_joint(
+            observations.cpu(), mu_g, sigma_g, sigma_local, sigma_x,
+        )
+        precision_value = 1 / sigma_g**2 + 1 / (sigma_local**2 + sigma_x**2)
+        posterior_precision = torch.full((n, 1), precision_value)
+        samples = model.multi_obs_sampler.sample(
+            world_size=1, data=observations, condition_mask=MASK,
+            timesteps=args.exact_timesteps, num_samples=args.exact_samples,
+            hierarchy=HIERARCHY, prior=([mu_g], [sigma_g]), correction="gauss",
+            posterior_precision=posterior_precision,
+            corrector_steps_interval=interval, corrector_steps=correctors,
+            final_corrector_steps=3, snr=snr, method="dpm", order=2,
+            device=device, verbose=False,
+        ).cpu()
+        starts, scales = ModelTransfuser._joint_map_initializations(
+            samples[:, :, :2], observations.cpu(), MASK, HIERARCHY,
+            args.map_num_starts,
+        )
+        candidates = []
+        for index, scale in enumerate(scales):
+            start = starts[:, index, :]
+            refined = model.hierarchical_map_estimate(
+                data=start, condition_mask=MASK, init=start, hierarchy=HIERARCHY,
+                prior=([mu_g], [sigma_g]), correction="gauss",
+                posterior_precision=posterior_precision, sigma_start=scale,
+                timesteps=args.map_timesteps,
+                iterations_per_level=args.map_iterations, device=device,
+            )
+            candidates.append(refined[:, 0, :])
+        candidate_tensor = torch.stack(candidates, dim=1)
+        scores = ModelTransfuser._hierarchical_candidate_scores(
+            model, candidate_tensor, MASK, HIERARCHY,
+            (torch.tensor([mu_g]), torch.tensor([sigma_g])),
+            args.log_prob_timesteps, args.eps, device, False,
+        )
+        best_rows = candidate_tensor[:, int(torch.argmax(scores)), :]
+        map_global = float(best_rows[0, 0])
+        analytic_global = float(analytic_map[0])
+        analytic_std = math.sqrt(float(covariance[0, 0]))
+        sample_std = float(samples[0, :, 0].std(unbiased=True))
+        rows.append({
+            "n_observations": float(n),
+            "compass_map": map_global,
+            "analytic_map": analytic_global,
+            "absolute_map_error": abs(map_global - analytic_global),
+            "map_error_in_analytic_std": abs(map_global - analytic_global) / analytic_std,
+            "posterior_std_ratio": sample_std / analytic_std,
+        })
+        print(f"Exact score N={n}: |MAP - analytic MAP|={rows[-1]['absolute_map_error']:.4g}")
+
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    with cache.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"Wrote {cache}")
+    return rows
+
+
+def plot_exact_map(rows: list[dict[str, float]], output: Path) -> None:
+    n = np.asarray([row["n_observations"] for row in rows])
+    error = np.asarray([row["absolute_map_error"] for row in rows])
+    ratio = np.asarray([row["posterior_std_ratio"] for row in rows])
+    fig, axes = plt.subplots(1, 2, figsize=(11.1, 4.3))
+    fig.suptitle(
+        "Exact-score validation: joint hierarchical MAP",
+        fontsize=15, fontweight="bold", color=NAVY,
+    )
+    axes[0].plot(n, error, "o-", color=BLUE, lw=2.5, ms=7)
+    axes[0].fill_between(n, 0, error, color=BLUE, alpha=0.08)
+    for x_value, y_value in zip(n, error):
+        axes[0].annotate(
+            f"{y_value:.3g}", (x_value, y_value), xytext=(0, 9),
+            textcoords="offset points", ha="center", color=NAVY,
+        )
+    axes[0].set(
+        xscale="log", xlabel="observations N",
+        ylabel="|COMPASS MAP − analytic MAP|",
+        title="Absolute shared-MAP error",
+    )
+    axes[0].set_ylim(bottom=0)
+    axes[1].axhline(1.0, color=NAVY, ls=":", lw=1.5, label="analytic width")
+    axes[1].plot(n, ratio, "o-", color=CORAL, lw=2.5, ms=7)
+    for x_value, y_value in zip(n, ratio):
+        axes[1].annotate(
+            f"{y_value:.2f}×", (x_value, y_value), xytext=(0, 9),
+            textcoords="offset points", ha="center", color=NAVY,
+        )
+    axes[1].set(
+        xscale="log", xlabel="observations N",
+        ylabel="COMPASS σ / analytic σ", title="Posterior uncertainty",
+    )
+    axes[1].legend()
+    save_figure(fig, output)
+
+
+def write_csv_rows(path: Path, rows: list[dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def hierarchy_joint_map_metrics(
+    args: argparse.Namespace, device: str,
+) -> list[dict[str, object]]:
+    """Recompute matched hierarchy cases with joint global/local MAP ascent."""
+    import Hierarchical_Linear_Quadratic as hierarchy
+
+    config_path = args.hierarchy_csv.parent / "experiment_config.json"
+    experiment = json.loads(config_path.read_text())
+    n_values = tuple(int(value) for value in experiment["n_values"])
+    n_runs = int(experiment["n_runs"])
+    posterior_samples = int(experiment["posterior_samples"])
+    sampling_timesteps = int(experiment["timesteps"])
+    seed = int(experiment["seed"])
+    mode = "quick" if bool(experiment["quick"]) else "full"
+    cache = args.output_dir / "map_cache" / "hierarchy_joint_map_metrics.csv"
+
+    rows: list[dict[str, object]] = []
+    if cache.exists() and not args.force:
+        with cache.open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        expected = (
+            args.map_num_starts, args.map_timesteps, args.map_iterations,
+            args.log_prob_timesteps, posterior_samples, sampling_timesteps,
+        )
+        for row in rows:
+            cached = tuple(int(row[key]) for key in (
+                "map_num_starts", "map_timesteps", "map_iterations",
+                "log_prob_timesteps", "posterior_samples", "sampling_timesteps",
+            ))
+            if cached != expected:
+                raise ValueError(
+                    f"{cache} uses different inference settings; use --force."
+                )
+        print(f"Resuming {cache} with {len(rows)} completed hierarchy cases")
+
+    checkpoint_root = args.hierarchy_csv.parent / "models" / mode
+    models = {}
+    for model_name in hierarchy.MODEL_NAMES:
+        checkpoint = checkpoint_root / model_name / "Model_checkpoint.pt"
+        if not checkpoint.exists():
+            raise FileNotFoundError(
+                f"Missing {checkpoint}; this plotting script never retrains models."
+            )
+        print(f"Loading hierarchy {model_name} checkpoint from {checkpoint}")
+        models[model_name] = load_score_checkpoint(checkpoint, device)
+
+    completed = {
+        (float(row["c_true"]), int(row["n_observations"]), int(row["run"]))
+        for row in rows
+    }
+    max_n = max(n_values)
+    for c_index, (c_true, model_name) in enumerate(((0.0, "linear"), (0.6, "quadratic"))):
+        model = models[model_name]
+        model_index = hierarchy.MODEL_NAMES.index(model_name)
+        norm = hierarchy.normalization_for(model_name)
+        width = len(hierarchy.PARAMETER_NAMES[model_name])
+        global_indices, _ = hierarchy.parameter_roles(model_name, "correct")
+        condition_mask = torch.cat([
+            torch.zeros(width), torch.ones(len(hierarchy.T_VALUES)),
+        ])
+        prior = ([0.0] * len(global_indices), [1.0] * len(global_indices))
+        full_precision = hierarchy.posterior_precision(model_name, global_indices, norm)
+        marginal_precision = torch.diagonal(
+            full_precision, dim1=-2, dim2=-1,
+        ).reshape(1, -1)
+
+        for run in range(n_runs):
+            full_truth = hierarchy.generate_mock(
+                max_n, c_true, seed + 10_000 * (c_index + 1) + run,
+            )
+            for n_index, n_observations in enumerate(n_values):
+                key = (c_true, n_observations, run)
+                if key in completed:
+                    continue
+                x_physical = np.asarray(full_truth["x"])[:n_observations]
+                x = torch.as_tensor(norm.x_normalize(x_physical), dtype=torch.float32)
+                inference_seed = (
+                    seed + 100_000 + 10_000 * c_index + 1_000 * run
+                    + 100 * n_index + model_index
+                )
+                hierarchy.seed_all(inference_seed)
+                samples = model.sample(
+                    x=x, num_samples=posterior_samples,
+                    timesteps=sampling_timesteps, method="dpm", order=2,
+                    corrector_steps_interval=1,
+                    corrector_steps=3 if mode == "quick" else 7,
+                    final_corrector_steps=2, snr=0.12,
+                    multi_obs_inference=True, hierarchy=list(global_indices),
+                    prior=prior, correction="gauss",
+                    posterior_precision=marginal_precision,
+                    device=device, verbose=False,
+                ).detach().cpu()
+                expected_shape = (n_observations, posterior_samples, width)
+                if tuple(samples.shape) != expected_shape:
+                    raise AssertionError(
+                        f"Expected hierarchy samples {expected_shape}, got {tuple(samples.shape)}."
+                    )
+
+                starts, scales = ModelTransfuser._joint_map_initializations(
+                    samples, x, condition_mask, global_indices, args.map_num_starts,
+                )
+                candidates = []
+                started = time.perf_counter()
+                for start_index, sigma_start in enumerate(scales):
+                    start = starts[:, start_index, :]
+                    refined = model.hierarchical_map_estimate(
+                        data=start, condition_mask=condition_mask, init=start,
+                        hierarchy=global_indices, prior=prior, correction="gauss",
+                        posterior_precision=marginal_precision,
+                        sigma_start=sigma_start, timesteps=args.map_timesteps,
+                        iterations_per_level=args.map_iterations, device=device,
+                    )
+                    candidates.append(refined[:, 0, :])
+                candidate_tensor = torch.stack(candidates, dim=1)
+                scores = ModelTransfuser._hierarchical_candidate_scores(
+                    model, candidate_tensor, condition_mask, global_indices,
+                    prior, args.log_prob_timesteps, args.eps, device, False,
+                )
+                selected = int(torch.argmax(scores))
+                theta = norm.theta_physical(
+                    candidate_tensor[:, selected, :width].numpy()
+                )
+                names = hierarchy.PARAMETER_NAMES[model_name]
+                a = theta[:, names.index("a")]
+                b = theta[:, names.index("b")]
+                a_mse = float(np.mean(np.square(a - float(full_truth["a_true"]))))
+                if model_name == "quadratic":
+                    curvature = theta[:, names.index("c")]
+                    c_mse = float(np.mean(np.square(curvature - c_true)))
+                    global_rmse = math.sqrt(0.5 * (a_mse + c_mse))
+                else:
+                    global_rmse = math.sqrt(a_mse)
+                local_truth = np.asarray(full_truth["b_true"])[:n_observations]
+                local_rmse = float(np.sqrt(np.mean(np.square(b - local_truth))))
+                sync_error = max(float(np.ptp(theta[:, i])) for i in global_indices)
+                if sync_error > hierarchy.GLOBAL_ATOL:
+                    raise AssertionError(
+                        f"Joint MAP shared-coordinate error is {sync_error:.3e}."
+                    )
+                rows.append({
+                    "c_true": c_true, "n_observations": n_observations,
+                    "run": run, "model": model_name,
+                    "global_parameter_rmse": global_rmse, "b_rmse": local_rmse,
+                    "shared_synchronization_max_abs": sync_error,
+                    "selected_candidate": selected,
+                    "candidate_score": float(scores[selected]),
+                    "runtime_seconds": time.perf_counter() - started,
+                    "map_num_starts": args.map_num_starts,
+                    "map_timesteps": args.map_timesteps,
+                    "map_iterations": args.map_iterations,
+                    "log_prob_timesteps": args.log_prob_timesteps,
+                    "posterior_samples": posterior_samples,
+                    "sampling_timesteps": sampling_timesteps,
+                    "composition_correction": "gauss_diagonal_precision",
+                })
+                write_csv_rows(cache, rows)
+                completed.add(key)
+                print(
+                    f"Hierarchy joint MAP: c={c_true:g}, N={n_observations}, "
+                    f"run={run + 1}/{n_runs}; global RMSE={global_rmse:.4f}, "
+                    f"local RMSE={local_rmse:.4f}"
+                )
+    return rows
+
+
+def plot_map_hierarchy_dashboard(
+    csv_path: Path, map_rows: list[dict[str, object]], output: Path,
+) -> None:
+    rows = _read(csv_path)
+    n_values = sorted({int(row["n_observations"]) for row in map_rows})
+    fig, axes = plt.subplots(2, 2, figsize=(12.8, 9.6))
+    fig.patch.set_facecolor(PAPER)
+    fig.subplots_adjust(
+        left=0.075, right=0.985, bottom=0.075, top=0.82,
+        wspace=0.24, hspace=0.52,
+    )
+    fig.suptitle(
+        "Global–local hierarchy validation with joint score-MAP estimates",
+        x=0.055, y=0.975, ha="left", fontsize=19, fontweight="bold", color=INK,
+    )
+    fig.text(
+        0.055, 0.932,
+        "Panels A and B use jointly refined shared and observation-specific MAP coordinates",
+        ha="left", va="top", fontsize=10.5, color=MUTED,
+    )
+    truth_specs = [
+        (0.0, "linear", BLUE, "Linear truth  ·  c = 0", "o"),
+        (0.6, "quadratic", CORAL, "Quadratic truth  ·  c = 0.6", "s"),
+    ]
+    for c_true, model_name, color, label, marker in truth_specs:
+        map_common = {"c_true": c_true, "model": model_name}
+        old_common = {"configuration": "correct", **map_common}
+        _band_line(
+            axes[0, 0], n_values,
+            _series(map_rows, n_values, "global_parameter_rmse", **map_common),
+            color, label, marker,
+        )
+        _band_line(
+            axes[0, 1], n_values,
+            _series(map_rows, n_values, "b_rmse", **map_common),
+            color, label, marker,
+        )
+        _band_line(
+            axes[1, 1], n_values, _series(rows, n_values, "bic_weight", **old_common),
+            color, label, marker,
+        )
+    _setup_axis(
+        axes[0, 0], "A", "Global MAP recovery",
+        "RMSE of shared MAP coordinates; central 68% across mock datasets",
+    )
+    _format_n_axis(axes[0, 0], n_values)
+    axes[0, 0].set_ylabel("Global MAP RMSE", color=INK, labelpad=8)
+    axes[0, 0].legend(loc="upper right", frameon=False, fontsize=8.5)
+    _setup_axis(
+        axes[0, 1], "B", "Local MAP recovery",
+        "RMSE of the observation-specific intercept MAPs bᵢ",
+    )
+    _format_n_axis(axes[0, 1], n_values)
+    axes[0, 1].set_ylabel("Local MAP RMSE", color=INK, labelpad=8)
+
+    sharing_axis = axes[1, 0]
+    for configuration, color, label, linestyle, zorder in [
+        ("all_local", AMBER, "All local", "-", 2),
+        ("all_global", PURPLE, "All global", "-", 3),
+        ("correct", TEAL, "Correct hierarchy", "--", 8),
+    ]:
+        centre, lower, upper = _series(
+            rows, n_values, "a_sharing_range",
+            configuration=configuration, model="quadratic",
+        )
+        centre = np.maximum(centre, 1e-8)
+        lower = np.maximum(lower, 1e-8)
+        upper = np.maximum(upper, 1e-8)
+        sharing_axis.fill_between(n_values, lower, upper, color=color, alpha=0.12)
+        sharing_axis.plot(
+            n_values, centre, color=color, linestyle=linestyle, linewidth=2.5,
+            marker="o", markersize=5.5, markerfacecolor=WHITE,
+            markeredgewidth=1.5, label=label, zorder=zorder,
+        )
+    _setup_axis(
+        sharing_axis, "C", "Sharing constraint",
+        "Zero means the inferred global value is identical for every observation",
+    )
+    _format_n_axis(sharing_axis, n_values)
+    sharing_axis.set_yscale("log")
+    sharing_axis.set_ylabel("Range of inferred global a", color=INK, labelpad=8)
+    sharing_axis.legend(loc="center right", frameon=False, fontsize=8.5)
+
+    weight_axis = axes[1, 1]
+    weight_axis.axhspan(0.5, 1.0, color=TEAL, alpha=0.045)
+    weight_axis.axhline(0.5, color=MUTED, linestyle=(0, (2, 3)), linewidth=1.2)
+    _setup_axis(
+        weight_axis, "D", "Model identification",
+        "BIC support assigned to the model that generated the data",
+    )
+    _format_n_axis(weight_axis, n_values)
+    weight_axis.set_ylim(-0.03, 1.03)
+    weight_axis.set_ylabel("BIC weight of generating model", color=INK, labelpad=8)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output, dpi=260, bbox_inches="tight", facecolor=fig.get_facecolor())
+    plt.close(fig)
+    print(f"Wrote {output}")
+
+
+def shared_local_archives(args: argparse.Namespace) -> list[tuple[str, Path]]:
+    """Posterior archives used by the learned-score and method-comparison plots."""
+    archives = [("learned_score", args.reference)]
+    method_dir = args.input_dir / "method_comparison"
+    archives.extend(
+        (method, method_dir / f"{method}.npz") for method in METHOD_TITLES
+    )
+    return archives
+
+
+def shared_local_plot_target(
+    name: str, args: argparse.Namespace,
+) -> tuple[Path, str]:
+    if name == "learned_score":
+        return (
+            args.output_dir / "02_learned_score_global_local_validation.png",
+            "Learned-score validation with joint hierarchical MAP",
+        )
+    return (
+        args.output_dir / "method_comparison" / METHOD_FILENAMES[name],
+        METHOD_TITLES[name],
+    )
+
+
+def plot_cached_shared_local_results(args: argparse.Namespace) -> None:
+    """Render shared/local figures solely from existing archives and MAP caches."""
+    archives = shared_local_archives(args)
+    required = [path for _, path in archives]
+    for name, _ in archives:
+        required.extend([
+            args.output_dir / "map_cache" / f"{name}_joint_map.npz",
+            args.output_dir / "map_cache" / f"{name}_score_map.npz",
+        ])
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing cached plotting artifact(s): " + ", ".join(missing)
+        )
+
+    obsolete = []
+    for name, _ in archives:
+        cache_path = args.output_dir / "map_cache" / f"{name}_joint_map.npz"
+        if not joint_map_cache_matches(load_npz(cache_path), args):
+            obsolete.append(str(cache_path))
+    if obsolete:
+        raise RuntimeError(
+            "Refusing to plot obsolete joint-MAP cache(s): "
+            + ", ".join(obsolete)
+            + ". Recompute them with --force-joint-map instead of --plots-only."
+        )
+
+    for name, archive_path in archives:
+        raw = load_npz(archive_path)
+        joint_map_rows = load_npz(
+            args.output_dir / "map_cache" / f"{name}_joint_map.npz"
+        )["joint_map_rows"]
+        score_map_rows = load_npz(
+            args.output_dir / "map_cache" / f"{name}_score_map.npz"
+        )["score_map_rows"]
+        output, title = shared_local_plot_target(name, args)
+        plot_shared_local_map(
+            raw, joint_map_rows, score_map_rows, output, title,
+        )
+    print(f"Cached shared/local plots written to {args.output_dir}")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input-dir", type=Path, default=INPUT_ROOT)
+    parser.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE)
+    parser.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT)
+    parser.add_argument("--hierarchy-csv", type=Path, default=DEFAULT_HIERARCHY_CSV)
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
+    parser.add_argument("--map-num-starts", type=int, default=8)
+    parser.add_argument("--map-timesteps", type=int, default=100)
+    parser.add_argument("--map-iterations", type=int, default=3)
+    parser.add_argument("--log-prob-timesteps", type=int, default=100)
+    parser.add_argument("--exact-samples", type=int, default=2_000)
+    parser.add_argument("--exact-timesteps", type=int, default=100)
+    parser.add_argument("--eps", type=float, default=1e-3)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--plots-only", action="store_true",
+        help="regenerate shared/local figures from posterior and MAP caches only",
+    )
+    mode.add_argument(
+        "--method-comparison-only", action="store_true",
+        help="recompute and plot only the three sampler method-comparison panels",
+    )
+    mode.add_argument(
+        "--shared-local-only", action="store_true",
+        help="recompute and plot only selected learned-score/shared-local panels",
+    )
+    mode.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--force-joint-map", action="store_true",
+        help="refresh shared-then-local MAP caches while reusing score-MAP caches",
+    )
+    parser.add_argument(
+        "--method-comparison-method", choices=tuple(METHOD_TITLES),
+        help="with --method-comparison-only, process only this sampler method",
+    )
+    parser.add_argument(
+        "--shared-local-method",
+        choices=("learned_score", *METHOD_TITLES), action="append",
+        help=(
+            "with --shared-local-only, process this panel; repeat the option "
+            "to select multiple panels"
+        ),
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    for name in (
+        "map_num_starts", "map_timesteps", "map_iterations",
+        "log_prob_timesteps", "exact_samples", "exact_timesteps",
+    ):
+        if getattr(args, name) < 1:
+            raise ValueError(f"--{name.replace('_', '-')} must be positive.")
+    if args.method_comparison_method and not args.method_comparison_only:
+        raise ValueError(
+            "--method-comparison-method requires --method-comparison-only."
+        )
+    if args.shared_local_method and not args.shared_local_only:
+        raise ValueError("--shared-local-method requires --shared-local-only.")
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    configure_style()
+    if args.plots_only:
+        plot_cached_shared_local_results(args)
+        return
+    if args.device == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA was requested but is unavailable after autocvd reservation.")
+
+    focused_shared_local = args.method_comparison_only or args.shared_local_only
+    if not focused_shared_local:
+        exact_rows = exact_map_metrics(args, args.device)
+        plot_exact_map(
+            exact_rows, args.output_dir / "01_exact_score_global_validation.png",
+        )
+
+    archives = shared_local_archives(args)
+    if args.method_comparison_only:
+        archives = [item for item in archives if item[0] in METHOD_TITLES]
+        if args.method_comparison_method:
+            archives = [
+                item for item in archives
+                if item[0] == args.method_comparison_method
+            ]
+    elif args.shared_local_only and args.shared_local_method:
+        selected_methods = set(args.shared_local_method)
+        archives = [
+            item for item in archives if item[0] in selected_methods
+        ]
+    missing = [str(path) for _, path in archives if not path.exists()]
+    if missing:
+        raise FileNotFoundError("Missing posterior archive(s): " + ", ".join(missing))
+    print(f"Loading shared score model from {args.checkpoint}")
+    learned_model = load_score_checkpoint(args.checkpoint, args.device)
+    for name, archive_path in archives:
+        raw = load_npz(archive_path)
+        joint_map_rows = joint_map_from_archive(
+            learned_model, raw,
+            args.output_dir / "map_cache" / f"{name}_joint_map.npz",
+            args, args.device,
+        )
+        score_map_rows = score_map_from_archive(
+            learned_model, raw,
+            args.output_dir / "map_cache" / f"{name}_score_map.npz",
+            args, args.device,
+        )
+        output, title = shared_local_plot_target(name, args)
+        plot_shared_local_map(
+            raw, joint_map_rows, score_map_rows, output, title,
+        )
+
+    if focused_shared_local:
+        print(
+            "Requested shared/local plots written below "
+            f"{args.output_dir}"
+        )
+        return
+
+    hierarchy_map_rows = hierarchy_joint_map_metrics(args, args.device)
+    plot_map_hierarchy_dashboard(
+        args.hierarchy_csv, hierarchy_map_rows,
+        args.output_dir / "03_hierarchy_validation_dashboard.png",
+    )
+    plot_model_pairplot(
+        args.output_dir / "04_linear_quadratic_model_pairplot.png",
+        args.output_dir / "04_linear_quadratic_model_pairplot_data.csv",
+    )
+    config = vars(args).copy()
+    for key in ("input_dir", "reference", "checkpoint", "hierarchy_csv", "output_dir"):
+        config[key] = str(config[key])
+    (args.output_dir / "map_validation_config.json").write_text(
+        json.dumps(config, indent=2) + "\n"
+    )
+    print(f"MAP-enhanced validation outputs written to {args.output_dir}")
+
+
+if __name__ == "__main__":
+    main()

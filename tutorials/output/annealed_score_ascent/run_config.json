@@ -1,0 +1,28 @@
+{
+  "output_dir": "tutorials/output/annealed_score_ascent",
+  "n_observations": [
+    2,
+    5,
+    10,
+    25,
+    50
+  ],
+  "repeats": 20,
+  "num_samples": 1000,
+  "sampling_timesteps": 100,
+  "map_timesteps": 100,
+  "map_iterations": 3,
+  "map_num_starts": 8,
+  "log_prob_timesteps": 100,
+  "eps": 0.001,
+  "seed": 42,
+  "device": "cuda",
+  "quick": false,
+  "resolved_device": "cuda",
+  "sampler": "DPM-Solver-2",
+  "composition_correction": "gauss",
+  "score": "exact analytic diffused single-observation posterior score",
+  "sigma_global": 0.8,
+  "sigma_local": 0.6,
+  "sigma_observation": 0.25
+}

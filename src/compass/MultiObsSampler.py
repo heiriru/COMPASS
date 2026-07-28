@@ -36,7 +36,7 @@ class MultiObsSampler():
     composed across observations; latent dimensions not in `hierarchy` are treated as
     per-observation (local) latents and keep their individual scores.
 
-    Three composition rules are implemented (`correction` argument):
+    Six composition rules are implemented (`correction` argument):
 
     - "gauss" (default): Gaussian-corrected composition (Gloeckler et al. 2024,
       "Compositional simulation-based inference for time series"). The composed score
@@ -52,6 +52,11 @@ class MultiObsSampler():
       Langevin sampling (use method="langevin"). The initial noise and Langevin step
       sizes on the hierarchy dimensions are scaled by 1/n internally (reference
       N(0, sigma_max^2 / n)).
+    - "damping": the error-damped compositional estimator of Arruda et al. 2026,
+      d(t) * [(1-n)(1-t) prior_score + n/m sum_(j in batch) score_j].
+    - "gauss_damping": the Gaussian-corrected score multiplied by d(t).
+    - "hybrid_damping": the Gaussian correction with the prior precision and score
+      contribution additionally weighted by (1-t), followed by d(t).
 
     Practical notes:
     - Hierarchical models (per-observation local latents alongside the shared
@@ -72,6 +77,16 @@ class MultiObsSampler():
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
 
+    DAMPING_CORRECTIONS = frozenset(
+        {"damping", "gauss_damping", "hybrid_damping"}
+    )
+    GAUSSIAN_CORRECTIONS = frozenset(
+        {"gauss", "gauss_damping", "hybrid_damping"}
+    )
+    VALID_CORRECTIONS = frozenset(
+        {"gauss", "uncorrected", "fnpe"} | DAMPING_CORRECTIONS
+    )
+
     #############################################
     # ----- Main Sampling Loop -----
     #############################################
@@ -79,7 +94,12 @@ class MultiObsSampler():
     def sample(self, world_size, data, condition_mask=None, timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, hierarchy=None,
                prior=None, correction="gauss", posterior_precision=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
+               damping_at_data=1.0, damping_at_noise=None,
+               composition_batch_size=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
+               adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
+               adaptive_safety=0.9, adaptive_exponent=0.9,
+               adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
         """
         Sample from the multi-observation posterior via compositional score modeling.
@@ -101,7 +121,8 @@ class MultiObsSampler():
                     (mean, std) of tensors/lists/floats of length len(hierarchy).
                     Defaults to a standard normal N(0, 1) (correct if the model was
                     trained on parameters standardized to zero mean and unit variance).
-            correction: Composition rule: "gauss" (default), "uncorrected" or "fnpe".
+            correction: Composition rule: "gauss" (default), "uncorrected",
+                    "fnpe", "damping", "gauss_damping" or "hybrid_damping".
             posterior_precision: Optional estimate of the single-observation posterior
                     precision on the hierarchy dimensions, used by the "gauss" correction.
                     Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
@@ -115,6 +136,11 @@ class MultiObsSampler():
                     to within this many prior standard deviations of the prior mean
                     (stabilizes the score composition in the tails of the reference
                     distribution). None disables clamping.
+            damping_at_data: Damping endpoint d(0), where t=0 is the data end.
+            damping_at_noise: Damping endpoint d(1), where t=1 is the noise end.
+                    Defaults to 1/sqrt(num_observations).
+            composition_batch_size: Optional number of observation scores used in
+                    each unbiased damping update. None uses every observation.
 
             - DPM-Solver parameters -
             order: Order of DPM-Solver (1, 2 or 3)
@@ -123,10 +149,18 @@ class MultiObsSampler():
             corrector_steps: Number of Langevin MCMC steps per iteration
             final_corrector_steps: Extra correction steps at the end
 
+            - Adaptive reverse-SDE parameters -
+            adaptive_abs_tol: Absolute error tolerance.
+            adaptive_rel_tol: Relative error tolerance.
+            adaptive_safety: Step-size safety multiplier.
+            adaptive_exponent: Step-size controller exponent.
+            adaptive_max_evals: Maximum score evaluations (two per proposal).
+            adaptive_initial_step: Optional initial step in diffusion time.
+
             - Other parameters -
             device: Device to run sampling on
             verbose: Whether to show progress bar
-            method: Sampling method to use (euler, dpm)
+            method: Sampling method to use (euler, dpm, langevin, adaptive)
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
@@ -142,6 +176,7 @@ class MultiObsSampler():
         self.hierarchy = hierarchy
         self.correction = correction
         self.denoise_clamp = denoise_clamp
+        self.solver_stats = None
 
         if method in ("dpm", "langevin"):
             self.corrector_steps_interval = corrector_steps_interval
@@ -150,12 +185,62 @@ class MultiObsSampler():
             self.snr = snr
             self.order = order
 
-        if correction not in ("gauss", "uncorrected", "fnpe"):
-            raise ValueError(f"Unknown correction '{correction}'. Choose from 'gauss', 'uncorrected', 'fnpe'.")
+        if correction not in self.VALID_CORRECTIONS:
+            choices = "', '".join(sorted(self.VALID_CORRECTIONS))
+            raise ValueError(
+                f"Unknown correction '{correction}'. Choose from '{choices}'."
+            )
+        if method not in ("euler", "dpm", "langevin", "adaptive"):
+            raise ValueError(
+                f"Sampling method {method} not recognized. Choose from "
+                "'euler', 'dpm', 'langevin' or 'adaptive'."
+            )
         if correction == "fnpe" and method != "langevin":
             print("WARNING: correction='fnpe' composes the scores of the F-NPSE bridging densities, "
                   "which are NOT the diffusion marginals of the posterior. Reverse-diffusion samplers "
                   "(euler/dpm) diverge with it; use method='langevin' (annealed Langevin dynamics).")
+        if save_trajectory and method == "adaptive":
+            raise ValueError(
+                "save_trajectory is not supported by the adaptive sampler because "
+                "its accepted time grid has dynamic length."
+            )
+
+        data_tensor = torch.as_tensor(data)
+        num_observations = 1 if data_tensor.dim() == 1 else int(data_tensor.shape[0])
+        self._configure_damping(
+            num_observations, damping_at_data, damping_at_noise,
+            composition_batch_size,
+        )
+        if composition_batch_size is not None and correction != "damping":
+            raise ValueError(
+                "composition_batch_size is supported only for "
+                "correction='damping'."
+            )
+        if (
+            correction in self.GAUSSIAN_CORRECTIONS
+            and self.composition_batch_size < num_observations
+        ):
+            raise ValueError(
+                "composition_batch_size currently applies only to "
+                "correction='damping'; Gaussian precision ratios require all "
+                "observations."
+            )
+        if world_size > 1 and (
+            method == "adaptive"
+            or self.composition_batch_size < num_observations
+        ):
+            raise NotImplementedError(
+                "Adaptive sampling and observation-score mini-batching currently "
+                "require world_size=1 so all stochastic decisions remain synchronized."
+            )
+        self._configure_adaptive(
+            adaptive_abs_tol=adaptive_abs_tol,
+            adaptive_rel_tol=adaptive_rel_tol,
+            adaptive_safety=adaptive_safety,
+            adaptive_exponent=adaptive_exponent,
+            adaptive_max_evals=adaptive_max_evals,
+            adaptive_initial_step=adaptive_initial_step,
+        )
 
         # Resolve hierarchy before spawning workers (needed for prior & precision setup)
         if self.hierarchy is None:
@@ -168,10 +253,13 @@ class MultiObsSampler():
         self.prior_mean, self.prior_std = self._resolve_prior(prior)
 
         # Posterior precision estimates for the Gaussian correction
-        if correction == "gauss":
+        if correction in self.GAUSSIAN_CORRECTIONS:
             if posterior_precision is None:
                 if verbose:
-                    print("Estimating single-observation posterior precisions for the 'gauss' correction ...")
+                    print(
+                        "Estimating single-observation posterior precisions for "
+                        f"the '{correction}' correction ..."
+                    )
                 posterior_precision = self._estimate_posterior_precision(
                     data, condition_mask,
                     num_samples=precision_est_samples,
@@ -194,6 +282,259 @@ class MultiObsSampler():
             samples = self._sample_loop(rank, data, condition_mask, num_samples)
 
         return samples
+
+    def _configure_damping(self, num_observations, damping_at_data,
+                           damping_at_noise, composition_batch_size):
+        """Validate and store damping endpoints and mini-batch size."""
+        n = int(num_observations)
+        if n < 1:
+            raise ValueError("At least one observation is required.")
+        at_data = float(damping_at_data)
+        at_noise = n ** -0.5 if damping_at_noise is None else float(damping_at_noise)
+        if not (0.0 < at_noise <= at_data <= 1.0):
+            raise ValueError(
+                "Damping endpoints must satisfy "
+                "0 < damping_at_noise <= damping_at_data <= 1."
+            )
+        batch_size = n if composition_batch_size is None else int(composition_batch_size)
+        if batch_size < 1 or batch_size > n:
+            raise ValueError(
+                "composition_batch_size must be between 1 and the number "
+                f"of observations ({n}), got {batch_size}."
+            )
+        self.damping_at_data = at_data
+        self.damping_at_noise = at_noise
+        self.composition_batch_size = batch_size
+
+    def _configure_adaptive(self, adaptive_abs_tol, adaptive_rel_tol,
+                            adaptive_safety, adaptive_exponent,
+                            adaptive_max_evals, adaptive_initial_step):
+        """Validate and store adaptive reverse-SDE controller settings."""
+        values = {
+            "adaptive_abs_tol": float(adaptive_abs_tol),
+            "adaptive_rel_tol": float(adaptive_rel_tol),
+            "adaptive_safety": float(adaptive_safety),
+            "adaptive_exponent": float(adaptive_exponent),
+        }
+        if any(value <= 0.0 for value in values.values()):
+            raise ValueError("Adaptive tolerances and controller factors must be positive.")
+        max_evals = int(adaptive_max_evals)
+        if max_evals < 2:
+            raise ValueError("adaptive_max_evals must be at least 2.")
+        initial_step = (
+            None if adaptive_initial_step is None else float(adaptive_initial_step)
+        )
+        if initial_step is not None and initial_step <= 0.0:
+            raise ValueError("adaptive_initial_step must be positive when provided.")
+        self.adaptive_abs_tol = values["adaptive_abs_tol"]
+        self.adaptive_rel_tol = values["adaptive_rel_tol"]
+        self.adaptive_safety = values["adaptive_safety"]
+        self.adaptive_exponent = values["adaptive_exponent"]
+        self.adaptive_max_evals = max_evals
+        self.adaptive_initial_step = initial_step
+
+    def _damping_factor(self, t):
+        """Exponential schedule with explicit data/noise endpoint semantics."""
+        t = torch.as_tensor(t)
+        at_data = torch.as_tensor(
+            self.damping_at_data, dtype=t.dtype, device=t.device
+        )
+        log_ratio = torch.log(
+            torch.as_tensor(
+                self.damping_at_noise / self.damping_at_data,
+                dtype=t.dtype, device=t.device,
+            )
+        )
+        return at_data * torch.exp(log_ratio * t)
+
+    @torch.no_grad()
+    def map_estimate(self, data, condition_mask, init=None, hierarchy=None,
+                     prior=None, correction="gauss", posterior_precision=None,
+                     denoise_clamp=5.0, cfg_alpha=None, sigma_start=None,
+                     damping_at_data=1.0, damping_at_noise=None,
+                     timesteps=100, eps=1e-3, iterations_per_level=3,
+                     max_iterations_per_level=None, convergence_tol=1e-6,
+                     device="cpu"):
+        """Refine hierarchical MAP candidates by annealed compositional score ascent.
+
+        ``init`` may have shape ``(observations, nodes)`` or
+        ``(observations, candidates, nodes)``. Hierarchy coordinates use the
+        composed score; all other latent coordinates retain their row-specific
+        score. Each annealing level alternates local and hierarchy updates until
+        their normalized update is below ``convergence_tol``. Gaussian precision
+        must be reused from posterior sampling.
+        """
+        if correction == "fnpe":
+            raise ValueError(
+                "correction='fnpe' is not supported by deterministic hierarchical "
+                "MAP ascent because its bridging scores are not diffusion-posterior scores."
+            )
+        allowed = {"gauss", "uncorrected"} | self.DAMPING_CORRECTIONS
+        if correction not in allowed:
+            raise ValueError(f"Unknown correction '{correction}'.")
+        min_iterations = int(iterations_per_level)
+        max_iterations = (
+            max(min_iterations, 50) if max_iterations_per_level is None
+            else int(max_iterations_per_level)
+        )
+        if (int(timesteps) < 1 or min_iterations < 1
+                or max_iterations < min_iterations):
+            raise ValueError(
+                "timesteps and iterations_per_level must be at least 1, and "
+                "max_iterations_per_level must not be smaller than "
+                "iterations_per_level."
+            )
+        if float(convergence_tol) <= 0:
+            raise ValueError("convergence_tol must be positive.")
+
+        data = torch.as_tensor(data, dtype=torch.float32)
+        if data.dim() != 2:
+            raise ValueError(
+                f"data must have shape (num_observations, nodes_size), got {tuple(data.shape)}."
+            )
+        n_obs, nodes_size = data.shape
+        mask = torch.as_tensor(condition_mask, dtype=torch.float32)
+        if mask.dim() == 1:
+            if mask.numel() != nodes_size:
+                raise ValueError(f"condition_mask must have {nodes_size} entries.")
+            mask = mask.unsqueeze(0).repeat(n_obs, 1)
+        elif mask.dim() != 2 or tuple(mask.shape) != tuple(data.shape):
+            raise ValueError(
+                "condition_mask must have shape (nodes_size,) or "
+                f"(num_observations, nodes_size), got {tuple(mask.shape)}."
+            )
+        if not torch.all((mask == 0) | (mask == 1)):
+            raise ValueError("condition_mask must contain only 0 and 1.")
+
+        if hierarchy is None:
+            hierarchy = torch.where(mask[0] == 0)[0].tolist()
+        hierarchy = [int(index) for index in hierarchy]
+        if not hierarchy:
+            raise ValueError("hierarchy must contain at least one shared latent coordinate.")
+        if len(set(hierarchy)) != len(hierarchy):
+            raise ValueError("hierarchy indices must be unique.")
+        if min(hierarchy) < 0 or max(hierarchy) >= nodes_size:
+            raise ValueError(f"hierarchy indices are out of range: {hierarchy}.")
+        if torch.any(mask[:, hierarchy] != 0):
+            raise ValueError("Every hierarchy coordinate must be latent in condition_mask.")
+
+        candidates = data.unsqueeze(1) if init is None else torch.as_tensor(init, dtype=torch.float32)
+        if candidates.dim() == 2:
+            candidates = candidates.unsqueeze(1)
+        if (candidates.dim() != 3 or candidates.shape[0] != n_obs
+                or candidates.shape[2] != nodes_size or candidates.shape[1] < 1):
+            raise ValueError(
+                "init must have shape (observations, nodes) or "
+                f"(observations, candidates, nodes), got {tuple(candidates.shape)}."
+            )
+        sync_error = (candidates[:, :, hierarchy] - candidates[:1, :, hierarchy]).abs().max().item()
+        if sync_error > 1e-6:
+            raise ValueError(
+                "Hierarchy coordinates must be synchronized across observations; "
+                f"maximum deviation is {sync_error:.3e}."
+            )
+
+        self.world_size = 1
+        self.rank = 0
+        self.device = device
+        self.model = self.SBIm.model.to(device)
+        self.model.eval()
+        self.num_observations = n_obs
+        self.num_samples = candidates.shape[1]
+        self.cfg_alpha = cfg_alpha
+        self.hierarchy = hierarchy
+        self.correction = correction
+        self.denoise_clamp = denoise_clamp
+        self._configure_damping(
+            n_obs, damping_at_data, damping_at_noise,
+            composition_batch_size=n_obs,
+        )
+        self.prior_mean, self.prior_std = self._resolve_prior(prior)
+        self.prior_mean = self.prior_mean.to(device)
+        self.prior_std = self.prior_std.to(device)
+        if correction in self.GAUSSIAN_CORRECTIONS:
+            if posterior_precision is None:
+                raise ValueError(
+                    f"posterior_precision is required for correction='{correction}'; "
+                    "reuse it from posterior sampling."
+                )
+            precision = torch.as_tensor(
+                posterior_precision, dtype=torch.float32, device=device
+            )
+            self.posterior_precision = self._validate_precision(precision)
+            if self.posterior_precision.shape[0] not in (1, n_obs):
+                raise ValueError("posterior_precision must have one row or one row per observation.")
+            if self.posterior_precision.shape[1] != len(hierarchy):
+                raise ValueError("posterior_precision width must equal len(hierarchy).")
+        else:
+            self.posterior_precision = None
+
+        data = data.to(device)
+        candidates = candidates.to(device).clone()
+        mask = mask.to(device)
+        expanded_mask = mask.unsqueeze(1).expand(-1, candidates.shape[1], -1)
+        expanded_data = data.unsqueeze(1).expand_as(candidates)
+        candidates = candidates * (1 - expanded_mask) + expanded_data * expanded_mask
+        latent = 1 - expanded_mask
+        shared_latent = torch.zeros_like(latent)
+        shared_latent[:, :, hierarchy] = 1
+        local_latent = latent - shared_latent
+        has_local_latents = bool(torch.any(local_latent).item())
+
+        one = torch.ones(1, device=device)
+        lam_min = self.sde.lambda_t(eps * one).item()
+        lam_max = self.sde.lambda_t(one).item()
+        sigma_start = 1.0 if sigma_start is None else float(sigma_start)
+        lam_hi = min(max(sigma_start, 2 * lam_min), lam_max)
+        lams = torch.logspace(
+            torch.log10(torch.tensor(lam_hi, device=device)),
+            torch.log10(torch.tensor(lam_min, device=device)),
+            int(timesteps), device=device,
+        )
+        times = self.sde.time_of_lambda(lams)
+        indices = torch.arange(n_obs, device=device)
+        z = candidates
+        for index in range(int(timesteps)):
+            t = times[index].reshape(1, 1)
+            alpha = self.sde.alpha_t(t).to(device)
+            lam = lams[index]
+            for iteration in range(max_iterations):
+                # Gauss-Seidel block ascent: first relax the row-specific
+                # coordinates while the hierarchy is fixed, then recompute the
+                # score before moving the shared coordinates. Updating both
+                # blocks from the same stale score causes an observation-count
+                # dependent lag in tightly concentrated shared posteriors.
+                max_update = torch.zeros((), device=device)
+                if has_local_latents:
+                    x_state = z * (alpha * latent + expanded_mask)
+                    score = self._get_score(
+                        x_state, t, expanded_mask, indices, cfg_alpha
+                    )
+                    local_update = lam**2 * (alpha * score) * local_latent
+                    z = z + local_update
+                    max_update = local_update.abs().max()
+                    z = z * (1 - expanded_mask) + expanded_data * expanded_mask
+
+                x_state = z * (alpha * latent + expanded_mask)
+                score = self._get_score(
+                    x_state, t, expanded_mask, indices, cfg_alpha
+                )
+                shared_update = lam**2 * (alpha * score) * shared_latent
+                z = z + shared_update
+                max_update = torch.maximum(max_update, shared_update.abs().max())
+                z[:, :, hierarchy] = z[:1, :, hierarchy]
+                z = z * (1 - expanded_mask) + expanded_data * expanded_mask
+
+                if iteration + 1 >= min_iterations:
+                    state_scale = (z * latent).abs().max().clamp_min(1.0)
+                    if max_update <= float(convergence_tol) * state_scale:
+                        break
+
+        alpha_final = self.sde.alpha_t(times[-1]).to(device)
+        result = z * (alpha_final * latent + expanded_mask)
+        result[:, :, hierarchy] = result[:1, :, hierarchy]
+        result = result * (1 - expanded_mask) + expanded_data * expanded_mask
+        return result.cpu()
 
     def _sample_loop(self, rank, data, condition_mask, num_samples, result_dict=None):
         # Set rank
@@ -218,7 +559,7 @@ class MultiObsSampler():
         # Set up timesteps on a geometric noise-scale grid (log-spaced sigma), which
         # resolves the small-noise end far better than a uniform time grid. The grid
         # is NOT extended below sigma_m(eps): the score network is unreliable below
-        # the noise scales it was trained on. With the "gauss" correction the reverse
+        # the noise scales it was trained on. With Gaussian corrections the reverse
         # diffusion additionally stops once the noise scale reaches the width of the
         # composed posterior (known from the precision estimates): below that scale
         # the score network cannot add information, and the remaining gap to t=0 is
@@ -227,7 +568,7 @@ class MultiObsSampler():
         one = torch.ones(1, device=self.device)
         sigma_max = self.sde.marginal_prob_std(one)
         sigma_min = self.sde.marginal_prob_std(self.eps * one)
-        if self.correction == "gauss":
+        if self.correction in self.GAUSSIAN_CORRECTIONS:
             n = self.num_observations
             Lambda_prior = 1.0 / self.prior_std**2
             if self.posterior_precision.shape[0] == 1:
@@ -260,11 +601,15 @@ class MultiObsSampler():
             elif self.method == "langevin":
                 samples = self._langevin_sampler(data_batch, condition_mask_batch, idx,
                                                  snr=self.snr, steps_per_level=self.corrector_steps)
+            elif self.method == "adaptive":
+                samples = self._adaptive_sampler(
+                    data_batch, condition_mask_batch, idx
+                )
             else:
                 raise ValueError(f"Sampling method {self.method} not recognized.")
 
-            # Final analytic denoising step (gauss correction only)
-            if self.correction == "gauss":
+            # Final analytic denoising step for Gaussian precision corrections.
+            if self.correction in self.GAUSSIAN_CORRECTIONS:
                 samples = self._final_denoise(samples, condition_mask_batch, idx)
 
             # Store samples
@@ -457,6 +802,11 @@ class MultiObsSampler():
                               + sum_j Lambda_j * s_j ]
           where Lambda_prior / Lambda_j are the *denoising* precisions of prior and
           single-observation posteriors, and Lambda = (1-n) Lambda_prior + sum_j Lambda_j.
+        - "damping" (Arruda et al. 2026, Eq. 9):
+              s = d(t) [ (1-n)(1-t) prior_score + n/m sum_(j in B) s_j ]
+        - "gauss_damping": d(t) times the Gaussian-corrected score.
+        - "hybrid_damping": Gaussian correction with the prior terms weighted by
+          (1-t), including the corresponding adjusted denominator, then d(t).
         """
         h = self.hierarchy
         n = scores.shape[0]
@@ -477,6 +827,14 @@ class MultiObsSampler():
             scores[:, :, h] = (x0 - theta_h) / var_t
 
         sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)   # (1, num_samples, H)
+        if self.correction == "damping" and self.composition_batch_size < n:
+            chosen = torch.randperm(n, device=scores.device)[:self.composition_batch_size]
+            damped_sum_scores = (
+                scores[chosen][:, :, h].sum(dim=0, keepdim=True)
+                * (n / self.composition_batch_size)
+            )
+        else:
+            damped_sum_scores = sum_scores
 
         if self.correction == "fnpe":
             # Eq. 7 with the *diffused* prior score. With the undiffused prior of the
@@ -491,7 +849,13 @@ class MultiObsSampler():
             prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
             composed = (1 - n) * prior_score + sum_scores
 
-        elif self.correction == "gauss":
+        elif self.correction == "damping":
+            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
+            composed = self._damping_factor(t) * (
+                (1 - n) * (1 - t) * prior_score + damped_sum_scores
+            )
+
+        elif self.correction in self.GAUSSIAN_CORRECTIONS:
             prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
             Lambda_prior = 1.0 / self.prior_std**2 + 1.0 / var_t                  # (1, H)
             Lambda_j = self.posterior_precision + 1.0 / var_t                     # (n or 1, H)
@@ -501,13 +865,43 @@ class MultiObsSampler():
             else:
                 Lambda_sum = Lambda_j.sum(dim=0, keepdim=True)
                 weighted_sum = (Lambda_j.unsqueeze(1) * scores[:, :, h]).sum(dim=0, keepdim=True)
-            Lambda = (1 - n) * Lambda_prior + Lambda_sum                          # (1, H)
-            composed = ((1 - n) * Lambda_prior * prior_score + weighted_sum) / Lambda
+            if self.correction == "hybrid_damping":
+                # The (1-t) prior-score bridge requires its own adaptive
+                # precision normalizer.  Writing a(t) explicitly keeps this
+                # adjustment isolated from gauss_damping:
+                #   a(t) = (1-N)(1-t)
+                #   Lambda_{t,a} = sum_j P_{t,j} + a(t) P_{t,0}.
+                adaptive_prior_coefficient = (1 - n) * (1 - t)
+                Lambda = (
+                    Lambda_sum
+                    + adaptive_prior_coefficient * Lambda_prior
+                )
+                numerator = (
+                    weighted_sum
+                    + adaptive_prior_coefficient * Lambda_prior * prior_score
+                )
+            else:
+                # Standard Gaussian precision normalizer.  In particular,
+                # gauss_damping changes only the final score magnitude by d(t).
+                Lambda = (1 - n) * Lambda_prior + Lambda_sum
+                numerator = (
+                    (1 - n) * Lambda_prior * prior_score + weighted_sum
+                )
+            epsilon = torch.finfo(Lambda.dtype).eps
+            if torch.any(Lambda <= epsilon):
+                raise RuntimeError(
+                    f"The '{self.correction}' composed precision became non-positive."
+                )
+            composed = numerator / Lambda
+            if self.correction in self.DAMPING_CORRECTIONS:
+                composed = self._damping_factor(t) * composed
 
         # Clamp the denoised prediction of the composed score as well. Not valid for
-        # "fnpe": its bridging-density score does not have the diffused-posterior
-        # form theta + var_t * s = E[theta_0|theta_t] that the clamp assumes.
-        if self.denoise_clamp is not None and self.correction != "fnpe":
+        # Damped scores deliberately change the score magnitude, so a second
+        # denoised-prediction clamp here would undo the requested d(t) formula.
+        # (The individual network-score tail clamp above still applies.)
+        if (self.denoise_clamp is not None
+                and self.correction not in ({"fnpe"} | self.DAMPING_CORRECTIONS)):
             x0 = torch.clamp(theta_h + var_t * composed, min=lo, max=hi)
             composed = (x0 - theta_h) / var_t
 
@@ -692,6 +1086,106 @@ class MultiObsSampler():
                 self.dx_t[:,i] = dx
                 self.score_t[:,i] = score
 
+        return data.detach()
+
+    def _adaptive_sampler(self, data, condition_mask, idx):
+        """Adaptive stochastic Heun solver for the reverse SDE.
+
+        Each proposal compares an Euler-Maruyama update with a stochastic
+        Heun update that reuses exactly the same noise realization. The step is
+        accepted when the normalized local error is within tolerance; otherwise
+        only the diffusion-time step is reduced.
+        """
+        start_time = float(self.timesteps_list[0])
+        end_time = float(self.timesteps_list[-1])
+        total_span = start_time - end_time
+        max_proposals = self.adaptive_max_evals // 2
+        # The evaluation budget must not silently turn a rejected proposal into
+        # an accepted one.  Keep the controller floor at numerical resolution;
+        # an overly strict tolerance then terminates through the explicit
+        # evaluation-budget error below.
+        min_step = max(total_span * 1e-12, torch.finfo(data.dtype).eps)
+        step = (
+            total_span / 50.0
+            if self.adaptive_initial_step is None
+            else min(self.adaptive_initial_step, total_span)
+        )
+        current_time = start_time
+        accepted = 0
+        rejected = 0
+        evaluations = 0
+        latent = 1 - condition_mask
+        previous_euler = data.clone()
+
+        progress = tqdm.tqdm(
+            total=max_proposals, disable=not self.verbose,
+            desc="adaptive reverse SDE",
+        )
+        while current_time > end_time and evaluations + 2 <= self.adaptive_max_evals:
+            step = min(step, current_time - end_time)
+            next_time = current_time - step
+            t = torch.tensor([[current_time]], dtype=data.dtype, device=data.device)
+            t_next = torch.tensor([[next_time]], dtype=data.dtype, device=data.device)
+            variance_drop = self.sde.lambda_t(t)**2 - self.sde.lambda_t(t_next)**2
+            variance_drop = variance_drop.clamp_min(0.0)
+            noise = self._shared_noise(data) * torch.sqrt(variance_drop)
+
+            score = self._get_score(data, t, condition_mask, idx, self.cfg_alpha)
+            euler = data + (variance_drop * score + noise) * latent
+            endpoint_score = self._get_score(
+                euler, t_next, condition_mask, idx, self.cfg_alpha
+            )
+            endpoint = data + (variance_drop * endpoint_score + noise) * latent
+            heun = 0.5 * (euler + endpoint)
+            heun = heun * latent + data * condition_mask
+            heun[:, :, self.hierarchy] = heun[:1, :, self.hierarchy]
+            evaluations += 2
+
+            scale = torch.maximum(
+                torch.full_like(euler, self.adaptive_abs_tol),
+                self.adaptive_rel_tol
+                * torch.maximum(euler.abs(), previous_euler.abs()),
+            )
+            normalized = ((euler - heun).abs() / scale) * latent
+            error = float(normalized.max())
+            if not torch.isfinite(heun).all() or not torch.isfinite(
+                torch.tensor(error)
+            ):
+                raise RuntimeError(
+                    "Adaptive reverse-SDE sampling produced a non-finite proposal."
+                )
+
+            if error <= 1.0:
+                data = heun
+                previous_euler = euler
+                current_time = next_time
+                accepted += 1
+            else:
+                rejected += 1
+
+            controlled_error = max(error, 1e-10)
+            candidate = (
+                step * self.adaptive_safety
+                * controlled_error ** (-self.adaptive_exponent)
+            )
+            step = max(min_step, candidate)
+            progress.update(1)
+
+        progress.close()
+        self.solver_stats = {
+            "accepted_steps": accepted,
+            "rejected_steps": rejected,
+            "score_evaluations": evaluations,
+            "start_time": start_time,
+            "end_time": current_time,
+            "target_end_time": end_time,
+        }
+        if current_time > end_time + 1e-7:
+            raise RuntimeError(
+                "Adaptive reverse-SDE solver exhausted adaptive_max_evals="
+                f"{self.adaptive_max_evals} at t={current_time:.6g}; "
+                f"target t={end_time:.6g}."
+            )
         return data.detach()
 
     # Annealed Langevin dynamics (Algorithm 1 of Geffner et al. 2023)
