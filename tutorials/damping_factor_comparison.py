@@ -76,6 +76,7 @@ SBIm = None
 MultiObsSampler = None
 Sampler = None
 VESDE = None
+ModelTransfuser = None
 
 
 SOLVER_VARIANTS = (
@@ -116,6 +117,13 @@ SOLVER_VARIANTS = (
         "final_corrector_steps": 3, "snr": 0.1,
     },
     {
+        "key": "dpm2_hybrid", "label": "DPM-2 + hybrid (no damping)",
+        "correction": "hybrid", "method": "dpm", "order": 2,
+        "corrector_steps": 5, "corrector_steps_interval": 5,
+        "final_corrector_steps": 3, "snr": 0.1,
+        "normalizer": "adaptive_a_t_v2",
+    },
+    {
         "key": "dpm2_hybrid_damping", "label": "DPM-2 + hybrid damping",
         "correction": "hybrid_damping", "method": "dpm", "order": 2,
         "corrector_steps": 5, "corrector_steps_interval": 5,
@@ -133,13 +141,31 @@ SWEEP_VARIANTS = (
 )
 
 NEW_SCALING_KEYS = (
-    "dpm2_damping_c5", "dpm2_gauss_damping", "dpm2_hybrid_damping",
+    "dpm2_damping_c5", "dpm2_gauss_damping", "dpm2_hybrid",
+    "dpm2_hybrid_damping",
 )
 
 LOCAL_VARIANTS = (
     ("dpm2_error_damping", "DPM2 + error damping", "02d_dpm2_error_damping.png", "damping"),
     ("dpm2_gaussian_damping", "DPM2 + Gaussian + damping", "02e_dpm2_gaussian_damping.png", "gauss_damping"),
     ("dpm2_hybrid_damping", "DPM2 + hybrid damping", "02f_dpm2_hybrid_damping.png", "hybrid_damping"),
+    ("dpm2_hybrid", "DPM2 + hybrid (no damping)", "02g_dpm2_hybrid.png", "hybrid"),
+)
+
+LOCAL_GAUSSIAN_BASELINE = (
+    "dpm2_gaussian", "DPM2 + Gaussian composition",
+    "02a_dpm2_gaussian.png", "gauss",
+)
+
+
+COMPARISON_LINE_STYLES = (
+    {"linestyle": "-", "marker": "o"},
+    {"linestyle": ":", "marker": "s"},
+    {"linestyle": "--", "marker": "^"},
+    {"linestyle": "-.", "marker": "D"},
+    {"linestyle": (0, (1, 1)), "marker": "v"},
+    {"linestyle": (0, (5, 2)), "marker": "P"},
+    {"linestyle": (0, (3, 1, 1, 1)), "marker": "X"},
 )
 
 
@@ -249,7 +275,7 @@ def calibration_curve(
 
 
 def copy_historical_outputs(output: Path) -> None:
-    """Copy requested old figures and raw inputs without touching their sources."""
+    """Synchronize requested source artifacts without modifying their sources."""
     copies = (
         (BASE_ANALYTIC / "samplers_vs_observation_count_prior0p3_likelihood0p5.png",
          output / "samplers_vs_observation_count_prior0p3_likelihood0p5.png"),
@@ -267,15 +293,14 @@ def copy_historical_outputs(output: Path) -> None:
     for source, destination in copies:
         if not source.exists():
             raise FileNotFoundError(f"Required historical result is missing: {source}")
-        if not destination.exists():
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, destination)
-            print(f"Copied {source} -> {destination}")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+        print(f"Synchronized {source} -> {destination}")
 
 
 def ensure_runtime(device: str, needs_compute: bool) -> str:
     """Reserve a GPU only for missing work, then import Torch/COMPASS."""
-    global torch, SBIm, MultiObsSampler, Sampler, VESDE
+    global torch, SBIm, MultiObsSampler, Sampler, VESDE, ModelTransfuser
     if needs_compute and device == "cuda":
         try:
             from autocvd import autocvd
@@ -287,8 +312,10 @@ def ensure_runtime(device: str, needs_compute: bool) -> str:
     from compass.MultiObsSampler import MultiObsSampler as multi_class
     from compass.Sampler import Sampler as sampler_class
     from compass.SDE import VESDE as vesde_class
+    from compass.ModelTransfuser import ModelTransfuser as transfuser_class
     torch, SBIm = torch_module, sbim_class
     MultiObsSampler, Sampler, VESDE = multi_class, sampler_class, vesde_class
+    ModelTransfuser = transfuser_class
     if device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA was requested but is unavailable after autocvd reservation")
     return device
@@ -422,7 +449,7 @@ def run_learned_cell(
 
     x = torch.as_tensor(observations, dtype=torch.float32, device=device)
     precision = None
-    if variant["correction"] in ("gauss_damping", "hybrid_damping"):
+    if variant["correction"] in ("gauss_damping", "hybrid", "hybrid_damping"):
         precision = torch.full((n, 1), 2.0)
     seed_all(config["seed"])
     synchronize(device)
@@ -511,17 +538,23 @@ def plot_three_panel(
     title: str,
 ) -> None:
     fig, axes = plt.subplots(1, 3, figsize=(15.5, 4.45))
-    for key, label in variants:
+    for index, (key, label) in enumerate(variants):
+        line_style = COMPARISON_LINE_STYLES[index % len(COMPARISON_LINE_STYLES)]
         selected = [row for row in rows if row["variant"] == key]
         for axis, metric in zip(axes[:2], ("map_error_sigma", "std_ratio")):
             xs, values, spreads = aggregate_by_n(rows, key, metric)
-            line, = axis.plot(xs, values, "o-", lw=1.8, ms=4.5, label=label)
+            line, = axis.plot(
+                xs, values, lw=1.8, ms=4.5, label=label, **line_style,
+            )
             axis.fill_between(xs, values - spreads, values + spreads,
                               color=line.get_color(), alpha=0.12)
         curves = np.stack([row["calibration"] for row in selected])
         centre = curves.mean(axis=0)
         lower, upper = curves.min(axis=0), curves.max(axis=0)
-        line, = axes[2].plot(NOMINAL_COVERAGE, centre, lw=1.8, label=label)
+        line, = axes[2].plot(
+            NOMINAL_COVERAGE, centre, lw=1.8, ms=4.0, label=label,
+            **line_style,
+        )
         axes[2].fill_between(NOMINAL_COVERAGE, lower, upper,
                              color=line.get_color(), alpha=0.10)
     axes[0].set(xscale="log", xlabel="observations N",
@@ -673,7 +706,7 @@ def analytic_variant(key: str, label: str, correction: str) -> dict[str, Any]:
         "order": 2, "corrector_steps": 5, "corrector_steps_interval": 5,
         "final_corrector_steps": 3, "snr": 0.1,
     }
-    if correction == "hybrid_damping":
+    if correction in ("hybrid", "hybrid_damping"):
         result["normalizer"] = "adaptive_a_t_v2"
     return result
 
@@ -681,6 +714,7 @@ def analytic_variant(key: str, label: str, correction: str) -> dict[str, Any]:
 ANALYTIC_VARIANTS = (
     analytic_variant("dpm2_damping", "DPM-2 + damping", "damping"),
     analytic_variant("dpm2_gauss_damping", "DPM-2 + Gaussian + damping", "gauss_damping"),
+    analytic_variant("dpm2_hybrid", "DPM-2 + hybrid (no damping)", "hybrid"),
     analytic_variant("dpm2_hybrid_damping", "DPM-2 + hybrid damping", "hybrid_damping"),
 )
 
@@ -851,9 +885,10 @@ def plot_analytic_scaling(rows: list[dict[str, Any]], path: Path, title: str) ->
 
 
 def plot_shared_local_score_map(
-    raw: dict[str, np.ndarray], score_rows: np.ndarray, output: Path, title: str,
+    raw: dict[str, np.ndarray], joint_rows: np.ndarray,
+    score_rows: np.ndarray, output: Path, title: str,
 ) -> None:
-    """Match the method panels while showing only map_method='score'."""
+    """Compare shared-marginal joint MAP and fixed-shared score MAP."""
     exact = np.asarray(raw["exact_joint_mean"])
     covariance = np.asarray(raw["exact_joint_covariance"])
     global_samples = np.asarray(raw["compass_global_samples"])
@@ -861,6 +896,8 @@ def plot_shared_local_score_map(
     local_mean = local_samples.mean(axis=1)
     local_std = local_samples.std(axis=1, ddof=1)
     exact_local_std = np.sqrt(np.diag(covariance)[1:])
+    joint_local = np.asarray(joint_rows)[:, 1]
+    score_local = np.asarray(score_rows)[:, 1]
     indices = np.arange(len(local_mean))
 
     fig, axes = plt.subplots(1, 3, figsize=(14.3, 4.45))
@@ -876,6 +913,8 @@ def plot_shared_local_score_map(
     axes[0].plot(grid, density, "k--", lw=2, label="exact posterior")
     axes[0].axvline(float(raw["global_truth"]), color="tab:red", ls=":", lw=2,
                     label="true global")
+    axes[0].axvline(float(joint_rows[0, 0]), color="tab:green",
+                    ls=(0, (1.2, 2.0)), lw=2.5, label="COMPASS joint MAP")
     axes[0].axvline(float(score_rows[0, 0]), color="tab:purple", ls="-.", lw=2.2,
                     label="COMPASS score MAP")
     axes[0].set(xlabel="global parameter g", ylabel="density", title="Shared posterior")
@@ -884,47 +923,83 @@ def plot_shared_local_score_map(
     axes[1].errorbar(indices, local_mean, yerr=local_std, fmt="o", ms=3.8,
                      alpha=0.8, label="posterior mean ± σ")
     axes[1].plot(indices, exact[1:], "_", ms=9, color="black", label="exact MAP")
-    axes[1].scatter(indices, score_rows[:, 1], s=32, color="tab:purple",
+    axes[1].scatter(indices, joint_local, s=34, color="tab:green", marker="D",
+                    edgecolor="white", linewidth=0.5, label="COMPASS joint MAP")
+    axes[1].scatter(indices, score_local, s=32, color="tab:purple",
                     edgecolor="white", linewidth=0.5, label="COMPASS score MAP")
     axes[1].set(xlabel="observation", ylabel="local parameter ℓᵢ",
                 title=f"{len(indices)} local posteriors")
     axes[1].legend(fontsize=8)
 
-    axes[2].scatter(exact[1:], score_rows[:, 1], color="tab:purple", s=40,
+    axes[2].scatter(exact[1:], joint_local, color="tab:green", marker="D", s=43,
+                    edgecolor="white", linewidth=0.5, label="COMPASS joint MAP")
+    axes[2].scatter(exact[1:], score_local, color="tab:purple", s=40,
                     edgecolor="white", linewidth=0.5, label="COMPASS score MAP")
-    lo = min(float(exact[1:].min()), float(score_rows[:, 1].min()))
-    hi = max(float(exact[1:].max()), float(score_rows[:, 1].max()))
+    lo = min(float(exact[1:].min()), float(joint_local.min()), float(score_local.min()))
+    hi = max(float(exact[1:].max()), float(joint_local.max()), float(score_local.max()))
     pad = max(0.04 * (hi - lo), 1e-3)
     axes[2].plot([lo - pad, hi + pad], [lo - pad, hi + pad], "k--", lw=1.5)
-    mae = np.mean(np.abs(score_rows[:, 1] - exact[1:]) / exact_local_std)
-    axes[2].text(0.04, 0.94, f"score mean |error| = {mae:.2f} analytic σ",
+    joint_mae = np.mean(np.abs(joint_local - exact[1:]) / exact_local_std)
+    score_mae = np.mean(np.abs(score_local - exact[1:]) / exact_local_std)
+    axes[2].text(0.04, 0.94, f"joint mean |error| = {joint_mae:.2f} analytic σ",
+                 transform=axes[2].transAxes, va="top", color="tab:green")
+    axes[2].text(0.04, 0.87, f"score mean |error| = {score_mae:.2f} analytic σ",
                  transform=axes[2].transAxes, va="top", color="tab:purple")
-    axes[2].set(xlabel="exact local MAP", ylabel="score MAP",
+    axes[2].set(xlabel="exact local MAP", ylabel="estimated local MAP",
                 title="Local MAP recovery")
     axes[2].legend(fontsize=8, loc="lower right")
     finish_figure(fig, output)
+
+
+def selected_local_variants(args) -> tuple[tuple[str, str, str, str], ...]:
+    variants = LOCAL_VARIANTS
+    if args.include_gaussian_baseline:
+        variants = (LOCAL_GAUSSIAN_BASELINE, *variants)
+    return tuple(
+        item for item in variants
+        if args.only_method == "all" or item[3] == args.only_method
+    )
+
+
+def local_figure_path(args, filename: str) -> Path:
+    """Tag non-default integration grids in filenames, not inside figures."""
+    path = args.output_dir / filename
+    if args.timesteps == 100:
+        return path
+    return path.with_name(
+        f"{path.stem}_integration_steps_{args.timesteps}{path.suffix}"
+    )
 
 
 def run_local_panels(model, reference: dict[str, np.ndarray], args, device: str) -> None:
     observations = np.asarray(reference["x_observed"], dtype=np.float32)
     n = len(observations)
     precision = torch.full((n, 1), 1.0 + 1.0 / (1.0 + 0.5**2))
-    for key, title, filename, correction in LOCAL_VARIANTS:
-        if args.only_method != "all" and correction != args.only_method:
-            continue
+    diagnostic_rows = []
+    for key, title, filename, correction in selected_local_variants(args):
         variant = {
             "key": key, "label": title, "correction": correction,
             "method": "dpm", "order": 2, "corrector_steps": 5,
             "corrector_steps_interval": 5, "final_corrector_steps": 3, "snr": 0.1,
         }
-        if correction == "hybrid_damping":
+        if correction == "gauss":
+            # Preserve the original 02a settings; only the integration grid changes.
+            variant.update(
+                corrector_steps=10, corrector_steps_interval=1,
+                final_corrector_steps=3, snr=0.2,
+            )
+        if correction in ("hybrid", "hybrid_damping"):
             variant["normalizer"] = "adaptive_a_t_v2"
+        inference_seed = (
+            1_208 if correction == "gauss"
+            else args.seed + sum(map(ord, key))
+        )
         path = args.output_dir / "cache" / "shared_local" / f"{key}.npz"
         config = {
             "schema": 2, "checkpoint": source_signature(args.local_checkpoint),
             "reference": source_signature(args.local_reference), "variant": variant,
             "posterior_samples": args.posterior_samples, "timesteps": args.timesteps,
-            "seed": args.seed + sum(map(ord, key)), "map_method": "score",
+            "seed": inference_seed, "map_method": "score",
         }
         try:
             result = load_cell(path, config, args.force_new)
@@ -946,9 +1021,11 @@ def run_local_panels(model, reference: dict[str, np.ndarray], args, device: str)
                 damping_at_noise=n ** -0.5,
                 composition_batch_size=(n if correction == "damping" else None),
                 num_samples=args.posterior_samples, timesteps=args.timesteps,
-                method="dpm", order=2, corrector_steps=5,
-                corrector_steps_interval=5, final_corrector_steps=3, snr=0.1,
-                device=device, verbose=args.verbose,
+                method=variant["method"], order=variant["order"],
+                corrector_steps=variant["corrector_steps"],
+                corrector_steps_interval=variant["corrector_steps_interval"],
+                final_corrector_steps=variant["final_corrector_steps"],
+                snr=variant["snr"], device=device, verbose=args.verbose,
             ).detach().cpu()
             runtime = time.perf_counter() - started
             if not torch.isfinite(samples).all():
@@ -1003,7 +1080,90 @@ def run_local_panels(model, reference: dict[str, np.ndarray], args, device: str)
             save_cell(score_path, score_config, score_map_rows=score_rows)
         else:
             score_rows = np.asarray(score_result["score_map_rows"])
-        plot_shared_local_score_map(result, score_rows, args.output_dir / filename, title)
+
+        joint_path = args.output_dir / "cache" / "shared_local" / f"{key}_joint_map.npz"
+        joint_config = {
+            **config, "map_kind": "shared_marginal_kde_then_fixed_shared_local_score",
+            "map_num_starts": args.map_num_starts,
+            "map_timesteps": args.map_timesteps,
+            "map_iterations": args.map_iterations, "eps": 1e-3,
+        }
+        try:
+            joint_result = load_cell(joint_path, joint_config, args.force_new)
+        except CacheSettingsMismatch:
+            if args.plot_only:
+                raise
+            print(f"Recalculating selected cache with updated settings: {joint_path}")
+            joint_result = None
+        if joint_result is None:
+            if args.plot_only:
+                raise FileNotFoundError(joint_path)
+            global_samples = torch.as_tensor(result["compass_global_samples"])
+            local_samples = torch.as_tensor(result["compass_local_samples"])
+            posterior_samples = torch.empty(n, len(global_samples), 2)
+            posterior_samples[:, :, 0] = global_samples.unsqueeze(0)
+            posterior_samples[:, :, 1] = local_samples
+            joint_rows_tensor, shared_result = ModelTransfuser._shared_then_local_map(
+                model=model, posterior_samples=posterior_samples,
+                x=torch.as_tensor(observations),
+                condition_mask=torch.tensor([0.0, 0.0, 1.0]), hierarchy=[0],
+                num_starts=args.map_num_starts, timesteps=args.map_timesteps,
+                eps=1e-3, iterations_per_level=args.map_iterations, device=device,
+            )
+            joint_rows = joint_rows_tensor.numpy()
+            save_cell(
+                joint_path, joint_config, joint_map_rows=joint_rows,
+                shared_map=shared_result["shared_map"].numpy(),
+                candidate_modes=shared_result["candidate_modes"].numpy(),
+                candidate_scores=shared_result["candidate_log_densities"].numpy(),
+                selected_candidate=shared_result["selected_start"],
+                conditional_effective_samples=shared_result["effective_sample_size"],
+            )
+        else:
+            joint_rows = np.asarray(joint_result["joint_map_rows"])
+
+        global_values = np.asarray(result["compass_global_samples"], dtype=float)
+        analytic_mean = float(result["exact_joint_mean"][0])
+        analytic_std = float(np.sqrt(result["exact_joint_covariance"][0, 0]))
+        empirical_std = float(global_values.std(ddof=1))
+        standardized = (global_values - global_values.mean()) / empirical_std
+        exact_local_std = np.sqrt(np.diag(result["exact_joint_covariance"])[1:])
+        diagnostic_rows.append({
+            "variant": key, "label": title,
+            "shared_sample_mean": float(global_values.mean()),
+            "shared_sample_std": empirical_std,
+            "analytic_mean": analytic_mean, "analytic_std": analytic_std,
+            "mean_error_analytic_sigma": float(
+                (global_values.mean() - analytic_mean) / analytic_std
+            ),
+            "std_ratio": empirical_std / analytic_std,
+            "skewness": float(np.mean(standardized ** 3)),
+            "excess_kurtosis": float(np.mean(standardized ** 4) - 3.0),
+            "calibration_gap": float(np.mean(np.abs(calibration_curve(
+                global_values, analytic_mean, analytic_std,
+            ) - NOMINAL_COVERAGE))),
+            "joint_shared_map": float(joint_rows[0, 0]),
+            "score_shared_map": float(score_rows[0, 0]),
+            "joint_local_mean_abs_error_sigma": float(np.mean(
+                np.abs(joint_rows[:, 1] - result["exact_joint_mean"][1:])
+                / exact_local_std
+            )),
+            "score_local_mean_abs_error_sigma": float(np.mean(
+                np.abs(score_rows[:, 1] - result["exact_joint_mean"][1:])
+                / exact_local_std
+            )),
+        })
+        plot_shared_local_score_map(
+            result, joint_rows, score_rows, local_figure_path(args, filename), title,
+        )
+    if diagnostic_rows:
+        diagnostics_path = args.output_dir / "shared_local_posterior_diagnostics.csv"
+        updated_variants = {row["variant"] for row in diagnostic_rows}
+        retained_rows = [
+            row for row in read_rows(diagnostics_path)
+            if row.get("variant") not in updated_variants
+        ]
+        write_rows(diagnostics_path, retained_rows + diagnostic_rows)
 
 
 def expected_compute_paths(args, stages: set[str]) -> list[Path]:
@@ -1032,11 +1192,10 @@ def expected_compute_paths(args, stages: set[str]) -> list[Path]:
                         if args.only_method == "all" or item["correction"] == args.only_method
                     )
     if "local" in stages:
-        for key, _, _, correction in LOCAL_VARIANTS:
-            if args.only_method != "all" and correction != args.only_method:
-                continue
+        for key, _, _, correction in selected_local_variants(args):
             paths.append(args.output_dir / "cache" / "shared_local" / f"{key}.npz")
             paths.append(args.output_dir / "cache" / "shared_local" / f"{key}_score_map.npz")
+            paths.append(args.output_dir / "cache" / "shared_local" / f"{key}_joint_map.npz")
     return paths
 
 
@@ -1078,6 +1237,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--map-timesteps", type=int, default=100)
     parser.add_argument("--map-iterations", type=int, default=3)
+    parser.add_argument("--map-num-starts", type=int, default=8)
+    parser.add_argument(
+        "--include-gaussian-baseline", action="store_true",
+        help=(
+            "include the historical DPM2 + Gaussian correction in local-panel "
+            "runs while preserving its dense-corrector settings"
+        ),
+    )
     parser.add_argument("--adaptive-abs-tol", type=float, default=0.002576)
     parser.add_argument("--adaptive-rel-tol", type=float, default=0.1)
     parser.add_argument("--adaptive-safety", type=float, default=0.9)
@@ -1087,10 +1254,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="comma-separated subset of copy,learned,analytic,local")
     parser.add_argument(
         "--only-method",
-        choices=("all", "damping", "gauss_damping", "hybrid_damping"),
+        choices=("all", "gauss", "damping", "gauss_damping", "hybrid", "hybrid_damping"),
         default="all",
-        help=("calculate only one correction family; use hybrid_damping with "
-              "--force-new after changing the hybrid formula"),
+        help=("calculate only one correction family; hybrid is Gaussian + "
+              "(1-t) prior correction without damping"),
     )
     parser.add_argument("--force-new", action="store_true",
                         help=("recalculate only cells selected by --only-method; "
@@ -1108,6 +1275,13 @@ def main() -> None:
         raise ValueError("Unknown stages: " + ", ".join(sorted(unknown)))
     if args.posterior_samples < 2 or args.repeats < 1 or args.timesteps < 2:
         raise ValueError("posterior samples/repeats/timesteps must be at least 2/1/2")
+    if args.output_dir.resolve() == DEFAULT_OUTPUT.resolve() and (
+        args.timesteps != 100 or args.include_gaussian_baseline
+    ):
+        raise ValueError(
+            "Non-default local integration profiles must use a separate "
+            "--output-dir so the existing 100-step figures are not overwritten."
+        )
     args.output_dir.mkdir(parents=True, exist_ok=True)
     configure_style()
     if "copy" in stages:
@@ -1150,10 +1324,17 @@ def main() -> None:
         "schema": 2, "cpu_limit": {"logical": CPU_LIMIT[0], "active": list(CPU_LIMIT[1])},
         "device": args.device, "posterior_samples": args.posterior_samples,
         "timesteps": args.timesteps, "repeats": args.repeats,
+        "integration_grid_points": args.timesteps,
+        "dpm_predictor_intervals": args.timesteps - 1,
+        "integration_profile": f"integration_steps_{args.timesteps}",
+        "integration_profile_is_in_figure_text": False,
         "n_values": list(args.n_values), "damping_at_data": 1.0,
         "default_damping_at_noise": "1/sqrt(N)",
         "composition_batch_size": "full observation set",
-        "map_method": "score", "only_method": args.only_method,
+        "map_methods": ["score", "shared_marginal_kde_then_fixed_shared_local_score"],
+        "map_num_starts": args.map_num_starts,
+        "include_gaussian_baseline": args.include_gaussian_baseline,
+        "only_method": args.only_method,
         "stages": sorted(stages), "solver_variants": SOLVER_VARIANTS,
         "sweep": [{"key": key, "label": label} for key, label, _ in SWEEP_VARIANTS],
     }

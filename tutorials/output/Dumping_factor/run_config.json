@@ -1,0 +1,153 @@
+{
+  "schema": 2,
+  "cpu_limit": {
+    "logical": 72,
+    "active": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "device": "cuda",
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "repeats": 3,
+  "n_values": [
+    1,
+    2,
+    5,
+    10,
+    25,
+    50,
+    100
+  ],
+  "damping_at_data": 1.0,
+  "default_damping_at_noise": "1/sqrt(N)",
+  "composition_batch_size": "full observation set",
+  "map_methods": [
+    "score",
+    "shared_marginal_kde_then_fixed_shared_local_score"
+  ],
+  "map_num_starts": 8,
+  "only_method": "hybrid",
+  "stages": [
+    "analytic",
+    "learned",
+    "local"
+  ],
+  "solver_variants": [
+    {
+      "key": "dpm2_damping_c0",
+      "label": "DPM-2 + damping (0 correctors)",
+      "correction": "damping",
+      "method": "dpm",
+      "order": 2,
+      "corrector_steps": 0,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 0,
+      "snr": 0.1
+    },
+    {
+      "key": "dpm2_damping_c5",
+      "label": "DPM-2 + damping (5 correctors)",
+      "correction": "damping",
+      "method": "dpm",
+      "order": 2,
+      "corrector_steps": 5,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 3,
+      "snr": 0.1
+    },
+    {
+      "key": "euler_damping",
+      "label": "Euler\u2013Maruyama + damping",
+      "correction": "damping",
+      "method": "euler",
+      "order": 2,
+      "corrector_steps": 0,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 0,
+      "snr": 0.1
+    },
+    {
+      "key": "langevin_damping",
+      "label": "Annealed Langevin + damping",
+      "correction": "damping",
+      "method": "langevin",
+      "order": 2,
+      "corrector_steps": 5,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 0,
+      "snr": 0.1
+    },
+    {
+      "key": "adaptive_damping",
+      "label": "Adaptive reverse-SDE + damping",
+      "correction": "damping",
+      "method": "adaptive",
+      "order": 2,
+      "corrector_steps": 0,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 0,
+      "snr": 0.1
+    },
+    {
+      "key": "dpm2_gauss_damping",
+      "label": "DPM-2 + Gaussian + damping",
+      "correction": "gauss_damping",
+      "method": "dpm",
+      "order": 2,
+      "corrector_steps": 5,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 3,
+      "snr": 0.1
+    },
+    {
+      "key": "dpm2_hybrid",
+      "label": "DPM-2 + hybrid (no damping)",
+      "correction": "hybrid",
+      "method": "dpm",
+      "order": 2,
+      "corrector_steps": 5,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 3,
+      "snr": 0.1,
+      "normalizer": "adaptive_a_t_v2"
+    },
+    {
+      "key": "dpm2_hybrid_damping",
+      "label": "DPM-2 + hybrid damping",
+      "correction": "hybrid_damping",
+      "method": "dpm",
+      "order": 2,
+      "corrector_steps": 5,
+      "corrector_steps_interval": 5,
+      "final_corrector_steps": 3,
+      "snr": 0.1,
+      "normalizer": "adaptive_a_t_v2"
+    }
+  ],
+  "sweep": [
+    {
+      "key": "d1_1",
+      "label": "d\u2081 = 1"
+    },
+    {
+      "key": "d1_0p3",
+      "label": "d\u2081 = 0.3"
+    },
+    {
+      "key": "d1_0p1",
+      "label": "d\u2081 = 0.1"
+    },
+    {
+      "key": "d1_inverse_sqrt_n",
+      "label": "d\u2081 = 1/\u221aN"
+    },
+    {
+      "key": "d1_inverse_n",
+      "label": "d\u2081 = 1/N"
+    }
+  ]
+}

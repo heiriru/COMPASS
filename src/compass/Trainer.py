@@ -117,7 +117,9 @@ class Trainer():
         # Check data structure
         data_loader = self._prepare_data(train_data, batch_size=self.batch_size, rank=rank)
         if val_data is not None:
-            val_loader = self._prepare_data(val_data, batch_size=1_000, rank=rank)
+            val_loader = self._prepare_data(
+                val_data, batch_size=self.batch_size, rank=rank
+            )
 
         # Init tracking variables
         best_val_loss = float('inf')
@@ -222,8 +224,9 @@ class Trainer():
         for batch in tqdm.tqdm(data_loader, disable=not show_progress):
             if is_train:
                 optimizer.zero_grad()
-            
-            loss = self._run_batch(batch)
+
+            with torch.set_grad_enabled(is_train):
+                loss = self._run_batch(batch)
             total_loss += loss.item() / batch[0].shape[0]
             batch_count += 1
 

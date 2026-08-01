@@ -7,15 +7,17 @@ The benchmark uses an exact, known diffused score for the conjugate hierarchy
     l_i ~ N(0, sigma_l^2)
     x_i = g + l_i + epsilon_i,  epsilon_i ~ N(0, sigma_x^2).
 
-Posterior particles are produced by COMPASS DPM-Solver-2 with the Gaussian
-composition correction. The same particles initialize:
+Posterior particles are coherent direct draws from the exact joint Gaussian
+posterior. The same particles initialize:
 
 * ``old_score``: freeze the sampled global mean and refine only local values;
 * ``joint_score``: optimize a KDE over the synchronized shared samples, then
   freeze that marginal shared MAP and refine only the local values.
 
-The exact Gaussian posterior MAP is the reference. No neural-network training is
-needed because ``ExactSharedLocalScore`` supplies the learned score analytically.
+To isolate MAP estimation from posterior-sampler error, the particles used to
+initialize both methods are coherent direct draws from the exact joint Gaussian
+posterior. No neural-network training is needed because
+``ExactSharedLocalScore`` supplies the refinement score analytically.
 """
 
 from __future__ import annotations
@@ -186,6 +188,34 @@ class AnalyticReference:
         return float(1 / covariance[0, 0])
 
 
+def analytic_posterior_particles(
+    mean: torch.Tensor,
+    covariance: torch.Tensor,
+    num_samples: int,
+    seed: int,
+) -> torch.Tensor:
+    """Draw coherent ``[shared, local_i]`` rows from the exact joint posterior."""
+    if int(num_samples) < 1:
+        raise ValueError("num_samples must be positive.")
+    mean = torch.as_tensor(mean, dtype=torch.float32, device="cpu").flatten()
+    covariance = torch.as_tensor(
+        covariance, dtype=torch.float32, device="cpu",
+    )
+    if covariance.shape != (len(mean), len(mean)):
+        raise ValueError("Posterior mean and covariance have incompatible shapes.")
+
+    generator = torch.Generator(device="cpu").manual_seed(int(seed))
+    standard_normal = torch.randn(
+        int(num_samples), len(mean), generator=generator,
+    )
+    vectors = mean + standard_normal @ torch.linalg.cholesky(covariance).T
+    n_observations = len(mean) - 1
+    particles = torch.empty(n_observations, int(num_samples), 2)
+    particles[:, :, 0] = vectors[:, 0].unsqueeze(0)
+    particles[:, :, 1] = vectors[:, 1:].T
+    return particles
+
+
 def parse_n_values(value: str) -> tuple[int, ...]:
     values = tuple(int(item.strip()) for item in value.split(",") if item.strip())
     if not values or min(values) < 1:
@@ -289,34 +319,12 @@ def infer_one(model: ExactScoreInference, observations: torch.Tensor, args,
     if device == "cuda":
         torch.cuda.manual_seed_all(seed)
     analytic_map, covariance, precision = AnalyticReference.posterior(observations)
-    n = len(observations)
-    posterior_precision = torch.full(
-        (n, 1), AnalyticReference.single_global_precision()
-    )
 
     started = time.perf_counter()
-    posterior_joint = model.multi_obs_sampler.sample(
-        world_size=1,
-        data=observations.reshape(-1, 1),
-        condition_mask=MASK,
-        timesteps=args.sampling_timesteps,
-        eps=args.eps,
-        num_samples=args.num_samples,
-        hierarchy=HIERARCHY,
-        prior=([0.0], [SIGMA_GLOBAL]),
-        correction="gauss",
-        posterior_precision=posterior_precision,
-        order=2,
-        corrector_steps=0,
-        final_corrector_steps=0,
-        method="dpm",
-        device=device,
-        verbose=False,
-    ).cpu()
-    if device == "cuda":
-        torch.cuda.synchronize()
+    posterior_theta = analytic_posterior_particles(
+        analytic_map, covariance, args.num_samples, seed + 1_000_003,
+    )
     sampling_runtime = time.perf_counter() - started
-    posterior_theta = posterior_joint[:, :, :2]
     posterior_mean = posterior_theta.mean(dim=1)
     posterior_std = posterior_theta.std(dim=1, unbiased=False)
 
@@ -437,6 +445,7 @@ def benchmark(args, device: str) -> tuple[list[dict], list[dict], list[dict], di
                     "observations": observations,
                     "truth": truth,
                     "n": n,
+                    "posterior_source": "exact joint Gaussian posterior",
                 }
             completed += 1
             print(f"[{completed:>3}/{total}] N={n:>3}, repeat={repeat:>2}")
@@ -490,7 +499,7 @@ def plot_accuracy(metrics: list[dict], output: Path) -> None:
         axis.set_xticks(sorted({int(row["n_observations"]) for row in metrics}))
         axis.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     axes[0].legend(loc="upper right")
-    fig.suptitle("Shared marginal mode removes frozen-global initialization error",
+    fig.suptitle("MAP estimators on coherent exact-posterior particles",
                  fontsize=14, fontweight="semibold", color=NAVY)
     save_figure(fig, output)
 
@@ -537,7 +546,7 @@ def plot_example(example: dict, output: Path) -> None:
 
     ax_global.hist(
         posterior[0, :, 0], bins=32, density=True, color=PALE_BLUE,
-        edgecolor="white", linewidth=0.5, label="DPM2 + Gaussian samples",
+        edgecolor="white", linewidth=0.5, label="Exact posterior samples",
     )
     for method, value, linestyle in (
         ("analytic", analytic[0], "--"),
@@ -591,7 +600,7 @@ def plot_posterior_slice(example: dict, output: Path) -> None:
 
     fig, axis = plt.subplots(figsize=(6.5, 5.6), constrained_layout=True)
     axis.scatter(samples[0, :, 0], samples[0, :, 1], s=9, color=BLUE,
-                 alpha=0.18, edgecolor="none", label="DPM2 + Gaussian particles")
+                 alpha=0.18, edgecolor="none", label="Exact posterior particles")
     add_covariance_ellipse(axis, analytic[[0, 1]], covariance, NAVY, 1.0, "analytic 1σ")
     add_covariance_ellipse(axis, analytic[[0, 1]], covariance, NAVY, 2.0, "analytic 2σ")
     axis.scatter(legacy[0], legacy[1], s=80, color=CORAL, marker="o",
@@ -618,8 +627,8 @@ def save_results(paths: dict[str, Path], metrics: list[dict], estimates: list[di
         **{key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()},
         "n_observations": list(args.n_observations),
         "resolved_device": device,
-        "sampler": "DPM-Solver-2",
-        "composition_correction": "gauss",
+        "sampler": "direct exact Gaussian posterior draw (Cholesky)",
+        "composition_correction": "not used for posterior particles",
         "score": "exact analytic diffused single-observation posterior score",
         "sigma_global": SIGMA_GLOBAL,
         "sigma_local": SIGMA_LOCAL,
@@ -645,6 +654,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--quick", action="store_true",
                         help="small smoke-sized benchmark; still writes the complete plot set")
+    parser.add_argument(
+        "--example-only", action="store_true",
+        help=(
+            "regenerate only the N=max(n_observations), repeat=0 example "
+            "and analytic-posterior-slice figures"
+        ),
+    )
     return parser
 
 
@@ -679,6 +695,35 @@ def main() -> None:
     device = reserve_device(args.device)
     configure_style()
     paths = make_output_tree(args.output_dir)
+    if args.example_only:
+        args.n_observations = (max(args.n_observations),)
+        args.repeats = 1
+        _, _, _, example = benchmark(args, device)
+        plot_example(
+            example, paths["comparison"] / "03_example_shared_local_map.png",
+        )
+        plot_posterior_slice(
+            example, paths["comparison"] / "04_analytic_posterior_slice.png",
+        )
+        example_config = {
+            "n_observations": example["n"],
+            "repeat": 0,
+            "num_samples": args.num_samples,
+            "seed": args.seed,
+            "resolved_device": device,
+            "posterior_source": example["posterior_source"],
+            "shared_analytic_map": float(example["analytic"][0]),
+            "shared_analytic_std": float(example["covariance"][0, 0].sqrt()),
+            "shared_particle_mean": float(example["posterior_theta"][0, :, 0].mean()),
+            "shared_particle_std": float(example["posterior_theta"][0, :, 0].std()),
+            "legacy_shared_map": float(example["legacy"][0]),
+            "joint_shared_map": float(example["joint"][0]),
+            "score": "exact analytic diffused single-observation posterior score",
+        }
+        with (paths["comparison"] / "example_config.json").open("w") as handle:
+            json.dump(example_config, handle, indent=2)
+        print(f"\nExample figures written below {paths['comparison']}")
+        return
     metrics, estimates, sampling, example = benchmark(args, device)
     save_results(paths, metrics, estimates, sampling, args, device)
     plot_accuracy(metrics, paths["comparison"] / "01_accuracy_vs_observations.png")

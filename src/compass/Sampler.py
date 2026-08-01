@@ -18,7 +18,7 @@ class TensorTupleDataset(Dataset):
         
     def __len__(self):
         return len(self.tensor1)
-    
+
     def __getitem__(self, idx):
         if self.err is not None:
             err = self.err[idx]
@@ -83,6 +83,9 @@ class Sampler():
         self.verbose = verbose
         self.method = method
         self.save_trajectory = save_trajectory
+        self.score_network_calls = 0
+        self.evaluated_subject_rows = 0
+        self.solver_stats = None
 
         if method == "dpm":
             self.corrector_steps_interval = corrector_steps_interval
@@ -175,6 +178,11 @@ class Sampler():
         else:
             samples = torch.cat(all_samples, dim=0)
             self.all_attn_weights = torch.stack(self.all_attn_weights, dim=0).to("cpu")
+            self.solver_stats = {
+                "score_network_calls": int(self.score_network_calls),
+                "score_evaluations": int(self.score_network_calls),
+                "evaluated_subject_rows": int(self.evaluated_subject_rows),
+            }
             return samples
 
     #############################################
@@ -269,6 +277,8 @@ class Sampler():
                 self.return_attn_weights = False
             else:
                 score_cond = self.model(x=x_flat, t=t, c=c_flat)
+            self.score_network_calls += 1
+            self.evaluated_subject_rows += int(input_shape[0])
     
             score_cond = self.SBIm.output_scale_function(t, score_cond)
             
@@ -277,6 +287,8 @@ class Sampler():
                 score_uncond = self.model(
                     x=x_flat, t=t, c=torch.zeros_like(c_flat)
                 )
+                self.score_network_calls += 1
+                self.evaluated_subject_rows += int(input_shape[0])
                 score_uncond = self.SBIm.output_scale_function(t, score_uncond)
                 score = score_uncond + cfg_alpha * (score_cond - score_uncond)
             else:
@@ -422,7 +434,7 @@ class Sampler():
                 self.score_t[:,i,:,:] = score
 
         return data.detach()
-    
+
     #############################################
     # ----- Advanced Sampling -----
     #############################################
@@ -567,4 +579,3 @@ class Sampler():
                 self.data_t[:,i+1] = data
 
         return data.detach()
-    

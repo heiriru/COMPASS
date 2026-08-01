@@ -93,8 +93,10 @@ def test_minibatch_damping_is_unbiased_over_all_singletons(monkeypatch):
     assert float(torch.stack(outputs).mean()) == pytest.approx(9.0)
 
 
-@pytest.mark.parametrize("correction", ["gauss_damping", "hybrid_damping"])
-def test_gaussian_damping_formulas_match_manual_diagonal_result(correction):
+@pytest.mark.parametrize(
+    "correction", ["gauss_damping", "hybrid", "hybrid_damping"],
+)
+def test_gaussian_and_hybrid_formulas_match_manual_diagonal_result(correction):
     sampler = configured_sampler(correction)
     sampler.posterior_precision = torch.tensor([[2.0], [4.0]])
     scores = torch.tensor([[[0.7]], [[-0.2]]])
@@ -105,16 +107,15 @@ def test_gaussian_damping_formulas_match_manual_diagonal_result(correction):
     prior_precision = 1.0 + 1.0 / variance
     observation_precision = sampler.posterior_precision + 1.0 / variance
     weighted = observation_precision[0] * 0.7 + observation_precision[1] * -0.2
-    if correction == "hybrid_damping":
+    if correction in {"hybrid", "hybrid_damping"}:
         a_t = (1 - 2) * (1 - t)
         denominator = observation_precision.sum() + a_t * prior_precision
         prior_numerator = a_t * prior_precision * prior_score
     else:
         denominator = observation_precision.sum() + (1 - 2) * prior_precision
         prior_numerator = (1 - 2) * prior_precision * prior_score
-    expected = 0.5 * (
-        weighted + prior_numerator
-    ) / denominator
+    damping = 1.0 if correction == "hybrid" else 0.5
+    expected = damping * (weighted + prior_numerator) / denominator
     result = sampler._compositional_score(scores.clone(), state, t)
     assert float(result[0, 0, 0]) == pytest.approx(float(expected), rel=1e-5)
 
@@ -131,7 +132,7 @@ def test_damped_score_ascent_recovers_global_gaussian_mode():
     initial = torch.cat([
         torch.full((len(observations), 1), -1.0), observations
     ], dim=1)
-    for correction in ("damping", "gauss_damping", "hybrid_damping"):
+    for correction in ("damping", "gauss_damping", "hybrid", "hybrid_damping"):
         sampler = MultiObsSampler(MockSBIm())
         precision = (
             torch.full((len(observations), 1), 2.0)
@@ -222,8 +223,10 @@ def test_gaussian_minibatch_and_adaptive_validation():
         )
 
 
-@pytest.mark.parametrize("correction", ["gauss_damping", "hybrid_damping"])
-def test_damped_gaussian_modes_estimate_precision_and_final_denoise(
+@pytest.mark.parametrize(
+    "correction", ["gauss_damping", "hybrid", "hybrid_damping"],
+)
+def test_gaussian_modes_estimate_precision_and_final_denoise(
     correction, monkeypatch,
 ):
     observations = torch.tensor([[-0.2], [0.4]])

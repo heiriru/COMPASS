@@ -1,0 +1,11 @@
+{
+  "status": "numerical_divergence",
+  "method": "DPM-2 + damping (5 correctors)",
+  "damping_key": "d1_1",
+  "damping_label": "d\u2081 = 1",
+  "damping_at_noise": 1.0,
+  "repeat": 0,
+  "n_observations": 100,
+  "error": "DPM-2 + damping (5 correctors); d\u2081 = 1 produced non-finite learned-score samples for repeat=0, N=100.",
+  "config_json": "{\"adaptive_abs_tol\":0.002576,\"adaptive_exponent\":0.9,\"adaptive_max_evals\":10000,\"adaptive_rel_tol\":0.1,\"adaptive_safety\":0.9,\"checkpoint\":{\"mtime_ns\":1785070170813351351,\"path\":\"/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/models/shared_mixture_full/Model_checkpoint.pt\",\"size\":1280329},\"composition_batch_size\":100,\"damping_at_data\":1.0,\"damping_at_noise\":1.0,\"map_method\":\"score\",\"n_observations\":100,\"observation_pool\":{\"mtime_ns\":1785070170033336304,\"path\":\"/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/03_observation_scaling/raw_plot_data.npz\",\"size\":1849217},\"posterior_samples\":3000,\"repeat\":0,\"schema\":2,\"seed\":11939,\"timesteps\":100,\"variant\":{\"correction\":\"damping\",\"corrector_steps\":5,\"corrector_steps_interval\":5,\"final_corrector_steps\":3,\"key\":\"dpm2_damping_c5__d1_1\",\"label\":\"DPM-2 + damping (5 correctors); d\\u2081 = 1\",\"method\":\"dpm\",\"order\":2,\"snr\":0.1}}"
+}

@@ -36,7 +36,7 @@ class MultiObsSampler():
     composed across observations; latent dimensions not in `hierarchy` are treated as
     per-observation (local) latents and keep their individual scores.
 
-    Six composition rules are implemented (`correction` argument):
+    Eleven composition rules are implemented (`correction` argument):
 
     - "gauss" (default): Gaussian-corrected composition (Gloeckler et al. 2024,
       "Compositional simulation-based inference for time series"). The composed score
@@ -55,8 +55,15 @@ class MultiObsSampler():
     - "damping": the error-damped compositional estimator of Arruda et al. 2026,
       d(t) * [(1-n)(1-t) prior_score + n/m sum_(j in batch) score_j].
     - "gauss_damping": the Gaussian-corrected score multiplied by d(t).
+    - "hybrid": the Gaussian correction with the prior precision and score
+      contribution additionally weighted by (1-t), without damping.
     - "hybrid_damping": the Gaussian correction with the prior precision and score
       contribution additionally weighted by (1-t), followed by d(t).
+    - "legacy_mean": historical prior-score-plus-mean aggregation.
+    - "prior_corrected_sum": explicit name for the uncorrected prior-corrected sum.
+    - "damped_sum": the prior-corrected sum multiplied by 1/n.
+    - "minibatch_damped": the same 1/n-damped sum using an unbiased observation
+      mini-batch, selected before evaluating the score network.
 
     Practical notes:
     - Hierarchical models (per-observation local latents alongside the shared
@@ -81,10 +88,17 @@ class MultiObsSampler():
         {"damping", "gauss_damping", "hybrid_damping"}
     )
     GAUSSIAN_CORRECTIONS = frozenset(
-        {"gauss", "gauss_damping", "hybrid_damping"}
+        {"gauss", "gauss_damping", "hybrid", "hybrid_damping"}
     )
     VALID_CORRECTIONS = frozenset(
-        {"gauss", "uncorrected", "fnpe"} | DAMPING_CORRECTIONS
+        {
+            "gauss", "hybrid", "uncorrected", "fnpe", "legacy_mean",
+            "prior_corrected_sum", "damped_sum", "minibatch_damped",
+        } | DAMPING_CORRECTIONS
+    )
+    TRUE_MINIBATCH_CORRECTIONS = frozenset({"damping", "minibatch_damped"})
+    DAMPED_CORRECTIONS = DAMPING_CORRECTIONS | frozenset(
+        {"damped_sum", "minibatch_damped"}
     )
 
     #############################################
@@ -121,8 +135,10 @@ class MultiObsSampler():
                     (mean, std) of tensors/lists/floats of length len(hierarchy).
                     Defaults to a standard normal N(0, 1) (correct if the model was
                     trained on parameters standardized to zero mean and unit variance).
-            correction: Composition rule: "gauss" (default), "uncorrected",
-                    "fnpe", "damping", "gauss_damping" or "hybrid_damping".
+            correction: Composition rule. In addition to the existing "gauss",
+                    "uncorrected", "fnpe", "damping", "gauss_damping", "hybrid"
+                    and "hybrid_damping" values, accepts "legacy_mean",
+                    "prior_corrected_sum", "damped_sum" and "minibatch_damped".
             posterior_precision: Optional estimate of the single-observation posterior
                     precision on the hierarchy dimensions, used by the "gauss" correction.
                     Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
@@ -140,7 +156,10 @@ class MultiObsSampler():
             damping_at_noise: Damping endpoint d(1), where t=1 is the noise end.
                     Defaults to 1/sqrt(num_observations).
             composition_batch_size: Optional number of observation scores used in
-                    each unbiased damping update. None uses every observation.
+                    each unbiased damping update. None uses every observation except
+                    for "minibatch_damped", whose default is min(3, R). True
+                    mini-batching requires every latent coordinate to be shared;
+                    models with row-specific locals must evaluate all rows.
 
             - DPM-Solver parameters -
             order: Order of DPM-Solver (1, 2 or 3)
@@ -176,6 +195,8 @@ class MultiObsSampler():
         self.hierarchy = hierarchy
         self.correction = correction
         self.denoise_clamp = denoise_clamp
+        self.score_network_calls = 0
+        self.evaluated_subject_rows = 0
         self.solver_stats = None
 
         if method in ("dpm", "langevin"):
@@ -207,14 +228,17 @@ class MultiObsSampler():
 
         data_tensor = torch.as_tensor(data)
         num_observations = 1 if data_tensor.dim() == 1 else int(data_tensor.shape[0])
+        if correction == "minibatch_damped" and composition_batch_size is None:
+            composition_batch_size = min(3, num_observations)
         self._configure_damping(
             num_observations, damping_at_data, damping_at_noise,
             composition_batch_size,
         )
-        if composition_batch_size is not None and correction != "damping":
+        if (composition_batch_size is not None
+                and correction not in self.TRUE_MINIBATCH_CORRECTIONS):
             raise ValueError(
                 "composition_batch_size is supported only for "
-                "correction='damping'."
+                "correction='damping' or 'minibatch_damped'."
             )
         if (
             correction in self.GAUSSIAN_CORRECTIONS
@@ -248,6 +272,17 @@ class MultiObsSampler():
                 raise ValueError("Either hierarchy or condition_mask must be provided.")
             cm = condition_mask if condition_mask.dim() == 1 else condition_mask[0]
             self.hierarchy = torch.where(cm == 0)[0].tolist()
+
+        if self.composition_batch_size < num_observations:
+            cm = torch.as_tensor(condition_mask)
+            cm = cm if cm.dim() == 1 else cm[0]
+            latent_indices = set(torch.where(cm == 0)[0].tolist())
+            if latent_indices != set(self.hierarchy):
+                raise ValueError(
+                    "True observation mini-batching is supported only when every "
+                    "latent coordinate is shared. Native global/local inference "
+                    "must evaluate every subject to update its local state."
+                )
 
         # Resolve the Gaussian prior over the hierarchy dimensions
         self.prior_mean, self.prior_std = self._resolve_prior(prior)
@@ -369,7 +404,7 @@ class MultiObsSampler():
                 "correction='fnpe' is not supported by deterministic hierarchical "
                 "MAP ascent because its bridging scores are not diffusion-posterior scores."
             )
-        allowed = {"gauss", "uncorrected"} | self.DAMPING_CORRECTIONS
+        allowed = {"uncorrected"} | self.GAUSSIAN_CORRECTIONS | self.DAMPING_CORRECTIONS
         if correction not in allowed:
             raise ValueError(f"Unknown correction '{correction}'.")
         min_iterations = int(iterations_per_level)
@@ -445,6 +480,8 @@ class MultiObsSampler():
         self.hierarchy = hierarchy
         self.correction = correction
         self.denoise_clamp = denoise_clamp
+        self.score_network_calls = 0
+        self.evaluated_subject_rows = 0
         self._configure_damping(
             n_obs, damping_at_data, damping_at_noise,
             composition_batch_size=n_obs,
@@ -496,7 +533,6 @@ class MultiObsSampler():
         z = candidates
         for index in range(int(timesteps)):
             t = times[index].reshape(1, 1)
-            alpha = self.sde.alpha_t(t).to(device)
             lam = lams[index]
             for iteration in range(max_iterations):
                 # Gauss-Seidel block ascent: first relax the row-specific
@@ -506,20 +542,18 @@ class MultiObsSampler():
                 # dependent lag in tightly concentrated shared posteriors.
                 max_update = torch.zeros((), device=device)
                 if has_local_latents:
-                    x_state = z * (alpha * latent + expanded_mask)
                     score = self._get_score(
-                        x_state, t, expanded_mask, indices, cfg_alpha
+                        z, t, expanded_mask, indices, cfg_alpha
                     )
-                    local_update = lam**2 * (alpha * score) * local_latent
+                    local_update = lam**2 * score * local_latent
                     z = z + local_update
                     max_update = local_update.abs().max()
                     z = z * (1 - expanded_mask) + expanded_data * expanded_mask
 
-                x_state = z * (alpha * latent + expanded_mask)
                 score = self._get_score(
-                    x_state, t, expanded_mask, indices, cfg_alpha
+                    z, t, expanded_mask, indices, cfg_alpha
                 )
-                shared_update = lam**2 * (alpha * score) * shared_latent
+                shared_update = lam**2 * score * shared_latent
                 z = z + shared_update
                 max_update = torch.maximum(max_update, shared_update.abs().max())
                 z[:, :, hierarchy] = z[:1, :, hierarchy]
@@ -566,8 +600,8 @@ class MultiObsSampler():
         # closed exactly (under the Gaussian approximation) by the final analytic
         # denoising step (see _final_denoise).
         one = torch.ones(1, device=self.device)
-        sigma_max = self.sde.marginal_prob_std(one)
-        sigma_min = self.sde.marginal_prob_std(self.eps * one)
+        sigma_max = self.sde.lambda_t(one)
+        sigma_min = self.sde.lambda_t(self.eps * one)
         if self.correction in self.GAUSSIAN_CORRECTIONS:
             n = self.num_observations
             Lambda_prior = 1.0 / self.prior_std**2
@@ -579,7 +613,7 @@ class MultiObsSampler():
             sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
         sigmas = torch.logspace(torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
                                 self.timesteps, device=self.device)
-        self.timesteps_list = self.sde.time_of_sigma(sigmas)
+        self.timesteps_list = self.sde.time_of_lambda(sigmas)
 
         # Loop over data samples
         all_samples = []
@@ -612,6 +646,11 @@ class MultiObsSampler():
             if self.correction in self.GAUSSIAN_CORRECTIONS:
                 samples = self._final_denoise(samples, condition_mask_batch, idx)
 
+            alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(samples.device)
+            samples = samples * (
+                alpha_end * (1 - condition_mask_batch) + condition_mask_batch
+            )
+
             # Store samples
             all_samples.append(samples)
             indices.append(idx)
@@ -625,6 +664,11 @@ class MultiObsSampler():
 
         else:
             samples = torch.cat(all_samples, dim=0)
+            stats = dict(self.solver_stats or {})
+            stats["score_network_calls"] = int(self.score_network_calls)
+            stats["evaluated_subject_rows"] = int(self.evaluated_subject_rows)
+            stats.setdefault("score_evaluations", int(self.score_network_calls))
+            self.solver_stats = stats
             return samples
 
     #############################################
@@ -759,32 +803,73 @@ class MultiObsSampler():
         with torch.no_grad():
             n_obs, num_samples, num_features = x.shape
 
-            # Flatten (n_obs, num_samples, num_features) -> (n_obs*num_samples, num_features)
+            selected = None
+            if (
+                self.correction in self.TRUE_MINIBATCH_CORRECTIONS
+                and self.composition_batch_size < n_obs
+            ):
+                selected = torch.randperm(
+                    n_obs, device=x.device
+                )[:self.composition_batch_size]
+                network_x = x[selected]
+                network_mask = condition_mask[selected]
+            else:
+                network_x = x
+                network_mask = condition_mask
+
+            evaluated_rows = network_x.shape[0]
+            alpha = self.sde.alpha_t(t).to(x.device)
+            network_x = network_x * (
+                alpha * (1 - network_mask) + network_mask
+            )
+
+            # Flatten all selected observation/sample rows into one network call.
             # so all observations are processed in a single forward pass
-            x_flat = x.reshape(n_obs * num_samples, num_features)
-            c_flat = condition_mask.reshape(n_obs * num_samples, num_features)
+            x_flat = network_x.reshape(evaluated_rows * num_samples, num_features)
+            c_flat = network_mask.reshape(evaluated_rows * num_samples, num_features)
 
             scores_flat = self.SBIm.model(x=x_flat, t=t, c=c_flat)
             scores_flat = self.SBIm.output_scale_function(t, scores_flat)
+            self.score_network_calls += 1
+            self.evaluated_subject_rows += int(evaluated_rows)
 
             if cfg_alpha is not None:
                 scores_uncond = self.SBIm.model(x=x_flat, t=t, c=torch.zeros_like(c_flat))
                 scores_uncond = self.SBIm.output_scale_function(t, scores_uncond)
                 scores_flat = scores_uncond + cfg_alpha * (scores_flat - scores_uncond)
+                self.score_network_calls += 1
+                self.evaluated_subject_rows += int(evaluated_rows)
 
-            score_table = scores_flat.reshape(n_obs, num_samples, num_features)
+            # Network scores are in x-space; samplers step in y=x/alpha space.
+            score_table = (alpha * scores_flat).reshape(
+                evaluated_rows, num_samples, num_features
+            )
 
             if self.world_size > 1:
                 dist.barrier()
                 score_table = self._gather_scores(score_table, indices)
 
-            score = self._compositional_score(score_table, x, t)
+            score = self._compositional_score(
+                score_table, x, t, num_observations=n_obs,
+                minibatch_selected=selected is not None,
+            )
 
         if self.world_size > 1:
             return score[indices]
         return score
 
-    def _compositional_score(self, scores, x, t):
+    def _diffused_gaussian_prior_score(self, theta_y, t):
+        """Return the noised Gaussian-prior score in y=x/alpha coordinates."""
+        alpha = self.sde.alpha_t(t).to(theta_y.device)
+        sigma = self.sde.sigma_t(t).to(theta_y.device)
+        theta_x = alpha * theta_y
+        mean_x = alpha * self.prior_mean
+        variance_x = alpha**2 * self.prior_std**2 + sigma**2
+        return alpha * (-(theta_x - mean_x) / variance_x)
+
+    def _compositional_score(
+        self, scores, x, t, num_observations=None, minibatch_selected=False,
+    ):
         """
         Compose the per-observation scores on the hierarchy (shared parameter)
         dimensions. Local latent dimensions keep their per-observation score.
@@ -805,13 +890,15 @@ class MultiObsSampler():
         - "damping" (Arruda et al. 2026, Eq. 9):
               s = d(t) [ (1-n)(1-t) prior_score + n/m sum_(j in B) s_j ]
         - "gauss_damping": d(t) times the Gaussian-corrected score.
-        - "hybrid_damping": Gaussian correction with the prior terms weighted by
-          (1-t), including the corresponding adjusted denominator, then d(t).
+        - "hybrid": Gaussian correction with the prior terms weighted by (1-t),
+          including the corresponding adjusted denominator.
+        - "hybrid_damping": the same hybrid correction, then multiplied by d(t).
         """
         h = self.hierarchy
-        n = scores.shape[0]
+        n = scores.shape[0] if num_observations is None else int(num_observations)
+        m = scores.shape[0]
 
-        var_t = self.sde.marginal_prob_std(t).to(x.device)**2   # (1, 1)
+        var_t = self.sde.lambda_t(t).to(x.device)**2
 
         theta_h = x[:1, :, h]                                   # (1, num_samples, H), shared
 
@@ -826,15 +913,9 @@ class MultiObsSampler():
             x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=lo, max=hi)
             scores[:, :, h] = (x0 - theta_h) / var_t
 
-        sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)   # (1, num_samples, H)
-        if self.correction == "damping" and self.composition_batch_size < n:
-            chosen = torch.randperm(n, device=scores.device)[:self.composition_batch_size]
-            damped_sum_scores = (
-                scores[chosen][:, :, h].sum(dim=0, keepdim=True)
-                * (n / self.composition_batch_size)
-            )
-        else:
-            damped_sum_scores = sum_scores
+        sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)
+        scaled_sum_scores = sum_scores * (n / m) if minibatch_selected else sum_scores
+        prior_score = self._diffused_gaussian_prior_score(theta_h, t)
 
         if self.correction == "fnpe":
             # Eq. 7 with the *diffused* prior score. With the undiffused prior of the
@@ -842,21 +923,28 @@ class MultiObsSampler():
             # the VESDE bridging densities become improper for large n at
             # intermediate t (negative total precision) and Langevin diverges.
             # Diffusing the prior keeps them proper and recovers Eq. 7 as t -> 0.
-            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
             composed = (1 - n) * (1 - t) * prior_score + sum_scores
 
-        elif self.correction == "uncorrected":
-            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
+        elif self.correction in {"uncorrected", "prior_corrected_sum"}:
             composed = (1 - n) * prior_score + sum_scores
 
+        elif self.correction == "legacy_mean":
+            # Preserve the historical prior-plus-mean rule for R>1, while the
+            # single-observation boundary must equal the ordinary model score.
+            composed = sum_scores if n == 1 else prior_score + sum_scores / n
+
+        elif self.correction == "damped_sum":
+            composed = ((1 - n) * prior_score + sum_scores) / n
+
+        elif self.correction == "minibatch_damped":
+            composed = ((1 - n) * prior_score + scaled_sum_scores) / n
+
         elif self.correction == "damping":
-            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
             composed = self._damping_factor(t) * (
-                (1 - n) * (1 - t) * prior_score + damped_sum_scores
+                (1 - n) * (1 - t) * prior_score + scaled_sum_scores
             )
 
         elif self.correction in self.GAUSSIAN_CORRECTIONS:
-            prior_score = -(theta_h - self.prior_mean) / (self.prior_std**2 + var_t)
             Lambda_prior = 1.0 / self.prior_std**2 + 1.0 / var_t                  # (1, H)
             Lambda_j = self.posterior_precision + 1.0 / var_t                     # (n or 1, H)
             if Lambda_j.shape[0] == 1:
@@ -865,10 +953,10 @@ class MultiObsSampler():
             else:
                 Lambda_sum = Lambda_j.sum(dim=0, keepdim=True)
                 weighted_sum = (Lambda_j.unsqueeze(1) * scores[:, :, h]).sum(dim=0, keepdim=True)
-            if self.correction == "hybrid_damping":
+            if self.correction in {"hybrid", "hybrid_damping"}:
                 # The (1-t) prior-score bridge requires its own adaptive
                 # precision normalizer.  Writing a(t) explicitly keeps this
-                # adjustment isolated from gauss_damping:
+                # adjustment isolated from the standard Gaussian correction:
                 #   a(t) = (1-N)(1-t)
                 #   Lambda_{t,a} = sum_j P_{t,j} + a(t) P_{t,0}.
                 adaptive_prior_coefficient = (1 - n) * (1 - t)
@@ -901,14 +989,14 @@ class MultiObsSampler():
         # denoised-prediction clamp here would undo the requested d(t) formula.
         # (The individual network-score tail clamp above still applies.)
         if (self.denoise_clamp is not None
-                and self.correction not in ({"fnpe"} | self.DAMPING_CORRECTIONS)):
+                and self.correction not in ({"fnpe"} | self.DAMPED_CORRECTIONS)):
             x0 = torch.clamp(theta_h + var_t * composed, min=lo, max=hi)
             composed = (x0 - theta_h) / var_t
 
         # Broadcast the composed score to all observation rows on the shared dims
-        scores[:, :, h] = composed
-
-        return scores
+        result = scores if scores.shape[0] == x.shape[0] else torch.zeros_like(x)
+        result[:, :, h] = composed
+        return result
 
     def _final_denoise(self, x, condition_mask, idx):
         """
@@ -926,7 +1014,7 @@ class MultiObsSampler():
         """
         h = self.hierarchy
         t_end = self.timesteps_list[-1].reshape(-1, 1)
-        var_end = self.sde.marginal_prob_std(t_end).to(x.device)**2
+        var_end = self.sde.lambda_t(t_end).to(x.device)**2
 
         score = self._get_score(x, t_end, condition_mask, idx, self.cfg_alpha)
 
@@ -1031,7 +1119,7 @@ class MultiObsSampler():
         # Initialize latent variables with noise from the diffusion reference
         # distribution, keeping observed variables fixed. The noise on the shared
         # (hierarchy) dimensions is identical across observation rows.
-        std_max = self.sde.marginal_prob_std(torch.ones_like(data))
+        std_max = self.sde.lambda_t(torch.ones_like(data))
         scale = torch.sqrt(self._hierarchy_scale(data))
         noise = self._shared_noise(data)
 
@@ -1073,7 +1161,7 @@ class MultiObsSampler():
             # Euler-Maruyama step of the reverse SDE. Integrated over one step,
             # g(t)^2 dt equals the decrease of the marginal variance sigma_m^2:
             # dx = dvar * score + sqrt(dvar) * z
-            dvar = self.sde.marginal_prob_std(t)**2 - self.sde.marginal_prob_std(t_next)**2
+            dvar = self.sde.lambda_t(t)**2 - self.sde.lambda_t(t_next)**2
             dx = dvar * score
             noise = self._shared_noise(data) * torch.sqrt(dvar)
 
@@ -1237,7 +1325,7 @@ class MultiObsSampler():
 
             # Langevin dynamics update; the noise on the shared dimensions is
             # identical across observation rows to keep them synchronized
-            step_size = snr * self.sde.marginal_prob_std(t)**2 * step_scale
+            step_size = snr * self.sde.lambda_t(t)**2 * step_scale
             noise = self._shared_noise(x) * torch.sqrt(2 * step_size)
 
             # Update x with the score and noise, respecting the condition mask
@@ -1254,8 +1342,8 @@ class MultiObsSampler():
         dx = sigma_m * score * d(sigma_m) -- so the solver steps in d(sigma_m),
         not in dt.
         """
-        sigma_now = self.sde.sigma_t(t)
-        sigma_next = self.sde.sigma_t(t_next)
+        sigma_now = self.sde.lambda_t(t)
+        sigma_next = self.sde.lambda_t(t_next)
         h = sigma_now - sigma_next
 
         # First-order step
@@ -1266,8 +1354,8 @@ class MultiObsSampler():
 
     def _dpm_solver_2_step(self, data_t, t, t_next, condition_mask, idx):
         """Second-order solver (in noise-scale space)"""
-        sigma_now = self.sde.sigma_t(t)
-        sigma_next = self.sde.sigma_t(t_next)
+        sigma_now = self.sde.lambda_t(t)
+        sigma_next = self.sde.lambda_t(t_next)
         h = sigma_now - sigma_next
 
         # First-order step
@@ -1283,10 +1371,10 @@ class MultiObsSampler():
     def _dpm_solver_3_step(self, data_t, t, t_next, condition_mask, idx):
         """Third-order solver (in noise-scale space)"""
         # Get sigma values at different time points
-        sigma_t = self.sde.sigma_t(t)
+        sigma_t = self.sde.lambda_t(t)
         t_mid = (t + t_next) / 2
-        sigma_mid = self.sde.sigma_t(t_mid)
-        sigma_next = self.sde.sigma_t(t_next)
+        sigma_mid = self.sde.lambda_t(t_mid)
+        sigma_next = self.sde.lambda_t(t_next)
 
         # First calculate the intermediate score at time t
         score_t = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)

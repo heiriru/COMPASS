@@ -161,15 +161,23 @@ class TransformerBlock(nn.Module):
 
         q, k, v = x_norm.repeat(1,1,3).chunk(3, dim=-1)
 
-        # Attention mask to prevent latent nodes from attending to other latent nodes
-        attn_mask = (1-c).type(torch.bool).unsqueeze(1).repeat(self.num_heads, self.nodes_size, 1)
+        # Every query uses the same forbidden key positions.  A key-padding mask
+        # preserves the intended per-example semantics without expanding to
+        # (batch * heads, nodes, nodes).
+        key_padding_mask = (1-c).type(torch.bool)
 
         # Self-Attention
         if return_attn_weights:
             # Return attention weights for interpretability
-            attn_output, attn_weights = self.attn(q, k, v, need_weights=True, attn_mask=attn_mask)
+            attn_output, attn_weights = self.attn(
+                q, k, v, need_weights=True,
+                key_padding_mask=key_padding_mask,
+            )
         else:
-            attn_output = self.attn(q, k, v, need_weights=False, attn_mask=attn_mask)[0]
+            attn_output = self.attn(
+                q, k, v, need_weights=False,
+                key_padding_mask=key_padding_mask,
+            )[0]
 
         x = x + gate_msa * attn_output
         x = x + gate_mlp * self.mlp(modulate(self.norm2(x), shift_mlp, scale_mlp))

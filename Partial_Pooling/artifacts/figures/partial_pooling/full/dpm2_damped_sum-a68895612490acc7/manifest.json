@@ -1,0 +1,26 @@
+{
+  "completed_datasets": 5,
+  "figures": [
+    "global_parity.png",
+    "local_parity.png",
+    "global_residuals.png",
+    "local_residuals.png",
+    "global_forest.png",
+    "local_shrinkage.png",
+    "error_distributions.png",
+    "error_vs_observations.png",
+    "mock_data_overview.png"
+  ],
+  "inference_method": "dpm2_damped_sum",
+  "observation_counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "observation_unit": "subject",
+  "point_estimator": "joint_map",
+  "trials_per_subject": 30
+}

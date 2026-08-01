@@ -39,7 +39,7 @@ def test_calibration_detects_under_and_over_dispersion():
     assert np.all(over > nominal)
 
 
-def test_cli_defaults_exclude_n200_and_support_hybrid_only():
+def test_cli_defaults_exclude_n200_and_support_hybrid_variants_only():
     defaults = MODULE.build_parser().parse_args([])
     assert defaults.n_values == (1, 2, 5, 10, 25, 50, 100)
     selected = MODULE.build_parser().parse_args([
@@ -47,6 +47,34 @@ def test_cli_defaults_exclude_n200_and_support_hybrid_only():
     ])
     assert selected.only_method == "hybrid_damping"
     assert selected.force_new
+    undamped = MODULE.build_parser().parse_args([
+        "--only-method", "hybrid",
+    ])
+    assert undamped.only_method == "hybrid"
+    assert any(
+        variant["key"] == "dpm2_hybrid"
+        and variant["correction"] == "hybrid"
+        for variant in MODULE.SOLVER_VARIANTS
+    )
+    assert any(
+        filename == "02g_dpm2_hybrid.png" and correction == "hybrid"
+        for _, _, filename, correction in MODULE.LOCAL_VARIANTS
+    )
+
+
+def test_50_step_local_profile_is_tagged_and_can_include_gaussian_baseline(tmp_path):
+    args = MODULE.build_parser().parse_args([
+        "--output-dir", str(tmp_path / "integration_steps_50"),
+        "--timesteps", "50", "--stages", "local",
+        "--include-gaussian-baseline",
+    ])
+    variants = MODULE.selected_local_variants(args)
+    assert [item[3] for item in variants] == [
+        "gauss", "damping", "gauss_damping", "hybrid_damping", "hybrid",
+    ]
+    assert MODULE.local_figure_path(
+        args, "02a_dpm2_gaussian.png",
+    ).name == "02a_dpm2_gaussian_integration_steps_50.png"
 
 
 def test_old_joint_map_cache_migrates_to_score_map_without_resampling(tmp_path):

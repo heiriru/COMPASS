@@ -1,0 +1,839 @@
+"""Focused global/local recovery for the hierarchical SDE partial-pooling model."""
+
+import argparse
+import hashlib
+import json
+import math
+import sys
+import time
+from pathlib import Path
+
+
+DEFAULT_DATASETS = 5
+DEFAULT_SUBJECTS = 20
+DEFAULT_DRAWS = 256
+DEFAULT_TIMESTEPS = 50
+FIGURE_DPI = 300
+
+# Measured on this host: 2,935 seconds for one native-joint dataset with
+# 100 subjects, 1,000 posterior draws, and 100 DPM steps.
+REFERENCE_SECONDS = 2935.0
+REFERENCE_WORK = 100 * 1000 * 100
+
+
+def parser():
+    result = argparse.ArgumentParser(
+        description=(
+            "Infer shared global and subject-local parameters for the "
+            "hierarchical SDE partial-pooling model."
+        )
+    )
+    result.add_argument(
+        "--preset", choices=("smoke", "full", "large"), default="full",
+    )
+    result.add_argument("--root", type=Path)
+    result.add_argument("--seed", type=int)
+    result.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cuda")
+    result.add_argument("--datasets", type=int, default=DEFAULT_DATASETS)
+    result.add_argument("--dataset-start", type=int, default=0)
+    result.add_argument("--subjects", type=int, default=DEFAULT_SUBJECTS)
+    result.add_argument("--draws", type=int, default=DEFAULT_DRAWS)
+    result.add_argument("--timesteps", type=int, default=DEFAULT_TIMESTEPS)
+    result.add_argument(
+        "--correction", default="damped_sum",
+        help=(
+            "COMPASS shared-score composition rule. The default avoids the "
+            "global score collapse observed with the unscaled prior-corrected sum."
+        ),
+    )
+    result.add_argument(
+        "--progress-every", type=int, default=5,
+        help="Print progress after this many posterior batches.",
+    )
+    result.add_argument("--force", action="store_true")
+    result.add_argument(
+        "--estimate-only", action="store_true",
+        help="Print the workload estimate without loading PyTorch or a checkpoint.",
+    )
+    return result
+
+
+def positive(name, value):
+    if value < 1:
+        raise ValueError(f"{name} must be at least 1, got {value}.")
+    return value
+
+
+def draw_batch_size(draws, training_batch_size, subjects):
+    """Keep subject rows per transformer call within the training batch size."""
+    return max(1, min(draws, training_batch_size // max(1, subjects)))
+
+
+def estimated_runtime_seconds(datasets, subjects, draws, timesteps):
+    """Linear estimate based on the measured native-joint full-preset run."""
+    work = datasets * subjects * draws * timesteps
+    return REFERENCE_SECONDS * work / REFERENCE_WORK
+
+
+def format_duration(seconds):
+    seconds = max(0.0, float(seconds))
+    if seconds < 120:
+        return f"{seconds:.0f} seconds"
+    if seconds < 7200:
+        return f"{seconds / 60:.1f} minutes"
+    return f"{seconds / 3600:.1f} hours"
+
+
+def inference_signature(config_signature, args, correction):
+    payload = {
+        "config_signature": config_signature,
+        "dataset_start": args.dataset_start,
+        "datasets": args.datasets,
+        "subjects": args.subjects,
+        "draws": args.draws,
+        "timesteps": args.timesteps,
+        "correction": correction,
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode()).hexdigest()[:16]
+
+
+def _normalized_global_prior(normalizer, torch):
+    from Partial_Pooling.schema import GLOBAL_INDICES
+    from Partial_Pooling.simulators.priors import GLOBAL_PRIOR_MEAN, GLOBAL_PRIOR_STD
+
+    indices = torch.as_tensor(GLOBAL_INDICES, dtype=torch.long)
+    mean = torch.as_tensor(GLOBAL_PRIOR_MEAN, dtype=torch.float32)
+    std = torch.as_tensor(GLOBAL_PRIOR_STD, dtype=torch.float32)
+    return (
+        (mean - normalizer.mean[indices]) / normalizer.scale[indices],
+        std / normalizer.scale[indices],
+    )
+
+
+def _sample_dataset(model, observations, normalizers, args, config, device, torch):
+    from Partial_Pooling.schema import GLOBAL_INDICES
+
+    normalized_observations = normalizers["observations"].transform(observations)
+    theta_normalizer = normalizers["theta"]
+    condition_mask = torch.cat((
+        torch.zeros(model.nodes_size - normalized_observations.shape[-1]),
+        torch.ones(normalized_observations.shape[-1]),
+    )).to(device)
+    prior = _normalized_global_prior(theta_normalizer, torch)
+    batch_size = draw_batch_size(args.draws, config.batch_size, args.subjects)
+    batch_count = math.ceil(args.draws / batch_size)
+    chunks = []
+    totals = {"score_network_calls": 0, "evaluated_subject_rows": 0}
+    started = time.perf_counter()
+
+    print(
+        f"  sampling {args.draws} draws in {batch_count} batches "
+        f"(draw batch={batch_size}, subjects={args.subjects})",
+        flush=True,
+    )
+    for batch_index, start in enumerate(range(0, args.draws, batch_size), start=1):
+        count = min(batch_size, args.draws - start)
+        chunk = model.sample(
+            x=normalized_observations.to(device),
+            condition_mask=condition_mask,
+            timesteps=args.timesteps,
+            num_samples=count,
+            multi_obs_inference=True,
+            hierarchy=list(GLOBAL_INDICES),
+            prior=prior,
+            correction=args.correction or config.correction,
+            corrector_steps=0,
+            final_corrector_steps=0,
+            device=device,
+            verbose=False,
+            method="dpm",
+        ).cpu()
+        chunks.append(chunk)
+        stats = dict(model.multi_obs_sampler.solver_stats or {})
+        for key in totals:
+            totals[key] += int(stats.get(key, 0))
+
+        if (
+            batch_index == 1
+            or batch_index == batch_count
+            or batch_index % args.progress_every == 0
+        ):
+            completed = min(start + count, args.draws)
+            elapsed = time.perf_counter() - started
+            eta = elapsed * (args.draws - completed) / max(completed, 1)
+            print(
+                f"  draws {completed:4d}/{args.draws} "
+                f"| elapsed {format_duration(elapsed)} "
+                f"| ETA {format_duration(eta)}",
+                flush=True,
+            )
+
+    normalized = torch.cat(chunks, dim=1)
+    shared = normalized[:, :, :len(GLOBAL_INDICES)]
+    if not torch.allclose(shared, shared[:1].expand_as(shared), atol=1e-5):
+        raise RuntimeError("Partial-pooling inference returned unsynchronized globals.")
+    raw = theta_normalizer.inverse(
+        normalized.reshape(-1, normalized.shape[-1])
+    ).reshape_as(normalized)
+    posterior = {
+        "globals": raw[0, :, :len(GLOBAL_INDICES)],
+        "locals": raw[:, :, len(GLOBAL_INDICES):].permute(1, 0, 2),
+    }
+    totals["score_evaluations"] = totals["score_network_calls"]
+    return posterior, totals, time.perf_counter() - started
+
+
+def _parameter_rows(dataset_id, scope, names, draws, truth):
+    rows = []
+    if scope == "global":
+        draws = draws[:, None, :]
+        truth = truth[None, :]
+    for unit in range(truth.shape[0]):
+        for parameter, name in enumerate(names):
+            values = draws[:, unit, parameter]
+            target = float(truth[unit, parameter])
+            estimate = float(values.mean())
+            std = float(values.std(unbiased=False))
+            lower = float(values.quantile(0.025))
+            median = float(values.quantile(0.5))
+            upper = float(values.quantile(0.975))
+            rows.append({
+                "dataset": dataset_id,
+                "scope": scope,
+                "unit": "shared" if scope == "global" else unit,
+                "parameter": name,
+                "truth": target,
+                "posterior_mean": estimate,
+                "posterior_median": median,
+                "posterior_std": std,
+                "lower_95": lower,
+                "upper_95": upper,
+                "error": estimate - target,
+                "absolute_error": abs(estimate - target),
+                "posterior_z_error": (estimate - target) / max(std, 1e-12),
+                "covered_95": int(lower <= target <= upper),
+            })
+    return rows
+
+
+def _summary(rows):
+    groups = {}
+    for row in rows:
+        groups.setdefault((row["scope"], row["parameter"]), []).append(row)
+    result = {"global": {}, "local": {}}
+    for (scope, parameter), values in sorted(groups.items()):
+        errors = [float(row["error"]) for row in values]
+        result[scope][parameter] = {
+            "count": len(values),
+            "mae": sum(abs(value) for value in errors) / len(errors),
+            "rmse": math.sqrt(sum(value * value for value in errors) / len(errors)),
+            "coverage_95": sum(int(row["covered_95"]) for row in values) / len(values),
+            "mean_posterior_z_error": (
+                sum(float(row["posterior_z_error"]) for row in values) / len(values)
+            ),
+        }
+    return result
+
+
+def _load_completed(run_directory, signature, torch):
+    artifacts = []
+    for path in sorted(run_directory.glob("dataset-*.pt")):
+        payload = torch.load(path, map_location="cpu")
+        if payload.get("inference_signature") == signature:
+            artifacts.append(payload)
+    return artifacts
+
+
+def _write_reports(run_directory, artifacts):
+    from Partial_Pooling.io_utils import atomic_csv, atomic_json
+
+    rows = [
+        row
+        for artifact in artifacts
+        for row in [*artifact["global_rows"], *artifact["local_rows"]]
+    ]
+    global_rows = [row for row in rows if row["scope"] == "global"]
+    local_rows = [row for row in rows if row["scope"] == "local"]
+    atomic_csv(run_directory / "global_recovery.csv", global_rows)
+    atomic_csv(run_directory / "local_recovery.csv", local_rows)
+    summary = _summary(rows)
+    atomic_json(run_directory / "summary.json", {
+        "completed_datasets": len(artifacts),
+        "summary": summary,
+        "total_runtime_seconds": sum(
+            float(artifact["runtime_seconds"]) for artifact in artifacts
+        ),
+    })
+    return summary
+
+
+def _plot_limits(xs, ys):
+    lower = min([*xs, *ys])
+    upper = max([*xs, *ys])
+    span = upper - lower
+    padding = 0.08 * span if span > 0 else max(abs(lower) * 0.08, 0.1)
+    return lower - padding, upper + padding
+
+
+def _finish_figure(fig, output, plt):
+    fig.savefig(output, dpi=FIGURE_DPI, bbox_inches="tight")
+    plt.close(fig)
+    return output
+
+
+def _dataset_legend(fig, dataset_ids, cmap):
+    from matplotlib.lines import Line2D
+
+    handles = [
+        Line2D(
+            [0], [0], marker="o", linestyle="none", markersize=6,
+            markerfacecolor=cmap(index % 10), markeredgecolor="none",
+            label=f"dataset {dataset}",
+        )
+        for index, dataset in enumerate(dataset_ids)
+    ]
+    fig.legend(
+        handles=handles, loc="center left", bbox_to_anchor=(1.005, 0.5),
+        ncol=1, frameon=True,
+    )
+
+
+def _parameter_panels(
+    rows, names, output, title, ylabel, value, reference, plt,
+):
+    columns = 4 if len(names) > 4 else len(names)
+    panel_rows = math.ceil(len(names) / columns)
+    fig, axes = plt.subplots(
+        panel_rows, columns, figsize=(4.1 * columns, 3.7 * panel_rows),
+        squeeze=False, constrained_layout=True,
+    )
+    dataset_ids = sorted({int(row["dataset"]) for row in rows})
+    color_index = {dataset: index for index, dataset in enumerate(dataset_ids)}
+    cmap = plt.get_cmap("tab10")
+    for axis, name in zip(axes.flat, names):
+        selected = [row for row in rows if row["parameter"] == name]
+        xs = [float(row["truth"]) for row in selected]
+        ys = [float(value(row)) for row in selected]
+        colors = [cmap(color_index[int(row["dataset"])] % 10) for row in selected]
+        axis.scatter(xs, ys, c=colors, s=24, alpha=0.65, edgecolors="none")
+        reference(axis, xs, ys)
+        errors = [
+            float(row["posterior_median"]) - float(row["truth"])
+            for row in selected
+        ]
+        rmse = math.sqrt(sum(error ** 2 for error in errors) / len(errors))
+        axis.set(
+            title=f"{name}\nRMSE={rmse:.3g}",
+            xlabel="simulator truth", ylabel=ylabel,
+        )
+        axis.grid(alpha=0.2)
+    for axis in list(axes.flat)[len(names):]:
+        axis.set_visible(False)
+    _dataset_legend(fig, dataset_ids, cmap)
+    fig.suptitle(title, fontsize=14)
+    return _finish_figure(fig, output, plt)
+
+
+def _parity_reference(axis, xs, ys):
+    lower, upper = _plot_limits(xs, ys)
+    axis.plot([lower, upper], [lower, upper], color="black", lw=1, ls="--")
+    axis.set(xlim=(lower, upper), ylim=(lower, upper))
+
+
+def _residual_reference(axis, xs, residuals):
+    axis.axhline(0.0, color="black", lw=1, ls="--")
+    if xs:
+        lower, upper = min(xs), max(xs)
+        padding = 0.05 * (upper - lower) if upper > lower else 0.1
+        axis.set_xlim(lower - padding, upper + padding)
+
+
+def _plot_parity(global_rows, local_rows, global_names, local_names, directory, plt):
+    outputs = []
+    outputs.append(_parameter_panels(
+        global_rows, global_names, directory / "global_parity.png",
+        "Global parameter recovery", "posterior median",
+        lambda row: row["posterior_median"], _parity_reference, plt,
+    ))
+    outputs.append(_parameter_panels(
+        local_rows, local_names, directory / "local_parity.png",
+        "Local parameter recovery", "posterior median",
+        lambda row: row["posterior_median"], _parity_reference, plt,
+    ))
+    return outputs
+
+
+def _plot_residuals(global_rows, local_rows, global_names, local_names, directory, plt):
+    value = lambda row: float(row["posterior_median"]) - float(row["truth"])
+    outputs = []
+    outputs.append(_parameter_panels(
+        global_rows, global_names, directory / "global_residuals.png",
+        "Global recovery residuals", "posterior median - truth",
+        value, _residual_reference, plt,
+    ))
+    outputs.append(_parameter_panels(
+        local_rows, local_names, directory / "local_residuals.png",
+        "Local recovery residuals", "posterior median - truth",
+        value, _residual_reference, plt,
+    ))
+    return outputs
+
+
+def _plot_global_forest(global_rows, global_names, output, plt):
+    columns = 4
+    panel_rows = math.ceil(len(global_names) / columns)
+    fig, axes = plt.subplots(
+        panel_rows, columns, figsize=(4.3 * columns, 3.6 * panel_rows),
+        squeeze=False, constrained_layout=True,
+    )
+    for axis, name in zip(axes.flat, global_names):
+        selected = sorted(
+            (row for row in global_rows if row["parameter"] == name),
+            key=lambda row: int(row["dataset"]),
+        )
+        positions = list(range(len(selected)))
+        medians = [float(row["posterior_median"]) for row in selected]
+        lower = [median - float(row["lower_95"]) for median, row in zip(medians, selected)]
+        upper = [float(row["upper_95"]) - median for median, row in zip(medians, selected)]
+        axis.errorbar(
+            medians, positions, xerr=[lower, upper], fmt="o",
+            color="#0072B2", ecolor="#0072B2", capsize=3,
+            label="median and 95% interval",
+        )
+        axis.scatter(
+            [float(row["truth"]) for row in selected], positions,
+            marker="x", s=48, color="#D55E00", label="truth", zorder=3,
+        )
+        axis.set(
+            title=name, xlabel="parameter value", yticks=positions,
+            yticklabels=[f"dataset {row['dataset']}" for row in selected],
+        )
+        axis.grid(axis="x", alpha=0.2)
+    for axis in list(axes.flat)[len(global_names):]:
+        axis.set_visible(False)
+    handles, labels = axes.flat[0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc="center left", bbox_to_anchor=(1.005, 0.5),
+        ncol=1, frameon=True,
+    )
+    fig.suptitle("Global posterior intervals and simulator truth", fontsize=14)
+    return _finish_figure(fig, output, plt)
+
+
+def _plot_local_shrinkage(
+    global_rows, local_rows, local_names, output, plt,
+):
+    global_mean_names = {
+        "nu": "mu_nu", "log_alpha": "mu_log_alpha", "log_t0": "mu_log_t0",
+    }
+    datasets = sorted({int(row["dataset"]) for row in local_rows})
+    cmap = plt.get_cmap("tab10")
+    fig, axes = plt.subplots(
+        1, len(local_names), figsize=(5.0 * len(local_names), 4.5),
+        constrained_layout=True,
+    )
+    for axis, local_name in zip(axes, local_names):
+        selected = [row for row in local_rows if row["parameter"] == local_name]
+        for dataset_index, dataset_id in enumerate(datasets):
+            color = cmap(dataset_index % 10)
+            dataset_rows = [row for row in selected if int(row["dataset"]) == dataset_id]
+            truths = [float(row["truth"]) for row in dataset_rows]
+            estimates = [float(row["posterior_median"]) for row in dataset_rows]
+            for truth, estimate in zip(truths, estimates):
+                axis.plot([truth, truth], [truth, estimate], color=color, alpha=0.12, lw=0.8)
+            axis.scatter(
+                truths, estimates, color=color, s=20, alpha=0.55,
+                edgecolors="none", label=f"dataset {dataset_id}",
+            )
+        mean_name = global_mean_names[local_name]
+        mean_rows = [row for row in global_rows if row["parameter"] == mean_name]
+        axis.scatter(
+            [float(row["truth"]) for row in mean_rows],
+            [float(row["posterior_median"]) for row in mean_rows],
+            marker="*", s=130, color="black", label="population means", zorder=4,
+        )
+        truths = [float(row["truth"]) for row in selected]
+        estimates = [float(row["posterior_median"]) for row in selected]
+        lower, upper = _plot_limits(truths, estimates)
+        axis.plot([lower, upper], [lower, upper], color="black", lw=1, ls="--")
+        axis.set(
+            title=local_name, xlabel="simulator truth", ylabel="posterior median",
+            xlim=(lower, upper), ylim=(lower, upper),
+        )
+        axis.grid(alpha=0.2)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc="center left", bbox_to_anchor=(1.005, 0.5),
+        ncol=1, frameon=True,
+    )
+    fig.suptitle(
+        "Hierarchical shrinkage: subject estimates and population means",
+        fontsize=14,
+    )
+    return _finish_figure(fig, output, plt)
+
+
+def _plot_error_distributions(
+    global_rows, local_rows, global_names, local_names, output, plt,
+):
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8), constrained_layout=True)
+    for axis, rows, names, title in (
+        (axes[0], global_rows, global_names, "Global median errors"),
+        (axes[1], local_rows, local_names, "Local median errors"),
+    ):
+        values = [
+            [
+                float(row["posterior_median"]) - float(row["truth"])
+                for row in rows if row["parameter"] == name
+            ]
+            for name in names
+        ]
+        boxes = axis.boxplot(values, labels=names, patch_artist=True, showmeans=True)
+        for box in boxes["boxes"]:
+            box.set(facecolor="#56B4E9", alpha=0.55)
+        for parameter_index, parameter_values in enumerate(values, start=1):
+            offsets = [((index % 9) - 4) * 0.012 for index in range(len(parameter_values))]
+            axis.scatter(
+                [parameter_index + offset for offset in offsets], parameter_values,
+                s=12, color="#0072B2", alpha=0.35, edgecolors="none",
+            )
+        axis.axhline(0.0, color="black", lw=1, ls="--")
+        axis.set(title=title, ylabel="posterior median - truth")
+        axis.tick_params(axis="x", rotation=25)
+        axis.grid(axis="y", alpha=0.2)
+    fig.legend(
+        handles=[
+            Patch(facecolor="#56B4E9", alpha=0.55, label="error distribution"),
+            Line2D([0], [0], marker="o", linestyle="none", color="#0072B2",
+                   alpha=0.5, label="individual recovery error"),
+            Line2D([0], [0], color="black", linestyle="--", label="zero error"),
+        ],
+        loc="center left", bbox_to_anchor=(1.005, 0.5), ncol=1, frameon=True,
+    )
+    fig.suptitle("Recovery error distributions", fontsize=14)
+    return _finish_figure(fig, output, plt)
+
+
+def _plot_mock_data(source, dataset_id, subjects, global_names, local_names, output, plt):
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+
+    raw = source["observations_raw"][dataset_id, :subjects].cpu()
+    truth_globals = source["globals"][dataset_id].cpu()
+    truth_locals = source["locals"][dataset_id, :subjects].cpu()
+    subject_ids = list(range(subjects))
+    choice_rate = raw[..., 0].mean(1).tolist()
+    mean_rt = raw[..., 1].mean(1).tolist()
+    std_rt = raw[..., 1].std(1, unbiased=False).tolist()
+    censor_rate = raw[..., 2].mean(1).tolist()
+
+    fig, axes = plt.subplots(2, 4, figsize=(18, 8.5), constrained_layout=True)
+    axes[0, 0].plot(subject_ids, choice_rate, marker="o", ms=3, color="#0072B2")
+    axes[0, 0].set(title="Choice rate by subject", xlabel="subject", ylabel="P(choice=1)", ylim=(-0.03, 1.03))
+
+    axes[0, 1].errorbar(
+        subject_ids, mean_rt, yerr=std_rt, fmt="o", ms=3,
+        color="#0072B2", ecolor="#56B4E9", alpha=0.85, capsize=2,
+    )
+    axes[0, 1].set(title="Reaction time by subject", xlabel="subject", ylabel="RT: mean +/- SD")
+
+    axes[0, 2].plot(subject_ids, censor_rate, marker="o", ms=3, color="#0072B2")
+    axes[0, 2].set(title="Censoring rate by subject", xlabel="subject", ylabel="censored fraction", ylim=(-0.03, 1.03))
+
+    choices = raw[..., 0].reshape(-1)
+    reaction_times = raw[..., 1].reshape(-1)
+    axes[0, 3].hist(
+        [
+            reaction_times[choices == 0].tolist(),
+            reaction_times[choices == 1].tolist(),
+        ],
+        bins=24, histtype="bar", color=["#56B4E9", "#D55E00"],
+        label=["choice 0", "choice 1"], alpha=0.8,
+    )
+    axes[0, 3].set(title="Trial-level RT distribution", xlabel="reaction time", ylabel="trials")
+
+    for parameter, (local_name, global_index) in enumerate(zip(local_names, range(3))):
+        axis = axes[1, parameter]
+        values = truth_locals[:, parameter].tolist()
+        population_mean = float(truth_globals[global_index])
+        axis.plot(subject_ids, values, marker="o", ms=3, color="#009E73")
+        axis.axhline(population_mean, color="black", ls="--", lw=1.2)
+        axis.set(
+            title=f"True local {local_name}", xlabel="subject",
+            ylabel="simulator value",
+        )
+
+    global_axis = axes[1, 3]
+    global_values = truth_globals.tolist()
+    positions = list(range(len(global_names)))
+    global_axis.barh(positions, global_values, color="#CC79A7", alpha=0.75)
+    global_axis.axvline(0.0, color="black", lw=0.8)
+    global_axis.set(
+        title="True shared global parameters", xlabel="simulator value",
+        yticks=positions, yticklabels=global_names,
+    )
+
+    for axis in axes.flat:
+        axis.grid(alpha=0.18)
+    fig.legend(
+        handles=[
+            Line2D([0], [0], marker="o", color="#0072B2", label="observed subject summary"),
+            Line2D([0], [0], color="#56B4E9", lw=3, label="within-subject RT variability"),
+            Line2D([0], [0], marker="o", color="#009E73", label="true local parameter"),
+            Line2D([0], [0], color="black", ls="--", label="true population mean"),
+            Patch(facecolor="#CC79A7", alpha=0.75, label="true global parameter"),
+            Patch(facecolor="#56B4E9", alpha=0.6, label="choice 0 RT"),
+            Patch(facecolor="#D55E00", alpha=0.6, label="choice 1 RT"),
+        ],
+        loc="center left", bbox_to_anchor=(1.005, 0.5), ncol=1, frameon=True,
+    )
+    fig.suptitle(
+        f"Mock hierarchical SDE data and recovery targets (dataset {dataset_id})",
+        fontsize=14,
+    )
+    return _finish_figure(fig, output, plt)
+
+
+def _make_plots(
+    artifacts, figure_directory, global_names, local_names, source=None,
+):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from Partial_Pooling.io_utils import atomic_json
+
+    if not artifacts:
+        raise RuntimeError("Cannot create recovery plots without completed datasets.")
+    figure_directory.mkdir(parents=True, exist_ok=True)
+    global_rows = [row for artifact in artifacts for row in artifact["global_rows"]]
+    local_rows = [row for artifact in artifacts for row in artifact["local_rows"]]
+    plt.rcParams.update({
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "font.size": 9,
+    })
+    outputs = []
+    outputs.extend(_plot_parity(
+        global_rows, local_rows, global_names, local_names, figure_directory, plt,
+    ))
+    outputs.extend(_plot_residuals(
+        global_rows, local_rows, global_names, local_names, figure_directory, plt,
+    ))
+    outputs.append(_plot_global_forest(
+        global_rows, global_names, figure_directory / "global_forest.png", plt,
+    ))
+    outputs.append(_plot_local_shrinkage(
+        global_rows, local_rows, local_names,
+        figure_directory / "local_shrinkage.png", plt,
+    ))
+    outputs.append(_plot_error_distributions(
+        global_rows, local_rows, global_names, local_names,
+        figure_directory / "error_distributions.png", plt,
+    ))
+    if source is not None:
+        dataset_id = int(artifacts[0]["dataset_id"])
+        outputs.append(_plot_mock_data(
+            source, dataset_id, int(artifacts[0]["subjects"]),
+            global_names, local_names, figure_directory / "mock_data_overview.png", plt,
+        ))
+    atomic_json(figure_directory / "manifest.json", {
+        "point_estimator": "posterior_median",
+        "completed_datasets": len(artifacts),
+        "figures": [path.name for path in outputs],
+    })
+    return outputs
+
+
+def run(args, cpu_limit):
+    import torch
+
+    from Partial_Pooling.config import get_config
+    from Partial_Pooling.io_utils import atomic_json, atomic_torch
+    from Partial_Pooling.model_pipeline import load_model, load_normalizers
+    from Partial_Pooling.paths import BenchmarkPaths
+    from Partial_Pooling.rng import derive_seed
+    from Partial_Pooling.schema import GLOBAL_NAMES, LOCAL_NAMES
+
+    config = get_config(args.preset, args.seed)
+    for name in ("datasets", "subjects", "draws", "timesteps", "progress_every"):
+        positive(name, getattr(args, name))
+    if args.dataset_start < 0:
+        raise ValueError("--dataset-start cannot be negative.")
+    if args.dataset_start + args.datasets > config.test_datasets:
+        raise ValueError(
+            f"Requested datasets [{args.dataset_start}, "
+            f"{args.dataset_start + args.datasets}), but the {args.preset} "
+            f"preset contains {config.test_datasets}."
+        )
+    if args.subjects > config.subjects:
+        raise ValueError(
+            f"Requested {args.subjects} subjects, but the {args.preset} "
+            f"preset contains {config.subjects}."
+        )
+
+    paths = BenchmarkPaths(args.root) if args.root else BenchmarkPaths.default()
+    paths.ensure()
+    test_path = paths.data / f"test-{config.preset}.pt"
+    if not test_path.exists():
+        raise FileNotFoundError(
+            f"Missing {test_path}; run create_test_data.py first."
+        )
+    test = torch.load(test_path, map_location="cpu")
+    if test.get("config_signature") != config.signature:
+        raise RuntimeError("Test-data configuration does not match the selected preset.")
+
+    device = args.device
+    if device == "auto":
+        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    elif device == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("CUDA was requested but is unavailable.")
+        device = "cuda:0"
+
+    correction = args.correction or config.correction
+    signature = inference_signature(config.signature, args, correction)
+    run_directory = (
+        paths.root / "partial_pooling_recovery" / config.preset / signature
+    )
+    run_directory.mkdir(parents=True, exist_ok=True)
+    estimate = estimated_runtime_seconds(
+        args.datasets, args.subjects, args.draws, args.timesteps
+    )
+    atomic_json(run_directory / "run_config.json", {
+        "inference_signature": signature,
+        "config_signature": config.signature,
+        "preset": config.preset,
+        "device": device,
+        "dataset_start": args.dataset_start,
+        "datasets": args.datasets,
+        "subjects": args.subjects,
+        "draws": args.draws,
+        "timesteps": args.timesteps,
+        "correction": correction,
+        "estimated_runtime_seconds": estimate,
+        "cpu_limit": cpu_limit,
+    })
+
+    print(
+        "Focused partial-pooling recovery\n"
+        f"  datasets: {args.datasets} starting at {args.dataset_start}\n"
+        f"  subjects/draws/steps: {args.subjects}/{args.draws}/{args.timesteps}\n"
+        f"  correction: {correction}\n"
+        f"  estimated sampling time: {format_duration(estimate)}\n"
+        f"  output: {run_directory}",
+        flush=True,
+    )
+
+    normalizers = load_normalizers(config, paths)
+    selected_normalizers = {
+        "theta": normalizers["sde_joint_theta"],
+        "observations": normalizers["sde_observations"],
+    }
+    model = load_model(config, "sde_joint", paths, device)
+    source = test["payload"]["sde"]
+
+    for offset, dataset_id in enumerate(
+        range(args.dataset_start, args.dataset_start + args.datasets), start=1
+    ):
+        output = run_directory / f"dataset-{dataset_id:04d}.pt"
+        if output.exists() and not args.force:
+            existing = torch.load(output, map_location="cpu")
+            if existing.get("inference_signature") != signature:
+                raise RuntimeError(f"Incompatible existing output: {output}")
+            print(
+                f"[{offset}/{args.datasets}] dataset {dataset_id}: reused {output.name}",
+                flush=True,
+            )
+            continue
+
+        print(f"[{offset}/{args.datasets}] dataset {dataset_id}", flush=True)
+        seed = derive_seed(config.root_seed, "focused_partial_pooling", dataset_id)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        observations = source["observations"][dataset_id, :args.subjects]
+        posterior, solver_stats, runtime_seconds = _sample_dataset(
+            model, observations, selected_normalizers, args, config, device, torch
+        )
+        truth_globals = source["globals"][dataset_id]
+        truth_locals = source["locals"][dataset_id, :args.subjects]
+        global_rows = _parameter_rows(
+            dataset_id, "global", GLOBAL_NAMES,
+            posterior["globals"], truth_globals,
+        )
+        local_rows = _parameter_rows(
+            dataset_id, "local", LOCAL_NAMES,
+            posterior["locals"], truth_locals,
+        )
+        atomic_torch(output, {
+            "inference_signature": signature,
+            "config_signature": config.signature,
+            "dataset_id": dataset_id,
+            "subject_ids": test["subject_ids"][dataset_id, :args.subjects],
+            "seed": seed,
+            "subjects": args.subjects,
+            "draws": args.draws,
+            "timesteps": args.timesteps,
+            "correction": correction,
+            "truth_globals": truth_globals,
+            "truth_locals": truth_locals,
+            "posterior": posterior,
+            "global_rows": global_rows,
+            "local_rows": local_rows,
+            "solver_stats": solver_stats,
+            "runtime_seconds": runtime_seconds,
+        })
+        print(
+            f"  saved {output.name} after {format_duration(runtime_seconds)}",
+            flush=True,
+        )
+        _write_reports(
+            run_directory, _load_completed(run_directory, signature, torch)
+        )
+
+    artifacts = _load_completed(run_directory, signature, torch)
+    summary = _write_reports(run_directory, artifacts)
+    figure_directory = (
+        paths.figures / "partial_pooling" / config.preset / signature
+    )
+    figures = _make_plots(
+        artifacts, figure_directory, GLOBAL_NAMES, LOCAL_NAMES, source=source,
+    )
+    print(
+        f"Completed {len(artifacts)}/{args.datasets} datasets. "
+        f"Summary: {run_directory / 'summary.json'}\n"
+        f"Created {len(figures)} figures in {figure_directory}",
+        flush=True,
+    )
+    return summary
+
+
+def main(argv=None):
+    args = parser().parse_args(argv)
+    for name in ("datasets", "subjects", "draws", "timesteps"):
+        positive(name, getattr(args, name))
+    estimate = estimated_runtime_seconds(
+        args.datasets, args.subjects, args.draws, args.timesteps
+    )
+    if args.estimate_only:
+        print(
+            f"Estimated sampling time: {format_duration(estimate)} "
+            f"({estimate:.1f} seconds)"
+        )
+        return 0
+
+    # This must happen before importing NumPy, SciPy, PyTorch, or COMPASS.
+    from runtime import configure_runtime
+    cpu_limit = configure_runtime()
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    run(args, cpu_limit)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -169,8 +169,9 @@ class ScoreBasedInferenceModel(nn.Module):
                     observations (defaults to all latent variables)
             prior: Gaussian prior over the hierarchy dimensions as a tuple (mean, std),
                     each of length len(hierarchy). Defaults to N(0, 1).
-            correction: Score composition rule: "gauss" (default), "uncorrected",
-                    "fnpe", "damping", "gauss_damping" or "hybrid_damping"
+            correction: Score composition rule. Existing values are preserved;
+                    benchmark names also include "legacy_mean",
+                    "prior_corrected_sum", "damped_sum" and "minibatch_damped".
             posterior_precision: Optional precision estimate of the single-observation
                     posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
@@ -180,7 +181,8 @@ class ScoreBasedInferenceModel(nn.Module):
             damping_at_noise: Damping endpoint d(1) at the noise end; defaults
                     to 1/sqrt(number of observations)
             composition_batch_size: Optional observation mini-batch size for
-                    the unbiased plain damping estimator
+                    the unbiased "damping" or "minibatch_damped" estimator.
+                    True mini-batching is restricted to all-global latent models.
 
             - DPM-Solver parameters -
             order: Order of DPM-Solver (1, 2 or 3)
@@ -241,10 +243,6 @@ class ScoreBasedInferenceModel(nn.Module):
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
-            if self.sde_type != "vesde":
-                raise NotImplementedError(
-                    "Multi-observation (compositional) inference currently assumes a "
-                    "VESDE; the composition corrections are not implemented for the VPSDE.")
             samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
                                       prior=prior, correction=correction, posterior_precision=posterior_precision,
                                       precision_est_samples=precision_est_samples, precision_est_timesteps=precision_est_timesteps,
