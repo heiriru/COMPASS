@@ -36,7 +36,7 @@ class MultiObsSampler():
     composed across observations; latent dimensions not in `hierarchy` are treated as
     per-observation (local) latents and keep their individual scores.
 
-    Eleven composition rules are implemented (`correction` argument):
+    Fourteen composition rules are implemented (`correction` argument):
 
     - "gauss" (default): Gaussian-corrected composition (Gloeckler et al. 2024,
       "Compositional simulation-based inference for time series"). The composed score
@@ -44,8 +44,18 @@ class MultiObsSampler():
       valid inside the standard reverse-diffusion samplers (euler / dpm). Requires an
       estimate of the single-observation posterior precision on the hierarchy
       dimensions, which is estimated automatically if not provided.
+    - "full_gaussian": the full-covariance GAUSS correction from Algorithm 2 of
+      Gloeckler et al. 2024. It estimates a covariance matrix for every
+      single-observation posterior and composes the scores with full precision
+      matrices and a linear solve. Unlike "gauss", it retains correlations
+      between hierarchy coordinates.
     - "uncorrected": (1-n) * diffused-prior score + sum of individual scores.
       Cheap, exact as t -> 0, but biased at large t.
+    - "Gauss_schur_global": estimate each observation's joint global/local
+      covariance, Schur-reduce it at the current diffusion time, and correct only
+      the shared score.
+    - "Gauss_global_local": use the same Schur-reduced shared correction and also
+      apply its implied global/local cross-score correction to each local latent.
     - "fnpe": the exact Eq. 7 of Geffner et al.: (1-n)(1-t) * prior score + sum of
       individual scores. This is the score of the paper's bridging densities, which are
       NOT the diffusion marginals of the posterior: it is only consistent with annealed
@@ -83,16 +93,31 @@ class MultiObsSampler():
         self.SBIm = SBIm
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
+        self.covariance_shrinkage = 0.01
+        self.covariance_nugget = 1e-6
+        self.pd_epsilon = 1e-8
+        self._reset_covariance_diagnostics()
 
     DAMPING_CORRECTIONS = frozenset(
         {"damping", "gauss_damping", "hybrid_damping"}
     )
-    GAUSSIAN_CORRECTIONS = frozenset(
+    DIAGONAL_GAUSSIAN_CORRECTIONS = frozenset(
         {"gauss", "gauss_damping", "hybrid", "hybrid_damping"}
+    )
+    FULL_GAUSSIAN_CORRECTIONS = frozenset({"full_gaussian"})
+    SCHUR_GAUSSIAN_CORRECTIONS = frozenset(
+        {"Gauss_schur_global", "Gauss_global_local"}
+    )
+    COVARIANCE_GAUSSIAN_CORRECTIONS = (
+        FULL_GAUSSIAN_CORRECTIONS | SCHUR_GAUSSIAN_CORRECTIONS
+    )
+    GAUSSIAN_CORRECTIONS = (
+        DIAGONAL_GAUSSIAN_CORRECTIONS | COVARIANCE_GAUSSIAN_CORRECTIONS
     )
     VALID_CORRECTIONS = frozenset(
         {
-            "gauss", "hybrid", "uncorrected", "fnpe", "legacy_mean",
+            "gauss", "full_gaussian", "Gauss_schur_global",
+            "Gauss_global_local", "hybrid", "uncorrected", "fnpe", "legacy_mean",
             "prior_corrected_sum", "damped_sum", "minibatch_damped",
         } | DAMPING_CORRECTIONS
     )
@@ -107,14 +132,18 @@ class MultiObsSampler():
 
     def sample(self, world_size, data, condition_mask=None, timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, hierarchy=None,
                prior=None, correction="gauss", posterior_precision=None,
+               posterior_covariance=None, posterior_mean=None,
+               global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                damping_at_data=1.0, damping_at_noise=None,
                composition_batch_size=None,
-               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
+               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3, terminal_corrector_steps=0, terminal_corrector_counts=None,
                adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
                adaptive_safety=0.9, adaptive_exponent=0.9,
                adaptive_max_evals=10000, adaptive_initial_step=None,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
+               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None,
+               precision_est_batch_size=128, covariance_shrinkage=0.01,
+               covariance_nugget=1e-6, pd_epsilon=1e-8):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -132,7 +161,7 @@ class MultiObsSampler():
             hierarchy: Indices of the *shared* (global) latent variables that are composed
                     across observations. Defaults to all latent variables.
             prior: Gaussian prior over the hierarchy dimensions, as a tuple
-                    (mean, std) of tensors/lists/floats of length len(hierarchy).
+                    (mean, std) or, for "full_gaussian", (mean, covariance_matrix).
                     Defaults to a standard normal N(0, 1) (correct if the model was
                     trained on parameters standardized to zero mean and unit variance).
             correction: Composition rule. In addition to the existing "gauss",
@@ -144,10 +173,24 @@ class MultiObsSampler():
                     Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
                     If None, it is estimated by sampling the single-observation
                     posteriors once with the standard sampler.
+            posterior_covariance: Optional covariance estimate for covariance-aware
+                    corrections. ``full_gaussian`` expects H x H global covariance;
+                    Schur modes expect (H + L) x (H + L) joint global/local covariance,
+                    with either one matrix or one per observation. If None, empirical
+                    covariances are estimated from ordinary single-observation draws.
+            posterior_mean: Optional mean estimate paired with
+                    ``posterior_covariance``. When supplied, covariance-aware
+                    corrections project the learned single-observation score onto
+                    the Gaussian defined by these moments before composition. This
+                    removes systematic network bias for genuinely Gaussian
+                    posteriors; omit it to retain the learned Tweedie mean.
             precision_est_samples: Number of samples per observation for the automatic
                     precision estimation.
             precision_est_timesteps: Number of diffusion steps for the automatic
                     precision estimation (defaults to `timesteps`).
+            precision_est_batch_size: Maximum flattened transformer rows evaluated
+                    at once while estimating precision. Batching does not change
+                    `precision_est_samples`.
             denoise_clamp: Clamp the denoised predictions theta_t + sigma_t^2 * score
                     to within this many prior standard deviations of the prior mean
                     (stabilizes the score composition in the tails of the reference
@@ -198,11 +241,31 @@ class MultiObsSampler():
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
         self.solver_stats = None
+        self.covariance_shrinkage = float(covariance_shrinkage)
+        self.covariance_nugget = float(covariance_nugget)
+        self.pd_epsilon = float(pd_epsilon)
+        if not 0.0 <= self.covariance_shrinkage < 1.0:
+            raise ValueError("covariance_shrinkage must be in [0, 1).")
+        if self.covariance_nugget < 0.0 or self.pd_epsilon <= 0.0:
+            raise ValueError(
+                "covariance_nugget must be nonnegative and pd_epsilon positive."
+            )
+        self._reset_covariance_diagnostics()
 
         if method in ("dpm", "langevin"):
             self.corrector_steps_interval = corrector_steps_interval
             self.corrector_steps = corrector_steps
             self.final_corrector_steps = final_corrector_steps
+            self.terminal_corrector_steps = int(terminal_corrector_steps)
+            if self.terminal_corrector_steps < 0:
+                raise ValueError("terminal_corrector_steps must be nonnegative.")
+            self.terminal_corrector_counts = tuple(sorted({
+                int(count) for count in (terminal_corrector_counts or ())
+            }))
+            if any(count < 1 for count in self.terminal_corrector_counts):
+                raise ValueError("terminal_corrector_counts must contain positive integers.")
+            if self.terminal_corrector_counts and self.terminal_corrector_steps:
+                raise ValueError("Specify either terminal_corrector_steps or terminal_corrector_counts, not both.")
             self.snr = snr
             self.order = order
 
@@ -273,6 +336,29 @@ class MultiObsSampler():
             cm = condition_mask if condition_mask.dim() == 1 else condition_mask[0]
             self.hierarchy = torch.where(cm == 0)[0].tolist()
 
+        cm = torch.as_tensor(condition_mask)
+        cm = cm if cm.dim() == 1 else cm[0]
+        latent_indices = torch.where(cm == 0)[0].tolist()
+        missing_hierarchy = sorted(set(self.hierarchy) - set(latent_indices))
+        if missing_hierarchy:
+            raise ValueError(
+                "hierarchy indices must refer to latent coordinates; observed "
+                f"indices were supplied: {missing_hierarchy}."
+            )
+        hierarchy_set = set(self.hierarchy)
+        self.local_latent_indices = [
+            index for index in latent_indices if index not in hierarchy_set
+        ]
+        # A complete covariance is essential when the learned single-observation
+        # score couples a shared variable to row-local nuisance variables.
+        self.full_gaussian_features = (
+            self.hierarchy + self.local_latent_indices
+        )
+        self.covariance_features = (
+            self.full_gaussian_features if correction in self.SCHUR_GAUSSIAN_CORRECTIONS
+            else self.hierarchy
+        )
+
         if self.composition_batch_size < num_observations:
             cm = torch.as_tensor(condition_mask)
             cm = cm if cm.dim() == 1 else cm[0]
@@ -284,11 +370,112 @@ class MultiObsSampler():
                     "must evaluate every subject to update its local state."
                 )
 
-        # Resolve the Gaussian prior over the hierarchy dimensions
-        self.prior_mean, self.prior_std = self._resolve_prior(prior)
+        if posterior_precision is not None and posterior_covariance is not None:
+            raise ValueError(
+                "posterior_precision and posterior_covariance are mutually exclusive."
+            )
+        if (posterior_mean is not None
+                and correction not in self.COVARIANCE_GAUSSIAN_CORRECTIONS):
+            raise ValueError(
+                "posterior_mean is supported only for covariance-aware Gaussian "
+                "corrections."
+            )
 
-        # Posterior precision estimates for the Gaussian correction
-        if correction in self.GAUSSIAN_CORRECTIONS:
+        if ((global_posterior_mean is None) != (global_posterior_covariance is None)):
+            raise ValueError(
+                "global_posterior_mean and global_posterior_covariance must be supplied together."
+            )
+        if (global_posterior_mean is not None
+                and correction != "Gauss_global_local"):
+            raise ValueError(
+                "global posterior moments are supported only for correction="
+                "'Gauss_global_local'."
+            )
+
+        # Resolve the Gaussian prior over the hierarchy dimensions.
+        self.prior_mean, self.prior_std, self.prior_covariance = self._resolve_prior(prior)
+        self.prior_precision_matrix = self._precision_from_covariance(
+            self.prior_covariance.unsqueeze(0)
+        )[0]
+
+        # Covariance-aware GAUSS setup. Full mode stores HxH matrices; Schur
+        # modes store one (H+L)x(H+L) matrix per observation.
+        if correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+            if posterior_precision is not None:
+                raise ValueError(
+                    f"correction={correction!r} requires posterior_covariance, not "
+                    "posterior_precision."
+                )
+            if posterior_covariance is None:
+                if verbose:
+                    print(
+                        "Estimating single-observation posterior covariances for "
+                        f"the {correction!r} correction ..."
+                    )
+                if correction == "Gauss_global_local":
+                    global_posterior_mean, posterior_covariance = (
+                        self.estimate_posterior_moments(
+                            data, condition_mask,
+                            num_samples=precision_est_samples,
+                            timesteps=precision_est_timesteps or timesteps,
+                            eps=eps, batch_size=precision_est_batch_size,
+                            device=device if world_size <= 1 else "cuda:0",
+                            feature_indices=self.covariance_features,
+                        )
+                    )
+                    global_posterior_covariance = posterior_covariance[:, :len(self.hierarchy), :len(self.hierarchy)]
+                else:
+                    posterior_covariance = self._estimate_posterior_covariance(
+                        data, condition_mask,
+                        num_samples=precision_est_samples,
+                        timesteps=precision_est_timesteps or timesteps,
+                        eps=eps, batch_size=precision_est_batch_size,
+                        device=device if world_size <= 1 else "cuda:0",
+                        feature_indices=self.covariance_features,
+                    )
+            self.posterior_covariance = self._validate_covariance(
+                posterior_covariance, num_observations=num_observations,
+                dimension=len(self.covariance_features),
+                name="posterior_covariance",
+            )
+            self.posterior_mean = self._validate_posterior_mean(
+                posterior_mean, num_observations=num_observations,
+                dimension=len(self.covariance_features),
+            )
+            self.posterior_precision_matrix = self._precision_from_covariance(
+                self.posterior_covariance
+            )
+            self._covariance_time_cache = {}
+            self.posterior_precision = None
+            if correction == "Gauss_global_local":
+                if global_posterior_mean is None:
+                    raise ValueError(
+                        "Gauss_global_local requires marginal global pilot moments. "
+                        "Omit posterior_covariance to estimate them automatically, or "
+                        "supply global_posterior_mean and global_posterior_covariance."
+                    )
+                self.global_posterior_mean = self._validate_posterior_mean(
+                    global_posterior_mean, num_observations=num_observations,
+                    dimension=len(self.hierarchy),
+                )
+                self.global_posterior_covariance = self._validate_covariance(
+                    global_posterior_covariance, num_observations=num_observations,
+                    dimension=len(self.hierarchy),
+                    name="global_posterior_covariance",
+                )
+                self.global_posterior_precision_matrix = self._precision_from_covariance(
+                    self.global_posterior_covariance
+                )
+            else:
+                self.global_posterior_mean = None
+                self.global_posterior_covariance = None
+                self.global_posterior_precision_matrix = None
+        elif correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
+            if posterior_covariance is not None:
+                raise ValueError(
+                    "posterior_covariance is supported only for covariance-aware "
+                    "Gaussian corrections."
+                )
             if posterior_precision is None:
                 if verbose:
                     print(
@@ -299,10 +486,28 @@ class MultiObsSampler():
                     data, condition_mask,
                     num_samples=precision_est_samples,
                     timesteps=precision_est_timesteps or timesteps,
-                    eps=eps, device=device if world_size <= 1 else "cuda:0")
+                    eps=eps, batch_size=precision_est_batch_size,
+                    device=device if world_size <= 1 else "cuda:0")
             self.posterior_precision = self._validate_precision(torch.as_tensor(posterior_precision, dtype=torch.float32))
+            self.posterior_covariance = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
         else:
+            if posterior_covariance is not None:
+                raise ValueError(
+                    "posterior_covariance is supported only for "
+                    "correction='full_gaussian'."
+                )
             self.posterior_precision = None
+            self.posterior_covariance = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
 
         if self.world_size > 1:
             manager = mp.Manager()
@@ -385,6 +590,7 @@ class MultiObsSampler():
     @torch.no_grad()
     def map_estimate(self, data, condition_mask, init=None, hierarchy=None,
                      prior=None, correction="gauss", posterior_precision=None,
+                     posterior_covariance=None, posterior_mean=None,
                      denoise_clamp=5.0, cfg_alpha=None, sigma_start=None,
                      damping_at_data=1.0, damping_at_noise=None,
                      timesteps=100, eps=1e-3, iterations_per_level=3,
@@ -397,7 +603,7 @@ class MultiObsSampler():
         composed score; all other latent coordinates retain their row-specific
         score. Each annealing level alternates local and hierarchy updates until
         their normalized update is below ``convergence_tol``. Gaussian precision
-        must be reused from posterior sampling.
+        or covariance estimates must be reused from posterior sampling.
         """
         if correction == "fnpe":
             raise ValueError(
@@ -482,14 +688,69 @@ class MultiObsSampler():
         self.denoise_clamp = denoise_clamp
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
+        latent_indices = torch.where(mask[0] == 0)[0].tolist()
+        hierarchy_set = set(hierarchy)
+        self.local_latent_indices = [
+            index for index in latent_indices if index not in hierarchy_set
+        ]
+        self.full_gaussian_features = hierarchy + self.local_latent_indices
+        self.covariance_features = (
+            self.full_gaussian_features if correction in self.SCHUR_GAUSSIAN_CORRECTIONS
+            else hierarchy
+        )
+        self.covariance_shrinkage = 0.01
+        self.covariance_nugget = 1e-6
+        self.pd_epsilon = 1e-8
+        self._reset_covariance_diagnostics()
         self._configure_damping(
             n_obs, damping_at_data, damping_at_noise,
             composition_batch_size=n_obs,
         )
-        self.prior_mean, self.prior_std = self._resolve_prior(prior)
+        if posterior_precision is not None and posterior_covariance is not None:
+            raise ValueError(
+                "posterior_precision and posterior_covariance are mutually exclusive."
+            )
+        if (posterior_mean is not None
+                and correction not in self.COVARIANCE_GAUSSIAN_CORRECTIONS):
+            raise ValueError(
+                "posterior_mean is supported only for covariance-aware Gaussian "
+                "corrections."
+            )
+        self.prior_mean, self.prior_std, self.prior_covariance = self._resolve_prior(prior)
         self.prior_mean = self.prior_mean.to(device)
         self.prior_std = self.prior_std.to(device)
-        if correction in self.GAUSSIAN_CORRECTIONS:
+        self.prior_covariance = self.prior_covariance.to(device)
+        self.prior_precision_matrix = self._precision_from_covariance(
+            self.prior_covariance.unsqueeze(0)
+        )[0]
+        if correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+            if posterior_precision is not None:
+                raise ValueError(
+                    f"correction={correction!r} requires posterior_covariance, not "
+                    "posterior_precision."
+                )
+            if posterior_covariance is None:
+                raise ValueError(
+                    "posterior_covariance is required for "
+                    f"correction={correction!r}; reuse it from posterior sampling."
+                )
+            self.posterior_covariance = self._validate_covariance(
+                posterior_covariance, num_observations=n_obs,
+                name="posterior_covariance",
+                dimension=len(self.covariance_features),
+            ).to(device)
+            self.posterior_mean = self._validate_posterior_mean(
+                posterior_mean, num_observations=n_obs,
+                dimension=len(self.covariance_features),
+            )
+            if self.posterior_mean is not None:
+                self.posterior_mean = self.posterior_mean.to(device)
+            self.posterior_precision_matrix = self._precision_from_covariance(
+                self.posterior_covariance
+            )
+            self._covariance_time_cache = {}
+            self.posterior_precision = None
+        elif correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
             if posterior_precision is None:
                 raise ValueError(
                     f"posterior_precision is required for correction='{correction}'; "
@@ -503,8 +764,22 @@ class MultiObsSampler():
                 raise ValueError("posterior_precision must have one row or one row per observation.")
             if self.posterior_precision.shape[1] != len(hierarchy):
                 raise ValueError("posterior_precision width must equal len(hierarchy).")
+            self.posterior_covariance = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
         else:
+            if posterior_covariance is not None:
+                raise ValueError(
+                    "posterior_covariance is supported only for "
+                    "correction='full_gaussian'."
+                )
             self.posterior_precision = None
+            self.posterior_covariance = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
 
         data = data.to(device)
         candidates = candidates.to(device).clone()
@@ -570,6 +845,31 @@ class MultiObsSampler():
         result = result * (1 - expanded_mask) + expanded_data * expanded_mask
         return result.cpu()
 
+    def _make_sampling_schedule(self, device):
+        """Build the reverse schedule; covariance modes always run through eps."""
+        one = torch.ones(1, device=device)
+        sigma_max = self.sde.lambda_t(one)
+        sigma_min = self.sde.lambda_t(self.eps * one)
+        if self.correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
+            n = self.num_observations
+            prior_precision = 1.0 / self.prior_std**2
+            if self.posterior_precision.shape[0] == 1:
+                posterior_precision = n * self.posterior_precision[0]
+            else:
+                posterior_precision = self.posterior_precision.sum(dim=0)
+            composed_precision = (
+                (1 - n) * prior_precision + posterior_precision
+            )
+            sigma_stop = composed_precision.reciprocal().sqrt().min()
+            sigma_min = torch.maximum(
+                sigma_min, sigma_stop.reshape(1).to(device)
+            )
+        sigmas = torch.logspace(
+            torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
+            self.timesteps, device=device,
+        )
+        return self.sde.time_of_lambda(sigmas)
+
     def _sample_loop(self, rank, data, condition_mask, num_samples, result_dict=None):
         # Set rank
         self.rank = rank
@@ -587,130 +887,535 @@ class MultiObsSampler():
         # Move prior (and precision estimates) to device
         self.prior_mean = self.prior_mean.to(self.device)
         self.prior_std = self.prior_std.to(self.device)
+        self.prior_covariance = self.prior_covariance.to(self.device)
+        self.prior_precision_matrix = self.prior_precision_matrix.to(self.device)
         if self.posterior_precision is not None:
             self.posterior_precision = self.posterior_precision.to(self.device)
+        if self.posterior_covariance is not None:
+            self.posterior_covariance = self.posterior_covariance.to(self.device)
+            self.posterior_precision_matrix = self.posterior_precision_matrix.to(
+                self.device
+            )
+        if self.posterior_mean is not None:
+            self.posterior_mean = self.posterior_mean.to(self.device)
+        if self.global_posterior_mean is not None:
+            self.global_posterior_mean = self.global_posterior_mean.to(self.device)
+            self.global_posterior_covariance = self.global_posterior_covariance.to(
+                self.device
+            )
+            self.global_posterior_precision_matrix = (
+                self.global_posterior_precision_matrix.to(self.device)
+            )
 
-        # Set up timesteps on a geometric noise-scale grid (log-spaced sigma), which
-        # resolves the small-noise end far better than a uniform time grid. The grid
-        # is NOT extended below sigma_m(eps): the score network is unreliable below
-        # the noise scales it was trained on. With Gaussian corrections the reverse
-        # diffusion additionally stops once the noise scale reaches the width of the
-        # composed posterior (known from the precision estimates): below that scale
-        # the score network cannot add information, and the remaining gap to t=0 is
-        # closed exactly (under the Gaussian approximation) by the final analytic
-        # denoising step (see _final_denoise).
-        one = torch.ones(1, device=self.device)
-        sigma_max = self.sde.lambda_t(one)
-        sigma_min = self.sde.lambda_t(self.eps * one)
-        if self.correction in self.GAUSSIAN_CORRECTIONS:
-            n = self.num_observations
-            Lambda_prior = 1.0 / self.prior_std**2
-            if self.posterior_precision.shape[0] == 1:
-                Lambda_star = (1 - n) * Lambda_prior + n * self.posterior_precision[0]
-            else:
-                Lambda_star = (1 - n) * Lambda_prior + self.posterior_precision.sum(dim=0)
-            sigma_stop = (1.0 / Lambda_star).sqrt().min()
-            sigma_min = torch.maximum(sigma_min, sigma_stop.reshape(1).to(self.device))
-        sigmas = torch.logspace(torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
-                                self.timesteps, device=self.device)
-        self.timesteps_list = self.sde.time_of_lambda(sigmas)
+        self.timesteps_list = self._make_sampling_schedule(self.device)
 
-        # Loop over data samples
+        # Loop over data samples. A terminal-corrector sweep shares this one
+        # predictor trajectory and branches only at its final state.
+        if self.terminal_corrector_counts and self.world_size > 1:
+            raise NotImplementedError("terminal_corrector_counts requires world_size=1.")
         all_samples = []
+        sweep_samples = {count: [] for count in self.terminal_corrector_counts}
         indices = []
+        self.terminal_corrector_seconds = {count: 0.0 for count in self.terminal_corrector_counts}
         for batch in data_loader:
-            # Prepare data for sampling
             data_batch, condition_mask_batch, idx = self._prepare_data(batch, num_samples, self.device)
-
-            # Draw samples from initial noise distribution
             data_batch = self._initial_sample(data_batch, condition_mask_batch)
 
-            # Get samples for this batch
             if self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch, idx)
             elif self.method == "dpm":
                 samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
                                             order=self.order, snr=self.snr, corrector_steps_interval=self.corrector_steps_interval,
-                                            corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps)
+                                            corrector_steps=self.corrector_steps, final_corrector_steps=self.final_corrector_steps,
+                                            terminal_corrector_steps=self.terminal_corrector_steps)
             elif self.method == "langevin":
                 samples = self._langevin_sampler(data_batch, condition_mask_batch, idx,
                                                  snr=self.snr, steps_per_level=self.corrector_steps)
             elif self.method == "adaptive":
-                samples = self._adaptive_sampler(
-                    data_batch, condition_mask_batch, idx
-                )
+                samples = self._adaptive_sampler(data_batch, condition_mask_batch, idx)
             else:
                 raise ValueError(f"Sampling method {self.method} not recognized.")
 
-            # Final analytic denoising step for Gaussian precision corrections.
-            if self.correction in self.GAUSSIAN_CORRECTIONS:
-                samples = self._final_denoise(samples, condition_mask_batch, idx)
+            variants = {None: samples}
+            if self.terminal_corrector_counts:
+                variants = {}
+                terminal_time = self.timesteps_list[-1].reshape(-1, 1)
+                previous_count = 0
+                cumulative_seconds = 0.0
+                for count in self.terminal_corrector_counts:
+                    if torch.device(self.device).type == "cuda":
+                        torch.cuda.synchronize(self.device)
+                    started = datetime.datetime.now().timestamp()
+                    samples = self._corrector_step(
+                        samples, terminal_time, condition_mask_batch, idx,
+                        count - previous_count, self.snr, self.cfg_alpha,
+                    )
+                    if torch.device(self.device).type == "cuda":
+                        torch.cuda.synchronize(self.device)
+                    cumulative_seconds += datetime.datetime.now().timestamp() - started
+                    self.terminal_corrector_seconds[count] += cumulative_seconds
+                    variants[count] = samples.detach().clone()
+                    previous_count = count
 
-            alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(samples.device)
-            samples = samples * (
-                alpha_end * (1 - condition_mask_batch) + condition_mask_batch
-            )
-
-            # Store samples
-            all_samples.append(samples)
+            for count, result in variants.items():
+                if self.correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
+                    result = self._final_denoise(result, condition_mask_batch, idx)
+                alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(result.device)
+                result = result * (alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
+                if not torch.all(torch.isfinite(result)):
+                    raise RuntimeError(f"Sampling with correction={self.correction!r} produced non-finite values.")
+                result[:, :, self.hierarchy] = result[:1, :, self.hierarchy]
+                if count is None:
+                    all_samples.append(result)
+                else:
+                    sweep_samples[count].append(result)
             indices.append(idx)
 
-        # Collect results from all processes if distributed
         if self.world_size > 1:
             dist.barrier()
             self._gather_samples(all_samples, indices, result_dict)
             dist.barrier()
             dist.destroy_process_group()
-
         else:
-            samples = torch.cat(all_samples, dim=0)
             stats = dict(self.solver_stats or {})
             stats["score_network_calls"] = int(self.score_network_calls)
             stats["evaluated_subject_rows"] = int(self.evaluated_subject_rows)
             stats.setdefault("score_evaluations", int(self.score_network_calls))
             self.solver_stats = stats
-            return samples
+            if self.terminal_corrector_counts:
+                return {count: torch.cat(values, dim=0) for count, values in sweep_samples.items()}
+            return torch.cat(all_samples, dim=0)
 
     #############################################
     # ----- Prior & Precision Setup -----
     #############################################
 
     def _resolve_prior(self, prior):
-        """Resolve the Gaussian prior over the hierarchy dimensions to (mean, std) tensors."""
+        """Resolve a Gaussian prior to mean, marginal std, and covariance tensors."""
         n_hierarchy = len(self.hierarchy)
         if prior is None:
             print("WARNING: No prior provided for compositional score modeling. "
                   "Assuming a standard normal prior N(0, 1) over the shared parameters. "
                   "Pass prior=(mean, std) if this does not match your model.")
-            return torch.zeros(n_hierarchy), torch.ones(n_hierarchy)
+            mean = torch.zeros(n_hierarchy)
+            std = torch.ones(n_hierarchy)
+            return mean, std, torch.eye(n_hierarchy)
 
-        mean, std = prior
+        mean, scale = prior
         mean = torch.as_tensor(mean, dtype=torch.float32).flatten()
-        std = torch.as_tensor(std, dtype=torch.float32).flatten()
         if mean.numel() == 1:
             mean = mean.repeat(n_hierarchy)
-        if std.numel() == 1:
-            std = std.repeat(n_hierarchy)
-        if mean.numel() != n_hierarchy or std.numel() != n_hierarchy:
-            raise ValueError(f"Prior mean/std must have length {n_hierarchy} (= len(hierarchy)), "
-                             f"got {mean.numel()}/{std.numel()}.")
-        return mean, std
+        if mean.numel() != n_hierarchy:
+            raise ValueError(
+                f"Prior mean must have length {n_hierarchy} (= len(hierarchy)), "
+                f"got {mean.numel()}."
+            )
 
-    def _estimate_posterior_precision(self, data, condition_mask, num_samples, timesteps, eps, device):
-        """
-        Estimate the precision of each single-observation posterior on the hierarchy
-        dimensions by sampling p(theta | x_j) once with the standard (single-observation)
-        sampler and moment-matching a Gaussian.
-        """
-        samples = self.SBIm.sampler.sample(
-            world_size=1, data=data, condition_mask=condition_mask,
-            timesteps=timesteps, eps=eps, num_samples=num_samples,
-            device=device, verbose=self.verbose, method="dpm")
+        scale = torch.as_tensor(scale, dtype=torch.float32)
+        if scale.dim() == 2:
+            covariance = self._validate_covariance(
+                scale, num_observations=1, name="prior covariance"
+            )[0].to(torch.float32)
+            std = torch.diagonal(covariance).sqrt().to(torch.float32)
+        else:
+            std = scale.flatten()
+            if std.numel() == 1:
+                std = std.repeat(n_hierarchy)
+            if std.numel() != n_hierarchy:
+                raise ValueError(
+                    f"Prior std must have length {n_hierarchy} (= len(hierarchy)), "
+                    f"got {std.numel()}."
+                )
+            if not torch.all(torch.isfinite(std)) or torch.any(std <= 0):
+                raise ValueError("Prior standard deviations must be finite and positive.")
+            covariance = torch.diag(std.square())
+        return mean, std, covariance
 
-        # samples: (num_observations, num_samples, num_features)
-        var = samples[:, :, self.hierarchy].var(dim=1)
-        precision = 1.0 / torch.clamp(var, min=1e-8)
-        return precision.cpu()
+    def _validate_covariance(
+            self, covariance, num_observations, name, dimension=None):
+        """Validate and normalize covariance input to shape (1 or N, H, H)."""
+        covariance = torch.as_tensor(covariance, dtype=torch.float64)
+        h = len(self.hierarchy) if dimension is None else int(dimension)
+        if covariance.dim() == 2:
+            covariance = covariance.unsqueeze(0)
+        if (
+            covariance.dim() != 3
+            or covariance.shape[-2:] != (h, h)
+            or covariance.shape[0] not in (1, int(num_observations))
+        ):
+            raise ValueError(
+                f"{name} must have shape ({h}, {h}) or "
+                f"({num_observations}, {h}, {h}), got {tuple(covariance.shape)}."
+            )
+        if not torch.all(torch.isfinite(covariance)):
+            raise ValueError(f"{name} must contain only finite values.")
+        if not torch.allclose(
+            covariance, covariance.mT, rtol=1e-5, atol=1e-6
+        ):
+            raise ValueError(f"{name} must be symmetric.")
+        _, info = torch.linalg.cholesky_ex(covariance)
+        if torch.any(info != 0):
+            raise ValueError(
+                f"{name} must be positive definite. For an automatically "
+                "estimated covariance, increase precision_est_samples so the "
+                "empirical covariance is nonsingular."
+            )
+        return covariance
+
+    def _validate_posterior_mean(
+            self, mean, num_observations, dimension):
+        """Validate optional Gaussian means to shape (1 or N, H)."""
+        if mean is None:
+            return None
+        mean = torch.as_tensor(mean, dtype=torch.float64)
+        h = int(dimension)
+        if mean.dim() == 1:
+            mean = mean.unsqueeze(0)
+        if (mean.dim() != 2 or mean.shape[1] != h
+                or mean.shape[0] not in (1, int(num_observations))):
+            raise ValueError(
+                f"posterior_mean must have shape ({h},) or "
+                f"({num_observations}, {h}), got {tuple(mean.shape)}."
+            )
+        if not torch.all(torch.isfinite(mean)):
+            raise ValueError("posterior_mean must contain only finite values.")
+        return mean
+
+    def _moment_projected_scores(self, scores, x, var_t):
+        """Replace selected learned scores by scores of the supplied Gaussian moments."""
+        mean = getattr(self, "posterior_mean", None)
+        if mean is None:
+            return scores
+        features = self.covariance_features
+        covariance = self.posterior_covariance.to(
+            device=scores.device, dtype=torch.float64
+        )
+        mean = mean.to(device=scores.device, dtype=torch.float64)
+        rows = scores.shape[0]
+        if covariance.shape[0] == 1:
+            covariance = covariance.expand(rows, -1, -1)
+        if mean.shape[0] == 1:
+            mean = mean.expand(rows, -1)
+        identity = torch.eye(
+            len(features), dtype=torch.float64, device=scores.device
+        )
+        covariance_t = covariance + torch.as_tensor(
+            var_t, dtype=torch.float64, device=scores.device
+        ).reshape(()) * identity
+        delta = x[:, :, features].to(torch.float64) - mean[:, None, :]
+        projected = -torch.linalg.solve(
+            covariance_t[:, None, :, :], delta.unsqueeze(-1)
+        ).squeeze(-1)
+        scores = scores.clone()
+        scores[:, :, features] = projected.to(scores.dtype)
+        return scores
+
+    def _reset_covariance_diagnostics(self):
+        """Reset precision-repair counters without changing the sample return API."""
+        self._pd_evaluation_count = 0
+        self._pd_repair_count = 0
+        self._pd_min_before = []
+        self._pd_min_after = []
+        self._pd_condition_numbers = []
+        self._pd_relative_repairs = []
+        self._last_pd_repair = None
+
+    @property
+    def covariance_diagnostics(self):
+        """Diagnostics for covariance conditioning and composed-precision repairs."""
+        count = int(getattr(self, "_pd_evaluation_count", 0))
+        repairs = int(getattr(self, "_pd_repair_count", 0))
+        values = lambda name: list(getattr(self, name, []))
+        conditions = values("_pd_condition_numbers")
+        relatives = values("_pd_relative_repairs")
+        return {
+            "score_evaluations": count,
+            "repair_count": repairs,
+            "repair_fraction": repairs / count if count else 0.0,
+            "minimum_eigenvalue_before": (
+                min(values("_pd_min_before")) if count else None
+            ),
+            "minimum_eigenvalue_after": (
+                min(values("_pd_min_after")) if count else None
+            ),
+            "maximum_condition_number": max(conditions) if conditions else None,
+            "maximum_relative_repair": max(relatives) if relatives else 0.0,
+            "last_repair": getattr(self, "_last_pd_repair", None),
+        }
+
+    def _regularize_covariance(self, covariance):
+        """Regularize empirical covariance in float64 with shrinkage and a nugget."""
+        covariance = torch.as_tensor(covariance, dtype=torch.float64)
+        covariance = 0.5 * (covariance + covariance.mT)
+        diagonal = torch.diag_embed(torch.diagonal(covariance, dim1=-2, dim2=-1))
+        regularized = (
+            (1.0 - self.covariance_shrinkage) * covariance
+            + self.covariance_shrinkage * diagonal
+        )
+        dimension = regularized.shape[-1]
+        scale = (
+            torch.diagonal(regularized, dim1=-2, dim2=-1).sum(-1) / dimension
+        ).clamp_min(1.0)
+        identity = torch.eye(
+            dimension, dtype=regularized.dtype, device=regularized.device
+        )
+        return regularized + (
+            self.covariance_nugget * scale
+        )[..., None, None] * identity
+
+    @staticmethod
+    def _precision_from_covariance(covariance):
+        """Return batched precision matrices using Cholesky solves."""
+        covariance = torch.as_tensor(covariance)
+        factors, info = torch.linalg.cholesky_ex(covariance)
+        if torch.any(info != 0):
+            raise ValueError("covariance must be positive definite.")
+        identity = torch.eye(
+            covariance.shape[-1], dtype=covariance.dtype,
+            device=covariance.device,
+        ).expand(covariance.shape[:-2] + covariance.shape[-2:])
+        return torch.cholesky_solve(identity, factors)
+
+    def _effective_global_factors(self, var_t):
+        """Return cached per-observation effective global precisions and R blocks."""
+        inverse_variance = float(
+            torch.as_tensor(1.0 / var_t, dtype=torch.float64).reshape(())
+        )
+        cache = getattr(self, "_covariance_time_cache", {})
+        if inverse_variance in cache:
+            return cache[inverse_variance]
+
+        covariance_precision = self.posterior_precision_matrix.to(torch.float64)
+        dimension = covariance_precision.shape[-1]
+        identity = torch.eye(
+            dimension, dtype=torch.float64, device=covariance_precision.device
+        )
+        joint_precision_t = covariance_precision + inverse_variance * identity
+        if self.correction in self.FULL_GAUSSIAN_CORRECTIONS:
+            result = (joint_precision_t, None)
+        else:
+            factor, info = torch.linalg.cholesky_ex(joint_precision_t)
+            if torch.any(info != 0):
+                raise RuntimeError("Diffusion-time joint covariance is not positive definite.")
+            expanded_identity = identity.expand(
+                joint_precision_t.shape[:-2] + (dimension, dimension)
+            )
+            covariance_t = torch.cholesky_solve(expanded_identity, factor)
+            h = len(self.hierarchy)
+            global_covariance = covariance_t[:, :h, :h]
+            effective_precision = self._precision_from_covariance(global_covariance)
+            cross_covariance = covariance_t[:, h:, :h]
+            cross_factor = torch.matmul(cross_covariance, effective_precision)
+            result = (effective_precision, cross_factor)
+
+        cache[inverse_variance] = result
+        self._covariance_time_cache = cache
+        return result
+
+    def _marginal_global_factors(self, var_t):
+        """Return clean-moment GAUSS precisions for p(g | x_j)."""
+        covariance = self.global_posterior_covariance.to(torch.float64)
+        precision = self.global_posterior_precision_matrix.to(torch.float64)
+        inverse_variance = torch.as_tensor(
+            1.0 / var_t, dtype=torch.float64, device=covariance.device
+        ).reshape(())
+        identity = torch.eye(
+            len(self.hierarchy), dtype=torch.float64, device=covariance.device
+        )
+        return precision + inverse_variance * identity, covariance + var_t * identity
+
+    def _marginal_global_scores(self, theta_h, var_t, rows):
+        """Evaluate each pilot Gaussian p(g_t | x_j), independent of locals.
+
+        ``theta_h`` is in the sampler's y=x/alpha coordinates, so its
+        diffusion variance is lambda(t)^2 and no alpha factor is needed here.
+        """
+        _, covariance_t = self._marginal_global_factors(var_t)
+        mean = self.global_posterior_mean.to(
+            device=theta_h.device, dtype=torch.float64
+        )
+        delta = theta_h.to(torch.float64).expand(rows, -1, -1) - mean[:, None, :]
+        return -torch.linalg.solve(
+            covariance_t[:, None, :, :], delta.unsqueeze(-1)
+        ).squeeze(-1)
+
+    def _solve_composed_global(self, precision, numerator, subject_scores):
+        """Repair and solve a composed global precision in float64."""
+        precision = torch.as_tensor(precision, dtype=torch.float64)
+        numerator = torch.as_tensor(
+            numerator, dtype=torch.float64, device=precision.device
+        )
+        subject_scores = torch.as_tensor(
+            subject_scores, dtype=torch.float64, device=precision.device
+        )
+        precision = 0.5 * (precision + precision.mT)
+        factor, info = torch.linalg.cholesky_ex(precision)
+        eigenvalues = torch.linalg.eigvalsh(precision)
+        scale = eigenvalues.abs().mean().clamp_min(1.0)
+        threshold = self.pd_epsilon * scale
+        needs_repair = bool(torch.any(info != 0) or eigenvalues.min() < threshold)
+        if needs_repair:
+            eigenvalues, eigenvectors = torch.linalg.eigh(precision)
+            deficits = (threshold - eigenvalues).clamp_min(0.0)
+            adjustment = (
+                eigenvectors * deficits.unsqueeze(0)
+            ) @ eigenvectors.mT
+        else:
+            adjustment = torch.zeros_like(precision)
+
+        repaired = precision + adjustment
+        score_mean = subject_scores.mean(dim=0, keepdim=True)
+        repaired_numerator = numerator + torch.einsum(
+            "ij,bsj->bsi", adjustment, score_mean
+        )
+        repaired_factor, repaired_info = torch.linalg.cholesky_ex(repaired)
+        if torch.any(repaired_info != 0):
+            raise RuntimeError("Minimal spectral repair did not produce a positive precision.")
+        solved = torch.cholesky_solve(
+            repaired_numerator.squeeze(0).mT, repaired_factor
+        ).mT.unsqueeze(0)
+
+        after = torch.linalg.eigvalsh(repaired)
+        condition = float(after.max() / after.min())
+        relative = float(
+            torch.linalg.matrix_norm(adjustment)
+            / (torch.linalg.matrix_norm(precision) + torch.finfo(torch.float64).eps)
+        )
+        self._pd_evaluation_count += 1
+        self._pd_repair_count += int(needs_repair)
+        self._pd_min_before.append(float(eigenvalues.min()))
+        self._pd_min_after.append(float(after.min()))
+        self._pd_condition_numbers.append(condition)
+        self._pd_relative_repairs.append(relative)
+        self._last_pd_repair = {
+            "minimum_eigenvalue_before": float(eigenvalues.min()),
+            "minimum_eigenvalue_after": float(after.min()),
+            "condition_number": condition,
+            "relative_repair": relative,
+            "repaired": needs_repair,
+        }
+        return solved, repaired, repaired_numerator, adjustment
+
+    def estimate_posterior_moments(
+            self, data, condition_mask, num_samples, timesteps, eps,
+            batch_size, device, feature_indices=None):
+        """Estimate per-observation means and covariances from ordinary draws."""
+        feature_indices = (
+            self.hierarchy if feature_indices is None else list(feature_indices)
+        )
+        num_samples = int(num_samples)
+        batch_size = int(batch_size)
+        if num_samples < 2:
+            raise ValueError(
+                "precision_est_samples must be at least 2 to estimate covariance."
+            )
+        if batch_size < 1:
+            raise ValueError("precision_est_batch_size must be at least 1.")
+
+        data = torch.as_tensor(data)
+        if data.dim() == 1:
+            data = data.unsqueeze(0)
+        condition_mask = torch.as_tensor(condition_mask)
+        per_subject_mean = []
+        per_subject_covariance = []
+        for subject_index in range(data.shape[0]):
+            subject_mask = (
+                condition_mask
+                if condition_mask.dim() == 1
+                else condition_mask[subject_index:subject_index + 1]
+            )
+            sample_chunks = []
+            for start in range(0, num_samples, batch_size):
+                count = min(batch_size, num_samples - start)
+                samples = self.SBIm.sampler.sample(
+                    world_size=1,
+                    data=data[subject_index:subject_index + 1],
+                    condition_mask=subject_mask,
+                    timesteps=timesteps,
+                    eps=eps,
+                    num_samples=count,
+                    device=device,
+                    verbose=getattr(self, "verbose", False),
+                    method="dpm",
+                    capture_attention=False,
+                )
+                sample_chunks.append(samples.detach().cpu())
+
+            subject_samples = torch.cat(sample_chunks, dim=1)
+            latent_samples = subject_samples[0, :, feature_indices].to(torch.float64)
+            per_subject_mean.append(latent_samples.mean(dim=0))
+            covariance = torch.atleast_2d(torch.cov(latent_samples.mT))
+            per_subject_covariance.append(self._regularize_covariance(covariance))
+
+        mean = self._validate_posterior_mean(
+            torch.stack(per_subject_mean), num_observations=data.shape[0],
+            dimension=len(feature_indices),
+        )
+        covariance = self._validate_covariance(
+            torch.stack(per_subject_covariance),
+            num_observations=data.shape[0], dimension=len(feature_indices),
+            name="automatically estimated posterior covariance",
+        )
+        return mean, covariance
+
+    def _estimate_posterior_covariance(
+            self, data, condition_mask, num_samples, timesteps, eps,
+            batch_size, device, feature_indices=None):
+        """Backward-compatible covariance-only wrapper."""
+        _, covariance = self.estimate_posterior_moments(
+            data, condition_mask, num_samples, timesteps, eps,
+            batch_size, device, feature_indices=feature_indices,
+        )
+        return covariance
+
+    def _estimate_posterior_precision(
+            self, data, condition_mask, num_samples, timesteps, eps,
+            batch_size, device):
+        """Estimate per-observation precision in memory-bounded draw batches."""
+        num_samples = int(num_samples)
+        batch_size = int(batch_size)
+        if num_samples < 1:
+            raise ValueError("precision_est_samples must be at least 1.")
+        if batch_size < 1:
+            raise ValueError("precision_est_batch_size must be at least 1.")
+
+        data = torch.as_tensor(data)
+        if data.dim() == 1:
+            data = data.unsqueeze(0)
+        condition_mask = torch.as_tensor(condition_mask)
+        per_subject_precision = []
+        for subject_index in range(data.shape[0]):
+            subject_mask = (
+                condition_mask
+                if condition_mask.dim() == 1
+                else condition_mask[subject_index:subject_index + 1]
+            )
+            sample_chunks = []
+            for start in range(0, num_samples, batch_size):
+                count = min(batch_size, num_samples - start)
+                samples = self.SBIm.sampler.sample(
+                    world_size=1,
+                    data=data[subject_index:subject_index + 1],
+                    condition_mask=subject_mask,
+                    timesteps=timesteps,
+                    eps=eps,
+                    num_samples=count,
+                    device=device,
+                    verbose=self.verbose,
+                    method="dpm",
+                    capture_attention=False,
+                )
+                sample_chunks.append(samples.detach().cpu())
+
+            # Preserve every requested draw and moment-match only after all of
+            # this subject's batches have completed.
+            subject_samples = torch.cat(sample_chunks, dim=1)
+            var = subject_samples[:, :, self.hierarchy].var(dim=1)
+            per_subject_precision.append(
+                1.0 / torch.clamp(var, min=1e-8)
+            )
+
+        return torch.cat(per_subject_precision, dim=0)
 
     def _validate_precision(self, precision):
         """
@@ -860,6 +1565,17 @@ class MultiObsSampler():
 
     def _diffused_gaussian_prior_score(self, theta_y, t):
         """Return the noised Gaussian-prior score in y=x/alpha coordinates."""
+        if self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+            var_t = self.sde.lambda_t(t).to(theta_y.device).square()
+            identity = torch.eye(
+                len(self.hierarchy), dtype=theta_y.dtype, device=theta_y.device
+            )
+            covariance_t = self.prior_covariance.to(theta_y) + var_t.reshape(()) * identity
+            delta = theta_y - self.prior_mean.to(theta_y)
+            return -torch.linalg.solve(
+                covariance_t, delta.squeeze(0).mT
+            ).mT.unsqueeze(0)
+
         alpha = self.sde.alpha_t(t).to(theta_y.device)
         sigma = self.sde.sigma_t(t).to(theta_y.device)
         theta_x = alpha * theta_y
@@ -887,6 +1603,8 @@ class MultiObsSampler():
                               + sum_j Lambda_j * s_j ]
           where Lambda_prior / Lambda_j are the *denoising* precisions of prior and
           single-observation posteriors, and Lambda = (1-n) Lambda_prior + sum_j Lambda_j.
+        - "full_gaussian" (Gloeckler et al. 2024, Algorithm 2): the same
+          precision weighting with full covariance matrices and a linear solve.
         - "damping" (Arruda et al. 2026, Eq. 9):
               s = d(t) [ (1-n)(1-t) prior_score + n/m sum_(j in B) s_j ]
         - "gauss_damping": d(t) times the Gaussian-corrected score.
@@ -899,6 +1617,7 @@ class MultiObsSampler():
         m = scores.shape[0]
 
         var_t = self.sde.lambda_t(t).to(x.device)**2
+        scores = self._moment_projected_scores(scores, x, var_t)
 
         theta_h = x[:1, :, h]                                   # (1, num_samples, H), shared
 
@@ -944,7 +1663,76 @@ class MultiObsSampler():
                 (1 - n) * (1 - t) * prior_score + scaled_sum_scores
             )
 
-        elif self.correction in self.GAUSSIAN_CORRECTIONS:
+        elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+            effective_precision, cross_factor = self._effective_global_factors(
+                var_t
+            )
+            if self.correction == "Gauss_global_local" and (
+                    getattr(self, "global_posterior_mean", None) is not None):
+                # Compose only marginal p(g_t | x_j) scores.  The joint-network
+                # g score is conditional on the current local state and must not
+                # enter this cross-subject update.
+                effective_precision, _ = self._marginal_global_factors(var_t)
+                global_scores = self._marginal_global_scores(
+                    theta_h, var_t, rows=scores.shape[0]
+                )
+            else:
+                global_scores = scores[:, :, h].to(torch.float64)
+            if effective_precision.shape[0] == 1:
+                precision_sum = n * effective_precision[0]
+                weighted_sum = torch.einsum(
+                    "ij,bsj->bsi", effective_precision[0],
+                    global_scores.sum(dim=0, keepdim=True),
+                )
+            else:
+                precision_sum = effective_precision.sum(dim=0)
+                weighted_sum = torch.einsum(
+                    "nij,nsj->nsi", effective_precision, global_scores
+                ).sum(dim=0, keepdim=True)
+
+            inverse_variance = torch.as_tensor(
+                1.0 / var_t, dtype=torch.float64, device=scores.device
+            ).reshape(())
+            identity = torch.eye(
+                len(h), dtype=torch.float64, device=scores.device
+            )
+            precision_prior_t = (
+                self.prior_precision_matrix.to(
+                    device=scores.device, dtype=torch.float64
+                )
+                + inverse_variance * identity
+            )
+            weighted_prior = torch.einsum(
+                "ij,bsj->bsi", precision_prior_t,
+                prior_score.to(torch.float64),
+            )
+            composed_precision = (
+                precision_sum + (1 - n) * precision_prior_t
+            )
+            numerator = weighted_sum + (1 - n) * weighted_prior
+            composed64, _, _, _ = self._solve_composed_global(
+                composed_precision, numerator, global_scores
+            )
+            composed = composed64.to(scores.dtype)
+
+            if (
+                self.correction == "Gauss_global_local"
+                and self.local_latent_indices
+            ):
+                if cross_factor.shape[0] == 1:
+                    cross_factor = cross_factor.expand(n, -1, -1)
+                global_delta = (
+                    composed64.expand(n, -1, -1) - global_scores
+                )
+                local_delta = torch.einsum(
+                    "nlg,nsg->nsl", cross_factor, global_delta
+                )
+                scores[:, :, self.local_latent_indices] = (
+                    scores[:, :, self.local_latent_indices]
+                    + local_delta.to(scores.dtype)
+                )
+
+        elif self.correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
             Lambda_prior = 1.0 / self.prior_std**2 + 1.0 / var_t                  # (1, H)
             Lambda_j = self.posterior_precision + 1.0 / var_t                     # (n or 1, H)
             if Lambda_j.shape[0] == 1:
@@ -992,6 +1780,14 @@ class MultiObsSampler():
                 and self.correction not in ({"fnpe"} | self.DAMPED_CORRECTIONS)):
             x0 = torch.clamp(theta_h + var_t * composed, min=lo, max=hi)
             composed = (x0 - theta_h) / var_t
+
+        if not torch.all(torch.isfinite(composed)):
+            name = "full-Gaussian" if (
+                self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS
+            ) else self.correction
+            raise RuntimeError(
+                f"The stabilized {name} score became non-finite."
+            )
 
         # Broadcast the composed score to all observation rows on the shared dims
         result = scores if scores.shape[0] == x.shape[0] else torch.zeros_like(x)
@@ -1399,7 +2195,8 @@ class MultiObsSampler():
 
     def _dpm_sampler(self, data, condition_mask, idx,
                      order=2,
-                     snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3):
+                     snr=0.1, corrector_steps_interval=5, corrector_steps=5,
+                     final_corrector_steps=3, terminal_corrector_steps=0):
         """
         Hybrid sampling approach combining DPM-Solver with Predictor-Corrector refinement.
 
@@ -1448,4 +2245,11 @@ class MultiObsSampler():
                 # Store trajectory data
                 self.data_t[:,i+1] = data
 
+        # Optional terminal-only correction. These steps are never interleaved with the DPM trajectory.
+        if terminal_corrector_steps:
+            terminal_time = self.timesteps_list[-1].reshape(-1, 1)
+            data = self._corrector_step(
+                data, terminal_time, condition_mask, idx,
+                terminal_corrector_steps, snr, self.cfg_alpha,
+            )
         return data.detach()

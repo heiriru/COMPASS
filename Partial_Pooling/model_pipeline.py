@@ -46,7 +46,8 @@ def _raw_pair(name, payload):
 def load_normalizers(config, paths=None):
     paths = (paths or BenchmarkPaths.default()).ensure()
     state = torch.load(normalization_path(config, paths), map_location="cpu")
-    if state["config_signature"] != config.signature:
+    signature = state.get("data_signature", state.get("config_signature"))
+    if signature not in config.compatible_data_signatures:
         raise RuntimeError("Normalization configuration mismatch.")
     return {key: Normalizer.from_state_dict(value) for key, value in state["normalizers"].items()}
 
@@ -94,6 +95,7 @@ def train_models(config, names=None, paths=None, force=False, device="cpu"):
         model = ScoreBasedInferenceModel(
             nodes_size=spec.theta_dim + spec.x_dim,
             sde_type=config.sde_type, sigma=config.sigma,
+            beta_min=config.beta_min, beta_max=config.beta_max,
             hidden_size=config.hidden_size, depth=config.depth,
             num_heads=config.num_heads, mlp_ratio=config.mlp_ratio,
             device=device,
@@ -105,7 +107,12 @@ def train_models(config, names=None, paths=None, force=False, device="cpu"):
             verbose=True, path=str(directory), name=checkpoint_tag(config, name),
         )
         atomic_json(signature_path, {
-            "config_signature": config.signature, "model": name,
+            "config_signature": config.model_signature,
+            "model_signature": config.model_signature,
+            "data_signature": config.data_signature,
+            "model": name,
+            "sde_type": config.sde_type,
+            "diffusion": config.diffusion_tag,
             "training_method": training_tag(config),
             "training_samples": config.train_size,
             "validation_samples": config.validation_size,
@@ -124,4 +131,16 @@ def load_model(config, name, paths=None, device="cpu"):
     checkpoint = checkpoint_path(config, name, paths)
     if not checkpoint.exists():
         raise FileNotFoundError(f"Missing checkpoint {checkpoint}; run train_models.py first.")
-    return ScoreBasedInferenceModel.load(str(checkpoint), device=device)
+    model = ScoreBasedInferenceModel.load(str(checkpoint), device=device)
+    if model.sde_type != config.sde_type:
+        raise RuntimeError(
+            f"Checkpoint SDE {model.sde_type!r} does not match "
+            f"configuration {config.sde_type!r}."
+        )
+    if config.sde_type == "vpsde" and (
+        model.beta_min != config.beta_min or model.beta_max != config.beta_max
+    ):
+        raise RuntimeError(
+            "Checkpoint VPSDE beta schedule does not match the configuration."
+        )
+    return model

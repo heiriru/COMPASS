@@ -55,9 +55,13 @@ def _write_shards(directory, split, payload, config, force):
         path = directory / training_shard_filename(
             config, split, start, stop,
         )
-        if not reusable(path, config.signature, force):
+        if not reusable(
+            path, config.compatible_data_signatures, force,
+            signature_key="data_signature",
+        ):
             atomic_torch(path, {
-                "config_signature": config.signature,
+                "config_signature": config.data_signature,
+                "data_signature": config.data_signature,
                 "split": split, "start": start, "stop": stop,
                 "seed": derive_seed(config.root_seed, "data", split),
                 "payload": _slice(payload, start, stop),
@@ -87,8 +91,12 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
     paths = (paths or BenchmarkPaths.default()).ensure()
     index_path = training_index_path(config, paths)
     normalizer_path = normalization_path(config, paths)
-    if reusable(index_path, config.signature, force) and reusable(
-        normalizer_path, config.signature, force,
+    if reusable(
+        index_path, config.compatible_data_signatures, force,
+        signature_key="data_signature",
+    ) and reusable(
+        normalizer_path, config.compatible_data_signatures, force,
+        signature_key="data_signature",
     ):
         return index_path
     splits = {}
@@ -105,7 +113,8 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
         )
     normalizer_states = _normalizers(training_payload)
     atomic_torch(normalizer_path, {
-        "config_signature": config.signature,
+        "config_signature": config.data_signature,
+        "data_signature": config.data_signature,
         "fitted_split": "train",
         "training_method": training_tag(config),
         "training_samples": config.train_size,
@@ -122,7 +131,11 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
         for key, state in normalizer_states.items()
     }
     atomic_json(index_path, {
-        **manifest(config, "training_data", cpu_limit or {}, splits=splits),
+        **manifest(
+            config, "training_data", cpu_limit or {},
+            signature=config.data_signature, signature_kind="data",
+            splits=splits,
+        ),
         "device": "cpu",
         "training_method": training_tag(config),
         "training_samples": config.train_size,
@@ -147,7 +160,10 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
 def generate_test_data(config, paths=None, force=False, cpu_limit=None):
     paths = (paths or BenchmarkPaths.default()).ensure()
     output = test_data_path(config, paths)
-    if reusable(output, config.signature, force):
+    if reusable(
+        output, config.compatible_data_signatures, force,
+        signature_key="data_signature",
+    ):
         return output
     payload = {
         "sde": _sde_split(config, "test", config.test_datasets, config.subjects),
@@ -155,8 +171,12 @@ def generate_test_data(config, paths=None, force=False, cpu_limit=None):
     dataset_ids = torch.arange(config.test_datasets)
     subject_ids = torch.arange(config.subjects).expand(config.test_datasets, -1)
     atomic_torch(output, {
-        "config_signature": config.signature,
-        "manifest": manifest(config, "inference_data", cpu_limit or {}),
+        "config_signature": config.data_signature,
+        "data_signature": config.data_signature,
+        "manifest": manifest(
+            config, "inference_data", cpu_limit or {},
+            signature=config.data_signature, signature_kind="data",
+        ),
         "dataset_ids": dataset_ids, "subject_ids": subject_ids,
         "payload": payload,
     })
@@ -166,12 +186,20 @@ def generate_test_data(config, paths=None, force=False, cpu_limit=None):
 def load_split(config, split, paths=None):
     paths = (paths or BenchmarkPaths.default()).ensure()
     index = training_index_path(config, paths)
+    reusable(
+        index, config.compatible_data_signatures,
+        signature_key="data_signature",
+    )
     meta = __import__("json").loads(index.read_text())
     directory = training_shard_directory(config, paths)
-    shards = [
-        torch.load(directory / name, map_location="cpu")["payload"]
-        for name in meta["splits"][split]
-    ]
+    shards = []
+    for name in meta["splits"][split]:
+        path = directory / name
+        reusable(
+            path, config.compatible_data_signatures,
+            signature_key="data_signature",
+        )
+        shards.append(torch.load(path, map_location="cpu")["payload"])
     return _concatenate(shards)
 
 

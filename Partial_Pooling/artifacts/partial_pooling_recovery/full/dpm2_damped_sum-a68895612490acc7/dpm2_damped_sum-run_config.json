@@ -1,0 +1,49 @@
+{
+  "checkpoint_tag": "sde_joint-train-32768",
+  "config_signature": "aacc35ff55f5604e",
+  "correction": "damped_sum",
+  "cpu_limit": {
+    "active_cpus": 4,
+    "active_fraction": 0.05555555555555555,
+    "cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "host_cpus": 72
+  },
+  "dataset_start": 0,
+  "datasets": 5,
+  "device": "cuda:0",
+  "draws": 256,
+  "estimated_runtime_seconds": 957.984,
+  "inference_method": "dpm2_damped_sum",
+  "inference_signature": "a68895612490acc7",
+  "map_settings": {
+    "iterations_per_level": 3,
+    "logprob_timesteps": 20,
+    "optimizer_correction": "uncorrected",
+    "sampling_correction": "damped_sum",
+    "starts": 4,
+    "timesteps": 20,
+    "version": 1
+  },
+  "observation_counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "observation_sweep": true,
+  "order": 2,
+  "preset": "full",
+  "run_directory": "dpm2_damped_sum-a68895612490acc7",
+  "sampler": "dpm",
+  "subjects": 20,
+  "timesteps": 50,
+  "training_model": "sde_joint",
+  "training_samples": 32768
+}

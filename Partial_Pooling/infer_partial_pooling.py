@@ -11,14 +11,27 @@ from pathlib import Path
 
 DEFAULT_DATASETS = 5
 DEFAULT_SUBJECTS = 20
-DEFAULT_DRAWS = 256
+DEFAULT_DRAWS = 4096
 DEFAULT_TIMESTEPS = 50
 DEFAULT_MAP_STARTS = 4
 DEFAULT_MAP_TIMESTEPS = 20
 DEFAULT_MAP_ITERATIONS = 3
 DEFAULT_MAP_LOGPROB_TIMESTEPS = 20
+MAP_SETTINGS_VERSION = 4
+MAP_RETRY_SIGMA_START = 0.1
+MAP_RETRY_TIMESTEPS = 10
+MAP_CENTRAL_DENSITY_QUANTILE = 0.5
+MAP_COHERENCE_QUANTILE = 0.95
+MAP_MIN_COHERENCE_LIMIT = 8.0
+MAP_SUPPORT_QUANTILE = 0.01
 FIGURE_DPI = 300
-INFERENCE_METHODS = ("dpm2_gaussian", "langevin_fnpse")
+GAUSSIAN_CORRECTIONS = frozenset({
+    "gauss", "full_gaussian", "Gauss_global_local",
+})
+INFERENCE_METHODS = (
+    "dpm2_gaussian", "dpm2_full_gaussian",
+    "dpm2_gauss_global_local_moment", "langevin_fnpse",
+)
 
 
 def inference_plan(name):
@@ -30,6 +43,23 @@ def inference_plan(name):
             "correction": "gauss",
             "order": 2,
             "label": "DPM-Solver-2 + Gaussian",
+        }
+    if name == "dpm2_full_gaussian":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "full_gaussian",
+            "order": 2,
+            "label": "DPM-Solver-2 + full Gaussian",
+        }
+    if name == "dpm2_gauss_global_local_moment":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "Gauss_global_local",
+            "order": 2,
+            "moment_projection": True,
+            "label": "DPM-Solver-2 + global/local Gaussian moments",
         }
     if name == "langevin_fnpse":
         return {
@@ -43,6 +73,18 @@ def inference_plan(name):
         f"Unknown inference method {name!r}; choose one of "
         f"{', '.join(INFERENCE_METHODS)}."
     )
+
+
+def diffusion_metadata(config):
+    return {
+        "model_signature": config.model_signature,
+        "data_signature": config.data_signature,
+        "sde_type": config.sde_type,
+        "diffusion": config.diffusion_tag,
+        "sigma": config.sigma if config.sde_type == "vesde" else None,
+        "beta_min": config.beta_min if config.sde_type == "vpsde" else None,
+        "beta_max": config.beta_max if config.sde_type == "vpsde" else None,
+    }
 
 
 
@@ -62,6 +104,9 @@ def parser():
     result.add_argument(
         "--preset", choices=("smoke", "full", "large"), default="full",
     )
+    result.add_argument("--sde-type", choices=("vesde", "vpsde"), default="vesde")
+    result.add_argument("--beta-min", type=float, default=0.1)
+    result.add_argument("--beta-max", type=float, default=20.0)
     result.add_argument("--root", type=Path)
     result.add_argument("--seed", type=int)
     result.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cuda")
@@ -74,8 +119,8 @@ def parser():
         "--inference-method", choices=INFERENCE_METHODS,
         default="dpm2_gaussian",
         help=(
-            "Primary DPM-Solver-2 + Gaussian composition, or the "
-            "Langevin + F-NPSE reference."
+            "DPM-Solver-2 with diagonal, full-covariance, or global/local "
+            "Gaussian moment composition, or the Langevin + F-NPSE reference."
         ),
     )
     result.add_argument(
@@ -85,6 +130,13 @@ def parser():
     result.add_argument(
         "--gaussian-precision-timesteps", type=int, default=50,
         help="Diffusion steps for the reusable Gaussian precision estimate.",
+    )
+    result.add_argument(
+        "--gaussian-precision-batch-size", type=int, default=128,
+        help=(
+            "Maximum flattened transformer rows per Gaussian precision batch; "
+            "does not change the number of precision samples."
+        ),
     )
     result.add_argument(
         "--langevin-steps-per-level", type=int, default=10,
@@ -188,13 +240,14 @@ def inference_signature(config_signature, args, plan):
         "sampler": plan["sampler"],
         "correction": plan["correction"],
         "order": plan["order"],
+        "moment_projection": bool(plan.get("moment_projection", False)),
         "gaussian_precision_samples": (
             args.gaussian_precision_samples
-            if plan["correction"] == "gauss" else None
+            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
         ),
         "gaussian_precision_timesteps": (
             args.gaussian_precision_timesteps
-            if plan["correction"] == "gauss" else None
+            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
         ),
         "langevin_steps_per_level": (
             args.langevin_steps_per_level
@@ -236,8 +289,30 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
     batch_count = math.ceil(args.draws / batch_size)
     chunks = []
     posterior_precision = None
+    posterior_covariance = None
+    posterior_mean = None
     totals = {"score_network_calls": 0, "evaluated_subject_rows": 0}
     started = time.perf_counter()
+
+    if plan.get("moment_projection", False):
+        latent_width = model.nodes_size - normalized_observations.shape[-1]
+        estimator = model.multi_obs_sampler
+        estimator.verbose = False
+        print(
+            "  estimating reusable single-subject posterior means and "
+            "covariances ...",
+            flush=True,
+        )
+        posterior_mean, posterior_covariance = (
+            estimator.estimate_posterior_moments(
+                data=normalized_observations.cpu(),
+                condition_mask=condition_mask.cpu(),
+                num_samples=args.gaussian_precision_samples,
+                timesteps=args.gaussian_precision_timesteps, eps=1e-3,
+                batch_size=args.gaussian_precision_batch_size, device=device,
+                feature_indices=list(range(latent_width)),
+            )
+        )
 
     print(
         f"  {plan['label']}: sampling {args.draws} draws in {batch_count} batches "
@@ -256,8 +331,11 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             prior=prior,
             correction=plan["correction"],
             posterior_precision=posterior_precision,
+            posterior_covariance=posterior_covariance,
+            posterior_mean=posterior_mean,
             precision_est_samples=args.gaussian_precision_samples,
             precision_est_timesteps=args.gaussian_precision_timesteps,
+            precision_est_batch_size=args.gaussian_precision_batch_size,
             order=plan["order"] or 2,
             snr=args.langevin_snr,
             corrector_steps_interval=1,
@@ -269,10 +347,18 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             device=device,
             verbose=False,
             method=plan["sampler"],
+            capture_attention=False,
         ).cpu()
         if plan["correction"] == "gauss" and posterior_precision is None:
             posterior_precision = (
                 model.multi_obs_sampler.posterior_precision.detach().cpu()
+            )
+        if (
+            plan["correction"] in {"full_gaussian", "Gauss_global_local"}
+            and posterior_covariance is None
+        ):
+            posterior_covariance = (
+                model.multi_obs_sampler.posterior_covariance.detach().cpu()
             )
         chunks.append(chunk)
         stats = dict(model.multi_obs_sampler.solver_stats or {})
@@ -296,8 +382,16 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
 
     normalized = torch.cat(chunks, dim=1)
     shared = normalized[:, :, :len(GLOBAL_INDICES)]
-    if not torch.allclose(shared, shared[:1].expand_as(shared), atol=1e-5):
-        raise RuntimeError("Partial-pooling inference returned unsynchronized globals.")
+    if not torch.all(torch.isfinite(normalized)):
+        raise RuntimeError(
+            "Partial-pooling inference returned non-finite posterior draws."
+        )
+    sync_error = float((shared - shared[:1]).abs().max())
+    if sync_error > 1e-5:
+        raise RuntimeError(
+            "Partial-pooling inference returned unsynchronized globals "
+            f"(maximum absolute difference {sync_error:.3e})."
+        )
     raw = theta_normalizer.inverse(
         normalized.reshape(-1, normalized.shape[-1])
     ).reshape_as(normalized)
@@ -305,6 +399,8 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
         "globals": raw[0, :, :len(GLOBAL_INDICES)],
         "locals": raw[:, :, len(GLOBAL_INDICES):].permute(1, 0, 2),
         "posterior_precision": posterior_precision,
+        "posterior_covariance": posterior_covariance,
+        "posterior_mean": posterior_mean,
     }
     totals["score_evaluations"] = totals["score_network_calls"]
     return posterior, totals, time.perf_counter() - started
@@ -313,21 +409,133 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
 def _map_settings(args):
     plan = inference_plan(args.inference_method)
     return {
-        "version": 2,
+        "version": MAP_SETTINGS_VERSION,
         "starts": int(args.map_starts),
         "timesteps": int(args.map_timesteps),
         "iterations_per_level": int(args.map_iterations),
         "logprob_timesteps": int(args.map_logprob_timesteps),
         "sampling_correction": plan["correction"],
         "optimizer_correction": (
-            "gauss" if plan["correction"] == "gauss" else None
+            plan["correction"]
+            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
         ),
         "estimator": (
-            "hierarchical_score_map"
-            if plan["correction"] == "gauss"
+            "validated_hierarchical_score_map"
+            if plan["correction"] in GAUSSIAN_CORRECTIONS
             else "posterior_global_kde_mode"
         ),
+        "retry_sigma_start": (
+            MAP_RETRY_SIGMA_START
+            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
+        ),
+        "retry_timesteps": (
+            min(MAP_RETRY_TIMESTEPS, int(args.map_timesteps))
+            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
+        ),
     }
+
+
+def _global_kde_state(global_draws, torch):
+    """Fit the standardized global KDE used for starts and support checks."""
+    from numpy.linalg import LinAlgError
+    from scipy.stats import gaussian_kde
+
+    values = torch.as_tensor(global_draws, dtype=torch.float64)
+    mean = values.mean(dim=0)
+    scale = values.std(dim=0, unbiased=False).clamp_min(1e-6)
+    standardized = ((values - mean) / scale).numpy()
+    try:
+        kde = gaussian_kde(standardized.T)
+        scores = torch.from_numpy(kde.logpdf(standardized.T)).float()
+    except (ValueError, RuntimeError, LinAlgError):
+        kde = None
+        scores = -torch.from_numpy((standardized ** 2).sum(axis=1)).float()
+    return {"mean": mean, "scale": scale, "kde": kde, "scores": scores}
+
+
+def _global_kde_log_density(state, values, torch):
+    """Evaluate raw global coordinates under a fitted standardized KDE."""
+    points = torch.as_tensor(values, dtype=torch.float64)
+    if points.dim() == 1:
+        points = points.unsqueeze(0)
+    standardized = ((points - state["mean"]) / state["scale"]).numpy()
+    if state["kde"] is None:
+        result = -(standardized ** 2).sum(axis=1)
+    else:
+        result = state["kde"].logpdf(standardized.T)
+    return torch.from_numpy(result).float()
+
+
+def _hierarchy_validation_state(posterior, density, torch):
+    """Derive a conservative local/global coherence limit from central draws."""
+    global_draws = posterior["globals"].float()
+    local_draws = posterior["locals"].float()
+    scales = global_draws[:, None, 3:6].exp().clamp_min(1e-8)
+    standardized = (
+        (local_draws - global_draws[:, None, :3]) / scales
+    ).abs()
+    max_abs_z = standardized.amax(dim=(1, 2))
+    central_cutoff = torch.quantile(
+        density["scores"], MAP_CENTRAL_DENSITY_QUANTILE,
+    )
+    central = max_abs_z[density["scores"] >= central_cutoff]
+    if central.numel() == 0:
+        central = max_abs_z
+    coherence_limit = max(
+        MAP_MIN_COHERENCE_LIMIT,
+        float(torch.quantile(central, MAP_COHERENCE_QUANTILE)),
+    )
+    return {
+        "coherence_limit": coherence_limit,
+        "sample_max_abs_z": max_abs_z,
+        "support_limit": float(torch.quantile(
+            density["scores"], MAP_SUPPORT_QUANTILE,
+        )),
+    }
+
+
+def _joint_candidate_diagnostics(
+    raw_candidate, density, validation, torch,
+):
+    """Measure posterior support and exact hierarchy coherence for one candidate."""
+    from Partial_Pooling.simulators.priors import (
+        GLOBAL_PRIOR_MEAN, GLOBAL_PRIOR_STD,
+    )
+
+    raw_candidate = torch.as_tensor(raw_candidate, dtype=torch.float32)
+    globals_ = raw_candidate[0, :7]
+    locals_ = raw_candidate[:, 7:10]
+    scales = globals_[3:6].exp().clamp_min(1e-8)
+    max_abs_z = float(
+        ((locals_ - globals_[:3]) / scales).abs().max()
+    )
+    global_log_density = float(
+        _global_kde_log_density(density, globals_, torch)[0]
+    )
+    prior_mean = torch.as_tensor(GLOBAL_PRIOR_MEAN, dtype=torch.float32)
+    prior_std = torch.as_tensor(GLOBAL_PRIOR_STD, dtype=torch.float32)
+    lower = prior_mean - 5.0 * prior_std
+    upper = prior_mean + 5.0 * prior_std
+    boundary_distance = torch.minimum(
+        (globals_ - lower).abs(), (globals_ - upper).abs(),
+    )
+    return {
+        "max_abs_z": max_abs_z,
+        "coherence_limit": float(validation["coherence_limit"]),
+        "coherent": max_abs_z <= float(validation["coherence_limit"]),
+        "global_log_density": global_log_density,
+        "global_support_limit": float(validation["support_limit"]),
+        "global_supported": global_log_density >= float(validation["support_limit"]),
+        "at_denoise_boundary": bool(torch.any(boundary_distance <= 1e-4)),
+    }
+
+
+def _is_numerical_map_failure(error):
+    """Return whether one MAP candidate failed for a recoverable numeric reason."""
+    message = str(error).lower()
+    return any(fragment in message for fragment in (
+        "non-finite", "non-positive", "singular",
+    ))
 
 
 def _fnpse_kde_map(posterior, args, torch):
@@ -362,7 +570,7 @@ def _fnpse_kde_map(posterior, args, torch):
 def _joint_map_dataset(
     model, observations, posterior, normalizers, args, config, device, torch,
 ):
-    """Estimate a compatible global/local mode for the selected sampler."""
+    """Estimate and validate a compatible global/local mode."""
     from compass.ModelTransfuser import ModelTransfuser
     from Partial_Pooling.schema import GLOBAL_INDICES
 
@@ -370,10 +578,22 @@ def _joint_map_dataset(
     if plan["correction"] == "fnpe":
         return _fnpse_kde_map(posterior, args, torch)
 
-    posterior_precision = posterior.get("posterior_precision")
-    if posterior_precision is None:
+    gaussian_state = {}
+    if plan["correction"] == "gauss":
+        gaussian_state["posterior_precision"] = posterior.get(
+            "posterior_precision"
+        )
+    elif plan["correction"] in {"full_gaussian", "Gauss_global_local"}:
+        gaussian_state["posterior_covariance"] = posterior.get(
+            "posterior_covariance"
+        )
+        if plan.get("moment_projection", False):
+            gaussian_state["posterior_mean"] = posterior.get("posterior_mean")
+    if not gaussian_state or any(
+        value is None for value in gaussian_state.values()
+    ):
         raise RuntimeError(
-            "DPM2 + Gaussian MAP requires the precision estimate saved during "
+            "Gaussian MAP requires the matching estimate saved during "
             "posterior sampling."
         )
     started = time.perf_counter()
@@ -397,6 +617,51 @@ def _joint_map_dataset(
     ))
     hierarchy = list(GLOBAL_INDICES)
     prior = _normalized_global_prior(theta_normalizer, torch)
+    density = _global_kde_state(global_draws, torch)
+    validation = _hierarchy_validation_state(posterior, density, torch)
+
+    def posterior_fallback(phase):
+        coherent_draws = torch.where(
+            validation["sample_max_abs_z"]
+            <= float(validation["coherence_limit"])
+        )[0]
+        if coherent_draws.numel() == 0:
+            coherent_draws = torch.arange(draws)
+        selected_draw = int(coherent_draws[
+            torch.argmax(density["scores"][coherent_draws])
+        ])
+        fallback_map = latent_raw[:, selected_draw, :]
+        fallback_diagnostics = _joint_candidate_diagnostics(
+            fallback_map, density, validation, torch,
+        )
+        return (
+            fallback_map, fallback_diagnostics, density["scores"],
+            selected_draw, phase,
+        )
+
+    def refine_candidate(start, sigma_start, timesteps, label):
+        try:
+            refined = model.hierarchical_map_estimate(
+                data=start,
+                condition_mask=condition_mask,
+                init=start,
+                hierarchy=hierarchy,
+                prior=prior,
+                correction=plan["correction"],
+                **gaussian_state,
+                sigma_start=sigma_start,
+                timesteps=timesteps,
+                iterations_per_level=args.map_iterations,
+                max_iterations_per_level=args.map_iterations,
+                device=device,
+            )
+        except RuntimeError as error:
+            if not _is_numerical_map_failure(error):
+                raise
+            print(f"  {label} skipped after numerical failure: {error}", flush=True)
+            return None
+        return refined[:, 0, :]
+
     starts, annealing_scales = ModelTransfuser._joint_map_initializations(
         latent_normalized, normalized_observations, condition_mask,
         hierarchy, args.map_starts,
@@ -410,29 +675,92 @@ def _joint_map_dataset(
     candidates = []
     for start_index, sigma_start in enumerate(annealing_scales):
         start = starts[:, start_index, :]
-        refined = model.hierarchical_map_estimate(
-            data=start,
-            condition_mask=condition_mask,
-            init=start,
-            hierarchy=hierarchy,
-            prior=prior,
-            correction="gauss",
-            posterior_precision=posterior_precision,
-            sigma_start=sigma_start,
-            timesteps=args.map_timesteps,
-            iterations_per_level=args.map_iterations,
-            max_iterations_per_level=args.map_iterations,
-            device=device,
+        candidate = refine_candidate(
+            start, sigma_start, args.map_timesteps,
+            f"MAP start {start_index + 1}",
         )
-        candidates.append(refined[:, 0, :])
-    candidate_tensor = torch.stack(candidates, dim=1)
-    scores = ModelTransfuser._hierarchical_candidate_scores(
-        model, candidate_tensor, condition_mask, hierarchy, prior,
-        args.map_logprob_timesteps, 1e-3, device, False,
-    ).cpu()
-    selected = int(torch.argmax(scores))
-    normalized_map = candidate_tensor[:, selected, :latent_width].cpu()
-    raw_map = theta_normalizer.inverse(normalized_map)
+        if candidate is not None:
+            candidates.append(candidate)
+    if candidates:
+        candidate_tensor = torch.stack(candidates, dim=1)
+        scores = ModelTransfuser._hierarchical_candidate_scores(
+            model, candidate_tensor, condition_mask, hierarchy, prior,
+            args.map_logprob_timesteps, 1e-3, device, False,
+        ).cpu()
+        raw_candidates = theta_normalizer.inverse(
+            candidate_tensor[:, :, :latent_width].reshape(-1, latent_width).cpu()
+        ).reshape(subjects, candidate_tensor.shape[1], latent_width)
+        selected = int(torch.argmax(scores))
+        raw_map = raw_candidates[:, selected]
+        diagnostics = _joint_candidate_diagnostics(
+            raw_map, density, validation, torch,
+        )
+        phase = "initial_score_ascent"
+    else:
+        raw_map, diagnostics, scores, selected, phase = posterior_fallback(
+            "posterior_draw_fallback_after_numerical_failure",
+        )
+
+    if candidates and (
+        not diagnostics["coherent"] or diagnostics["at_denoise_boundary"]
+    ):
+        count = min(int(args.map_starts), draws)
+        source_indices = torch.argsort(
+            density["scores"], descending=True,
+        )[:count]
+        retry_latent = latent_normalized[:, source_indices, :]
+        retry_starts = torch.cat((
+            retry_latent,
+            normalized_observations[:, None, :].expand(-1, count, -1),
+        ), dim=2)
+        print(
+            "  selected MAP failed hierarchy/boundary validation; "
+            f"retrying {count} posterior-supported starts at "
+            f"sigma={MAP_RETRY_SIGMA_START:g}",
+            flush=True,
+        )
+        retry_candidates = []
+        for retry_index in range(count):
+            retry_start = retry_starts[:, retry_index, :]
+            candidate = refine_candidate(
+                retry_start, MAP_RETRY_SIGMA_START,
+                min(MAP_RETRY_TIMESTEPS, int(args.map_timesteps)),
+                f"low-noise MAP retry {retry_index + 1}",
+            )
+            if candidate is not None:
+                retry_candidates.append(candidate)
+        valid = []
+        if retry_candidates:
+            candidate_tensor = torch.stack(retry_candidates, dim=1)
+            scores = ModelTransfuser._hierarchical_candidate_scores(
+                model, candidate_tensor, condition_mask, hierarchy, prior,
+                args.map_logprob_timesteps, 1e-3, device, False,
+            ).cpu()
+            raw_candidates = theta_normalizer.inverse(
+                candidate_tensor[:, :, :latent_width]
+                .reshape(-1, latent_width).cpu()
+            ).reshape(subjects, len(retry_candidates), latent_width)
+            retry_diagnostics = [
+                _joint_candidate_diagnostics(
+                    raw_candidates[:, index], density, validation, torch,
+                )
+                for index in range(len(retry_candidates))
+            ]
+            valid = [
+                index for index, item in enumerate(retry_diagnostics)
+                if item["coherent"] and item["global_supported"]
+                and not item["at_denoise_boundary"]
+            ]
+        if valid:
+            selected = max(valid, key=lambda index: float(scores[index]))
+            raw_map = raw_candidates[:, selected]
+            diagnostics = retry_diagnostics[selected]
+            phase = "posterior_supported_low_noise_retry"
+        else:
+            raw_map, diagnostics, scores, selected, phase = posterior_fallback(
+                "posterior_draw_fallback",
+            )
+
     sync_error = float(
         (raw_map[:, :len(hierarchy)] - raw_map[:1, :len(hierarchy)])
         .abs().max()
@@ -449,10 +777,10 @@ def _joint_map_dataset(
         "settings": _map_settings(args),
         "runtime_seconds": time.perf_counter() - started,
         "shared_synchronization_max_abs": sync_error,
-        "estimator": "hierarchical_score_map",
+        "estimator": "validated_hierarchical_score_map",
+        "selection_phase": phase,
+        "validation": diagnostics,
     }
-
-
 
 
 def _parameter_rows(dataset_id, scope, names, draws, truth, joint_map):
@@ -586,6 +914,7 @@ def _run_observation_sweep(
                 artifact = {
                     "inference_signature": signature,
                     "config_signature": config.signature,
+                    **diffusion_metadata(config),
                     "dataset_id": dataset_id,
                     "subject_ids": torch.arange(count),
                     "seed": seed,
@@ -623,6 +952,7 @@ def _run_observation_sweep(
         plan["name"], "manifest", "json",
     ), {
         "inference_signature": signature,
+        **diffusion_metadata(config),
         "observation_unit": "subject",
         "trials_per_subject": config.trials,
         "counts": list(counts),
@@ -833,6 +1163,88 @@ def _plot_residuals(
     return outputs
 
 
+def _safe_1d_kde(values, grid):
+    """Evaluate a tail-robust marginal KDE, or return ``None`` if degenerate.
+
+    ``gaussian_kde`` bases its bandwidth on the sample standard deviation. A
+    handful of finite solver excursions can therefore flatten the scientifically
+    relevant central density just as thoroughly as using the excursions to set
+    the plotting limits. Retain every draw in the KDE, but base its bandwidth on
+    the smaller of the standard deviation and the normal-equivalent IQR.
+    """
+    import numpy as np
+    from numpy.linalg import LinAlgError
+    from scipy.stats import gaussian_kde
+
+    values = np.asarray(values, dtype=np.float64).reshape(-1)
+    grid = np.asarray(grid, dtype=np.float64)
+    if values.size < 2 or not np.all(np.isfinite(values)):
+        return None
+    lower = float(np.min(values))
+    upper = float(np.max(values))
+    if upper <= lower:
+        return None
+    standard_scale = float(np.std(values))
+    if not np.isfinite(standard_scale) or standard_scale <= 0:
+        return None
+    center = float(np.median(values))
+    q25, q75 = np.quantile(values, (0.25, 0.75))
+    robust_scale = float((q75 - q25) / 1.3489795003921634)
+    scale = (
+        robust_scale
+        if np.isfinite(robust_scale) and robust_scale > 0
+        else standard_scale
+    )
+    standardized = (values - center) / scale
+    standardized_scale = float(np.std(standardized))
+    bandwidth_scale = min(1.0, 1.0 / standardized_scale)
+    try:
+        reference = gaussian_kde(standardized)
+        bandwidth = max(
+            reference.scotts_factor() * bandwidth_scale,
+            np.finfo(np.float64).tiny ** 0.25,
+        )
+        density = gaussian_kde(
+            standardized, bw_method=bandwidth,
+        )((grid - center) / scale) / scale
+    except (ValueError, RuntimeError, LinAlgError):
+        return None
+    if not np.all(np.isfinite(density)):
+        return None
+    return density
+
+
+def _robust_density_limits(value_sets, anchors=(), width=4.0):
+    """Return shared density limits resistant to a minority of solver outliers."""
+    import numpy as np
+
+    bounds = [float(value) for value in anchors if np.isfinite(value)]
+    for values in value_sets:
+        values = np.asarray(values, dtype=np.float64).reshape(-1)
+        values = values[np.isfinite(values)]
+        if not values.size:
+            continue
+        median = float(np.median(values))
+        mad_scale = float(
+            1.482602218505602 * np.median(np.abs(values - median))
+        )
+        q25, q75 = np.quantile(values, (0.25, 0.75))
+        iqr_scale = float((q75 - q25) / 1.3489795003921634)
+        scale = max(mad_scale, iqr_scale)
+        if not np.isfinite(scale) or scale <= 0:
+            scale = float(np.std(values))
+        if not np.isfinite(scale) or scale <= 0:
+            bounds.append(median)
+        else:
+            bounds.extend((median - width * scale, median + width * scale))
+    if not bounds:
+        return -0.1, 0.1
+    lower, upper = min(bounds), max(bounds)
+    span = upper - lower
+    padding = 0.06 * span if span > 0 else max(abs(lower) * 0.06, 0.1)
+    return lower - padding, upper + padding
+
+
 def _plot_global_density_grid(
     sweep_artifacts, global_names, output, plt, method_label=None,
 ):
@@ -840,7 +1252,6 @@ def _plot_global_density_grid(
     import numpy as np
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
-    from scipy.stats import gaussian_kde
 
     available = tuple(sorted(sweep_artifacts))
     counts = density_panel_counts(available, columns=4)
@@ -865,25 +1276,24 @@ def _plot_global_density_grid(
     )
     for parameter, name in enumerate(global_names):
         truth = float(artifacts[counts[0]]["truth_globals"][parameter])
-        all_values = [
-            float(value)
+        value_sets = [
+            artifacts[count]["posterior"]["globals"][:, parameter].numpy()
             for count in counts
-            for value in artifacts[count]["posterior"]["globals"][:, parameter]
         ]
         all_maps = [
             float(artifacts[count]["joint_map"]["globals"][parameter])
             for count in counts
         ]
-        lower = min([*all_values, *all_maps, truth])
-        upper = max([*all_values, *all_maps, truth])
-        span = upper - lower
-        padding = 0.06 * span if span > 0 else 0.1
-        grid = np.linspace(lower - padding, upper + padding, 300)
+        all_medians = [float(np.median(values)) for values in value_sets]
+        lower, upper = _robust_density_limits(
+            value_sets, anchors=(*all_maps, *all_medians, truth),
+        )
+        grid = np.linspace(lower, upper, 300)
         for column, count in enumerate(counts):
             axis = axes[parameter, column]
             values = artifacts[count]["posterior"]["globals"][:, parameter].numpy()
-            if float(np.std(values)) > 1e-10:
-                density = gaussian_kde(values)(grid)
+            density = _safe_1d_kde(values, grid)
+            if density is not None:
                 axis.fill_between(grid, density, color="#56B4E9", alpha=0.30)
                 axis.plot(grid, density, color="#0072B2", lw=1.5)
             else:
@@ -893,6 +1303,16 @@ def _plot_global_density_grid(
                 float(artifacts[count]["joint_map"]["globals"][parameter]),
                 color="#009E73", lw=1.3, ls="-.",
             )
+            axis.axvline(
+                float(np.median(values)), color="#CC79A7", lw=1.3, ls="--",
+            )
+            outside = int(np.count_nonzero((values < lower) | (values > upper)))
+            if outside:
+                axis.text(
+                    0.98, 0.94, f"{outside}/{values.size} draws outside view",
+                    transform=axis.transAxes, ha="right", va="top", fontsize=7,
+                    color="#666666",
+                )
             if parameter == 0:
                 axis.set_title(
                     f"{count} subject{'s' if count != 1 else ''}\n"
@@ -911,6 +1331,8 @@ def _plot_global_density_grid(
             Line2D([0], [0], color="#0072B2", lw=1.5, label="KDE"),
             Line2D([0], [0], color="#D55E00", lw=1.4, ls=":", label="simulator truth"),
             Line2D([0], [0], color="#009E73", lw=1.3, ls="-.", label="joint MAP"),
+            Line2D([0], [0], color="#CC79A7", lw=1.3, ls="--",
+                   label="posterior median"),
         ],
         loc="center left", bbox_to_anchor=(1.005, 0.5), frameon=True,
     )
@@ -1275,10 +1697,14 @@ def run(args, cpu_limit):
     from Partial_Pooling.rng import derive_seed
     from Partial_Pooling.schema import GLOBAL_NAMES, LOCAL_NAMES
 
-    config = get_config(args.preset, args.seed)
+    config = get_config(
+        args.preset, args.seed, args.sde_type,
+        args.beta_min, args.beta_max,
+    )
     for name in (
         "datasets", "subjects", "draws", "timesteps", "progress_every",
         "gaussian_precision_samples", "gaussian_precision_timesteps",
+        "gaussian_precision_batch_size",
         "langevin_steps_per_level", "map_starts", "map_timesteps",
         "map_iterations", "map_logprob_timesteps",
     ):
@@ -1307,7 +1733,8 @@ def run(args, cpu_limit):
             f"Missing {test_path}; run create_test_data.py first."
         )
     test = torch.load(test_path, map_location="cpu")
-    if test.get("config_signature") != config.signature:
+    test_signature = test.get("data_signature", test.get("config_signature"))
+    if test_signature not in config.compatible_data_signatures:
         raise RuntimeError("Test-data configuration does not match the selected preset.")
 
     device = args.device
@@ -1339,6 +1766,7 @@ def run(args, cpu_limit):
     atomic_json(run_config_path, {
         "inference_signature": signature,
         "config_signature": config.signature,
+        **diffusion_metadata(config),
         "preset": config.preset,
         "device": device,
         "dataset_start": args.dataset_start,
@@ -1353,8 +1781,10 @@ def run(args, cpu_limit):
         "sampler": plan["sampler"],
         "correction": plan["correction"],
         "order": plan["order"],
+        "moment_projection": bool(plan.get("moment_projection", False)),
         "gaussian_precision_samples": args.gaussian_precision_samples,
         "gaussian_precision_timesteps": args.gaussian_precision_timesteps,
+        "gaussian_precision_batch_size": args.gaussian_precision_batch_size,
         "langevin_steps_per_level": args.langevin_steps_per_level,
         "langevin_snr": args.langevin_snr,
         "estimated_runtime_seconds": estimate,
@@ -1369,6 +1799,7 @@ def run(args, cpu_limit):
 
     print(
         "Focused partial-pooling recovery\n"
+        f"  diffusion: {config.diffusion_tag}\n"
         f"  datasets: {args.datasets} starting at {args.dataset_start}\n"
         f"  subjects/draws/steps: {args.subjects}/{args.draws}/{args.timesteps}\n"
         f"  inference: {plan['label']}\n"
@@ -1418,6 +1849,7 @@ def run(args, cpu_limit):
             artifact = {
                 "inference_signature": signature,
                 "config_signature": config.signature,
+                **diffusion_metadata(config),
                 "dataset_id": dataset_id,
                 "subject_ids": test["subject_ids"][dataset_id, :args.subjects],
                 "seed": seed,
@@ -1438,6 +1870,10 @@ def run(args, cpu_limit):
                 "solver_stats": solver_stats,
                 "runtime_seconds": runtime_seconds,
             }
+            # Posterior sampling is the expensive phase.  Persist it before MAP
+            # refinement so a numerical MAP failure can resume without resampling.
+            atomic_torch(output, artifact)
+            print(f"  checkpointed posterior in {output.name}", flush=True)
         artifact["trials_per_subject"] = config.trials
         artifact = _complete_artifact_joint_map(
             artifact, model, source, selected_normalizers,
@@ -1489,6 +1925,7 @@ def main(argv=None):
     for name in (
         "datasets", "subjects", "draws", "timesteps",
         "gaussian_precision_samples", "gaussian_precision_timesteps",
+        "gaussian_precision_batch_size",
         "langevin_steps_per_level", "map_starts", "map_timesteps",
         "map_iterations", "map_logprob_timesteps",
     ):

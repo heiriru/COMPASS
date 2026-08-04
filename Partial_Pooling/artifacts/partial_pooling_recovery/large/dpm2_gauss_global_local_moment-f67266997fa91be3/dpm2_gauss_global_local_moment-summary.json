@@ -1,0 +1,83 @@
+{
+  "completed_datasets": 5,
+  "inference_method": "dpm2_gauss_global_local_moment",
+  "summary": {
+    "global": {
+      "beta_raw": {
+        "count": 5,
+        "coverage_95": 0.4,
+        "mae": 1.5168940607458352,
+        "mean_posterior_z_error": -3.808662406006909,
+        "rmse": 1.5208250691716614
+      },
+      "log_sigma_log_alpha": {
+        "count": 5,
+        "coverage_95": 0.0,
+        "mae": 3.0035654306411743,
+        "mean_posterior_z_error": 0.7721566010300045,
+        "rmse": 3.352061184980988
+      },
+      "log_sigma_log_t0": {
+        "count": 5,
+        "coverage_95": 0.6,
+        "mae": 0.42633953094482424,
+        "mean_posterior_z_error": -1.680519309141479,
+        "rmse": 0.5980478541545416
+      },
+      "log_sigma_nu": {
+        "count": 5,
+        "coverage_95": 0.0,
+        "mae": 1.8086869239807128,
+        "mean_posterior_z_error": -3.010506531312175,
+        "rmse": 2.01727040162166
+      },
+      "mu_log_alpha": {
+        "count": 5,
+        "coverage_95": 0.4,
+        "mae": 0.10528189833275974,
+        "mean_posterior_z_error": -18.442036208120495,
+        "rmse": 0.14477851131694705
+      },
+      "mu_log_t0": {
+        "count": 5,
+        "coverage_95": 0.8,
+        "mae": 0.39474159479141235,
+        "mean_posterior_z_error": -1.6911976768162766,
+        "rmse": 0.4698619784514338
+      },
+      "mu_nu": {
+        "count": 5,
+        "coverage_95": 0.4,
+        "mae": 0.5393833637237548,
+        "mean_posterior_z_error": -0.8867327252171577,
+        "rmse": 0.6303867842772334
+      }
+    },
+    "local": {
+      "log_alpha": {
+        "count": 100,
+        "coverage_95": 0.47,
+        "mae": 705168.5676548583,
+        "mean_posterior_z_error": -2.2642219919636593,
+        "rmse": 1417830.9593470609
+      },
+      "log_t0": {
+        "count": 100,
+        "coverage_95": 0.49,
+        "mae": 111357.52003095007,
+        "mean_posterior_z_error": 1.888295146290329,
+        "rmse": 240295.27668624505
+      },
+      "nu": {
+        "count": 100,
+        "coverage_95": 0.42,
+        "mae": 1471906.914727845,
+        "mean_posterior_z_error": 1.17989415357155,
+        "rmse": 2489065.651200706
+      }
+    }
+  },
+  "total_map_runtime_seconds": 91.07600148511119,
+  "total_runtime_seconds": 1048.7363259471022,
+  "total_sampling_runtime_seconds": 957.660324461991
+}

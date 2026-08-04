@@ -77,24 +77,30 @@ def append_csv_atomic(path, row, key_fields=None):
     atomic_csv(path, [*existing, row], fieldnames=list(row))
 
 
-def reusable(path, signature, force=False):
+def reusable(path, signatures, force=False, signature_key="config_signature"):
     path = Path(path)
     if not path.exists() or force:
         return False
     payload = torch.load(path, map_location="cpu") if path.suffix == ".pt" else json.loads(path.read_text())
-    actual = payload.get("config_signature")
-    if actual != signature:
+    expected = (
+        {signatures} if isinstance(signatures, str)
+        else set(signatures)
+    )
+    actual = payload.get(signature_key, payload.get("config_signature"))
+    if actual not in expected:
         raise RuntimeError(
-            f"Refusing to reuse {path}: configuration {actual!r} != {signature!r}. "
+            f"Refusing to reuse {path}: signature {actual!r} is not in {sorted(expected)!r}. "
             "Pass --force to replace it."
         )
     return True
 
 
-def manifest(config, stage, cpu_limit, **extra):
+def manifest(config, stage, cpu_limit, signature=None, signature_kind="model", **extra):
+    signature = config.signature if signature is None else signature
     return {
         "stage": stage, "config": config.to_dict(),
-        "config_signature": config.signature,
+        "config_signature": signature,
+        f"{signature_kind}_signature": signature,
         "root_seed": config.root_seed,
         "reference_url": REFERENCE_URL,
         "reference_revision": REFERENCE_REVISION,

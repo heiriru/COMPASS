@@ -68,6 +68,22 @@ python Partial_Pooling/train_models.py --preset full --device cuda
 python Partial_Pooling/infer_partial_pooling.py --preset full --device cuda
 ```
 
+To train and evaluate the same benchmark with the default VPSDE schedule
+`beta_min=0.1`, `beta_max=20`, reuse the existing simulations and select VPSDE
+for both model training and inference:
+
+```bash
+python Partial_Pooling/train_models.py \
+  --preset full --sde-type vpsde --device cuda
+python Partial_Pooling/infer_partial_pooling.py \
+  --preset full --sde-type vpsde --inference-method dpm2_gaussian --device cuda
+```
+
+Use `--beta-min` and `--beta-max` on both commands for another schedule. VE keeps
+the legacy checkpoint names; VP checkpoints include the beta schedule in their
+names, so the two model families cannot overwrite one another. Simulation data
+and normalizers are SDE-independent and are shared after compatibility checks.
+
 To retrain only the joint partial-pooling model with 100,000 training and 5,000
 validation simulations, use the isolated `large` artifact namespace:
 
@@ -78,7 +94,18 @@ python Partial_Pooling/create_test_data.py --preset large
 
 # Primary global inference: compositional DPM-Solver-2 + Gaussian
 python Partial_Pooling/infer_partial_pooling.py \
-  --preset large --inference-method dpm2_gaussian --device cuda
+  --preset large --inference-method dpm2_gaussian \
+  --gaussian-precision-batch-size 128 --device cuda
+
+# Full-covariance variant: compositional DPM-Solver-2 + full Gaussian
+python Partial_Pooling/infer_partial_pooling.py \
+  --preset large --inference-method dpm2_full_gaussian \
+  --gaussian-precision-batch-size 128 --device cuda
+
+# Global/local moment variant: composed scores with posterior mean + covariance
+python Partial_Pooling/infer_partial_pooling.py \
+  --preset large --inference-method dpm2_gauss_global_local_moment \
+  --gaussian-precision-batch-size 128 --device cuda
 
 # Reference global inference: compositional Langevin + F-NPSE
 python Partial_Pooling/infer_partial_pooling.py \
@@ -93,7 +120,14 @@ The existing `full` checkpoint and results are left untouched.
 profile is `dpm2_gaussian`: compositional score modeling with DPM-Solver order 2
 and the Gaussian correction. The Gaussian single-observation precision is estimated
 once per dataset, reused across posterior batches, saved, and reused for hierarchical
-MAP refinement. The comparison profile is `langevin_fnpse`: annealed Langevin
+MAP refinement. The `dpm2_full_gaussian` profile uses the same inference and MAP
+pipeline but estimates and reuses a full single-observation posterior covariance,
+retaining correlations between global coordinates. The
+`dpm2_gauss_global_local_moment` profile estimates the full ten-dimensional
+single-subject posterior mean and covariance once per dataset, supplies both to
+`Gauss_global_local` for every posterior batch, saves them in each dataset
+artifact, and reuses them during hierarchical MAP refinement. The comparison profile is
+`langevin_fnpse`: annealed Langevin
 sampling with F-NPSE, ten updates per noise level, and SNR 0.1 by default. Because
 F-NPSE bridging scores do not define a reverse-diffusion score-MAP objective, its
 reported global mode is the joint KDE mode of its posterior global samples.
@@ -152,7 +186,9 @@ Outputs are stored below
 `artifacts/partial_pooling_recovery/<preset>/<inference-method>-<signature>/`.
 Every recovery filename also carries the method, such as
 `dpm2_gaussian-dataset-0000.pt`, `dpm2_gaussian-global_recovery.csv`, and
-`dpm2_gaussian-summary.json`. Observation-count artifacts use the same method
+`dpm2_gaussian-summary.json`. `dpm2_gauss_global_local_moment` writes a
+separate signed run directory and therefore never overwrites
+`dpm2_gaussian`. Observation-count artifacts use the same method
 prefix under `observation_sweep/subjects-XXXX/`. Tensors retained from the older
 multi-method pipeline follow the same rule, for example
 `posteriors/full/ancestral/ancestral-dataset-0000.pt`.
@@ -162,8 +198,11 @@ At the end of inference, nine figures are written to
 The parity,
 residual, shrinkage, and error-distribution figures use the joint MAP. The former
 global forest filename now contains a 7-by-4 global posterior-density grid for
-dataset 0 at 1, 4, 8, and 20 subjects, including simulator-truth and joint-MAP
-lines. `error_vs_observations.png` shows training-normalized global and local MAP
+dataset 0 at 1, 4, 8, and 20 subjects, including simulator-truth, joint-MAP, and
+posterior-median lines. Robust shared limits and KDE bandwidths prevent a minority
+of finite solver excursions from flattening every panel; each panel explicitly
+reports how many draws lie outside its displayed central range.
+`error_vs_observations.png` shows training-normalized global and local MAP
 RMSE, with the mean and a transparent +/-1 standard-deviation band across the five
 datasets. The mock-data overview shows choices, reaction times, censoring, and true
 global/local parameters. Every image uses a constrained layout and external legend.

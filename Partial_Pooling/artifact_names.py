@@ -34,7 +34,9 @@ def test_data_path(config, paths):
 
 
 def checkpoint_tag(config, model_name):
-    return f"{model_name}-train-{config.train_size}"
+    if config.sde_type == "vesde":
+        return f"{model_name}-train-{config.train_size}"
+    return f"{model_name}-{config.diffusion_tag}-train-{config.train_size}"
 
 
 def checkpoint_directory(config, model_name, paths):

@@ -1,0 +1,40 @@
+{
+  "beta_max": null,
+  "beta_min": null,
+  "checkpoint_tag": "sde_joint-train-100000",
+  "correction": "gauss",
+  "counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "data_signature": "e190c1731bd76574",
+  "datasets": 5,
+  "diffusion": "vesde",
+  "inference_method": "dpm2_gaussian",
+  "inference_signature": "afadee2ddaef6b0e",
+  "map_settings": {
+    "estimator": "validated_hierarchical_score_map",
+    "iterations_per_level": 3,
+    "logprob_timesteps": 20,
+    "optimizer_correction": "gauss",
+    "retry_sigma_start": 0.1,
+    "retry_timesteps": 10,
+    "sampling_correction": "gauss",
+    "starts": 4,
+    "timesteps": 20,
+    "version": 3
+  },
+  "model_signature": "d10d39cbd0bde3ef",
+  "observation_unit": "subject",
+  "point_estimator": "validated_hierarchical_score_map",
+  "sampler": "dpm",
+  "sde_type": "vesde",
+  "sigma": 25.0,
+  "training_model": "sde_joint",
+  "training_samples": 100000,
+  "trials_per_subject": 30
+}

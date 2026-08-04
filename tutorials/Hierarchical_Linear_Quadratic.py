@@ -303,8 +303,8 @@ def analytic_references(x: np.ndarray) -> dict[str, np.ndarray | float]:
     return {"a_ref": a_ref, "c_ref": c_ref, "b_ref": x[:, 1].copy()}
 
 
-def posterior_precision(model: str, global_indices: Sequence[int], norm: Normalization) -> torch.Tensor:
-    """Exact single-observation marginal posterior precision in normalized theta."""
+def posterior_covariance(model: str, global_indices: Sequence[int], norm: Normalization) -> torch.Tensor:
+    """Exact single-observation marginal posterior covariance in normalized theta."""
     design = design_matrix(model).astype(np.float64)
     prior_precision = np.diag(1.0 / np.square(norm.theta_std.astype(np.float64)))
     full_precision = prior_precision + design.T @ design / SIGMA_X**2
@@ -314,7 +314,7 @@ def posterior_precision(model: str, global_indices: Sequence[int], norm: Normali
     normalized_covariance = marginal_covariance / np.outer(
         norm.theta_std[indices], norm.theta_std[indices]
     )
-    return torch.as_tensor(np.linalg.inv(normalized_covariance), dtype=torch.float32)
+    return torch.as_tensor(normalized_covariance, dtype=torch.float32)
 
 
 def infer_map(
@@ -341,8 +341,8 @@ def infer_map(
         samples = model.sample(
             **common, multi_obs_inference=True, hierarchy=list(global_indices),
             prior=([0.0] * len(global_indices), [1.0] * len(global_indices)),
-            correction="gauss_full",
-            posterior_precision=posterior_precision(model_name, global_indices, norm),
+            correction="full_gaussian",
+            posterior_covariance=posterior_covariance(model_name, global_indices, norm),
         )
     else:
         samples = model.sample(**common, multi_obs_inference=False)

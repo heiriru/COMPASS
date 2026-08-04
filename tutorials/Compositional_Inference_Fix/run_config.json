@@ -1,0 +1,47 @@
+{
+  "checkpoint": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/models/shared_local_mixture_full/Model_checkpoint.pt",
+  "reference": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/06b_shared_local/raw_plot_data.npz",
+  "n_observations": 30,
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "covariance_sample_counts": [
+    128,
+    256,
+    512,
+    1024,
+    2048,
+    4096
+  ],
+  "covariance_bank_seed": 34711,
+  "inference_seed": 1208,
+  "variants": {
+    "dpm2_gaussian_without_correctors": {
+      "title": "DPM2 + Gaussian composition (no correctors)",
+      "filename": "DPM2_gaussian_without_correctors.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "gauss",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 0,
+        "final_corrector_steps": 0,
+        "snr": 0.2
+      },
+      "description": "Second-order probability-flow predictor without Langevin corrector steps."
+    },
+    "dpm2_gauss_global_local_without_correctors": {
+      "title": "DPM2 + global/local Gaussian composition (no correctors)",
+      "filename": "DPM2_gauss_global_local_without_correctors.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "Gauss_global_local",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 0,
+        "final_corrector_steps": 0,
+        "snr": 0.2
+      },
+      "description": "Corrected marginal-global composition with no Langevin corrector steps."
+    }
+  }
+}

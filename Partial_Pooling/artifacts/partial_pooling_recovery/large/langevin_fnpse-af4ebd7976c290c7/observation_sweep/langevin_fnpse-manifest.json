@@ -1,0 +1,38 @@
+{
+  "beta_max": null,
+  "beta_min": null,
+  "checkpoint_tag": "sde_joint-train-100000",
+  "correction": "fnpe",
+  "counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "data_signature": "e190c1731bd76574",
+  "datasets": 5,
+  "diffusion": "vesde",
+  "inference_method": "langevin_fnpse",
+  "inference_signature": "af4ebd7976c290c7",
+  "map_settings": {
+    "estimator": "posterior_global_kde_mode",
+    "iterations_per_level": 3,
+    "logprob_timesteps": 20,
+    "optimizer_correction": null,
+    "sampling_correction": "fnpe",
+    "starts": 4,
+    "timesteps": 20,
+    "version": 2
+  },
+  "model_signature": "d10d39cbd0bde3ef",
+  "observation_unit": "subject",
+  "point_estimator": "posterior_global_kde_mode",
+  "sampler": "langevin",
+  "sde_type": "vesde",
+  "sigma": 25.0,
+  "training_model": "sde_joint",
+  "training_samples": 100000,
+  "trials_per_subject": 30
+}

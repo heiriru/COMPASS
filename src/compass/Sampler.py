@@ -43,7 +43,8 @@ class Sampler():
     def sample(self, world_size, data, err=None, condition_mask=None, 
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None,
                order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None):
+               device="cpu", verbose=True, method="dpm", save_trajectory=False,
+               result_dict=None, capture_attention=True):
         """
         Sample from the model using the specified method
 
@@ -72,6 +73,8 @@ class Sampler():
             verbose: Whether to show progress bar
             method: Sampling method to use (euler, dpm)
             save_trajectory: Whether to save the intermediate denoising trajectory
+            capture_attention: Whether to retain midpoint attention weights for
+                    interpretability. Defaults to True for compatibility.
         """
 
         # Set parameters
@@ -83,6 +86,7 @@ class Sampler():
         self.verbose = verbose
         self.method = method
         self.save_trajectory = save_trajectory
+        self.capture_attention = bool(capture_attention)
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
         self.solver_stats = None
@@ -135,9 +139,9 @@ class Sampler():
         self.timesteps_list = self.sde.time_of_lambda(lams)
 
         # Set up Attention Interpretation
-        self.return_attn_weights = True
+        self.return_attn_weights = self.capture_attention
         self.attn_weights_time = self.timesteps_list[self.timesteps // 2]   # Interpretation at 50% of diffusion process
-        self.all_attn_weights = []
+        self.all_attn_weights = [] if self.capture_attention else None
 
         # Loop over data samples
         all_samples = []
@@ -177,7 +181,10 @@ class Sampler():
 
         else:
             samples = torch.cat(all_samples, dim=0)
-            self.all_attn_weights = torch.stack(self.all_attn_weights, dim=0).to("cpu")
+            if self.capture_attention:
+                self.all_attn_weights = torch.stack(
+                    self.all_attn_weights, dim=0
+                ).to("cpu")
             self.solver_stats = {
                 "score_network_calls": int(self.score_network_calls),
                 "score_evaluations": int(self.score_network_calls),
@@ -213,28 +220,33 @@ class Sampler():
         # Convert the list of tensors to a single tensor
         samples = torch.cat(all_samples, dim=0).to(self.device)
         indices = torch.cat(indices, dim=0).to(self.device)
-        all_attn_weights = torch.cat(self.all_attn_weights, dim=0).to(self.device)
 
         # Create empty tensors to gather results across processes
         gathered_samples = [torch.zeros_like(samples) for _ in range(self.world_size)]
         gathered_idx = [torch.zeros_like(indices) for _ in range(self.world_size)]
-        gathered_attn_weights = [torch.zeros_like(all_attn_weights) for _ in range(self.world_size)]
 
         # Gather data from all processes
         dist.all_gather(gathered_samples, samples)
         dist.all_gather(gathered_idx, indices)
-        dist.all_gather(gathered_attn_weights, all_attn_weights)
+        if self.capture_attention:
+            all_attn_weights = torch.cat(self.all_attn_weights, dim=0).to(self.device)
+            gathered_attn_weights = [
+                torch.zeros_like(all_attn_weights) for _ in range(self.world_size)
+            ]
+            dist.all_gather(gathered_attn_weights, all_attn_weights)
 
         if self.rank == 0:
             # Sort results by index
             gathered_idx = torch.cat(gathered_idx, dim=0)
             gathered_samples = torch.cat(gathered_samples, dim=0)
-            gathered_attn_weights = torch.cat(gathered_attn_weights, dim=0)
             unique_sort_idx = [(gathered_idx == i).nonzero()[0,0].tolist() for i in gathered_idx.unique()]
             samples = gathered_samples[unique_sort_idx]
 
             result_dict['samples'] = samples.cpu()
-            result_dict['attn_weights'] = gathered_attn_weights.cpu()
+            if self.capture_attention:
+                result_dict['attn_weights'] = torch.cat(
+                    gathered_attn_weights, dim=0
+                ).cpu()
 
     #############################################
     # ----- Standard Functions -----

@@ -6,7 +6,7 @@ import random
 import numpy as np
 import torch
 
-from .config import PRESETS, get_config
+from .config import PRESETS, SDE_TYPES, get_config
 from .data_pipeline import generate_test_data, generate_training_data
 from .model_pipeline import train_models
 from .paths import BenchmarkPaths
@@ -15,6 +15,9 @@ from .paths import BenchmarkPaths
 def parser(stage):
     result = argparse.ArgumentParser(description=f"Partial-pooling benchmark: {stage}")
     result.add_argument("--preset", choices=PRESETS, default="smoke")
+    result.add_argument("--sde-type", choices=SDE_TYPES, default="vesde")
+    result.add_argument("--beta-min", type=float, default=0.1)
+    result.add_argument("--beta-max", type=float, default=20.0)
     result.add_argument("--seed", type=int)
     result.add_argument("--root", type=Path)
     result.add_argument("--force", action="store_true")
@@ -25,7 +28,10 @@ def parser(stage):
 
 def run_stage(stage, cpu_limit):
     args = parser(stage).parse_args()
-    config = get_config(args.preset, args.seed)
+    config = get_config(
+        args.preset, args.seed, args.sde_type,
+        args.beta_min, args.beta_max,
+    )
     random.seed(config.root_seed)
     np.random.seed(config.root_seed)
     torch.manual_seed(config.root_seed)

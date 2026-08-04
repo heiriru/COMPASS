@@ -1,0 +1,24 @@
+{
+  "checkpoint": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/models/shared_local_mixture_full/Model_checkpoint.pt",
+  "reference": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/06b_shared_local/raw_plot_data.npz",
+  "n_observations": 30,
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "inference_seed": 1208,
+  "variants": {
+    "dpm2_full_gaussian": {
+      "title": "DPM2 + full Gaussian composition",
+      "filename": "02d_dpm2_full_gaussian.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "full_gaussian",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 10,
+        "final_corrector_steps": 3,
+        "snr": 0.2
+      },
+      "description": "Second-order probability-flow predictor with dense Langevin correctors and full-covariance Gaussian score composition."
+    }
+  }
+}

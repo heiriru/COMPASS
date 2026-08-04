@@ -7,12 +7,12 @@ import torch
 
 from compass.ModelTransfuser import ModelTransfuser
 from compass.MultiObsSampler import MultiObsSampler
-from compass.SDE import VESDE
+from compass.SDE import VESDE, VPSDE
 
 
 class MockSBIm:
-    def __init__(self, model, nodes_size):
-        self.sde = VESDE(sigma=25.0)
+    def __init__(self, model, nodes_size, sde=None):
+        self.sde = sde or VESDE(sigma=25.0)
         self.model = model(self.sde)
         self.nodes_size = nodes_size
 
@@ -38,6 +38,7 @@ class SharedLocalGaussianScore(torch.nn.Module):
 
     def forward(self, x, t, c, return_attn_weights=False):
         noise_std = self.sde.marginal_prob_std(t).to(x.device)
+        alpha = self.sde.alpha_t(t).to(x.device)
         theta = x[:, :2]
         observed = x[:, 2]
         rhs = torch.stack([
@@ -45,7 +46,8 @@ class SharedLocalGaussianScore(torch.nn.Module):
             observed / self.sigma_x**2,
         ], dim=1)
         mean = rhs @ self.posterior_covariance.T
-        covariance = self.posterior_covariance + noise_std**2 * torch.eye(2, device=x.device)
+        covariance = alpha**2 * self.posterior_covariance + noise_std**2 * torch.eye(2, device=x.device)
+        mean = alpha * mean
         score = torch.linalg.solve(covariance, (mean - theta).unsqueeze(-1)).squeeze(-1)
         result = torch.zeros_like(x)
         result[:, :2] = noise_std * score
@@ -75,11 +77,12 @@ def make_joint(observations, global_value, local_values):
     return result
 
 
-def test_joint_map_recovers_exact_shared_and_local_gaussian_mode():
+@pytest.mark.parametrize("sde", [VESDE(sigma=25.0), VPSDE()])
+def test_joint_map_recovers_exact_shared_and_local_gaussian_mode(sde):
     observations = torch.tensor([-0.7, 0.1, 0.8, 1.2])
     expected, posterior_std = analytic_shared_local_map(observations)
     initial = make_joint(observations, 1.5, torch.full((len(observations),), -1.0))
-    sampler = MultiObsSampler(MockSBIm(SharedLocalGaussianScore, 3))
+    sampler = MultiObsSampler(MockSBIm(SharedLocalGaussianScore, 3, sde=sde))
     result = sampler.map_estimate(
         data=initial, condition_mask=torch.tensor([0.0, 0.0, 1.0]), init=initial,
         hierarchy=[0], prior=([0.0], [SharedLocalGaussianScore.sigma_global]),

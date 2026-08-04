@@ -1,0 +1,30 @@
+{
+  "checkpoint_tag": "sde_joint-train-32768",
+  "counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "datasets": 5,
+  "inference_method": "dpm2_damped_sum",
+  "inference_signature": "a68895612490acc7",
+  "map_settings": {
+    "iterations_per_level": 3,
+    "logprob_timesteps": 20,
+    "optimizer_correction": "uncorrected",
+    "sampling_correction": "damped_sum",
+    "starts": 4,
+    "timesteps": 20,
+    "version": 1
+  },
+  "observation_unit": "subject",
+  "order": 2,
+  "point_estimator": "joint_map",
+  "sampler": "dpm",
+  "training_model": "sde_joint",
+  "training_samples": 32768,
+  "trials_per_subject": 30
+}

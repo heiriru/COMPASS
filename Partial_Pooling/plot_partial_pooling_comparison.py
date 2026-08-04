@@ -10,6 +10,10 @@ from pathlib import Path
 METHOD_STYLES = {
     "dpm2_damped_sum": ("DPM-Solver-2 + damped sum", "#0072B2"),
     "dpm2_gaussian": ("DPM-Solver-2 + Gaussian", "#D55E00"),
+    "dpm2_full_gaussian": ("DPM-Solver-2 + full Gaussian", "#CC79A7"),
+    "dpm2_gauss_global_local_moment": (
+        "DPM-Solver-2 + global/local Gaussian moments", "#E69F00",
+    ),
     "langevin_fnpse": ("Langevin + F-NPSE", "#009E73"),
 }
 
@@ -24,6 +28,9 @@ def parser():
     result.add_argument(
         "--preset", choices=("smoke", "full", "large"), default="full",
     )
+    result.add_argument("--sde-type", choices=("vesde", "vpsde"), default="vesde")
+    result.add_argument("--beta-min", type=float, default=0.1)
+    result.add_argument("--beta-max", type=float, default=20.0)
     result.add_argument("--root", type=Path)
     result.add_argument("--seed", type=int)
     result.add_argument(
@@ -59,6 +66,8 @@ def method_metadata(artifact, run_config=None):
         key = "dpm2_damped_sum" if order in (None, 2) else f"dpm{order}_damped_sum"
     elif correction == "gauss" and sampler == "dpm":
         key = f"dpm{order or 2}_gaussian"
+    elif correction == "full_gaussian" and sampler == "dpm":
+        key = f"dpm{order or 2}_full_gaussian"
     elif correction == "fnpe" and sampler == "langevin":
         key = "langevin_fnpse"
     else:
@@ -414,9 +423,12 @@ def _artifact_for_dataset(artifacts, dataset_id):
 def _plot_combined_global_density_grid(runs, global_names, output, plt):
     import numpy as np
     from matplotlib.lines import Line2D
-    from scipy.stats import gaussian_kde
 
-    from Partial_Pooling.infer_partial_pooling import density_panel_counts
+    from Partial_Pooling.infer_partial_pooling import (
+        _robust_density_limits,
+        _safe_1d_kde,
+        density_panel_counts,
+    )
 
     counts = density_panel_counts(tuple(sorted(runs[0]["sweep"])), columns=4)
     common_datasets = set(_dataset_ids(runs[0]["sweep"][counts[0]]))
@@ -443,28 +455,27 @@ def _plot_combined_global_density_grid(runs, global_names, output, plt):
     for parameter, name in enumerate(global_names):
         reference = selected[runs[0]["key"]][counts[0]]
         truth = float(reference["truth_globals"][parameter])
-        all_values = []
+        value_sets = []
         all_maps = []
+        all_medians = []
         for run in runs:
             for count in counts:
                 artifact = selected[run["key"]][count]
-                all_values.extend(
-                    float(value)
-                    for value in artifact["posterior"]["globals"][:, parameter]
-                )
+                values = artifact["posterior"]["globals"][:, parameter].numpy()
+                value_sets.append(values)
                 all_maps.append(float(artifact["joint_map"]["globals"][parameter]))
-        lower = min([*all_values, *all_maps, truth])
-        upper = max([*all_values, *all_maps, truth])
-        span = upper - lower
-        padding = 0.06 * span if span > 0 else 0.1
-        grid = np.linspace(lower - padding, upper + padding, 300)
+                all_medians.append(float(np.median(values)))
+        lower, upper = _robust_density_limits(
+            value_sets, anchors=(*all_maps, *all_medians, truth),
+        )
+        grid = np.linspace(lower, upper, 300)
         for column, count in enumerate(counts):
             axis = axes[parameter, column]
             for run in runs:
                 artifact = selected[run["key"]][count]
                 values = artifact["posterior"]["globals"][:, parameter].numpy()
-                if float(np.std(values)) > 1e-10:
-                    density = gaussian_kde(values)(grid)
+                density = _safe_1d_kde(values, grid)
+                if density is not None:
                     axis.fill_between(
                         grid, density, color=run["color"], alpha=0.08,
                     )
@@ -475,6 +486,20 @@ def _plot_combined_global_density_grid(runs, global_names, output, plt):
                     float(artifact["joint_map"]["globals"][parameter]),
                     color=run["color"], lw=1.25, ls="--",
                 )
+                axis.axvline(
+                    float(np.median(values)), color=run["color"],
+                    lw=1.15, ls="-.",
+                )
+                outside = int(
+                    np.count_nonzero((values < lower) | (values > upper))
+                )
+                if outside:
+                    axis.text(
+                        0.98, 0.94 - 0.08 * runs.index(run),
+                        f"{run['key']}: {outside}/{values.size} outside",
+                        transform=axis.transAxes, ha="right", va="top",
+                        fontsize=6.5, color=run["color"],
+                    )
             axis.axvline(truth, color="black", lw=1.4, ls=":")
             if parameter == 0:
                 axis.set_title(
@@ -498,6 +523,8 @@ def _plot_combined_global_density_grid(runs, global_names, output, plt):
                    label="posterior KDE"),
             Line2D([0], [0], color="black", lw=1.25, ls="--",
                    label="point estimate"),
+            Line2D([0], [0], color="black", lw=1.15, ls="-.",
+                   label="posterior median"),
             Line2D([0], [0], color="black", lw=1.4, ls=":",
                    label="simulator truth"),
         ],
@@ -527,7 +554,10 @@ def run(args):
         raise ValueError("Repeat --run-signature for at least two methods.")
     if len(set(args.run_signatures)) != len(args.run_signatures):
         raise ValueError("Duplicate --run-signature values are not allowed.")
-    config = get_config(args.preset, args.seed)
+    config = get_config(
+        args.preset, args.seed, args.sde_type,
+        args.beta_min, args.beta_max,
+    )
     paths = BenchmarkPaths(args.root) if args.root else BenchmarkPaths.default()
     runs = [
         _load_run(paths, args.preset, signature, torch)

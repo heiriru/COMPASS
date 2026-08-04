@@ -142,14 +142,19 @@ class ScoreBasedInferenceModel(nn.Module):
     def sample(self, theta=None, x=None, err=None, condition_mask=None,
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
                prior=None, correction="gauss", posterior_precision=None,
+               posterior_covariance=None, posterior_mean=None,
+               global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                damping_at_data=1.0, damping_at_noise=None,
                composition_batch_size=None,
-               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
+               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3, terminal_corrector_steps=0,
                adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
                adaptive_safety=0.9, adaptive_exponent=0.9,
                adaptive_max_evals=10000, adaptive_initial_step=None,
-               device="cpu", verbose=True, method="dpm", save_trajectory=False):
+               device="cpu", verbose=True, method="dpm", save_trajectory=False,
+               capture_attention=True, precision_est_batch_size=128,
+               covariance_shrinkage=0.01, covariance_nugget=1e-6,
+               pd_epsilon=1e-8):
         """
         Sample from the model using the specified method
 
@@ -175,8 +180,17 @@ class ScoreBasedInferenceModel(nn.Module):
             posterior_precision: Optional precision estimate of the single-observation
                     posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
+            posterior_covariance: Optional full covariance estimate with shape
+                    H x H for ``full_gaussian`` or (H + L) x (H + L) for the
+                    Schur modes, with one matrix or one per observation; estimated
+                    automatically if omitted.
+            posterior_mean: Optional single-observation posterior means paired
+                    with posterior_covariance. Supplying them enables Gaussian
+                    moment projection before covariance-aware composition.
             precision_est_samples: Samples per observation for the automatic estimate
             precision_est_timesteps: Diffusion steps for the automatic estimate
+            precision_est_batch_size: Maximum flattened transformer rows per
+                    automatic precision-estimation batch
             damping_at_data: Damping endpoint d(0) at the data end
             damping_at_noise: Damping endpoint d(1) at the noise end; defaults
                     to 1/sqrt(number of observations)
@@ -204,6 +218,8 @@ class ScoreBasedInferenceModel(nn.Module):
             verbose: Whether to show progress bar
             method: Sampling method to use (euler, dpm, langevin, adaptive)
             save_trajectory: Whether to save the intermediate denoising trajectory
+            capture_attention: Retain midpoint attention weights during standard
+                    single-observation sampling. Defaults to True for compatibility.
         """
 
         # Combine data and create condition mask
@@ -239,18 +255,29 @@ class ScoreBasedInferenceModel(nn.Module):
         if multi_obs_inference == False:
             samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
-                                    verbose=verbose, method=method, save_trajectory=save_trajectory)
+                                    verbose=verbose, method=method, save_trajectory=save_trajectory,
+                                    capture_attention=capture_attention)
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
             samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
-                                      prior=prior, correction=correction, posterior_precision=posterior_precision,
+                                      prior=prior, correction=correction,
+                                      posterior_precision=posterior_precision,
+                                      posterior_covariance=posterior_covariance,
+                                      posterior_mean=posterior_mean,
+                                      global_posterior_mean=global_posterior_mean,
+                                      global_posterior_covariance=global_posterior_covariance,
                                       precision_est_samples=precision_est_samples, precision_est_timesteps=precision_est_timesteps,
+                                      precision_est_batch_size=precision_est_batch_size,
                                       denoise_clamp=denoise_clamp,
                                       damping_at_data=damping_at_data,
                                       damping_at_noise=damping_at_noise,
                                       composition_batch_size=composition_batch_size,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
+                                      terminal_corrector_steps=terminal_corrector_steps,
+                                      covariance_shrinkage=covariance_shrinkage,
+                                      covariance_nugget=covariance_nugget,
+                                      pd_epsilon=pd_epsilon,
                                       adaptive_abs_tol=adaptive_abs_tol,
                                       adaptive_rel_tol=adaptive_rel_tol,
                                       adaptive_safety=adaptive_safety,
@@ -310,7 +337,9 @@ class ScoreBasedInferenceModel(nn.Module):
 
     def hierarchical_map_estimate(self, data, condition_mask, init=None,
                                   hierarchy=None, prior=None, correction="gauss",
-                                  posterior_precision=None, denoise_clamp=5.0,
+                                  posterior_precision=None,
+                                  posterior_covariance=None, posterior_mean=None,
+                                  denoise_clamp=5.0,
                                   cfg_alpha=None, sigma_start=None,
                                   damping_at_data=1.0,
                                   damping_at_noise=None,
@@ -324,15 +353,12 @@ class ScoreBasedInferenceModel(nn.Module):
         posterior: hierarchy coordinates remain synchronized and receive the
         multi-observation composed score.
         """
-        if self.sde_type != "vesde":
-            raise NotImplementedError(
-                "Hierarchical MAP refinement currently uses the VESDE "
-                "multi-observation composition rules."
-            )
         return self.multi_obs_sampler.map_estimate(
             data=data, condition_mask=condition_mask, init=init,
             hierarchy=hierarchy, prior=prior, correction=correction,
             posterior_precision=posterior_precision,
+            posterior_covariance=posterior_covariance,
+            posterior_mean=posterior_mean,
             denoise_clamp=denoise_clamp, cfg_alpha=cfg_alpha,
             damping_at_data=damping_at_data,
             damping_at_noise=damping_at_noise,
@@ -383,6 +409,18 @@ class ScoreBasedInferenceModel(nn.Module):
             mlp_ratio=checkpoint['mlp_ratio']
         )
 
-        model.model.load_state_dict(checkpoint['model_state_dict'])
+        incompatible = model.model.load_state_dict(
+            checkpoint['model_state_dict'], strict=False
+        )
+        unexpected = set(incompatible.unexpected_keys)
+        legacy_divergence = {
+            key for key in unexpected if key.startswith("divergence_head.")
+        }
+        if incompatible.missing_keys or unexpected != legacy_divergence:
+            raise RuntimeError(
+                "Checkpoint architecture does not match the current score model: "
+                f"missing={incompatible.missing_keys}, "
+                f"unexpected={incompatible.unexpected_keys}"
+            )
 
         return model

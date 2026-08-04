@@ -1,0 +1,60 @@
+{
+  "beta_max": null,
+  "beta_min": null,
+  "checkpoint_tag": "sde_joint-train-100000",
+  "config_signature": "d10d39cbd0bde3ef",
+  "correction": "fnpe",
+  "cpu_limit": {
+    "active_cpus": 4,
+    "active_fraction": 0.05555555555555555,
+    "cpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "host_cpus": 72
+  },
+  "data_signature": "e190c1731bd76574",
+  "dataset_start": 0,
+  "datasets": 5,
+  "device": "cuda:0",
+  "diffusion": "vesde",
+  "draws": 256,
+  "estimated_runtime_seconds": 957.984,
+  "gaussian_precision_samples": 256,
+  "gaussian_precision_timesteps": 50,
+  "inference_method": "langevin_fnpse",
+  "inference_signature": "af4ebd7976c290c7",
+  "langevin_snr": 0.1,
+  "langevin_steps_per_level": 10,
+  "map_settings": {
+    "estimator": "posterior_global_kde_mode",
+    "iterations_per_level": 3,
+    "logprob_timesteps": 20,
+    "optimizer_correction": null,
+    "sampling_correction": "fnpe",
+    "starts": 4,
+    "timesteps": 20,
+    "version": 2
+  },
+  "model_signature": "d10d39cbd0bde3ef",
+  "observation_counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    20
+  ],
+  "observation_sweep": true,
+  "order": null,
+  "preset": "large",
+  "sampler": "langevin",
+  "sde_type": "vesde",
+  "sigma": 25.0,
+  "subjects": 20,
+  "timesteps": 50,
+  "training_model": "sde_joint",
+  "training_samples": 100000
+}
