@@ -25,9 +25,9 @@ from __future__ import annotations
 import os
 
 
-def configure_cpu_limit(fraction: float = 0.06) -> None:
+def configure_cpu_limit(max_threads: int = 3) -> None:
     logical = os.cpu_count() or 1
-    limit = max(1, int(logical * fraction))
+    limit = max(1, min(int(max_threads), logical))
     allowed = tuple(sorted(os.sched_getaffinity(0)))
     selected = allowed[:min(limit, len(allowed))]
     os.sched_setaffinity(0, selected)

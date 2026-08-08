@@ -18,14 +18,14 @@ from __future__ import annotations
 import os
 import sys
 
-CPU_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 PLOTS_ONLY_REQUESTED = (
     __name__ == "__main__" and "--plots-only" in sys.argv[1:]
 )
 if __name__ == "__main__":
     logical_cpus = os.cpu_count() or 1
     allowed_cpus = tuple(sorted(os.sched_getaffinity(0)))
-    cpu_count = max(1, min(len(allowed_cpus), int(logical_cpus * CPU_FRACTION)))
+    cpu_count = max(1, min(len(allowed_cpus), CPU_THREAD_LIMIT))
     os.sched_setaffinity(0, allowed_cpus[:cpu_count])
     for variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
                      "NUMEXPR_NUM_THREADS"):

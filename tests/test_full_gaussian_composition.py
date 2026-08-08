@@ -244,6 +244,8 @@ def test_correlated_prior_is_resolved_as_covariance():
 
 
 class CovarianceDrawSampler:
+    """Fakes a batched (all-subjects-at-once) single-observation sampler."""
+
     def __init__(self):
         self.offsets = {}
         self.calls = []
@@ -253,12 +255,13 @@ class CovarianceDrawSampler:
         ])
 
     def sample(self, data, num_samples, capture_attention, **kwargs):
-        subject = int(torch.as_tensor(data)[0, 0])
-        start = self.offsets.get(subject, 0)
-        self.offsets[subject] = start + num_samples
-        self.calls.append((subject, num_samples, capture_attention))
-        result = torch.zeros(1, num_samples, 3)
-        result[0, :, :2] = self.draws[start:start + num_samples] + subject
+        subjects = torch.as_tensor(data)[:, 0].to(torch.int64).tolist()
+        self.calls.append((tuple(subjects), num_samples, capture_attention))
+        result = torch.zeros(len(subjects), num_samples, 3)
+        for row, subject in enumerate(subjects):
+            start = self.offsets.get(subject, 0)
+            self.offsets[subject] = start + num_samples
+            result[row, :, :2] = self.draws[start:start + num_samples] + subject
         return result
 
 
@@ -306,7 +309,9 @@ def test_automatic_covariance_estimation_is_full_and_memory_bounded():
         torch.cov(draw_sampler.draws.to(torch.float64).mT)
     )
     torch.testing.assert_close(covariance, expected.expand(2, -1, -1))
-    assert [count for subject, count, _ in draw_sampler.calls if subject == 0] == [2, 2, 1]
+    # Both subjects are drawn together in a single batched call per chunk.
+    assert [subjects for subjects, _, _ in draw_sampler.calls] == [(0, 1), (0, 1), (0, 1)]
+    assert [count for _, count, _ in draw_sampler.calls] == [2, 2, 1]
     assert all(not capture for _, _, capture in draw_sampler.calls)
 
 

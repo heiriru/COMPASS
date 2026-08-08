@@ -103,37 +103,68 @@ def plot_shared_local(
     local_std = local_samples.std(axis=1, ddof=1)
     exact_local_std = np.sqrt(np.diag(covariance)[1:])
     indices = np.arange(len(local_mean))
+    x_observed = np.asarray(data["x_observed"], dtype=float).reshape(-1)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.0, 4.3))
+    fig, axes = plt.subplots(1, 4, figsize=(18.2, 4.3))
     fig.suptitle(title, fontsize=15, fontweight="bold", color=NAVY)
-    axes[0].hist(global_samples, bins=46, density=True, color=BLUE, alpha=0.72,
+
+    # Leftmost panel: the raw observations themselves, stacked as a dot plot
+    # in observational (x) space -- i.e. what actually went into inference,
+    # before any composition into the shared/local parameter space shown by
+    # the other three panels.
+    n_bins = min(15, len(x_observed))
+    counts, edges = np.histogram(x_observed, bins=n_bins)
+    bin_idx = np.clip(np.digitize(x_observed, edges[1:-1]), 0, n_bins - 1)
+    stack_height = np.zeros(n_bins, dtype=int)
+    stack_position = np.empty(len(x_observed), dtype=int)
+    for i in np.argsort(x_observed):
+        b = bin_idx[i]
+        stack_position[i] = stack_height[b]
+        stack_height[b] += 1
+    centers = (edges[:-1] + edges[1:]) / 2
+    axes[0].scatter(centers[bin_idx], stack_position + 0.5, s=80, color=BLUE,
+                    alpha=0.85, edgecolor="white", linewidth=0.6)
+    axes[0].axvline(x_observed.mean(), color="red", linestyle=":", linewidth=2,
+                    label="mean observation")
+    axes[0].set(xlabel="observed x", ylabel="observations stacked per bin",
+               title="Observations (observational space)")
+    axes[0].set_ylim(bottom=0)
+    axes[0].legend()
+
+    axes[1].hist(global_samples, bins=46, density=True, color=BLUE, alpha=0.72,
                  label="COMPASS")
     grid = np.linspace(exact[0] - 4*np.sqrt(covariance[0, 0]),
                        exact[0] + 4*np.sqrt(covariance[0, 0]), 400)
     density = np.exp(-0.5*((grid-exact[0])**2/covariance[0, 0])) / np.sqrt(2*np.pi*covariance[0, 0])
-    axes[0].plot(grid, density, color=NAVY, ls="--", lw=2, label="exact")
-    axes[0].axvline(
+    axes[1].plot(grid, density, color=NAVY, ls="--", lw=2, label="exact")
+    axes[1].axvline(
         global_truth, color="red", linestyle=":", linewidth=2,
         label="true global parameter",
     )
-    axes[0].set(xlabel="global parameter g", ylabel="density", title="Shared posterior")
-    axes[0].legend()
-
-    axes[1].errorbar(indices, local_mean, yerr=local_std, fmt="o", ms=4,
-                     color=CORAL, ecolor="#F4A3B4", alpha=0.9, label="COMPASS mean ± σ")
-    axes[1].plot(indices, exact[1:], "_", ms=9, color=NAVY, label="exact mean")
-    axes[1].set(xlabel="observation", ylabel="local parameter ℓᵢ", title="Thirty local posteriors")
+    # Fix the x-range to the analytic +/-4 sigma band (identical across every
+    # method run against the same reference) instead of letting it autoscale
+    # to this run's own samples -- a few tail draws would otherwise stretch
+    # one method's plot wider than another's, making side-by-side comparison
+    # misleading.
+    axes[1].set_xlim(grid[0], grid[-1])
+    axes[1].set(xlabel="global parameter g", ylabel="density", title="Shared posterior")
     axes[1].legend()
 
-    axes[2].scatter(exact[1:], local_mean, c=indices, cmap="viridis", s=38,
+    axes[2].errorbar(indices, local_mean, yerr=local_std, fmt="o", ms=4,
+                     color=CORAL, ecolor="#F4A3B4", alpha=0.9, label="COMPASS mean ± σ")
+    axes[2].plot(indices, exact[1:], "_", ms=9, color=NAVY, label="exact mean")
+    axes[2].set(xlabel="observation", ylabel="local parameter ℓᵢ", title="Thirty local posteriors")
+    axes[2].legend()
+
+    axes[3].scatter(exact[1:], local_mean, c=indices, cmap="viridis", s=38,
                     edgecolor="white", linewidth=0.5)
     lo = min(exact[1:].min(), local_mean.min())
     hi = max(exact[1:].max(), local_mean.max())
-    axes[2].plot([lo, hi], [lo, hi], color=NAVY, ls="--", lw=1.6)
+    axes[3].plot([lo, hi], [lo, hi], color=NAVY, ls="--", lw=1.6)
     mae_sigma = np.mean(np.abs(local_mean-exact[1:]) / exact_local_std)
-    axes[2].text(0.04, 0.94, f"mean |error| = {mae_sigma:.2f} analytic σ",
-                 transform=axes[2].transAxes, va="top", color=NAVY)
-    axes[2].set(xlabel="exact local posterior mean", ylabel="COMPASS posterior mean",
+    axes[3].text(0.04, 0.94, f"mean |error| = {mae_sigma:.2f} analytic σ",
+                 transform=axes[3].transAxes, va="top", color=NAVY)
+    axes[3].set(xlabel="exact local posterior mean", ylabel="COMPASS posterior mean",
                 title="Local recovery")
     save(fig, output)
 

@@ -21,7 +21,7 @@ import time
 from typing import Any, Iterable
 
 
-CPU_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 THREAD_VARIABLES = (
     "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
     "NUMEXPR_NUM_THREADS",
@@ -29,13 +29,13 @@ THREAD_VARIABLES = (
 
 
 def configure_cpu_limit() -> tuple[int, tuple[int, ...]]:
-    """Enforce the required process-wide 6% CPU cap before numeric imports."""
+    """Enforce the required process-wide 3-thread CPU cap before numeric imports."""
     logical = os.cpu_count() or 1
     allowed = tuple(sorted(os.sched_getaffinity(0)))
-    host_limit = int(logical * CPU_FRACTION)
+    host_limit = min(CPU_THREAD_LIMIT, logical)
     if host_limit < 1:
         raise RuntimeError(
-            f"A 6% CPU cap permits fewer than one CPU on this {logical}-CPU host."
+            f"A {CPU_THREAD_LIMIT}-thread CPU cap permits fewer than one CPU on this {logical}-CPU host."
         )
     count = min(len(allowed), host_limit)
     if count < 1:

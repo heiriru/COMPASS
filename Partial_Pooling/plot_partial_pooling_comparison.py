@@ -17,6 +17,10 @@ METHOD_STYLES = {
     "langevin_fnpse": ("Langevin + F-NPSE", "#009E73"),
 }
 
+# Colorblind-safe colors for methods outside METHOD_STYLES, cycled in order and
+# never repeated within a single plot invocation (see method_metadata).
+FALLBACK_COLORS = ("#56B4E9", "#F0E442", "#000000", "#999999")
+
 
 def parser():
     result = argparse.ArgumentParser(
@@ -53,7 +57,7 @@ def _slug(value):
     return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
 
 
-def method_metadata(artifact, run_config=None):
+def method_metadata(artifact, run_config=None, used_colors=None):
     """Return a stable key, readable label, and color for old and new runs."""
     run_config = run_config or {}
     method = artifact.get("inference_method") or run_config.get("inference_method")
@@ -72,9 +76,16 @@ def method_metadata(artifact, run_config=None):
         key = "langevin_fnpse"
     else:
         key = _slug(method or f"{sampler or 'unknown'}_{correction or 'unknown'}")
-    default_label, color = METHOD_STYLES.get(
-        key, (key.replace("_", " ").title(), "#CC79A7"),
-    )
+    if key in METHOD_STYLES:
+        default_label, color = METHOD_STYLES[key]
+    else:
+        default_label = key.replace("_", " ").title()
+        used_colors = used_colors if used_colors is not None else set()
+        color = next(
+            (c for c in FALLBACK_COLORS if c not in used_colors),
+            FALLBACK_COLORS[-1],
+        )
+        used_colors.add(color)
     return {
         "key": key,
         "label": default_label,
@@ -102,7 +113,7 @@ def _load_artifacts(directory, signature, torch):
     return artifacts
 
 
-def _load_run(paths, preset, signature, torch):
+def _load_run(paths, preset, signature, torch, used_colors=None):
     parent = paths.root / "partial_pooling_recovery" / preset
     exact = parent / signature
     matches = [path for path in parent.glob(f"*-{signature}") if path.is_dir()]
@@ -127,7 +138,7 @@ def _load_run(paths, preset, signature, torch):
     artifacts = _load_artifacts(run_directory, signature, torch)
     if not artifacts:
         raise RuntimeError(f"No completed datasets found in {run_directory}")
-    metadata = method_metadata(artifacts[0], run_config)
+    metadata = method_metadata(artifacts[0], run_config, used_colors=used_colors)
     subjects = int(artifacts[0]["subjects"])
     sweep_directory = run_directory / "observation_sweep"
     manifest_candidates = sorted(sweep_directory.glob("*-manifest.json"))
@@ -219,31 +230,33 @@ def _plot_method_specific(runs, output_directory, global_names, local_names, plt
     by_method = {}
     for run in runs:
         suffix = f"_{run['key']}"
+        method_directory = output_directory.parent / run["key"]
+        method_directory.mkdir(parents=True, exist_ok=True)
         global_rows, local_rows = _rows(run)
         method_outputs = []
         method_outputs.extend(_plot_parity(
             global_rows, local_rows, global_names, local_names,
-            output_directory, plt, filename_suffix=suffix,
+            method_directory, plt, filename_suffix=suffix,
             method_label=run["label"],
         ))
         method_outputs.extend(_plot_residuals(
             global_rows, local_rows, global_names, local_names,
-            output_directory, plt, filename_suffix=suffix,
+            method_directory, plt, filename_suffix=suffix,
             method_label=run["label"],
         ))
         method_outputs.append(_plot_global_density_grid(
             run["sweep"], global_names,
-            output_directory / f"global_forest{suffix}.png", plt,
+            method_directory / f"global_forest{suffix}.png", plt,
             method_label=run["label"],
         ))
         method_outputs.append(_plot_local_shrinkage(
             global_rows, local_rows, local_names,
-            output_directory / f"local_shrinkage{suffix}.png", plt,
+            method_directory / f"local_shrinkage{suffix}.png", plt,
             method_label=run["label"],
         ))
         method_outputs.append(_plot_error_distributions(
             global_rows, local_rows, global_names, local_names,
-            output_directory / f"error_distributions{suffix}.png", plt,
+            method_directory / f"error_distributions{suffix}.png", plt,
             method_label=run["label"],
         ))
         by_method[run["key"]] = [path.name for path in method_outputs]
@@ -559,21 +572,15 @@ def run(args):
         args.beta_min, args.beta_max,
     )
     paths = BenchmarkPaths(args.root) if args.root else BenchmarkPaths.default()
+    used_colors = {color for _, color in METHOD_STYLES.values()}
     runs = [
-        _load_run(paths, args.preset, signature, torch)
+        _load_run(paths, args.preset, signature, torch, used_colors=used_colors)
         for signature in args.run_signatures
     ]
     _validate_runs(runs, config.signature)
     output_signature = args.output_signature or args.run_signatures[0]
-    matching_run = next(
-        (run for run in runs if run["signature"] == output_signature), None,
-    )
-    output_name = (
-        f"{matching_run['key']}-{output_signature}"
-        if matching_run else f"method_comparison-{output_signature}"
-    )
     output_directory = (
-        paths.figures / "partial_pooling" / args.preset / output_name
+        paths.figures / "partial_pooling" / args.preset / "shared"
     )
     output_directory.mkdir(parents=True, exist_ok=True)
     theta_scale = load_normalizers(config, paths)["sde_joint_theta"].scale

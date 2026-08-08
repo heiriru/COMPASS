@@ -56,6 +56,26 @@ class MultiObsSampler():
       the shared score.
     - "Gauss_global_local": use the same Schur-reduced shared correction and also
       apply its implied global/local cross-score correction to each local latent.
+      Optionally accepts ``posterior_mean``/``global_posterior_mean`` to replace
+      the learned score by the score of an externally supplied Gaussian (a
+      diagnostic "moment projection" ablation, exact only if that Gaussian is
+      itself the true single-observation posterior -- it is NOT compositional
+      score modeling and must never be fed oracle/analytic moments in a genuine
+      inference run).
+    - "gauss_hierarchical": the same hierarchical GAUSS correction as
+      "Gauss_global_local", but hardened so it can only ever compose the
+      network's own learned scores: passing ``posterior_mean`` or
+      ``global_posterior_mean`` raises. This is the paper's GAUSS algorithm
+      (Linhart et al. 2024, "Diffusion posterior sampling for simulation-based
+      inference in tall data settings") generalized to a global/local hierarchy
+      by exact block (arrow-precision) elimination of its Lemma 3.2: composing
+      the network's real per-observation joint score with the marginal precision
+      Λ_j(t) = Var(g_t | x_j)^-1 is algebraically *identical* to the full
+      global+local block solve (the local-dependent terms cancel), so no
+      marginal-score approximation or oracle moment is required -- only the
+      pilot covariance (never the mean), estimated from the network's own DDIM
+      draws, exactly as GAUSS estimates Σ_0,j. See
+      New_Attempt/derivation.md for the full derivation.
     - "fnpe": the exact Eq. 7 of Geffner et al.: (1-n)(1-t) * prior score + sum of
       individual scores. This is the score of the paper's bridging densities, which are
       NOT the diffusion marginals of the posterior: it is only consistent with annealed
@@ -74,6 +94,39 @@ class MultiObsSampler():
     - "damped_sum": the prior-corrected sum multiplied by 1/n.
     - "minibatch_damped": the same 1/n-damped sum using an unbiased observation
       mini-batch, selected before evaluating the score network.
+
+    Validity of the covariance-aware corrections:
+        Every GAUSS-style rule composes the backward kernels as
+        p(theta_0 | theta_t)^(1-n) prod_j p(theta_0 | theta_t, x_j), whose
+        precision is Lambda(t) = sum_j Lambda_j(t) + (1-n) Lambda_prior(t).
+        Lemma 3.1 of Linhart et al. 2024 is valid only while Lambda(t) is
+        positive definite, which (their Eq. 21) requires
+
+            sum_j Sigma_{t,j}^-1  >  (n-1) Sigma_{t,prior}^-1,
+
+        i.e. each single-observation posterior must be *narrower* than the
+        prior -- "normally the case in Bayesian approaches", as the paper puts
+        it. Hierarchical models sit right on that boundary: one observation is
+        nearly uninformative about a population-scale parameter, so Lambda_j ~=
+        Lambda_prior and a few percent of pilot-covariance error flips the sign.
+
+        Rather than repair Lambda after the fact, we make the condition hold by
+        construction. Define observation j's *information* about the shared
+        parameters, I_j(t) = Lambda_j(t) - Lambda_prior(t). Then
+
+            Lambda(t) = Lambda_prior(t) + sum_j I_j(t)
+
+        identically, so Lambda(t) is positive definite for every t and every n
+        as soon as each I_j(t) is positive semi-definite -- which is a property
+        of every real posterior, not a numerical convenience. Projecting the
+        *estimated* I_j onto that cone therefore corrects an inadmissible
+        estimate instead of distorting the target, is a no-op on admissible
+        ones, and does not grow with n. See `_project_information`.
+
+        Repairing the composed matrix instead is unsound: the composed score is
+        obtained by solving against Lambda, so lifting a negative eigenvalue to
+        a small epsilon divides by that epsilon and amplifies the deviation
+        from the subject-score mean by |lambda_min| / epsilon.
 
     Practical notes:
     - Hierarchical models (per-observation local latents alongside the shared
@@ -96,6 +149,9 @@ class MultiObsSampler():
         self.covariance_shrinkage = 0.01
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
+        self.pd_floor = 1e-3
+        self.local_prior_mean = None
+        self.local_prior_std = None
         self._reset_covariance_diagnostics()
 
     DAMPING_CORRECTIONS = frozenset(
@@ -106,8 +162,17 @@ class MultiObsSampler():
     )
     FULL_GAUSSIAN_CORRECTIONS = frozenset({"full_gaussian"})
     SCHUR_GAUSSIAN_CORRECTIONS = frozenset(
-        {"Gauss_schur_global", "Gauss_global_local"}
+        {"Gauss_schur_global", "Gauss_global_local", "gauss_hierarchical"}
     )
+    # Corrections that also propagate the shared-score composition into a
+    # linear cross-correction of each observation's local latent score.
+    LOCAL_CROSS_CORRECTIONS = frozenset(
+        {"Gauss_global_local", "gauss_hierarchical"}
+    )
+    # Corrections that must only ever compose real, learned network scores:
+    # posterior_mean / global_posterior_mean (which substitute an externally
+    # supplied Gaussian's score for the network's) are rejected outright.
+    NO_MOMENT_SUBSTITUTION_CORRECTIONS = frozenset({"gauss_hierarchical"})
     COVARIANCE_GAUSSIAN_CORRECTIONS = (
         FULL_GAUSSIAN_CORRECTIONS | SCHUR_GAUSSIAN_CORRECTIONS
     )
@@ -117,7 +182,8 @@ class MultiObsSampler():
     VALID_CORRECTIONS = frozenset(
         {
             "gauss", "full_gaussian", "Gauss_schur_global",
-            "Gauss_global_local", "hybrid", "uncorrected", "fnpe", "legacy_mean",
+            "Gauss_global_local", "gauss_hierarchical", "hybrid", "uncorrected",
+            "fnpe", "legacy_mean",
             "prior_corrected_sum", "damped_sum", "minibatch_damped",
         } | DAMPING_CORRECTIONS
     )
@@ -131,7 +197,8 @@ class MultiObsSampler():
     #############################################
 
     def sample(self, world_size, data, condition_mask=None, timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, hierarchy=None,
-               prior=None, correction="gauss", posterior_precision=None,
+               prior=None, local_prior=None,
+               correction="gauss", posterior_precision=None,
                posterior_covariance=None, posterior_mean=None,
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
@@ -143,7 +210,7 @@ class MultiObsSampler():
                adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None,
                precision_est_batch_size=128, covariance_shrinkage=0.01,
-               covariance_nugget=1e-6, pd_epsilon=1e-8):
+               covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -244,12 +311,15 @@ class MultiObsSampler():
         self.covariance_shrinkage = float(covariance_shrinkage)
         self.covariance_nugget = float(covariance_nugget)
         self.pd_epsilon = float(pd_epsilon)
+        self.pd_floor = float(pd_floor)
         if not 0.0 <= self.covariance_shrinkage < 1.0:
             raise ValueError("covariance_shrinkage must be in [0, 1).")
         if self.covariance_nugget < 0.0 or self.pd_epsilon <= 0.0:
             raise ValueError(
                 "covariance_nugget must be nonnegative and pd_epsilon positive."
             )
+        if self.pd_floor <= 0.0:
+            raise ValueError("pd_floor must be positive.")
         self._reset_covariance_diagnostics()
 
         if method in ("dpm", "langevin"):
@@ -358,6 +428,9 @@ class MultiObsSampler():
             self.full_gaussian_features if correction in self.SCHUR_GAUSSIAN_CORRECTIONS
             else self.hierarchy
         )
+        self.local_prior_mean, self.local_prior_std = self._resolve_local_prior(
+            local_prior
+        )
 
         if self.composition_batch_size < num_observations:
             cm = torch.as_tensor(condition_mask)
@@ -379,6 +452,13 @@ class MultiObsSampler():
             raise ValueError(
                 "posterior_mean is supported only for covariance-aware Gaussian "
                 "corrections."
+            )
+        if posterior_mean is not None and correction in self.NO_MOMENT_SUBSTITUTION_CORRECTIONS:
+            raise ValueError(
+                f"correction={correction!r} composes only the network's real "
+                "scores; posterior_mean would substitute an externally supplied "
+                "Gaussian's score instead. Use correction='Gauss_global_local' "
+                "for that (diagnostic, non-compositional) ablation."
             )
 
         if ((global_posterior_mean is None) != (global_posterior_covariance is None)):
@@ -589,8 +669,11 @@ class MultiObsSampler():
 
     @torch.no_grad()
     def map_estimate(self, data, condition_mask, init=None, hierarchy=None,
-                     prior=None, correction="gauss", posterior_precision=None,
+                     prior=None, local_prior=None,
+                     correction="gauss", posterior_precision=None,
                      posterior_covariance=None, posterior_mean=None,
+                     global_posterior_mean=None,
+                     global_posterior_covariance=None,
                      denoise_clamp=5.0, cfg_alpha=None, sigma_start=None,
                      damping_at_data=1.0, damping_at_noise=None,
                      timesteps=100, eps=1e-3, iterations_per_level=3,
@@ -701,6 +784,10 @@ class MultiObsSampler():
         self.covariance_shrinkage = 0.01
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
+        self.pd_floor = 1e-3
+        self.local_prior_mean, self.local_prior_std = self._resolve_local_prior(
+            local_prior
+        )
         self._reset_covariance_diagnostics()
         self._configure_damping(
             n_obs, damping_at_data, damping_at_noise,
@@ -716,6 +803,25 @@ class MultiObsSampler():
                 "posterior_mean is supported only for covariance-aware Gaussian "
                 "corrections."
             )
+        if posterior_mean is not None and correction in self.NO_MOMENT_SUBSTITUTION_CORRECTIONS:
+            raise ValueError(
+                f"correction={correction!r} composes only the network's real "
+                "scores; posterior_mean would substitute an externally supplied "
+                "Gaussian's score instead. Use correction='Gauss_global_local' "
+                "for that (diagnostic, non-compositional) ablation."
+            )
+        if ((global_posterior_mean is None)
+                != (global_posterior_covariance is None)):
+            raise ValueError(
+                "global_posterior_mean and global_posterior_covariance must "
+                "be supplied together."
+            )
+        if (global_posterior_mean is not None
+                and correction != "Gauss_global_local"):
+            raise ValueError(
+                "global posterior moments are supported only for correction="
+                "'Gauss_global_local'."
+            )
         self.prior_mean, self.prior_std, self.prior_covariance = self._resolve_prior(prior)
         self.prior_mean = self.prior_mean.to(device)
         self.prior_std = self.prior_std.to(device)
@@ -723,6 +829,9 @@ class MultiObsSampler():
         self.prior_precision_matrix = self._precision_from_covariance(
             self.prior_covariance.unsqueeze(0)
         )[0]
+        if self.local_prior_mean is not None:
+            self.local_prior_mean = self.local_prior_mean.to(device)
+            self.local_prior_std = self.local_prior_std.to(device)
         if correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             if posterior_precision is not None:
                 raise ValueError(
@@ -750,6 +859,30 @@ class MultiObsSampler():
             )
             self._covariance_time_cache = {}
             self.posterior_precision = None
+            if correction == "Gauss_global_local":
+                if global_posterior_mean is None:
+                    raise ValueError(
+                        "Gauss_global_local MAP refinement requires marginal "
+                        "global moments saved during posterior sampling."
+                    )
+                self.global_posterior_mean = self._validate_posterior_mean(
+                    global_posterior_mean, num_observations=n_obs,
+                    dimension=len(hierarchy),
+                ).to(device)
+                self.global_posterior_covariance = self._validate_covariance(
+                    global_posterior_covariance, num_observations=n_obs,
+                    dimension=len(hierarchy),
+                    name="global_posterior_covariance",
+                ).to(device)
+                self.global_posterior_precision_matrix = (
+                    self._precision_from_covariance(
+                        self.global_posterior_covariance
+                    )
+                )
+            else:
+                self.global_posterior_mean = None
+                self.global_posterior_covariance = None
+                self.global_posterior_precision_matrix = None
         elif correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
             if posterior_precision is None:
                 raise ValueError(
@@ -780,6 +913,9 @@ class MultiObsSampler():
             self.posterior_covariance = None
             self.posterior_precision_matrix = None
             self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
 
         data = data.to(device)
         candidates = candidates.to(device).clone()
@@ -889,6 +1025,9 @@ class MultiObsSampler():
         self.prior_std = self.prior_std.to(self.device)
         self.prior_covariance = self.prior_covariance.to(self.device)
         self.prior_precision_matrix = self.prior_precision_matrix.to(self.device)
+        if self.local_prior_mean is not None:
+            self.local_prior_mean = self.local_prior_mean.to(self.device)
+            self.local_prior_std = self.local_prior_std.to(self.device)
         if self.posterior_precision is not None:
             self.posterior_precision = self.posterior_precision.to(self.device)
         if self.posterior_covariance is not None:
@@ -1031,6 +1170,35 @@ class MultiObsSampler():
             covariance = torch.diag(std.square())
         return mean, std, covariance
 
+    def _resolve_local_prior(self, local_prior):
+        """Resolve an optional Gaussian prior over the row-local latent coordinates."""
+        if local_prior is None:
+            return None, None
+        width = len(self.local_latent_indices)
+        if width == 0:
+            raise ValueError(
+                "local_prior was supplied but every latent coordinate is shared."
+            )
+        mean, std = local_prior
+        mean = torch.as_tensor(mean, dtype=torch.float32).flatten()
+        std = torch.as_tensor(std, dtype=torch.float32).flatten()
+        if mean.numel() == 1:
+            mean = mean.repeat(width)
+        if std.numel() == 1:
+            std = std.repeat(width)
+        if mean.numel() != width or std.numel() != width:
+            raise ValueError(
+                f"local_prior mean and std must have length {width} "
+                "(= the number of local latent coordinates)."
+            )
+        if not torch.all(torch.isfinite(mean)):
+            raise ValueError("local_prior mean must be finite.")
+        if not torch.all(torch.isfinite(std)) or torch.any(std <= 0):
+            raise ValueError(
+                "local_prior standard deviations must be finite and positive."
+            )
+        return mean, std
+
     def _validate_covariance(
             self, covariance, num_observations, name, dimension=None):
         """Validate and normalize covariance input to shape (1 or N, H, H)."""
@@ -1119,6 +1287,12 @@ class MultiObsSampler():
         self._pd_condition_numbers = []
         self._pd_relative_repairs = []
         self._last_pd_repair = None
+        self._pd_composed_evaluations = 0
+        self._pd_adaptation_count = 0
+        self._pd_adaptation_relative = []
+        self._pd_information_eigenvalues = 0
+        self._pd_negative_information = 0
+        self._pd_information_min = []
 
     @property
     def covariance_diagnostics(self):
@@ -1128,10 +1302,39 @@ class MultiObsSampler():
         values = lambda name: list(getattr(self, name, []))
         conditions = values("_pd_condition_numbers")
         relatives = values("_pd_relative_repairs")
+        composed_count = int(getattr(self, "_pd_composed_evaluations", 0))
+        adaptations = int(getattr(self, "_pd_adaptation_count", 0))
+        information_minima = values("_pd_information_min")
+        adaptation_relatives = values("_pd_adaptation_relative")
+        eigenvalue_count = int(getattr(self, "_pd_information_eigenvalues", 0))
+        negative_count = int(getattr(self, "_pd_negative_information", 0))
         return {
             "score_evaluations": count,
             "repair_count": repairs,
             "repair_fraction": repairs / count if count else 0.0,
+            # Projection of each observation's information onto the positive
+            # semi-definite cone. A nonzero negative_information_fraction means
+            # the estimated single-observation posteriors claimed to be wider
+            # than the prior in that share of directions -- outside the model
+            # class, and exactly what makes plain GAUSS invalid here
+            # (Linhart et al. 2024, Eq. 21). It should fall towards zero as the
+            # pilot covariance estimate improves.
+            "composed_precision_evaluations": composed_count,
+            "adaptation_count": adaptations,
+            "adaptation_fraction": (
+                adaptations / composed_count if composed_count else 0.0
+            ),
+            "information_eigenvalues": eigenvalue_count,
+            "negative_information_count": negative_count,
+            "negative_information_fraction": (
+                negative_count / eigenvalue_count if eigenvalue_count else 0.0
+            ),
+            "minimum_information_eigenvalue": (
+                min(information_minima) if information_minima else None
+            ),
+            "maximum_relative_adaptation": (
+                max(adaptation_relatives) if adaptation_relatives else 0.0
+            ),
             "minimum_eigenvalue_before": (
                 min(values("_pd_min_before")) if count else None
             ),
@@ -1176,14 +1379,30 @@ class MultiObsSampler():
         ).expand(covariance.shape[:-2] + covariance.shape[-2:])
         return torch.cholesky_solve(identity, factors)
 
-    def _effective_global_factors(self, var_t):
-        """Return cached per-observation effective global precisions and R blocks."""
+    def _effective_global_factors(self, var_t, num_observations=None):
+        """Return cached per-observation effective global precisions and R blocks.
+
+        The returned precisions are projected onto the set of statistically
+        admissible ones, which makes the composed precision positive definite
+        by construction rather than by repair. See `_project_information`.
+
+        The projection acts on the *global block* of every observation's
+        precision. Because a Schur complement is affine in that block, adding
+        `delta` there raises the effective global precision by exactly `delta`,
+        and the cross-factor -A_ll^-1 A_lg does not involve that block at all,
+        so the local regression coefficient is left exactly undisturbed.
+        """
+        n = int(
+            self.num_observations if num_observations is None
+            else num_observations
+        )
         inverse_variance = float(
             torch.as_tensor(1.0 / var_t, dtype=torch.float64).reshape(())
         )
         cache = getattr(self, "_covariance_time_cache", {})
-        if inverse_variance in cache:
-            return cache[inverse_variance]
+        cache_key = (inverse_variance, n)
+        if cache_key in cache:
+            return cache[cache_key]
 
         covariance_precision = self.posterior_precision_matrix.to(torch.float64)
         dimension = covariance_precision.shape[-1]
@@ -1191,6 +1410,10 @@ class MultiObsSampler():
             dimension, dtype=torch.float64, device=covariance_precision.device
         )
         joint_precision_t = covariance_precision + inverse_variance * identity
+        h = len(self.hierarchy)
+        joint_precision_t = joint_precision_t + self._global_block_adaptation(
+            joint_precision_t, inverse_variance, n, h,
+        )
         if self.correction in self.FULL_GAUSSIAN_CORRECTIONS:
             result = (joint_precision_t, None)
         else:
@@ -1201,16 +1424,111 @@ class MultiObsSampler():
                 joint_precision_t.shape[:-2] + (dimension, dimension)
             )
             covariance_t = torch.cholesky_solve(expanded_identity, factor)
-            h = len(self.hierarchy)
             global_covariance = covariance_t[:, :h, :h]
             effective_precision = self._precision_from_covariance(global_covariance)
             cross_covariance = covariance_t[:, h:, :h]
             cross_factor = torch.matmul(cross_covariance, effective_precision)
             result = (effective_precision, cross_factor)
 
-        cache[inverse_variance] = result
+        cache[cache_key] = result
         self._covariance_time_cache = cache
         return result
+
+    @staticmethod
+    def _schur_global_precision(joint_precision_t, h):
+        """Marginal global precision [A^-1]_gg^-1 of a joint backward precision."""
+        if joint_precision_t.shape[-1] == h:
+            return joint_precision_t
+        block_gg = joint_precision_t[:, :h, :h]
+        block_gl = joint_precision_t[:, :h, h:]
+        block_ll = joint_precision_t[:, h:, h:]
+        return block_gg - torch.matmul(
+            block_gl, torch.linalg.solve(block_ll, joint_precision_t[:, h:, :h])
+        )
+
+    def _global_block_adaptation(self, joint_precision_t, inverse_variance, n, h):
+        """Minimal per-observation lift that makes the composed Lambda(t) SPD.
+
+        Returns a matrix shaped like `joint_precision_t` that is zero outside
+        the global block. Zero everywhere when the composition is already
+        well-conditioned, which is the case whenever the single-observation
+        posteriors really are narrower than the prior.
+        """
+        effective = self._schur_global_precision(joint_precision_t, h)
+        delta = self._project_information(effective, inverse_variance, h)
+        if delta is None:
+            return torch.zeros_like(joint_precision_t)
+        adaptation = torch.zeros_like(joint_precision_t)
+        adaptation[:, :h, :h] = delta
+        return adaptation
+
+    def _prior_precision_at(self, inverse_variance, h, reference):
+        """Lambda_prior(t): the diffused Gaussian prior's backward precision."""
+        return self.prior_precision_matrix.to(
+            device=reference.device, dtype=torch.float64
+        ) + inverse_variance * torch.eye(
+            h, dtype=torch.float64, device=reference.device
+        )
+
+    def _project_information(self, effective, inverse_variance, h):
+        """Project each observation's information onto the admissible cone.
+
+        Writing Lambda_j(t) = Lambda_prior(t) + I_j(t) defines I_j(t), the
+        information observation j carries about the shared parameters. The
+        composed precision is then an identity, not an approximation:
+
+            Lambda(t) = sum_j Lambda_j(t) + (1-n) Lambda_prior(t)
+                      = Lambda_prior(t) + sum_j I_j(t).
+
+        So Lambda(t) is positive definite for every t and every n as soon as
+        each I_j(t) is positive *semi*-definite -- and I_j(t) >= 0 is not a
+        numerical convenience, it is a property every real posterior has: under
+        the Gaussian approximation GAUSS already assumes, conditioning on
+        observation j cannot leave you less certain about the shared parameters
+        than the prior alone. An estimated I_j with a negative eigenvalue is
+        outside the model class, not a hard case.
+
+        We therefore project each I_j(t) onto the positive semi-definite cone
+        (its nearest admissible point in Frobenius norm) and rebuild
+        Lambda_j(t) = Lambda_prior(t) + I_j(t)^+. This costs nothing when the
+        estimates are already admissible, in which case the composition is
+        bit-for-bit ordinary GAUSS.
+
+        Two consequences worth stating. Lambda(t) >= Lambda_prior(t) makes the
+        solve unconditionally well conditioned -- the composed score can never
+        be amplified beyond the prior covariance -- so no eigenvalue floor,
+        denoise clamp or spectral repair is load-bearing for validity. And the
+        correction is per observation, so unlike a repair of the composed
+        matrix it does not grow with n.
+
+        Returns the per-observation delta to add to the effective global
+        precision, or None when every I_j(t) is already admissible.
+        """
+        prior_t = self._prior_precision_at(inverse_variance, h, effective)
+        information = effective - prior_t
+        information = 0.5 * (information + information.mT)
+        eigenvalues, eigenvectors = torch.linalg.eigh(information)
+        deficits = (-eigenvalues).clamp_min(0.0)
+
+        self._pd_composed_evaluations += 1
+        self._pd_information_eigenvalues += int(eigenvalues.numel())
+        negative = int((eigenvalues < 0).sum())
+        self._pd_negative_information += negative
+        self._pd_information_min.append(float(eigenvalues.min()))
+        if negative == 0:
+            return None
+
+        self._pd_adaptation_count += 1
+        # I^+ - I = sum of the removed negative eigencomponents.
+        delta = torch.matmul(
+            eigenvectors * deficits.unsqueeze(-2), eigenvectors.mT
+        )
+        self._pd_adaptation_relative.append(float(
+            (torch.linalg.matrix_norm(delta)
+             / torch.linalg.matrix_norm(information).clamp_min(
+                 torch.finfo(torch.float64).eps)).max()
+        ))
+        return delta
 
     def _marginal_global_factors(self, var_t):
         """Return clean-moment GAUSS precisions for p(g | x_j)."""
@@ -1240,7 +1558,21 @@ class MultiObsSampler():
         ).squeeze(-1)
 
     def _solve_composed_global(self, precision, numerator, subject_scores):
-        """Repair and solve a composed global precision in float64."""
+        """Repair and solve a composed global precision in float64.
+
+        This is a last-resort guard: `_effective_global_factors` already adapts
+        the per-observation precisions so the composed matrix arrives positive
+        definite, and this path should not fire for the covariance-aware
+        corrections. It survives for residual float error and for callers that
+        build a composed precision directly.
+
+        The deficient eigenvalues are lifted to `pd_floor * scale`, not to
+        `pd_epsilon * scale`. Lifting to a near-zero epsilon is what makes an
+        after-the-fact repair dangerous: the solve divides by the lifted
+        eigenvalue, so the deviation from the subject-score mean is amplified
+        by |lambda_min| / threshold -- of order 1e7 at pd_epsilon=1e-8. The
+        repair stays minimal in matrix norm but is now bounded in its effect.
+        """
         precision = torch.as_tensor(precision, dtype=torch.float64)
         numerator = torch.as_tensor(
             numerator, dtype=torch.float64, device=precision.device
@@ -1252,7 +1584,7 @@ class MultiObsSampler():
         factor, info = torch.linalg.cholesky_ex(precision)
         eigenvalues = torch.linalg.eigvalsh(precision)
         scale = eigenvalues.abs().mean().clamp_min(1.0)
-        threshold = self.pd_epsilon * scale
+        threshold = max(self.pd_floor, self.pd_epsilon) * scale
         needs_repair = bool(torch.any(info != 0) or eigenvalues.min() < threshold)
         if needs_repair:
             eigenvalues, eigenvectors = torch.linalg.eigh(precision)
@@ -1299,7 +1631,15 @@ class MultiObsSampler():
     def estimate_posterior_moments(
             self, data, condition_mask, num_samples, timesteps, eps,
             batch_size, device, feature_indices=None):
-        """Estimate per-observation means and covariances from ordinary draws."""
+        """Estimate per-observation means and covariances from ordinary draws.
+
+        All subjects are drawn in one batched reverse-diffusion trajectory
+        (chunked only over ``num_samples``), not one trajectory per subject:
+        the single-observation ``Sampler`` already vectorizes over observation
+        rows exactly like the main compositional sampler does, so looping over
+        subjects in Python here serialized what should be one GPU-saturating
+        batched computation into dozens of small, mostly-idle ones.
+        """
         feature_indices = (
             self.hierarchy if feature_indices is None else list(feature_indices)
         )
@@ -1316,44 +1656,42 @@ class MultiObsSampler():
         if data.dim() == 1:
             data = data.unsqueeze(0)
         condition_mask = torch.as_tensor(condition_mask)
-        per_subject_mean = []
-        per_subject_covariance = []
-        for subject_index in range(data.shape[0]):
-            subject_mask = (
-                condition_mask
-                if condition_mask.dim() == 1
-                else condition_mask[subject_index:subject_index + 1]
-            )
-            sample_chunks = []
-            for start in range(0, num_samples, batch_size):
-                count = min(batch_size, num_samples - start)
-                samples = self.SBIm.sampler.sample(
-                    world_size=1,
-                    data=data[subject_index:subject_index + 1],
-                    condition_mask=subject_mask,
-                    timesteps=timesteps,
-                    eps=eps,
-                    num_samples=count,
-                    device=device,
-                    verbose=getattr(self, "verbose", False),
-                    method="dpm",
-                    capture_attention=False,
-                )
-                sample_chunks.append(samples.detach().cpu())
+        n_subjects = data.shape[0]
 
-            subject_samples = torch.cat(sample_chunks, dim=1)
-            latent_samples = subject_samples[0, :, feature_indices].to(torch.float64)
-            per_subject_mean.append(latent_samples.mean(dim=0))
-            covariance = torch.atleast_2d(torch.cov(latent_samples.mT))
-            per_subject_covariance.append(self._regularize_covariance(covariance))
+        sample_chunks = []
+        for start in range(0, num_samples, batch_size):
+            count = min(batch_size, num_samples - start)
+            samples = self.SBIm.sampler.sample(
+                world_size=1,
+                data=data,
+                condition_mask=condition_mask,
+                timesteps=timesteps,
+                eps=eps,
+                num_samples=count,
+                device=device,
+                verbose=getattr(self, "verbose", False),
+                method="dpm",
+                capture_attention=False,
+            )
+            sample_chunks.append(samples.detach().cpu())
+
+        all_samples = torch.cat(sample_chunks, dim=1)
+        latent_samples = all_samples[:, :, feature_indices].to(torch.float64)
+        mean = latent_samples.mean(dim=1)
+        covariance = torch.stack([
+            self._regularize_covariance(
+                torch.atleast_2d(torch.cov(latent_samples[subject].mT))
+            )
+            for subject in range(n_subjects)
+        ])
 
         mean = self._validate_posterior_mean(
-            torch.stack(per_subject_mean), num_observations=data.shape[0],
+            mean, num_observations=n_subjects,
             dimension=len(feature_indices),
         )
         covariance = self._validate_covariance(
-            torch.stack(per_subject_covariance),
-            num_observations=data.shape[0], dimension=len(feature_indices),
+            covariance,
+            num_observations=n_subjects, dimension=len(feature_indices),
             name="automatically estimated posterior covariance",
         )
         return mean, covariance
@@ -1371,7 +1709,13 @@ class MultiObsSampler():
     def _estimate_posterior_precision(
             self, data, condition_mask, num_samples, timesteps, eps,
             batch_size, device):
-        """Estimate per-observation precision in memory-bounded draw batches."""
+        """Estimate per-observation precision in memory-bounded draw batches.
+
+        As in :meth:`estimate_posterior_moments`, every subject is drawn in one
+        batched trajectory (chunked only over ``num_samples``) rather than one
+        trajectory per subject, since the single-observation sampler already
+        vectorizes over observation rows.
+        """
         num_samples = int(num_samples)
         batch_size = int(batch_size)
         if num_samples < 1:
@@ -1383,39 +1727,29 @@ class MultiObsSampler():
         if data.dim() == 1:
             data = data.unsqueeze(0)
         condition_mask = torch.as_tensor(condition_mask)
-        per_subject_precision = []
-        for subject_index in range(data.shape[0]):
-            subject_mask = (
-                condition_mask
-                if condition_mask.dim() == 1
-                else condition_mask[subject_index:subject_index + 1]
-            )
-            sample_chunks = []
-            for start in range(0, num_samples, batch_size):
-                count = min(batch_size, num_samples - start)
-                samples = self.SBIm.sampler.sample(
-                    world_size=1,
-                    data=data[subject_index:subject_index + 1],
-                    condition_mask=subject_mask,
-                    timesteps=timesteps,
-                    eps=eps,
-                    num_samples=count,
-                    device=device,
-                    verbose=self.verbose,
-                    method="dpm",
-                    capture_attention=False,
-                )
-                sample_chunks.append(samples.detach().cpu())
 
-            # Preserve every requested draw and moment-match only after all of
-            # this subject's batches have completed.
-            subject_samples = torch.cat(sample_chunks, dim=1)
-            var = subject_samples[:, :, self.hierarchy].var(dim=1)
-            per_subject_precision.append(
-                1.0 / torch.clamp(var, min=1e-8)
+        sample_chunks = []
+        for start in range(0, num_samples, batch_size):
+            count = min(batch_size, num_samples - start)
+            samples = self.SBIm.sampler.sample(
+                world_size=1,
+                data=data,
+                condition_mask=condition_mask,
+                timesteps=timesteps,
+                eps=eps,
+                num_samples=count,
+                device=device,
+                verbose=self.verbose,
+                method="dpm",
+                capture_attention=False,
             )
+            sample_chunks.append(samples.detach().cpu())
 
-        return torch.cat(per_subject_precision, dim=0)
+        # Preserve every requested draw and moment-match only after all
+        # chunks have completed.
+        all_samples = torch.cat(sample_chunks, dim=1)
+        var = all_samples[:, :, self.hierarchy].var(dim=1)
+        return 1.0 / torch.clamp(var, min=1e-8)
 
     def _validate_precision(self, precision):
         """
@@ -1583,6 +1917,39 @@ class MultiObsSampler():
         variance_x = alpha**2 * self.prior_std**2 + sigma**2
         return alpha * (-(theta_x - mean_x) / variance_x)
 
+    def _clamp_local_scores(self, scores, x, var_t):
+        """Bound the denoised prediction of the row-local latents.
+
+        The shared coordinates are always clamped to a box around their prior;
+        the local latents had no analogous bound, which is what turns a bad
+        local score -- or a local cross-correction fed by a badly conditioned
+        composition -- from a bias into an unbounded runaway.
+
+        Uses the *marginal* local prior rather than the hierarchy-implied
+        conditional one (mean +- k exp(log_sigma) read off the current shared
+        draw). The conditional scale is itself an estimated shared coordinate,
+        so a bad global draw would widen or collapse the very bound meant to
+        contain it; the marginal box does not inherit that failure.
+
+        No-ops unless a local prior was supplied, so corrections that never
+        touch the local coordinates keep their exact previous behavior.
+        """
+        indices = getattr(self, "local_latent_indices", None)
+        if (self.denoise_clamp is None or not indices
+                or getattr(self, "local_prior_mean", None) is None
+                or scores.shape[0] != x.shape[0]):
+            return scores
+        mean = self.local_prior_mean.to(scores)
+        std = self.local_prior_std.to(scores)
+        theta_l = x[:, :, indices]
+        x0 = torch.clamp(
+            theta_l + var_t * scores[:, :, indices],
+            min=mean - self.denoise_clamp * std,
+            max=mean + self.denoise_clamp * std,
+        )
+        scores[:, :, indices] = (x0 - theta_l) / var_t
+        return scores
+
     def _compositional_score(
         self, scores, x, t, num_observations=None, minibatch_selected=False,
     ):
@@ -1615,6 +1982,7 @@ class MultiObsSampler():
         h = self.hierarchy
         n = scores.shape[0] if num_observations is None else int(num_observations)
         m = scores.shape[0]
+        pending_cross_correction = None
 
         var_t = self.sde.lambda_t(t).to(x.device)**2
         scores = self._moment_projected_scores(scores, x, var_t)
@@ -1631,6 +1999,10 @@ class MultiObsSampler():
             hi = self.prior_mean + self.denoise_clamp * self.prior_std
             x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=lo, max=hi)
             scores[:, :, h] = (x0 - theta_h) / var_t
+        # The same tail protection for the row-local latents. Without a local
+        # prior nothing here bounds them, so a bad local score -- or a local
+        # cross-correction fed by a bad composed score -- is free to run away.
+        scores = self._clamp_local_scores(scores, x, var_t)
 
         sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)
         scaled_sum_scores = sum_scores * (n / m) if minibatch_selected else sum_scores
@@ -1665,7 +2037,7 @@ class MultiObsSampler():
 
         elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             effective_precision, cross_factor = self._effective_global_factors(
-                var_t
+                var_t, n,
             )
             if self.correction == "Gauss_global_local" and (
                     getattr(self, "global_posterior_mean", None) is not None):
@@ -1673,6 +2045,14 @@ class MultiObsSampler():
                 # g score is conditional on the current local state and must not
                 # enter this cross-subject update.
                 effective_precision, _ = self._marginal_global_factors(var_t)
+                # Marginal pilot moments need the same information projection
+                # as the Schur ones; without it this branch composes against an
+                # indefinite Lambda exactly as before.
+                marginal_delta = self._project_information(
+                    effective_precision, float(1.0 / var_t), len(h),
+                )
+                if marginal_delta is not None:
+                    effective_precision = effective_precision + marginal_delta
                 global_scores = self._marginal_global_scores(
                     theta_h, var_t, rows=scores.shape[0]
                 )
@@ -1716,21 +2096,15 @@ class MultiObsSampler():
             composed = composed64.to(scores.dtype)
 
             if (
-                self.correction == "Gauss_global_local"
+                self.correction in self.LOCAL_CROSS_CORRECTIONS
                 and self.local_latent_indices
             ):
-                if cross_factor.shape[0] == 1:
-                    cross_factor = cross_factor.expand(n, -1, -1)
-                global_delta = (
-                    composed64.expand(n, -1, -1) - global_scores
-                )
-                local_delta = torch.einsum(
-                    "nlg,nsg->nsl", cross_factor, global_delta
-                )
-                scores[:, :, self.local_latent_indices] = (
-                    scores[:, :, self.local_latent_indices]
-                    + local_delta.to(scores.dtype)
-                )
+                # Deferred until after the composed denoised-prediction clamp
+                # below. Reading the unclamped composed score here would let
+                # the local latents bypass the only bound the shared
+                # coordinates have, which is exactly how a marginally
+                # indefinite composition reaches the locals unattenuated.
+                pending_cross_correction = (cross_factor, global_scores)
 
         elif self.correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
             Lambda_prior = 1.0 / self.prior_std**2 + 1.0 / var_t                  # (1, H)
@@ -1780,6 +2154,26 @@ class MultiObsSampler():
                 and self.correction not in ({"fnpe"} | self.DAMPED_CORRECTIONS)):
             x0 = torch.clamp(theta_h + var_t * composed, min=lo, max=hi)
             composed = (x0 - theta_h) / var_t
+
+        if pending_cross_correction is not None:
+            # s_l = s_l,j - Lambda_ll^-1 Lambda_lg (s_composed - s_g,j): the
+            # local latent follows the shared coordinate through the joint
+            # backward kernel. `composed` is the clamped score, so the local
+            # kick inherits the bound the shared coordinates already carry.
+            cross_factor, global_scores = pending_cross_correction
+            if cross_factor.shape[0] == 1:
+                cross_factor = cross_factor.expand(n, -1, -1)
+            global_delta = (
+                composed.to(torch.float64).expand(n, -1, -1) - global_scores
+            )
+            local_delta = torch.einsum(
+                "nlg,nsg->nsl", cross_factor, global_delta
+            )
+            scores[:, :, self.local_latent_indices] = (
+                scores[:, :, self.local_latent_indices]
+                + local_delta.to(scores.dtype)
+            )
+            scores = self._clamp_local_scores(scores, x, var_t)
 
         if not torch.all(torch.isfinite(composed)):
             name = "full-Gaussian" if (

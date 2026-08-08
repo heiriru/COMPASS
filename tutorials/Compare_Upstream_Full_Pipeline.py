@@ -5,17 +5,17 @@ from __future__ import annotations
 
 import os
 
-CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_THREAD_ENV_VARS = (
     "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS",
 )
 
 
-def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
+def configure_cpu_usage_limit(max_threads=CPU_THREAD_LIMIT):
     logical = os.cpu_count() or 1
-    limit = int(logical * fraction)
+    limit = min(int(max_threads), logical)
     if limit < 1:
-        raise RuntimeError(f"Cannot enforce a {fraction:.1%} CPU limit on {logical} CPUs.")
+        raise RuntimeError(f"Cannot enforce a {max_threads}-thread CPU limit on {logical} CPUs.")
     selected = tuple(sorted(os.sched_getaffinity(0))[:limit])
     if not selected:
         raise RuntimeError("The process has no CPUs available.")
@@ -80,8 +80,8 @@ def log(message):
 def validate_cpu_cap():
     logical, expected = CPU_LIMIT_INFO
     active = tuple(sorted(os.sched_getaffinity(0)))
-    if active != expected or len(active) / logical > CPU_USAGE_LIMIT_FRACTION:
-        raise RuntimeError("CPU affinity no longer satisfies the 6% hard cap.")
+    if active != expected or len(active) > CPU_THREAD_LIMIT:
+        raise RuntimeError("CPU affinity no longer satisfies the 3-thread hard cap.")
 
 
 def stage2_checkpoint(problem):

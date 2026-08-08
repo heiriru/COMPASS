@@ -24,7 +24,7 @@ from __future__ import annotations
 import os
 
 
-CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_THREAD_ENV_VARS = (
     "OMP_NUM_THREADS",
     "MKL_NUM_THREADS",
@@ -34,14 +34,14 @@ CPU_THREAD_ENV_VARS = (
 
 
 def configure_cpu_usage_limit(
-    fraction: float = CPU_USAGE_LIMIT_FRACTION,
+    max_threads: int = CPU_THREAD_LIMIT,
 ) -> tuple[int, tuple[int, ...]]:
     """Apply the repository's hard CPU cap before native libraries import."""
     logical_cpus = os.cpu_count() or 1
-    cpu_limit = int(logical_cpus * fraction)
+    cpu_limit = min(int(max_threads), logical_cpus)
     if cpu_limit < 1:
         raise RuntimeError(
-            f"A {fraction:.1%} CPU cap permits no CPU on this {logical_cpus}-CPU host."
+            f"A {max_threads}-thread CPU cap permits no CPU on this {logical_cpus}-CPU host."
         )
     allowed = tuple(sorted(os.sched_getaffinity(0)))
     selected = allowed[:cpu_limit]
@@ -1409,8 +1409,8 @@ def main() -> None:
         raise RuntimeError("CPU cap was not configured before scientific imports.")
     logical_cpus, active_cpus = CPU_LIMIT_INFO
     active_now = tuple(sorted(os.sched_getaffinity(0)))
-    if active_now != active_cpus or len(active_now) / logical_cpus > CPU_USAGE_LIMIT_FRACTION:
-        raise RuntimeError("The active CPU affinity no longer satisfies the 6% hard cap.")
+    if active_now != active_cpus or len(active_now) > CPU_THREAD_LIMIT:
+        raise RuntimeError("The active CPU affinity no longer satisfies the 3-thread hard cap.")
     print(
         f"CPU limited to {len(active_cpus)} of {logical_cpus} logical CPUs "
         f"({len(active_cpus) / logical_cpus:.2%} capacity)."

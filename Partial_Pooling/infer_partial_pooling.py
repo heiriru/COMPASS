@@ -17,20 +17,26 @@ DEFAULT_MAP_STARTS = 4
 DEFAULT_MAP_TIMESTEPS = 20
 DEFAULT_MAP_ITERATIONS = 3
 DEFAULT_MAP_LOGPROB_TIMESTEPS = 20
-MAP_SETTINGS_VERSION = 4
+MAP_SETTINGS_VERSION = 5
 MAP_RETRY_SIGMA_START = 0.1
 MAP_RETRY_TIMESTEPS = 10
-MAP_CENTRAL_DENSITY_QUANTILE = 0.5
 MAP_COHERENCE_QUANTILE = 0.95
 MAP_MIN_COHERENCE_LIMIT = 8.0
+# Bumped whenever the composition semantics change, so cached artifacts from an
+# earlier rule are never silently reused. Version 2: per-observation
+# positive-definiteness adaptation before composing, the local cross-correction
+# reading the clamped composed score, and a local-latent denoise clamp.
+COMPOSITION_SEMANTICS_VERSION = 2
 MAP_SUPPORT_QUANTILE = 0.01
 FIGURE_DPI = 300
 GAUSSIAN_CORRECTIONS = frozenset({
-    "gauss", "full_gaussian", "Gauss_global_local",
+    "gauss", "full_gaussian", "Gauss_global_local", "gauss_hierarchical",
 })
 INFERENCE_METHODS = (
     "dpm2_gaussian", "dpm2_full_gaussian",
-    "dpm2_gauss_global_local_moment", "langevin_fnpse",
+    "dpm2_gauss_global_local", "dpm2_gauss_global_local_moment",
+    "dpm2_gauss_hierarchical",
+    "langevin_fnpse",
 )
 
 
@@ -52,6 +58,15 @@ def inference_plan(name):
             "order": 2,
             "label": "DPM-Solver-2 + full Gaussian",
         }
+    if name == "dpm2_gauss_global_local":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "Gauss_global_local",
+            "order": 2,
+            "moment_projection": False,
+            "label": "DPM-Solver-2 + global/local Gaussian",
+        }
     if name == "dpm2_gauss_global_local_moment":
         return {
             "name": name,
@@ -60,6 +75,14 @@ def inference_plan(name):
             "order": 2,
             "moment_projection": True,
             "label": "DPM-Solver-2 + global/local Gaussian moments",
+        }
+    if name == "dpm2_gauss_hierarchical":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "gauss_hierarchical",
+            "order": 2,
+            "label": "DPM-Solver-2 + hierarchical Gaussian (GAUSS)",
         }
     if name == "langevin_fnpse":
         return {
@@ -124,8 +147,19 @@ def parser():
         ),
     )
     result.add_argument(
-        "--gaussian-precision-samples", type=int, default=256,
-        help="Single-subject draws used once per dataset for Gaussian precision.",
+        "--gaussian-precision-samples", type=int, default=1024,
+        help=(
+            "Single-subject draws used once per dataset for Gaussian "
+            "precision. This estimate is a covariance in dim(theta) "
+            "dimensions, so its eigenvalues spread by roughly "
+            "sqrt(dim/samples) (Marchenko-Pastur). At 256 draws and 10 "
+            "latent dimensions that is ~20%, enough to make a subject's "
+            "estimated information about the shared parameters come out "
+            "negative -- outside the model class, and the direct cause of "
+            "an indefinite composed precision. Raising it is the cheapest "
+            "way to shrink the information projection towards a no-op and "
+            "recover unmodified GAUSS."
+        ),
     )
     result.add_argument(
         "--gaussian-precision-timesteps", type=int, default=50,
@@ -141,6 +175,22 @@ def parser():
     result.add_argument(
         "--langevin-steps-per-level", type=int, default=10,
         help="Annealed Langevin updates at every F-NPSE noise level.",
+    )
+    result.add_argument(
+        "--dpm-corrector-steps", type=int, default=0,
+        help=(
+            "Langevin MCMC corrector steps applied after every DPM-Solver "
+            "predictor step (predictor-corrector sampling). 0 disables the "
+            "corrector."
+        ),
+    )
+    result.add_argument(
+        "--dpm-corrector-interval", type=int, default=1,
+        help="Apply the DPM corrector every this many predictor steps.",
+    )
+    result.add_argument(
+        "--dpm-corrector-snr", type=float, default=0.1,
+        help="Langevin signal-to-noise ratio for the DPM corrector steps.",
     )
     result.add_argument(
         "--langevin-snr", type=float, default=0.1,
@@ -230,6 +280,7 @@ def format_duration(seconds):
 
 def inference_signature(config_signature, args, plan):
     payload = {
+        "composition_semantics": COMPOSITION_SEMANTICS_VERSION,
         "config_signature": config_signature,
         "dataset_start": args.dataset_start,
         "datasets": args.datasets,
@@ -256,6 +307,19 @@ def inference_signature(config_signature, args, plan):
         "langevin_snr": (
             args.langevin_snr if plan["correction"] == "fnpe" else None
         ),
+        "dpm_corrector_steps": (
+            args.dpm_corrector_steps if plan["sampler"] == "dpm" else None
+        ),
+        "dpm_corrector_interval": (
+            args.dpm_corrector_interval
+            if plan["sampler"] == "dpm" and args.dpm_corrector_steps > 0
+            else None
+        ),
+        "dpm_corrector_snr": (
+            args.dpm_corrector_snr
+            if plan["sampler"] == "dpm" and args.dpm_corrector_steps > 0
+            else None
+        ),
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(encoded.encode()).hexdigest()[:16]
@@ -274,6 +338,28 @@ def _normalized_global_prior(normalizer, torch):
     )
 
 
+def _normalized_local_prior(normalizer, torch):
+    """Marginal local-latent prior in normalized coordinates.
+
+    Bounds the denoised prediction of the subject-level latents exactly as the
+    global prior bounds the shared ones. Without it the local coordinates are
+    the only unbounded latents in the sampler.
+    """
+    from Partial_Pooling.schema import GLOBAL_INDICES, LOCAL_NAMES
+    from Partial_Pooling.simulators.priors import (
+        LOCAL_PRIOR_MEAN, LOCAL_PRIOR_STD,
+    )
+
+    start = len(GLOBAL_INDICES)
+    indices = torch.arange(start, start + len(LOCAL_NAMES), dtype=torch.long)
+    mean = torch.as_tensor(LOCAL_PRIOR_MEAN, dtype=torch.float32)
+    std = torch.as_tensor(LOCAL_PRIOR_STD, dtype=torch.float32)
+    return (
+        (mean - normalizer.mean[indices]) / normalizer.scale[indices],
+        std / normalizer.scale[indices],
+    )
+
+
 def _sample_dataset(model, observations, normalizers, args, config, device, torch):
     from Partial_Pooling.schema import GLOBAL_INDICES
 
@@ -285,16 +371,19 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
         torch.ones(normalized_observations.shape[-1]),
     )).to(device)
     prior = _normalized_global_prior(theta_normalizer, torch)
+    local_prior = _normalized_local_prior(theta_normalizer, torch)
     batch_size = draw_batch_size(args.draws, config.batch_size, args.subjects)
     batch_count = math.ceil(args.draws / batch_size)
     chunks = []
     posterior_precision = None
     posterior_covariance = None
     posterior_mean = None
+    global_posterior_mean = None
+    global_posterior_covariance = None
     totals = {"score_network_calls": 0, "evaluated_subject_rows": 0}
     started = time.perf_counter()
 
-    if plan.get("moment_projection", False):
+    if plan["correction"] == "Gauss_global_local":
         latent_width = model.nodes_size - normalized_observations.shape[-1]
         estimator = model.multi_obs_sampler
         estimator.verbose = False
@@ -329,6 +418,7 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             multi_obs_inference=True,
             hierarchy=list(GLOBAL_INDICES),
             prior=prior,
+            local_prior=local_prior,
             correction=plan["correction"],
             posterior_precision=posterior_precision,
             posterior_covariance=posterior_covariance,
@@ -337,11 +427,17 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             precision_est_timesteps=args.gaussian_precision_timesteps,
             precision_est_batch_size=args.gaussian_precision_batch_size,
             order=plan["order"] or 2,
-            snr=args.langevin_snr,
-            corrector_steps_interval=1,
+            snr=(
+                args.langevin_snr if plan["sampler"] == "langevin"
+                else args.dpm_corrector_snr
+            ),
+            corrector_steps_interval=(
+                1 if plan["sampler"] == "langevin"
+                else args.dpm_corrector_interval
+            ),
             corrector_steps=(
-                args.langevin_steps_per_level
-                if plan["sampler"] == "langevin" else 0
+                args.langevin_steps_per_level if plan["sampler"] == "langevin"
+                else args.dpm_corrector_steps
             ),
             final_corrector_steps=0,
             device=device,
@@ -354,7 +450,8 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
                 model.multi_obs_sampler.posterior_precision.detach().cpu()
             )
         if (
-            plan["correction"] in {"full_gaussian", "Gauss_global_local"}
+            plan["correction"]
+            in {"full_gaussian", "Gauss_global_local", "gauss_hierarchical"}
             and posterior_covariance is None
         ):
             posterior_covariance = (
@@ -408,8 +505,13 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
 
 def _map_settings(args):
     plan = inference_plan(args.inference_method)
+    from Partial_Pooling.schema import LOCAL_NAMES
+
     return {
         "version": MAP_SETTINGS_VERSION,
+        "coherence_limit": _prior_coherence_limit(
+            args.subjects, len(LOCAL_NAMES),
+        ),
         "starts": int(args.map_starts),
         "timesteps": int(args.map_timesteps),
         "iterations_per_level": int(args.map_iterations),
@@ -466,8 +568,29 @@ def _global_kde_log_density(state, values, torch):
     return torch.from_numpy(result).float()
 
 
+def _prior_coherence_limit(subjects, parameters):
+    """Prior-implied bound on max |z| across every local coordinate.
+
+    Under the model l_ik = mu_k + exp(log_sigma_k) * z_ik with z_ik ~ N(0, 1),
+    so the coherence statistic is the maximum of `subjects * parameters`
+    standard normals and its MAP_COHERENCE_QUANTILE point follows from a Sidak
+    correction. The limit therefore depends only on the model.
+
+    The previous limit was a quantile of the very draws it validated, which
+    made it vacuous exactly when it mattered: a posterior that ran away to
+    |z| ~ 1e11 raised its own threshold to 1e11 and was certified coherent.
+    """
+    from scipy.stats import norm
+
+    count = max(int(subjects) * int(parameters), 1)
+    tail = 1.0 - MAP_COHERENCE_QUANTILE ** (1.0 / count)
+    return max(
+        MAP_MIN_COHERENCE_LIMIT, float(norm.ppf(1.0 - 0.5 * tail)),
+    )
+
+
 def _hierarchy_validation_state(posterior, density, torch):
-    """Derive a conservative local/global coherence limit from central draws."""
+    """Derive the prior-implied local/global coherence limit."""
     global_draws = posterior["globals"].float()
     local_draws = posterior["locals"].float()
     scales = global_draws[:, None, 3:6].exp().clamp_min(1e-8)
@@ -475,15 +598,8 @@ def _hierarchy_validation_state(posterior, density, torch):
         (local_draws - global_draws[:, None, :3]) / scales
     ).abs()
     max_abs_z = standardized.amax(dim=(1, 2))
-    central_cutoff = torch.quantile(
-        density["scores"], MAP_CENTRAL_DENSITY_QUANTILE,
-    )
-    central = max_abs_z[density["scores"] >= central_cutoff]
-    if central.numel() == 0:
-        central = max_abs_z
-    coherence_limit = max(
-        MAP_MIN_COHERENCE_LIMIT,
-        float(torch.quantile(central, MAP_COHERENCE_QUANTILE)),
+    coherence_limit = _prior_coherence_limit(
+        local_draws.shape[1], local_draws.shape[2],
     )
     return {
         "coherence_limit": coherence_limit,
@@ -583,7 +699,9 @@ def _joint_map_dataset(
         gaussian_state["posterior_precision"] = posterior.get(
             "posterior_precision"
         )
-    elif plan["correction"] in {"full_gaussian", "Gauss_global_local"}:
+    elif plan["correction"] in {
+        "full_gaussian", "Gauss_global_local", "gauss_hierarchical",
+    }:
         gaussian_state["posterior_covariance"] = posterior.get(
             "posterior_covariance"
         )
@@ -617,6 +735,7 @@ def _joint_map_dataset(
     ))
     hierarchy = list(GLOBAL_INDICES)
     prior = _normalized_global_prior(theta_normalizer, torch)
+    local_prior = _normalized_local_prior(theta_normalizer, torch)
     density = _global_kde_state(global_draws, torch)
     validation = _hierarchy_validation_state(posterior, density, torch)
 
@@ -647,6 +766,7 @@ def _joint_map_dataset(
                 init=start,
                 hierarchy=hierarchy,
                 prior=prior,
+                local_prior=local_prior,
                 correction=plan["correction"],
                 **gaussian_state,
                 sigma_start=sigma_start,
@@ -1706,11 +1826,15 @@ def run(args, cpu_limit):
         "gaussian_precision_samples", "gaussian_precision_timesteps",
         "gaussian_precision_batch_size",
         "langevin_steps_per_level", "map_starts", "map_timesteps",
-        "map_iterations", "map_logprob_timesteps",
+        "map_iterations", "map_logprob_timesteps", "dpm_corrector_interval",
     ):
         positive(name, getattr(args, name))
     if args.langevin_snr <= 0:
         raise ValueError("--langevin-snr must be positive.")
+    if args.dpm_corrector_steps < 0:
+        raise ValueError("--dpm-corrector-steps cannot be negative.")
+    if args.dpm_corrector_snr <= 0:
+        raise ValueError("--dpm-corrector-snr must be positive.")
     if args.dataset_start < 0:
         raise ValueError("--dataset-start cannot be negative.")
     if args.dataset_start + args.datasets > config.test_datasets:
@@ -1787,6 +1911,9 @@ def run(args, cpu_limit):
         "gaussian_precision_batch_size": args.gaussian_precision_batch_size,
         "langevin_steps_per_level": args.langevin_steps_per_level,
         "langevin_snr": args.langevin_snr,
+        "dpm_corrector_steps": args.dpm_corrector_steps,
+        "dpm_corrector_interval": args.dpm_corrector_interval,
+        "dpm_corrector_snr": args.dpm_corrector_snr,
         "estimated_runtime_seconds": estimate,
         "observation_sweep": not args.skip_observation_sweep,
         "observation_counts": (
@@ -1927,11 +2054,15 @@ def main(argv=None):
         "gaussian_precision_samples", "gaussian_precision_timesteps",
         "gaussian_precision_batch_size",
         "langevin_steps_per_level", "map_starts", "map_timesteps",
-        "map_iterations", "map_logprob_timesteps",
+        "map_iterations", "map_logprob_timesteps", "dpm_corrector_interval",
     ):
         positive(name, getattr(args, name))
     if args.langevin_snr <= 0:
         raise ValueError("--langevin-snr must be positive.")
+    if args.dpm_corrector_steps < 0:
+        raise ValueError("--dpm-corrector-steps cannot be negative.")
+    if args.dpm_corrector_snr <= 0:
+        raise ValueError("--dpm-corrector-snr must be positive.")
     estimate = (
         estimated_runtime_seconds(
             args.datasets, args.subjects, args.draws, args.timesteps,

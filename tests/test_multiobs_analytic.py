@@ -17,16 +17,17 @@ import os
 import sys
 from pathlib import Path
 
-# Keep this standalone executable from consuming more than 6% of host CPUs.
-_cpu_limit = int(os.cpu_count() * 0.06)
+# Keep this standalone executable from consuming more than 3 host CPU threads.
+_CPU_THREAD_LIMIT = 3
+_cpu_limit = min(_CPU_THREAD_LIMIT, os.cpu_count())
 if _cpu_limit < 1:
-    raise RuntimeError("The 6% CPU cap permits fewer than one logical CPU.")
+    raise RuntimeError("The 3-thread CPU cap permits fewer than one logical CPU.")
 _available_cpus = sorted(os.sched_getaffinity(0))
 _cpu_limit = min(_cpu_limit, len(_available_cpus))
 os.sched_setaffinity(0, set(_available_cpus[:_cpu_limit]))
 for _thread_var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ[_thread_var] = str(_cpu_limit)
-print(f"Using {_cpu_limit} logical CPU(s) ({100 * _cpu_limit / os.cpu_count():.1f}% of host capacity).")
+print(f"Using {_cpu_limit} logical CPU(s) (limit of {_CPU_THREAD_LIMIT} threads).")
 
 import torch
 

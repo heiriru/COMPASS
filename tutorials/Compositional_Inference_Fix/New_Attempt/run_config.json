@@ -1,0 +1,41 @@
+{
+  "checkpoint": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/models/shared_local_mixture_full/Model_checkpoint.pt",
+  "reference": "/export/home/rheinric/COMPASS/tutorials/output/compositional_inference/06b_shared_local/raw_plot_data.npz",
+  "n_observations": 30,
+  "posterior_samples": 3000,
+  "timesteps": 100,
+  "inference_seed": 1208,
+  "precision_est_samples": 4096,
+  "precision_est_timesteps": 100,
+  "new_variants": {
+    "gauss_hierarchical_dense_correctors": {
+      "title": "DPM2 + true compositional hierarchical GAUSS",
+      "filename": "02h_dpm2_gauss_hierarchical.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "gauss_hierarchical",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 10,
+        "final_corrector_steps": 3,
+        "snr": 0.2
+      },
+      "description": "Second-order probability-flow predictor with dense Langevin correctors; the shared/local composition uses only the trained network's own scores, weighted by covariances estimated from the network's own DDIM draws (no oracle moments)."
+    },
+    "gauss_hierarchical_deterministic": {
+      "title": "DPM2 + true compositional hierarchical GAUSS (deterministic)",
+      "filename": "02i_dpm2_gauss_hierarchical_deterministic.png",
+      "sample_kwargs": {
+        "method": "dpm",
+        "order": 2,
+        "correction": "gauss_hierarchical",
+        "corrector_steps_interval": 1,
+        "corrector_steps": 0,
+        "final_corrector_steps": 0,
+        "snr": 0.2,
+        "denoise_clamp": null
+      },
+      "description": "Deterministic DPM2, no Langevin correctors -- directly comparable to 02g_dpm2_gauss_moment.png's settings, but composing only real network scores instead of an oracle Gaussian moment projection."
+    }
+  }
+}

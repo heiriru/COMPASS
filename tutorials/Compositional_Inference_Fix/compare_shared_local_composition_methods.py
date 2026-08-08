@@ -14,9 +14,9 @@ import os
 from pathlib import Path
 import time
 
-CPU_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 logical_cpus = os.cpu_count() or 1
-cpu_limit = max(1, int(logical_cpus * CPU_FRACTION))
+cpu_limit = max(1, min(CPU_THREAD_LIMIT, logical_cpus))
 available_cpus = tuple(sorted(os.sched_getaffinity(0)))
 selected_cpus = available_cpus[:min(cpu_limit, len(available_cpus))]
 os.sched_setaffinity(0, selected_cpus)
@@ -232,6 +232,20 @@ def metric_rows(method: str, raw: dict[str, np.ndarray], runtime: float) -> list
         "covariance_condition_number": float(raw.get("covariance_condition_number", np.nan)),
         "pd_repair_fraction": float(raw.get("pd_repair_fraction", 0.0)),
         "pd_maximum_relative_repair": float(raw.get("pd_maximum_relative_repair", 0.0)),
+        # Share of per-observation information eigenvalues that came out
+        # negative, i.e. that claimed an observation makes the shared
+        # parameters *less* certain than the prior alone. Nonzero means the
+        # pilot covariance left the model class and plain GAUSS would have
+        # composed against an indefinite precision.
+        "negative_information_fraction": float(
+            raw.get("negative_information_fraction", 0.0)
+        ),
+        "minimum_information_eigenvalue": float(
+            raw.get("minimum_information_eigenvalue", np.nan)
+        ),
+        "maximum_relative_adaptation": float(
+            raw.get("maximum_relative_adaptation", 0.0)
+        ),
     }]
     rows.append({
         "method": method,
@@ -240,6 +254,15 @@ def metric_rows(method: str, raw: dict[str, np.ndarray], runtime: float) -> list
         "covariance_condition_number": float(raw.get("covariance_condition_number", np.nan)),
         "pd_repair_fraction": float(raw.get("pd_repair_fraction", 0.0)),
         "pd_maximum_relative_repair": float(raw.get("pd_maximum_relative_repair", 0.0)),
+        "negative_information_fraction": float(
+            raw.get("negative_information_fraction", 0.0)
+        ),
+        "minimum_information_eigenvalue": float(
+            raw.get("minimum_information_eigenvalue", np.nan)
+        ),
+        "maximum_relative_adaptation": float(
+            raw.get("maximum_relative_adaptation", 0.0)
+        ),
         "std_ratio_to_exact": np.mean(local_samples.std(axis=1, ddof=1) / exact_std[1:]),
         "runtime_seconds": runtime,
         "shared_synchronization_max_abs": float(raw["shared_synchronization_max_abs"]),
@@ -340,6 +363,9 @@ def run_method(
             pd_maximum_relative_repair=diagnostics["maximum_relative_repair"],
             pd_minimum_eigenvalue_before=diagnostics["minimum_eigenvalue_before"] if diagnostics["minimum_eigenvalue_before"] is not None else np.nan,
             pd_minimum_eigenvalue_after=diagnostics["minimum_eigenvalue_after"] if diagnostics["minimum_eigenvalue_after"] is not None else np.nan,
+            negative_information_fraction=diagnostics["negative_information_fraction"],
+            minimum_information_eigenvalue=diagnostics["minimum_information_eigenvalue"] if diagnostics["minimum_information_eigenvalue"] is not None else np.nan,
+            maximum_relative_adaptation=diagnostics["maximum_relative_adaptation"],
             local_truth=reference["local_truth"],
             exact_joint_mean=reference["exact_joint_mean"],
             exact_joint_covariance=reference["exact_joint_covariance"],

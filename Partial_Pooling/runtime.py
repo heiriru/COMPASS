@@ -1,13 +1,12 @@
 """Runtime guard used before numerical libraries are imported by CLI scripts."""
 
 import logging
-import math
 import os
 
 
-def configure_runtime(fraction=0.06):
+def configure_runtime(max_threads=3):
     """Limit CPU use and select exactly one free GPU before numeric imports."""
-    cpu_info = configure_cpu_limit(fraction)
+    cpu_info = configure_cpu_limit(max_threads)
     try:
         from autocvd import autocvd
     except ImportError as error:
@@ -21,16 +20,14 @@ def configure_runtime(fraction=0.06):
     return cpu_info
 
 
-def configure_cpu_limit(fraction=0.06):
-    """Restrict this process to at most ``floor(cpu_count * fraction)`` CPUs."""
+def configure_cpu_limit(max_threads=3):
+    """Restrict this process to at most ``max_threads`` logical CPUs."""
     total = os.cpu_count()
     if total is None or total < 1:
         raise RuntimeError("Cannot determine the host CPU count.")
-    permitted = math.floor(total * float(fraction))
+    permitted = min(int(max_threads), total)
     if permitted < 1:
-        raise RuntimeError(
-            f"A {100 * fraction:.1f}% CPU cap permits no CPUs on a {total}-CPU host."
-        )
+        raise RuntimeError(f"A cap of {max_threads} threads permits no CPUs.")
     if not hasattr(os, "sched_getaffinity") or not hasattr(os, "sched_setaffinity"):
         raise RuntimeError("This benchmark requires Linux CPU-affinity support.")
     available = sorted(os.sched_getaffinity(0))
@@ -54,6 +51,6 @@ def configure_cpu_limit(fraction=0.06):
         "CPU affinity: %d/%d CPUs (%.3f%%)",
         len(active), total, 100 * info["active_fraction"],
     )
-    if info["active_fraction"] > fraction + 1e-12:
-        raise RuntimeError("The active CPU affinity exceeds the requested 6% cap.")
+    if len(active) > max_threads:
+        raise RuntimeError(f"The active CPU affinity exceeds the requested {max_threads}-thread cap.")
     return info

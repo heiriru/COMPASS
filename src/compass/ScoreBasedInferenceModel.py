@@ -141,7 +141,7 @@ class ScoreBasedInferenceModel(nn.Module):
         
     def sample(self, theta=None, x=None, err=None, condition_mask=None,
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
-               prior=None, correction="gauss", posterior_precision=None,
+               prior=None, local_prior=None, correction="gauss", posterior_precision=None,
                posterior_covariance=None, posterior_mean=None,
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
@@ -154,7 +154,7 @@ class ScoreBasedInferenceModel(nn.Module):
                device="cpu", verbose=True, method="dpm", save_trajectory=False,
                capture_attention=True, precision_est_batch_size=128,
                covariance_shrinkage=0.01, covariance_nugget=1e-6,
-               pd_epsilon=1e-8):
+               pd_epsilon=1e-8, pd_floor=1e-3):
         """
         Sample from the model using the specified method
 
@@ -261,7 +261,8 @@ class ScoreBasedInferenceModel(nn.Module):
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
             samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
-                                      prior=prior, correction=correction,
+                                      prior=prior, local_prior=local_prior,
+                                      correction=correction,
                                       posterior_precision=posterior_precision,
                                       posterior_covariance=posterior_covariance,
                                       posterior_mean=posterior_mean,
@@ -278,6 +279,7 @@ class ScoreBasedInferenceModel(nn.Module):
                                       covariance_shrinkage=covariance_shrinkage,
                                       covariance_nugget=covariance_nugget,
                                       pd_epsilon=pd_epsilon,
+                                      pd_floor=pd_floor,
                                       adaptive_abs_tol=adaptive_abs_tol,
                                       adaptive_rel_tol=adaptive_rel_tol,
                                       adaptive_safety=adaptive_safety,
@@ -336,7 +338,8 @@ class ScoreBasedInferenceModel(nn.Module):
         return self.pfode.map_estimate(data=data, condition_mask=condition_mask, **kwargs)
 
     def hierarchical_map_estimate(self, data, condition_mask, init=None,
-                                  hierarchy=None, prior=None, correction="gauss",
+                                  hierarchy=None, prior=None, local_prior=None,
+                                  correction="gauss",
                                   posterior_precision=None,
                                   posterior_covariance=None, posterior_mean=None,
                                   denoise_clamp=5.0,
@@ -355,7 +358,8 @@ class ScoreBasedInferenceModel(nn.Module):
         """
         return self.multi_obs_sampler.map_estimate(
             data=data, condition_mask=condition_mask, init=init,
-            hierarchy=hierarchy, prior=prior, correction=correction,
+            hierarchy=hierarchy, prior=prior, local_prior=local_prior,
+            correction=correction,
             posterior_precision=posterior_precision,
             posterior_covariance=posterior_covariance,
             posterior_mean=posterior_mean,

@@ -33,7 +33,7 @@ from __future__ import annotations
 import os
 
 
-CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_THREAD_ENV_VARS = (
     "OMP_NUM_THREADS",
     "MKL_NUM_THREADS",
@@ -42,15 +42,15 @@ CPU_THREAD_ENV_VARS = (
 )
 
 
-def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
+def configure_cpu_usage_limit(max_threads=CPU_THREAD_LIMIT):
     """Hard-limit this process and its children before native imports."""
     logical_cpus = os.cpu_count()
     if logical_cpus is None:
         raise RuntimeError("Cannot enforce the CPU cap: os.cpu_count() is unavailable.")
-    cpu_limit = int(logical_cpus * fraction)
+    cpu_limit = min(int(max_threads), logical_cpus)
     if cpu_limit < 1:
         raise RuntimeError(
-            f"Cannot enforce a {fraction:.1%} CPU limit on a {logical_cpus}-CPU "
+            f"Cannot enforce a {max_threads}-thread CPU limit on a {logical_cpus}-CPU "
             "host: one logical CPU would exceed the limit."
         )
     if not hasattr(os, "sched_getaffinity") or not hasattr(os, "sched_setaffinity"):
@@ -67,8 +67,8 @@ def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
             "Failed to enforce CPU affinity: requested "
             f"{selected_cpus}, active {active_cpus}."
         )
-    if len(active_cpus) / logical_cpus > fraction:
-        raise RuntimeError("The active CPU affinity exceeds the configured 6% cap.")
+    if len(active_cpus) > max_threads:
+        raise RuntimeError("The active CPU affinity exceeds the configured 3-thread cap.")
     for variable in CPU_THREAD_ENV_VARS:
         os.environ[variable] = str(len(active_cpus))
     return logical_cpus, active_cpus
@@ -1570,8 +1570,8 @@ def validate_cpu_cap():
         raise RuntimeError(
             f"CPU affinity changed after startup: expected {selected_cpus}, found {active}."
         )
-    if len(active) / logical_cpus > CPU_USAGE_LIMIT_FRACTION:
-        raise RuntimeError("CPU-cap validation failed: active capacity exceeds 6%.")
+    if len(active) > CPU_THREAD_LIMIT:
+        raise RuntimeError("CPU-cap validation failed: active capacity exceeds 3 threads.")
     for variable in CPU_THREAD_ENV_VARS:
         if os.environ.get(variable) != str(len(active)):
             raise RuntimeError(f"CPU thread variable {variable} changed after startup.")

@@ -1,0 +1,109 @@
+{
+  "combined_figures": [
+    "error_distributions.png",
+    "error_vs_observations.png",
+    "global_forest.png"
+  ],
+  "method_specific_figures": {
+    "dpm2_full_gaussian": [
+      "global_parity_dpm2_full_gaussian.png",
+      "local_parity_dpm2_full_gaussian.png",
+      "global_residuals_dpm2_full_gaussian.png",
+      "local_residuals_dpm2_full_gaussian.png",
+      "global_forest_dpm2_full_gaussian.png",
+      "local_shrinkage_dpm2_full_gaussian.png",
+      "error_distributions_dpm2_full_gaussian.png"
+    ],
+    "dpm2_gauss_hierarchical": [
+      "global_parity_dpm2_gauss_hierarchical.png",
+      "local_parity_dpm2_gauss_hierarchical.png",
+      "global_residuals_dpm2_gauss_hierarchical.png",
+      "local_residuals_dpm2_gauss_hierarchical.png",
+      "global_forest_dpm2_gauss_hierarchical.png",
+      "local_shrinkage_dpm2_gauss_hierarchical.png",
+      "error_distributions_dpm2_gauss_hierarchical.png"
+    ],
+    "dpm2_gaussian": [
+      "global_parity_dpm2_gaussian.png",
+      "local_parity_dpm2_gaussian.png",
+      "global_residuals_dpm2_gaussian.png",
+      "local_residuals_dpm2_gaussian.png",
+      "global_forest_dpm2_gaussian.png",
+      "local_shrinkage_dpm2_gaussian.png",
+      "error_distributions_dpm2_gaussian.png"
+    ],
+    "langevin_fnpse": [
+      "global_parity_langevin_fnpse.png",
+      "local_parity_langevin_fnpse.png",
+      "global_residuals_langevin_fnpse.png",
+      "local_residuals_langevin_fnpse.png",
+      "global_forest_langevin_fnpse.png",
+      "local_shrinkage_langevin_fnpse.png",
+      "error_distributions_langevin_fnpse.png"
+    ]
+  },
+  "output_signature": "afadee2ddaef6b0e",
+  "preset": "large",
+  "runs": [
+    {
+      "completed_datasets": 5,
+      "label": "DPM-Solver-2 + Gaussian",
+      "method": "dpm2_gaussian",
+      "observation_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        20
+      ],
+      "point_estimator": "validated_hierarchical_score_map",
+      "signature": "afadee2ddaef6b0e"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "DPM-Solver-2 + full Gaussian",
+      "method": "dpm2_full_gaussian",
+      "observation_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        20
+      ],
+      "point_estimator": "validated_hierarchical_score_map",
+      "signature": "a89ce789e7fa0e1d"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "Langevin + F-NPSE",
+      "method": "langevin_fnpse",
+      "observation_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        20
+      ],
+      "point_estimator": "posterior_global_kde_mode",
+      "signature": "af4ebd7976c290c7"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "Dpm2 Gauss Hierarchical",
+      "method": "dpm2_gauss_hierarchical",
+      "observation_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        20
+      ],
+      "point_estimator": "validated_hierarchical_score_map",
+      "signature": "5c88436017a8ddbb"
+    }
+  ]
+}

@@ -7,6 +7,21 @@ from scipy.stats import beta as beta_distribution
 
 GLOBAL_PRIOR_MEAN = np.array([0.5, 0.0, -1.0, -1.0, -3.0, -1.0, 0.0])
 GLOBAL_PRIOR_STD = np.array([0.3, 0.05, 0.3, 1.0, 1.0, 0.3, 1.0])
+
+# Marginal (prior-predictive) moments of one subject's local parameters, after
+# integrating out both the population mean and the population scale:
+#   l_k = mu_k + exp(log_sigma_k) * z,   z ~ N(0, 1)
+#   E[l_k]   = E[mu_k]
+#   Var[l_k] = Var[mu_k] + E[exp(2 log_sigma_k)]
+# with the second term the lognormal moment exp(2a + 2b^2) for
+# log_sigma_k ~ N(a, b^2). These are what a local-latent box should be built
+# from: the conditional scale exp(log_sigma_k) is itself inferred, so a box
+# derived from it inherits any error in the shared coordinates.
+LOCAL_PRIOR_MEAN = GLOBAL_PRIOR_MEAN[:3].copy()
+LOCAL_PRIOR_STD = np.sqrt(
+    GLOBAL_PRIOR_STD[:3] ** 2
+    + np.exp(2.0 * GLOBAL_PRIOR_MEAN[3:6] + 2.0 * GLOBAL_PRIOR_STD[3:6] ** 2)
+)
 FLAT_PRIOR_MEAN = np.array([0.5, 0.0, -1.0, 0.0])
 FLAT_PRIOR_STD = np.array([np.exp(-1.0), np.exp(-3.0), np.exp(-1.0), 1.0])
 

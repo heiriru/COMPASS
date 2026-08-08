@@ -3,7 +3,7 @@
 import os
 
 
-CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_THREAD_ENV_VARS = (
     "OMP_NUM_THREADS",
     "MKL_NUM_THREADS",
@@ -12,16 +12,16 @@ CPU_THREAD_ENV_VARS = (
 )
 
 
-def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
+def configure_cpu_usage_limit(max_threads=CPU_THREAD_LIMIT):
     """Hard-limit this process and its children to host CPU capacity."""
     logical_cpus = os.cpu_count()
     if logical_cpus is None:
         raise RuntimeError("Cannot enforce the CPU cap: os.cpu_count() is unavailable.")
 
-    cpu_limit = int(logical_cpus * fraction)
+    cpu_limit = min(int(max_threads), logical_cpus)
     if cpu_limit < 1:
         raise RuntimeError(
-            f"Cannot enforce a {fraction:.1%} CPU limit on a "
+            f"Cannot enforce a {max_threads}-thread CPU limit on a "
             f"{logical_cpus}-CPU host: one CPU would exceed the limit.")
     if not hasattr(os, "sched_getaffinity") or not hasattr(os, "sched_setaffinity"):
         raise RuntimeError(
@@ -73,8 +73,8 @@ def test_cpu_usage_cap_is_active():
     logical_cpus, selected_cpus = CPU_LIMIT_INFO
     active_cpus = tuple(sorted(os.sched_getaffinity(0)))
     assert active_cpus == selected_cpus
-    assert len(active_cpus) <= int(logical_cpus * CPU_USAGE_LIMIT_FRACTION)
-    assert len(active_cpus) / logical_cpus <= CPU_USAGE_LIMIT_FRACTION
+    assert len(active_cpus) <= CPU_THREAD_LIMIT
+    assert len(active_cpus) <= min(CPU_THREAD_LIMIT, logical_cpus)
     for variable in CPU_THREAD_ENV_VARS:
         assert os.environ[variable] == str(len(active_cpus))
 

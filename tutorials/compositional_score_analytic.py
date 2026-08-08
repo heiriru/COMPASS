@@ -22,16 +22,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Set this before importing libraries that may create native thread pools.
-CPU_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_VARS = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS")
 
 
 def limit_cpus() -> None:
-    """Limit this process and child processes to at most 6% of host CPUs."""
+    """Limit this process and child processes to at most 3 host CPU threads."""
     total = os.cpu_count() or 1
-    limit = int(total * CPU_FRACTION)
+    limit = min(CPU_THREAD_LIMIT, total)
     if limit < 1:
-        raise RuntimeError(f"6% of {total} logical CPUs is fewer than one CPU.")
+        raise RuntimeError(f"A {CPU_THREAD_LIMIT}-thread cap on {total} logical CPUs is fewer than one CPU.")
     available = sorted(os.sched_getaffinity(0))
     selected = available[:limit]
     if not selected:
@@ -39,7 +39,7 @@ def limit_cpus() -> None:
     os.sched_setaffinity(0, selected)
     for variable in CPU_VARS:
         os.environ[variable] = str(len(selected))
-    print(f"Using {len(selected)} logical CPU(s) ({100 * len(selected) / total:.1f}% of host capacity).")
+    print(f"Using {len(selected)} logical CPU(s) (limit of {CPU_THREAD_LIMIT} threads).")
 
 
 limit_cpus()

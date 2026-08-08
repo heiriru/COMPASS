@@ -10,19 +10,22 @@ from compass.Trainer import Trainer
 
 
 class DeterministicSampler:
+    """Fakes a batched (all-subjects-at-once) single-observation sampler."""
+
     def __init__(self):
         self.calls = []
         self.offsets = {}
 
     def sample(self, data, num_samples, capture_attention, **kwargs):
-        subject = int(torch.as_tensor(data)[0, 0].item())
-        start = self.offsets.get(subject, 0)
-        self.offsets[subject] = start + num_samples
-        self.calls.append((subject, num_samples, capture_attention))
-        draw = torch.arange(start, start + num_samples, dtype=torch.float32)
-        result = torch.zeros(1, num_samples, 4)
-        result[0, :, 0] = draw + subject
-        result[0, :, 1] = 2 * draw - subject
+        subjects = torch.as_tensor(data)[:, 0].to(torch.int64).tolist()
+        self.calls.append((tuple(subjects), num_samples, capture_attention))
+        result = torch.zeros(len(subjects), num_samples, 4)
+        for row, subject in enumerate(subjects):
+            start = self.offsets.get(subject, 0)
+            self.offsets[subject] = start + num_samples
+            draw = torch.arange(start, start + num_samples, dtype=torch.float32)
+            result[row, :, 0] = draw + subject
+            result[row, :, 1] = 2 * draw - subject
         return result
 
 
@@ -47,20 +50,17 @@ def estimate_precision(subjects, samples, batch_size):
 def test_precision_estimation_preserves_256_draws_with_bounded_calls():
     precision, calls = estimate_precision(subjects=20, samples=256, batch_size=128)
     assert precision.shape == (20, 2)
-    for subject in range(20):
-        subject_calls = [count for index, count, _ in calls if index == subject]
-        assert subject_calls == [128, 128]
-        assert sum(subject_calls) == 256
+    # All subjects are drawn together in each sample-count-bounded call.
+    assert [subjects for subjects, _, _ in calls] == [tuple(range(20))] * 2
+    assert [count for _, count, _ in calls] == [128, 128]
     assert max(count for _, count, _ in calls) <= 128
     assert all(not capture for _, _, capture in calls)
 
 
 def test_precision_estimation_handles_non_divisible_draw_count():
     _, calls = estimate_precision(subjects=2, samples=257, batch_size=128)
-    for subject in range(2):
-        assert [count for index, count, _ in calls if index == subject] == [
-            128, 128, 1,
-        ]
+    assert [count for _, count, _ in calls] == [128, 128, 1]
+    assert all(subjects == (0, 1) for subjects, _, _ in calls)
 
 
 def test_batched_and_unbatched_precision_match_deterministic_sampler():

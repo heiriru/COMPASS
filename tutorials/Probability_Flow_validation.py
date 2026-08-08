@@ -1,7 +1,7 @@
 import os
 
 
-CPU_USAGE_LIMIT_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 CPU_THREAD_ENV_VARS = (
     "OMP_NUM_THREADS",
     "MKL_NUM_THREADS",
@@ -10,13 +10,13 @@ CPU_THREAD_ENV_VARS = (
 )
 
 
-def configure_cpu_usage_limit(fraction=CPU_USAGE_LIMIT_FRACTION):
-    """Hard-limit this script and its children to a fraction of host CPU capacity."""
+def configure_cpu_usage_limit(max_threads=CPU_THREAD_LIMIT):
+    """Hard-limit this script and its children to a fixed number of host CPU threads."""
     logical_cpus = os.cpu_count() or 1
-    cpu_limit = int(logical_cpus * fraction)
+    cpu_limit = min(int(max_threads), logical_cpus)
     if cpu_limit < 1:
         raise RuntimeError(
-            f"Cannot enforce a {fraction:.1%} CPU limit on a {logical_cpus}-CPU host."
+            f"Cannot enforce a {max_threads}-thread CPU limit on a {logical_cpus}-CPU host."
         )
 
     allowed_cpus = sorted(os.sched_getaffinity(0))

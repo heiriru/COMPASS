@@ -14,9 +14,9 @@ import os
 from pathlib import Path
 import time
 
-CPU_FRACTION = 0.06
+CPU_THREAD_LIMIT = 3
 logical_cpus = os.cpu_count() or 1
-cpu_limit = max(1, int(logical_cpus * CPU_FRACTION))
+cpu_limit = max(1, min(CPU_THREAD_LIMIT, logical_cpus))
 available_cpus = tuple(sorted(os.sched_getaffinity(0)))
 selected_cpus = available_cpus[:min(cpu_limit, len(available_cpus))]
 os.sched_setaffinity(0, selected_cpus)
