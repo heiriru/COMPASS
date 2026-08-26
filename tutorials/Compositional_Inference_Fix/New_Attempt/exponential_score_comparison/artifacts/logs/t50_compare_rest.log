@@ -1,0 +1,192 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h16d2_n200000/Model_checkpoint.pt
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+network reference: single-observation score error
+  lam=0.05  relative score RMSE 0.2363
+  lam=0.1   relative score RMSE 0.1272
+  lam=0.2   relative score RMSE 0.0741
+  lam=0.5   relative score RMSE 0.0425
+  lam=1     relative score RMSE 0.0284
+  lam=2     relative score RMSE 0.0188
+
+=== DPM2 + gauss_jacobian (Newton MAP) ===
+[gauss_jacobian] sampled in 81.3s, 2004 network calls
+[gauss_jacobian] probing the composed score against exact quadrature
+[gauss_jacobian]   lam=0.05  shared 0.2014  local 0.1958
+[gauss_jacobian]   lam=0.1   shared 0.2907  local 0.1520
+[gauss_jacobian]   lam=0.2   shared 0.3594  local 0.1083
+[gauss_jacobian]   lam=0.5   shared 0.5641  local 0.0747
+[gauss_jacobian]   lam=1     shared 0.3473  local 0.0896
+[gauss_jacobian]   lam=2     shared 0.3272  local 0.1373
+[gauss_jacobian] newton_map_estimate (jacobian curvature)
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.5896004068891192,
+  "shared_mean_error_sigma": 0.5890391606600561,
+  "shared_width_ratio": 1.0158922047048442,
+  "local_w1_over_sigma": 0.04861926367579197,
+  "local_draw_mean_error_sigma": 0.03537250461776884,
+  "marginal_score_rel_rmse": 0.8398991778312739,
+  "global_map": 1.3546540922214565,
+  "global_map_error_sigma": 0.6791472939867049,
+  "global_map_error_from_truth_sigma": 1.4337342800285189,
+  "local_map_error_vs_posterior_mean_sigma": 0.4738940558353374,
+  "local_map_error_vs_conditional_mode_sigma": 0.5071774721062875,
+  "sample_seconds": 81.25718531617895,
+  "ascent_seconds": 1.5394520261324942,
+  "sampler_network_calls": 2022,
+  "score_rel_rmse_lam0.05": 0.20141391426737676,
+  "local_score_rel_rmse_lam0.05": 0.1958254073199736,
+  "score_rel_rmse_lam0.1": 0.29068149409202376,
+  "local_score_rel_rmse_lam0.1": 0.15200765218042125,
+  "score_rel_rmse_lam0.2": 0.35935759115746885,
+  "local_score_rel_rmse_lam0.2": 0.1083234468855011,
+  "score_rel_rmse_lam0.5": 0.5641225358187631,
+  "local_score_rel_rmse_lam0.5": 0.0747468708257325,
+  "score_rel_rmse_lam1": 0.3473101836977723,
+  "local_score_rel_rmse_lam1": 0.08957308759803963,
+  "score_rel_rmse_lam2": 0.32723307552339964,
+  "local_score_rel_rmse_lam2": 0.1373009845588875,
+  "score_rel_rmse_mean": 0.34835313242613414,
+  "newton_global_map": 1.5144689083099365,
+  "newton_global_map_error_sigma": 0.5504842536854371,
+  "newton_local_map_error_vs_conditional_mode_sigma": 1.0895364321231933,
+  "newton_seconds": 122.27593882521614,
+  "method": "gauss_jacobian"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian.png
+
+=== DPM2 + gauss_jacobian (2 correctors) ===
+[gauss_jacobian_correctors2] sampled in 25.1s, 636 network calls
+[gauss_jacobian_correctors2] probing the composed score against exact quadrature
+[gauss_jacobian_correctors2]   lam=0.05  shared 0.2014  local 0.1958
+[gauss_jacobian_correctors2]   lam=0.1   shared 0.2907  local 0.1520
+[gauss_jacobian_correctors2]   lam=0.2   shared 0.3594  local 0.1083
+[gauss_jacobian_correctors2]   lam=0.5   shared 0.5641  local 0.0747
+[gauss_jacobian_correctors2]   lam=1     shared 0.3473  local 0.0896
+[gauss_jacobian_correctors2]   lam=2     shared 0.3272  local 0.1373
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.25601617596662996,
+  "shared_mean_error_sigma": 0.2511574542985613,
+  "shared_width_ratio": 0.992782254019141,
+  "local_w1_over_sigma": 0.032330587585655844,
+  "local_draw_mean_error_sigma": 0.02148490192399358,
+  "marginal_score_rel_rmse": 0.45782900337184645,
+  "global_map": 1.3811949349010386,
+  "global_map_error_sigma": 0.47493933467867006,
+  "global_map_error_from_truth_sigma": 1.229526320720484,
+  "local_map_error_vs_posterior_mean_sigma": 0.48929408990660356,
+  "local_map_error_vs_conditional_mode_sigma": 0.5146126976128079,
+  "sample_seconds": 25.115281139034778,
+  "ascent_seconds": 1.4533067769370973,
+  "sampler_network_calls": 654,
+  "score_rel_rmse_lam0.05": 0.20141391426737676,
+  "local_score_rel_rmse_lam0.05": 0.1958254073199736,
+  "score_rel_rmse_lam0.1": 0.29068149409202376,
+  "local_score_rel_rmse_lam0.1": 0.15200765218042125,
+  "score_rel_rmse_lam0.2": 0.35935759115746885,
+  "local_score_rel_rmse_lam0.2": 0.1083234468855011,
+  "score_rel_rmse_lam0.5": 0.5641225358187631,
+  "local_score_rel_rmse_lam0.5": 0.0747468708257325,
+  "score_rel_rmse_lam1": 0.3473101836977723,
+  "local_score_rel_rmse_lam1": 0.08957308759803963,
+  "score_rel_rmse_lam2": 0.32723307552339964,
+  "local_score_rel_rmse_lam2": 0.1373009845588875,
+  "score_rel_rmse_mean": 0.34835313242613414,
+  "method": "gauss_jacobian_correctors2"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_correctors2.png
+
+=== DPM2 + gauss_jacobian (predictor only) ===
+[gauss_jacobian_predictor_only] sampled in 11.7s, 294 network calls
+[gauss_jacobian_predictor_only] probing the composed score against exact quadrature
+[gauss_jacobian_predictor_only]   lam=0.05  shared 0.2014  local 0.1958
+[gauss_jacobian_predictor_only]   lam=0.1   shared 0.2907  local 0.1520
+[gauss_jacobian_predictor_only]   lam=0.2   shared 0.3594  local 0.1083
+[gauss_jacobian_predictor_only]   lam=0.5   shared 0.5641  local 0.0747
+[gauss_jacobian_predictor_only]   lam=1     shared 0.3473  local 0.0896
+[gauss_jacobian_predictor_only]   lam=2     shared 0.3272  local 0.1373
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 2.331009589330505,
+  "shared_mean_error_sigma": 2.3292725448508427,
+  "shared_width_ratio": 1.5800380648402959,
+  "local_w1_over_sigma": 0.922689560436968,
+  "local_draw_mean_error_sigma": 0.9220645101948063,
+  "marginal_score_rel_rmse": 1.940366668999418,
+  "global_map": 1.1779559484650137,
+  "global_map_error_sigma": 2.0386808922842357,
+  "global_map_error_from_truth_sigma": 2.7932678783260494,
+  "local_map_error_vs_posterior_mean_sigma": 0.45616436792544746,
+  "local_map_error_vs_conditional_mode_sigma": 0.504776267451603,
+  "sample_seconds": 11.696006589569151,
+  "ascent_seconds": 1.558048968669027,
+  "sampler_network_calls": 312,
+  "score_rel_rmse_lam0.05": 0.20141391426737676,
+  "local_score_rel_rmse_lam0.05": 0.1958254073199736,
+  "score_rel_rmse_lam0.1": 0.29068149409202376,
+  "local_score_rel_rmse_lam0.1": 0.15200765218042125,
+  "score_rel_rmse_lam0.2": 0.35935759115746885,
+  "local_score_rel_rmse_lam0.2": 0.1083234468855011,
+  "score_rel_rmse_lam0.5": 0.5641225358187631,
+  "local_score_rel_rmse_lam0.5": 0.0747468708257325,
+  "score_rel_rmse_lam1": 0.3473101836977723,
+  "local_score_rel_rmse_lam1": 0.08957308759803963,
+  "score_rel_rmse_lam2": 0.32723307552339964,
+  "local_score_rel_rmse_lam2": 0.1373009845588875,
+  "score_rel_rmse_mean": 0.34835313242613414,
+  "method": "gauss_jacobian_predictor_only"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_predictor_only.png
+
+=== Langevin + F-NPSE ===
+[langevin_fnpe] sampled in 17.8s, 500 network calls
+[langevin_fnpe] probing the composed score against exact quadrature
+[langevin_fnpe]   lam=0.05  shared 0.9301  local 0.2937
+[langevin_fnpe]   lam=0.1   shared 1.9100  local 0.3279
+[langevin_fnpe]   lam=0.2   shared 3.0693  local 0.3461
+[langevin_fnpe]   lam=0.5   shared 5.2350  local 0.3547
+[langevin_fnpe]   lam=1     shared 9.1152  local 0.3067
+[langevin_fnpe]   lam=2     shared 17.9928  local 0.2073
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.36626618388260407,
+  "shared_mean_error_sigma": 0.286989477550817,
+  "shared_width_ratio": 1.3878005274121428,
+  "local_w1_over_sigma": 0.08359158021606673,
+  "local_draw_mean_error_sigma": 0.07428439054809846,
+  "marginal_score_rel_rmse": 0.5018244274921898,
+  "global_map": 1.3678421288163338,
+  "global_map_error_sigma": 0.5776771909898852,
+  "global_map_error_from_truth_sigma": 1.3322641770316992,
+  "local_map_error_vs_posterior_mean_sigma": 0.48213174217765026,
+  "local_map_error_vs_conditional_mode_sigma": 0.5122296916612766,
+  "sample_seconds": 17.831850742921233,
+  "ascent_seconds": 1.4811786953359842,
+  "sampler_network_calls": 506,
+  "score_rel_rmse_lam0.05": 0.9300759178255049,
+  "local_score_rel_rmse_lam0.05": 0.29366594070829816,
+  "score_rel_rmse_lam0.1": 1.9099675448136806,
+  "local_score_rel_rmse_lam0.1": 0.32791880656613,
+  "score_rel_rmse_lam0.2": 3.0692532329120317,
+  "local_score_rel_rmse_lam0.2": 0.34608200596190003,
+  "score_rel_rmse_lam0.5": 5.23503163620159,
+  "local_score_rel_rmse_lam0.5": 0.3547151637156444,
+  "score_rel_rmse_lam1": 9.115242911937335,
+  "local_score_rel_rmse_lam1": 0.3067396941815119,
+  "score_rel_rmse_lam2": 17.99284936951873,
+  "local_score_rel_rmse_lam2": 0.20730441363559982,
+  "score_rel_rmse_mean": 6.375403435534811,
+  "method": "langevin_fnpe"
+}
+Wrote artifacts/timesteps_50/01_langevin_fnpe.png
+Wrote artifacts/timesteps_50/02_method_comparison.png
+Wrote artifacts/timesteps_50/methods.csv

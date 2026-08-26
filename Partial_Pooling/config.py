@@ -7,7 +7,7 @@ import json
 
 REFERENCE_URL = "https://github.com/bayesflow-org/diffusion-experiments/tree/main/case_study4"
 REFERENCE_REVISION = "363186e485add4f062b2cf33f356ffa215f07056"
-PRESETS = ("smoke", "full", "large")
+PRESETS = ("smoke", "full", "large", "compact", "small")
 SDE_TYPES = ("vesde", "vpsde")
 
 
@@ -131,6 +131,54 @@ def get_config(
             train_epochs=500, patience=20, batch_size=128,
             shard_size=2048, hidden_size=128, depth=6,
             num_heads=16, mlp_ratio=4,
+        )
+    elif preset == "compact":
+        # Sub-1M-parameter capacity ablation of "large": same 800,000-sample
+        # scale of training data as "large" uses 100,000 (8x), but a backbone
+        # thinned to hidden_size=4/depth=1/num_heads=1/mlp_ratio=2 (~867K
+        # parameters for this problem's nodes_size=100). depth=1 is a hard
+        # requirement here, not a preference: nodes_size=100 (10 shared+local
+        # theta dims + 90 flattened trial features) means each transformer
+        # layer's per-node adaLN-modulation cost alone already dominates the
+        # budget, so depth=2 at any hidden_size below the "full"/"large"
+        # regime exceeds 1M parameters (verified empirically: hidden_size=4,
+        # depth=2 -> ~1.48M).
+        config = BenchmarkConfig(
+            preset=preset,
+            train_size=800000, validation_size=40000,
+            test_datasets=100, subjects=100, trials=30,
+            posterior_draws=1000, diffusion_steps=100,
+            train_epochs=500, patience=20, batch_size=128,
+            shard_size=2048, hidden_size=4, depth=1,
+            num_heads=1, mlp_ratio=2,
+        )
+    elif preset == "small":
+        # Reduced-capacity counterpart of "large": 5,957,984 parameters
+        # (hidden_size=16/depth=2/num_heads=2/mlp_ratio=4) trained on 400,000
+        # simulations, versus 127,748,608 parameters on 100,000 simulations.
+        #
+        # The two settings are floors, not tuning choices. num_heads=2 keeps
+        # head_dim=8: attention must route 90 flattened trial nodes into the 3
+        # subject-local and 7 group-level parameter nodes, and a smaller
+        # query-key subspace cannot express that selection. depth=2 gives the
+        # two rounds of routing the hierarchy needs (trials -> local, local ->
+        # global) and makes the score nonlinearly composed in x, which
+        # "gauss_jacobian" composition and "newton_map_estimate" curvature both
+        # consume -- a near-affine score yields an x-independent Jacobian.
+        #
+        # Note that the total count understates the reduction: 97% of the
+        # parameters here are the per-node adaLN modulation, Linear(256,
+        # 6*nodes_size*hidden_size), which is a function of the diffusion time
+        # only. The data-dependent pathway is 168,096 parameters against
+        # 2,480,896 for "large".
+        config = BenchmarkConfig(
+            preset=preset,
+            train_size=400000, validation_size=20000,
+            test_datasets=100, subjects=100, trials=30,
+            posterior_draws=1000, diffusion_steps=100,
+            train_epochs=500, patience=20, batch_size=128,
+            shard_size=2048, hidden_size=16, depth=2,
+            num_heads=2, mlp_ratio=4,
         )
     else:
         raise ValueError(

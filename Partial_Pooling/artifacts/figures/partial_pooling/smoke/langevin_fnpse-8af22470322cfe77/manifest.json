@@ -1,0 +1,19 @@
+{
+  "completed_datasets": 1,
+  "correction": "fnpe",
+  "figures": [
+    "global_parity.png",
+    "local_parity.png",
+    "global_residuals.png",
+    "local_residuals.png",
+    "local_shrinkage.png",
+    "error_distributions.png",
+    "mock_data_overview.png"
+  ],
+  "inference_method": "langevin_fnpse",
+  "observation_counts": [],
+  "observation_unit": "subject",
+  "point_estimator": "kde_global_then_local_score_ascent",
+  "sampler": "langevin",
+  "trials_per_subject": 30
+}

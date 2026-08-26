@@ -1,0 +1,148 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h16d2_n200000/Model_checkpoint.pt
+true g = 0.39230   exact posterior: mean 0.34567, sd 0.13396, mode 0.40212, wall at 0.59950
+network reference: single-observation score error
+  lam=0.05  relative score RMSE 0.1463
+  lam=0.1   relative score RMSE 0.0841
+  lam=0.2   relative score RMSE 0.0511
+  lam=0.5   relative score RMSE 0.0288
+  lam=1     relative score RMSE 0.0194
+  lam=2     relative score RMSE 0.0144
+
+=== DPM2 + gauss_hierarchical ===
+[gauss_hierarchical] sampled in 103.1s, 1268 network calls
+[gauss_hierarchical] probing the composed score against exact quadrature
+[gauss_hierarchical]   lam=0.05  shared 0.7258  local 0.2638
+[gauss_hierarchical]   lam=0.1   shared 1.0241  local 0.2715
+[gauss_hierarchical]   lam=0.2   shared 0.8324  local 0.2586
+[gauss_hierarchical]   lam=0.5   shared 0.3342  local 0.1917
+[gauss_hierarchical]   lam=1     shared 0.1606  local 0.1158
+[gauss_hierarchical]   lam=2     shared 0.0850  local 0.0551
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.3839680041981896,
+  "shared_mean_error_sigma": 0.38400649665554276,
+  "shared_width_ratio": 0.8622691886658097,
+  "local_w1_over_sigma": 0.06770196661375542,
+  "local_draw_mean_error_sigma": 0.060019724467029266,
+  "marginal_score_rel_rmse": 0.5572162463998,
+  "global_map": 0.4326041966285847,
+  "global_map_error_sigma": 0.227542110241312,
+  "global_map_error_from_truth_sigma": 0.30088993696077704,
+  "local_map_error_vs_posterior_mean_sigma": 0.3649389126180317,
+  "local_map_error_vs_conditional_mode_sigma": 0.3704090369989235,
+  "sample_seconds": 103.1066038957797,
+  "ascent_seconds": 1.9127976801246405,
+  "sampler_network_calls": 1274,
+  "score_rel_rmse_lam0.05": 0.7257528507194464,
+  "local_score_rel_rmse_lam0.05": 0.2637556699627728,
+  "score_rel_rmse_lam0.1": 1.0241143994864017,
+  "local_score_rel_rmse_lam0.1": 0.2715264596704619,
+  "score_rel_rmse_lam0.2": 0.8323510087133278,
+  "local_score_rel_rmse_lam0.2": 0.25860802729807497,
+  "score_rel_rmse_lam0.5": 0.3342282761078053,
+  "local_score_rel_rmse_lam0.5": 0.1917071238957108,
+  "score_rel_rmse_lam1": 0.16062034664660957,
+  "local_score_rel_rmse_lam1": 0.11579664157892174,
+  "score_rel_rmse_lam2": 0.08503664988321526,
+  "local_score_rel_rmse_lam2": 0.05508093827677776,
+  "score_rel_rmse_mean": 0.5270172552594677,
+  "method": "gauss_hierarchical"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/seed2/01_gauss_hierarchical.png
+
+=== DPM2 + gauss_jacobian (Newton MAP) ===
+[gauss_jacobian] sampled in 185.7s, 3804 network calls
+[gauss_jacobian] probing the composed score against exact quadrature
+[gauss_jacobian]   lam=0.05  shared 0.1810  local 0.1590
+[gauss_jacobian]   lam=0.1   shared 0.2214  local 0.1294
+[gauss_jacobian]   lam=0.2   shared 0.2508  local 0.1051
+[gauss_jacobian]   lam=0.5   shared 0.2203  local 0.0659
+[gauss_jacobian]   lam=1     shared 0.1105  local 0.0518
+[gauss_jacobian]   lam=2     shared 0.0944  local 0.0548
+[gauss_jacobian] newton_map_estimate (jacobian curvature)
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.3473943204964498,
+  "shared_mean_error_sigma": 0.34743281295380307,
+  "shared_width_ratio": 0.8546654520757813,
+  "local_w1_over_sigma": 0.06354698919756409,
+  "local_draw_mean_error_sigma": 0.057682618080038425,
+  "marginal_score_rel_rmse": 0.4380459577750756,
+  "global_map": 0.4408595337100504,
+  "global_map_error_sigma": 0.2891672547176724,
+  "global_map_error_from_truth_sigma": 0.36251508143713745,
+  "local_map_error_vs_posterior_mean_sigma": 0.36471491314063864,
+  "local_map_error_vs_conditional_mode_sigma": 0.3718495820205849,
+  "sample_seconds": 185.74418075429276,
+  "ascent_seconds": 2.055569394957274,
+  "sampler_network_calls": 3822,
+  "score_rel_rmse_lam0.05": 0.18095296831829974,
+  "local_score_rel_rmse_lam0.05": 0.15901887343444263,
+  "score_rel_rmse_lam0.1": 0.22136778859581377,
+  "local_score_rel_rmse_lam0.1": 0.1293959602935561,
+  "score_rel_rmse_lam0.2": 0.2507871280593355,
+  "local_score_rel_rmse_lam0.2": 0.10507356487173664,
+  "score_rel_rmse_lam0.5": 0.22031017394962674,
+  "local_score_rel_rmse_lam0.5": 0.06587596654746053,
+  "score_rel_rmse_lam1": 0.1104585940626371,
+  "local_score_rel_rmse_lam1": 0.051774752083039735,
+  "score_rel_rmse_lam2": 0.09438399646511335,
+  "local_score_rel_rmse_lam2": 0.0548390085626463,
+  "score_rel_rmse_mean": 0.17971010824180436,
+  "newton_global_map": 0.5507174134254456,
+  "newton_global_map_error_sigma": 1.1092437267647557,
+  "newton_local_map_error_vs_conditional_mode_sigma": 0.9389464544768233,
+  "newton_seconds": 231.5332030337304,
+  "method": "gauss_jacobian"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/seed2/01_gauss_jacobian.png
+
+=== Langevin + F-NPSE ===
+[langevin_fnpe] sampled in 37.4s, 1000 network calls
+[langevin_fnpe] probing the composed score against exact quadrature
+[langevin_fnpe]   lam=0.05  shared 0.8853  local 0.2692
+[langevin_fnpe]   lam=0.1   shared 1.8114  local 0.2994
+[langevin_fnpe]   lam=0.2   shared 3.3718  local 0.3237
+[langevin_fnpe]   lam=0.5   shared 6.5229  local 0.2978
+[langevin_fnpe]   lam=1     shared 10.4793  local 0.2154
+[langevin_fnpe]   lam=2     shared 18.1001  local 0.1095
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.12674646784841628,
+  "shared_mean_error_sigma": 0.0607665004831087,
+  "shared_width_ratio": 1.1402412729255191,
+  "local_w1_over_sigma": 0.03225140580821368,
+  "local_draw_mean_error_sigma": 0.022180707866031688,
+  "marginal_score_rel_rmse": 0.27579730991621376,
+  "global_map": 0.4033661878092358,
+  "global_map_error_sigma": 0.009283727826044703,
+  "global_map_error_from_truth_sigma": 0.08263155454550973,
+  "local_map_error_vs_posterior_mean_sigma": 0.3519494257487811,
+  "local_map_error_vs_conditional_mode_sigma": 0.3684003019819172,
+  "sample_seconds": 37.402448947075754,
+  "ascent_seconds": 1.9959534211084247,
+  "sampler_network_calls": 1006,
+  "score_rel_rmse_lam0.05": 0.8853305378363431,
+  "local_score_rel_rmse_lam0.05": 0.26916840423844307,
+  "score_rel_rmse_lam0.1": 1.811355355817364,
+  "local_score_rel_rmse_lam0.1": 0.2994428795025361,
+  "score_rel_rmse_lam0.2": 3.371831184217326,
+  "local_score_rel_rmse_lam0.2": 0.32367417971770235,
+  "score_rel_rmse_lam0.5": 6.522863075656101,
+  "local_score_rel_rmse_lam0.5": 0.29778072964850993,
+  "score_rel_rmse_lam1": 10.479311415879693,
+  "local_score_rel_rmse_lam1": 0.21542823921555465,
+  "score_rel_rmse_lam2": 18.10014546679024,
+  "local_score_rel_rmse_lam2": 0.10953217967686528,
+  "score_rel_rmse_mean": 6.861806172699512,
+  "method": "langevin_fnpe"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/seed2/01_langevin_fnpe.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/seed2/02_method_comparison.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/seed2/methods.csv

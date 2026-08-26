@@ -116,6 +116,104 @@ python Partial_Pooling/infer_partial_pooling.py \
 does not train flat, ancestral, choice-only, or full-observation alternatives.
 The existing `full` checkpoint and results are left untouched.
 
+### Small-capacity ablation (`small`)
+
+The `small` preset is the low-capacity, high-data counterpart of `large`: the
+same scientific model, test settings, and early-stopping schedule, but a
+5,957,984-parameter backbone (`hidden_size=16`, `depth=2`, `num_heads=2`,
+`mlp_ratio=4`) trained on 400,000/20,000 training/validation simulations,
+against 127,748,608 parameters on 100,000 simulations for `large`. It uses its
+own data, checkpoint, and recovery namespaces
+(`partial_pooling-train-400000*`, `checkpoints/small/`), so `full`, `large`, and
+`compact` artifacts are untouched.
+
+Both architecture settings are floors rather than tuning choices.
+`num_heads=2` holds `head_dim=8`, the smallest query-key subspace in which
+attention can select which of the 90 flattened trial nodes matter for each of
+the 10 parameter nodes. `depth=2` supplies the two routing rounds the hierarchy
+requires (trials to local, local to global) and keeps the score nonlinearly
+composed in `x`, which the `gauss_jacobian` composition weights and the
+`newton_map_estimate` curvature both read off the network Jacobian.
+
+The total parameter count understates the reduction. At `nodes_size=100` the
+per-node adaLN modulation `Linear(256, 6 * nodes_size * hidden_size)` is 97% of
+the model and is a function of the diffusion time alone; the data-dependent
+pathway is 168,096 parameters here against 2,480,896 for `large`. A genuinely
+sub-1M-parameter model at this node count therefore has to shrink
+`time_embedding_size`, which is currently fixed at 256.
+
+```bash
+python Partial_Pooling/create_training_data.py --preset small
+python Partial_Pooling/train_models.py --preset small --model sde_joint --device cuda
+```
+
+Simulation takes roughly 10 minutes on the capped 3-thread budget and writes
+about 330 MB of shards. Add `python Partial_Pooling/create_test_data.py
+--preset small` before running `infer_partial_pooling.py --preset small`.
+
+### Two-stage MAP: KDE globals, then local score ascent
+
+`--map-estimator kde_global_then_local_ascent` replaces each method's own mode
+finder with one estimator shared by every method, so a comparison isolates the
+posterior sampler instead of confounding it with the mode finder:
+
+1. the seven shared coordinates are fixed at the joint KDE mode of the global
+   posterior draws (standardized 7-dimensional Gaussian KDE evaluated at the
+   draws, arg-max retained -- the rule `langevin_fnpse` already used); then
+2. those globals are moved into the condition mask and only the three local
+   coordinates per subject are refined by annealed Tweedie score ascent.
+
+Stage 2 needs no composition and no correction. With the shared coordinates
+fixed the subjects are conditionally independent, so subject `r`'s locals are
+the mode of `p(l_r | x_r, globals)` -- a single-observation problem the network
+scores directly. That is why the estimator applies unchanged to F-NPSE, whose
+bridging scores do not define a compositional MAP objective. It also means the
+per-row `PFODE.map_estimate` is the only usable ascent: `MultiObsSampler`
+requires every hierarchy coordinate to be latent and rejects a conditioned
+global block. The per-row ascent applies no local prior clamp, so each dataset
+artifact records the prior-box and coherence diagnostics rather than bounding
+the denoised prediction.
+
+`--map-starts` and `--map-logprob-timesteps` are unused by this estimator; it
+takes a single start per subject at the posterior median of that subject's local
+draws and anneals from the posterior spread of the local draws in normalized
+coordinates. `--map-timesteps` and `--map-iterations` still apply.
+
+The estimator name enters the run signature only when it is not
+`method_default`, so signatures published before the option existed are
+unchanged and their artifacts remain reusable. The three-method comparison on
+the `small` checkpoint:
+
+```bash
+for method in dpm2_gauss_hierarchical langevin_fnpse dpm2_gauss_jacobian_newton; do
+  python Partial_Pooling/infer_partial_pooling.py \
+    --preset small --inference-method "$method" \
+    --map-estimator kde_global_then_local_ascent \
+    --datasets 5 --subjects 20 --timesteps 50 \
+    --gaussian-precision-samples 256 --gaussian-precision-timesteps 50 \
+    --gaussian-precision-batch-size 128 --device cuda
+done
+
+python Partial_Pooling/plot_partial_pooling_comparison.py \
+  --preset small \
+  --run-signature 5fed2b37894e0323 \
+  --run-signature 0b237128378106b7 \
+  --run-signature b317656c8c569f98 \
+  --output-signature 5fed2b37894e0323
+```
+
+The signatures are, in order, DPM-Solver-2 + hierarchical Gaussian, Langevin +
+F-NPSE, and DPM-Solver-2 + Jacobian-Gaussian with the two-stage MAP at the
+default 4096 draws; changing any sampling argument changes them. The first pass
+of this comparison ran at 256 draws and lives under the signatures
+`a1a823fc7f09e730`, `ab32e8737eb0ed51`, and `6dc80a088b683d32`; 4096 draws is
+the default because a 7-dimensional global KDE mode is unstable at 256.
+
+The combined figures are written to
+`artifacts/figures/partial_pooling/<preset>/shared/`, not into the
+`--output-signature` directory; that argument is only recorded in
+`comparison_manifest.json`.
+
 `infer_partial_pooling.py` is the only inference entry point. Its primary
 profile is `dpm2_gaussian`: compositional score modeling with DPM-Solver order 2
 and the Gaussian correction. The Gaussian single-observation precision is estimated
@@ -148,7 +246,9 @@ The smoke preset contains 2,048 training simulations, 256 validation simulations
 10 test datasets, 20 subjects, 30 trials, 128 posterior draws, and 20 diffusion
 steps. The full preset contains 32,768/4,096 training/validation simulations,
 100 test datasets, 100 subjects, 30 trials, up to 1,000 draws, and paper-scale
-early-stopped training. The large preset retains the full model and test settings
+early-stopped training. The small preset retains the full test settings with a
+5.96M-parameter backbone and 400,000/20,000 training/validation simulations.
+The large preset retains the full model and test settings
 but uses 100,000/5,000 training/validation simulations.
 
 Artifacts are standard `.pt`, CSV, and JSON files under `artifacts/`.

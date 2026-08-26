@@ -1,0 +1,28 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h16d2_n200000/Model_checkpoint.pt
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_jacobian (2 correctors) ===
+[gauss_jacobian_correctors2] sampled in 53.5s, 1236 network calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.2652945255739017,
+  "shared_mean_error_sigma": 0.26459821638809006,
+  "shared_width_ratio": 0.9917125517188988,
+  "local_w1_over_sigma": 0.03530617556167002,
+  "local_draw_mean_error_sigma": 0.026153000467097298,
+  "marginal_score_rel_rmse": 0.46614208688959247,
+  "global_map": 1.4073003645889821,
+  "global_map_error_sigma": 0.2740814874809463,
+  "global_map_error_from_truth_sigma": 1.0286684735227603,
+  "local_map_error_vs_posterior_mean_sigma": 0.49912435977024816,
+  "local_map_error_vs_conditional_mode_sigma": 0.5147371072951871,
+  "sample_seconds": 53.454888242762536,
+  "ascent_seconds": 1.517745099030435,
+  "sampler_network_calls": 1236,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_correctors2"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_jacobian_correctors2.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods.csv

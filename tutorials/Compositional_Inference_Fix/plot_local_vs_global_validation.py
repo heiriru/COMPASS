@@ -99,11 +99,32 @@ def plot_shared_local(
     global_truth = float(data["global_truth"])
     global_samples = data["compass_global_samples"]
     local_samples = data["compass_local_samples"]
+    x_observed = np.asarray(data["x_observed"], dtype=float).reshape(-1)
+
+    # A rare solver excursion (a chain that diverges to an astronomical value,
+    # e.g. correction="gauss_jacobian" with no denoise_clamp) can be many
+    # orders of magnitude past the analytic posterior's width. Left in, a
+    # single such draw stretches every panel's auto-ranged axis/bin edges so
+    # far that the remaining, well-behaved draws collapse to invisible
+    # slivers -- the histogram, the local mean/std error bars, and the
+    # recovery scatter all silently go blank rather than showing an outlier.
+    # Excursions are excluded from every plotted statistic below (never from
+    # the saved .npz itself) and the excluded count is reported on-figure, the
+    # same "robust shared limits ... report how many draws lie outside" policy
+    # Partial_Pooling's own plots already use.
+    excursion_sigma = 15.0
+    global_limit = excursion_sigma * np.sqrt(covariance[0, 0])
+    finite = np.isfinite(global_samples) & (
+        np.abs(global_samples - exact[0]) <= global_limit
+    )
+    n_excluded = int((~finite).sum())
+    global_samples = global_samples[finite]
+    local_samples = local_samples[:, finite]
+
     local_mean = local_samples.mean(axis=1)
     local_std = local_samples.std(axis=1, ddof=1)
     exact_local_std = np.sqrt(np.diag(covariance)[1:])
     indices = np.arange(len(local_mean))
-    x_observed = np.asarray(data["x_observed"], dtype=float).reshape(-1)
 
     fig, axes = plt.subplots(1, 4, figsize=(18.2, 4.3))
     fig.suptitle(title, fontsize=15, fontweight="bold", color=NAVY)
@@ -149,6 +170,12 @@ def plot_shared_local(
     axes[1].set_xlim(grid[0], grid[-1])
     axes[1].set(xlabel="global parameter g", ylabel="density", title="Shared posterior")
     axes[1].legend()
+    if n_excluded:
+        axes[1].text(
+            0.03, 0.94,
+            f"{n_excluded} solver excursion(s) excluded (> {excursion_sigma:g}σ)",
+            transform=axes[1].transAxes, va="top", color=CORAL, fontsize=8.5,
+        )
 
     axes[2].errorbar(indices, local_mean, yerr=local_std, fmt="o", ms=4,
                      color=CORAL, ecolor="#F4A3B4", alpha=0.9, label="COMPASS mean ± σ")

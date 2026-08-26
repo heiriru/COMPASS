@@ -1,0 +1,22 @@
+{
+  "model_size": "small",
+  "obs_noise_values": [
+    0.05,
+    2.0
+  ],
+  "local_std": 1.0,
+  "n_observations": 30,
+  "train_samples": 200000,
+  "validation_samples": 20000,
+  "max_epochs": 300,
+  "quick": false,
+  "posterior_samples": 3000,
+  "precision_est_samples": 64,
+  "precision_est_timesteps": 100,
+  "seed": 7,
+  "methods": [
+    "gauss_hierarchical_dpm50_deterministic",
+    "gauss_hierarchical_dpm50_langevin2",
+    "langevin_fnpe"
+  ]
+}

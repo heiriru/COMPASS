@@ -1,0 +1,27 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_jacobian (2 correctors, exact row score) ===
+[gauss_jacobian_analytic_correctors2] sampled in 430.0s, 1236 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.05706388286444628,
+  "shared_mean_error_sigma": 0.044458672358195436,
+  "shared_width_ratio": 1.0558084984246892,
+  "local_w1_over_sigma": 0.027991705032659575,
+  "local_draw_mean_error_sigma": 0.019723690671903292,
+  "marginal_score_rel_rmse": 0.18518912383554323,
+  "global_map": 1.436354846093181,
+  "global_map_error_sigma": 0.050533333853937594,
+  "global_map_error_from_truth_sigma": 0.8051203198957516,
+  "local_map_error_vs_posterior_mean_sigma": 0.06636058713998062,
+  "local_map_error_vs_conditional_mode_sigma": 1.7869797416293278e-07,
+  "sample_seconds": 430.01063816901296,
+  "ascent_seconds": 0.6468896460719407,
+  "sampler_network_calls": 1236,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_correctors2"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_jacobian_analytic_correctors2.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods_analytic.csv

@@ -1,0 +1,52 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_jacobian (predictor only, exact row score) ===
+[gauss_jacobian_analytic_predictor_only] sampled in 205.5s, 594 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 2.598241877841479,
+  "shared_mean_error_sigma": 2.5977746655037857,
+  "shared_width_ratio": 1.534545785185094,
+  "local_w1_over_sigma": 0.9479714027826344,
+  "local_draw_mean_error_sigma": 0.9474697795228249,
+  "marginal_score_rel_rmse": 1.8795287994459935,
+  "global_map": 1.0515106292631022,
+  "global_map_error_sigma": 3.011564116453287,
+  "global_map_error_from_truth_sigma": 3.7661511024951007,
+  "local_map_error_vs_posterior_mean_sigma": 0.4459690439843241,
+  "local_map_error_vs_conditional_mode_sigma": 0.0002976084862621641,
+  "sample_seconds": 205.54021888412535,
+  "ascent_seconds": 0.5832277089357376,
+  "sampler_network_calls": 594,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_predictor_only"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_jacobian_analytic_predictor_only.png
+
+=== DPM2 + gauss_hierarchical (predictor only, exact row score) ===
+[gauss_hierarchical_analytic_predictor_only] sampled in 43.4s, 198 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 4.700188979831135,
+  "shared_mean_error_sigma": 4.7001311550280604,
+  "shared_width_ratio": 2.451155593278637,
+  "local_w1_over_sigma": 1.1355662692767834,
+  "local_draw_mean_error_sigma": 1.1343441692829495,
+  "marginal_score_rel_rmse": 1.76144189941041,
+  "global_map": 0.8275996897552543,
+  "global_map_error_sigma": 4.734357796204015,
+  "global_map_error_from_truth_sigma": 5.488944782245829,
+  "local_map_error_vs_posterior_mean_sigma": 0.7436070036339397,
+  "local_map_error_vs_conditional_mode_sigma": 4.702996361170787e-05,
+  "sample_seconds": 43.39472106797621,
+  "ascent_seconds": 0.5859690001234412,
+  "sampler_network_calls": 198,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_hierarchical_analytic_predictor_only"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_hierarchical_analytic_predictor_only.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods_analytic.csv

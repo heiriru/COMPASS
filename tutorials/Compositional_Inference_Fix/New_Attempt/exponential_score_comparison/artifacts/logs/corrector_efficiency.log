@@ -1,0 +1,30 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h16d2_n200000/Model_checkpoint.pt
+
+=== gauss_jacobian: predictor only ===
+     27.5s    594 calls  W1 2.3207
+
+=== gauss_jacobian: 2 corr, every level ===
+     52.1s   1236 calls  W1 0.2653
+
+=== gauss_jacobian: 2 corr, every level, refresh 5 ===
+     27.0s    578 calls  W1 0.2954
+
+=== gauss_jacobian: 2 corr, every level, refresh 10 ===
+     23.8s    496 calls  W1 0.3367
+
+=== gauss_jacobian: 2 corr, every 2nd level, refresh 5 ===
+     20.9s    444 calls  W1 0.3029
+
+=== gauss_jacobian: 2 corr, every 5th level, refresh 5 ===
+     17.1s    362 calls  W1 0.3680
+
+=== gauss_jacobian: 1 corr, every level, refresh 5 ===
+     20.3s    427 calls  W1 0.2217
+
+=== gauss_jacobian: 10 corr, every level, refresh 10 ===
+     75.0s   1522 calls  W1 0.6885
+
+=== Langevin + F-NPSE ===
+     42.1s   1000 calls  W1 0.1074
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/corrector_efficiency/sweep.csv
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/04_corrector_efficiency.png

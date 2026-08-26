@@ -154,7 +154,8 @@ class ScoreBasedInferenceModel(nn.Module):
                device="cpu", verbose=True, method="dpm", save_trajectory=False,
                capture_attention=True, precision_est_batch_size=128,
                covariance_shrinkage=0.01, covariance_nugget=1e-6,
-               pd_epsilon=1e-8, pd_floor=1e-3):
+               pd_epsilon=1e-8, pd_floor=1e-3,
+               jacobian_refresh=1, jacobian_curvature_floor=1e-3):
         """
         Sample from the model using the specified method
 
@@ -177,6 +178,18 @@ class ScoreBasedInferenceModel(nn.Module):
             correction: Score composition rule. Existing values are preserved;
                     benchmark names also include "legacy_mean",
                     "prior_corrected_sum", "damped_sum" and "minibatch_damped".
+                    "gauss_jacobian" is the pilot-free hierarchical GAUSS rule:
+                    it takes every single-observation backward covariance from
+                    the score network's own Jacobian (Tweedie second order)
+                    instead of from an estimated pilot covariance, so it needs
+                    no precision-estimation run, makes no Gaussian assumption
+                    on the single-observation posteriors, and reduces exactly to
+                    the pilot form when they happen to be Gaussian.
+            jacobian_refresh: Composed-score evaluations between Jacobian
+                    refreshes for correction="gauss_jacobian" (curvature varies
+                    slowly in t, so 5-20 is cheap and accurate).
+            jacobian_curvature_floor: Lower bound on the eigenvalues of
+                    I - lambda^2 H_j for correction="gauss_jacobian".
             posterior_precision: Optional precision estimate of the single-observation
                     posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
@@ -280,6 +293,8 @@ class ScoreBasedInferenceModel(nn.Module):
                                       covariance_nugget=covariance_nugget,
                                       pd_epsilon=pd_epsilon,
                                       pd_floor=pd_floor,
+                                      jacobian_refresh=jacobian_refresh,
+                                      jacobian_curvature_floor=jacobian_curvature_floor,
                                       adaptive_abs_tol=adaptive_abs_tol,
                                       adaptive_rel_tol=adaptive_rel_tol,
                                       adaptive_safety=adaptive_safety,
@@ -349,7 +364,9 @@ class ScoreBasedInferenceModel(nn.Module):
                                   timesteps=100, eps=1e-3,
                                   iterations_per_level=3,
                                   max_iterations_per_level=None,
-                                  convergence_tol=1e-6, device="cpu"):
+                                  convergence_tol=1e-6,
+                                  jacobian_refresh=1,
+                                  jacobian_curvature_floor=1e-3, device="cpu"):
         """Refine shared and local parameters with a compositional joint score.
 
         Unlike :meth:`map_estimate`, this method treats rows as one hierarchical
@@ -369,7 +386,52 @@ class ScoreBasedInferenceModel(nn.Module):
             sigma_start=sigma_start, timesteps=timesteps, eps=eps,
             iterations_per_level=iterations_per_level,
             max_iterations_per_level=max_iterations_per_level,
-            convergence_tol=convergence_tol, device=device,
+            convergence_tol=convergence_tol,
+            jacobian_refresh=jacobian_refresh,
+            jacobian_curvature_floor=jacobian_curvature_floor, device=device,
+        )
+
+    #############################################
+    # ----- Composition diagnostics -----
+    #############################################
+
+    def certify_composition(self, samples, x, condition_mask=None, **kwargs):
+        """Score composed samples against the exact tall-data target.
+
+        The multi-observation posterior factorizes as
+        ``p(theta)^(1-n) prod_j p(theta | x_j)``, and every factor is a
+        single-observation conditional density the PF-ODE evaluates exactly.
+        This gives the unnormalized target at every returned sample, plus a
+        self-normalized effective sample size and optional reweighted draws --
+        the only measurement in COMPASS that judges a composition rule without
+        already knowing the right answer. See
+        :meth:`MultiObsSampler.certify_composition` for the full contract.
+        """
+        if condition_mask is None:
+            condition_mask = torch.cat([
+                torch.zeros(self.nodes_size - x.shape[-1]),
+                torch.ones(x.shape[-1]),
+            ])
+        return self.multi_obs_sampler.certify_composition(
+            samples=samples, data=x, condition_mask=condition_mask, **kwargs
+        )
+
+    def composition_curl(self, samples, x, condition_mask=None, **kwargs):
+        """Relative antisymmetry of the composed score field's Jacobian.
+
+        A genuine score is a gradient, so a conservative composition has a
+        symmetric Jacobian. Large antisymmetry means Langevin correctors -- whose
+        invariant distribution assumes a gradient field -- will circulate
+        samples rather than refine them. Requires a configured sampler: call
+        after :meth:`sample` with the same settings.
+        """
+        if condition_mask is None:
+            condition_mask = torch.cat([
+                torch.zeros(self.nodes_size - x.shape[-1]),
+                torch.ones(x.shape[-1]),
+            ])
+        return self.multi_obs_sampler.composition_curl(
+            samples=samples, data=x, condition_mask=condition_mask, **kwargs
         )
 
     #############################################

@@ -1,0 +1,177 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_jacobian (exact row score) ===
+[gauss_jacobian_analytic] sampled in 654.0s, 2004 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.09022171126955034,
+  "shared_mean_error_sigma": 0.07873371940166762,
+  "shared_width_ratio": 1.0600643259513731,
+  "local_w1_over_sigma": 0.029491080456254017,
+  "local_draw_mean_error_sigma": 0.021728049045432612,
+  "marginal_score_rel_rmse": 0.1879491184462833,
+  "global_map": 1.42428436012674,
+  "global_map_error_sigma": 0.14340488796474235,
+  "global_map_error_from_truth_sigma": 0.8979918740065563,
+  "local_map_error_vs_posterior_mean_sigma": 0.050301422232646685,
+  "local_map_error_vs_conditional_mode_sigma": 2.267961051475158e-07,
+  "sample_seconds": 654.0157077740878,
+  "ascent_seconds": 0.5868762359023094,
+  "sampler_network_calls": 2004,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_analytic.png
+
+=== DPM2 + gauss_jacobian (2 correctors, exact row score) ===
+[gauss_jacobian_analytic_correctors2] sampled in 206.5s, 636 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.08045525561629509,
+  "shared_mean_error_sigma": 0.055459793519909144,
+  "shared_width_ratio": 1.0386087953917353,
+  "local_w1_over_sigma": 0.03152353770564793,
+  "local_draw_mean_error_sigma": 0.02166598113099797,
+  "marginal_score_rel_rmse": 0.2500080830272259,
+  "global_map": 1.4261816100411733,
+  "global_map_error_sigma": 0.12880725299131338,
+  "global_map_error_from_truth_sigma": 0.8833942390331274,
+  "local_map_error_vs_posterior_mean_sigma": 0.05282558130115789,
+  "local_map_error_vs_conditional_mode_sigma": 2.34800617490425e-07,
+  "sample_seconds": 206.4719612491317,
+  "ascent_seconds": 0.5729420930147171,
+  "sampler_network_calls": 636,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_correctors2"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_analytic_correctors2.png
+
+=== DPM2 + gauss_jacobian (predictor only, exact row score) ===
+[gauss_jacobian_analytic_predictor_only] sampled in 95.9s, 294 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 2.6060367653623038,
+  "shared_mean_error_sigma": 2.6055690876941795,
+  "shared_width_ratio": 1.5368611800550909,
+  "local_w1_over_sigma": 0.9495252976881122,
+  "local_draw_mean_error_sigma": 0.9490201147644307,
+  "marginal_score_rel_rmse": 1.880135899407618,
+  "global_map": 1.0513392489217768,
+  "global_map_error_sigma": 3.012882734335548,
+  "global_map_error_from_truth_sigma": 3.7674697203773624,
+  "local_map_error_vs_posterior_mean_sigma": 0.44619281885178036,
+  "local_map_error_vs_conditional_mode_sigma": 0.00029361088501080236,
+  "sample_seconds": 95.9179853531532,
+  "ascent_seconds": 0.5716536892578006,
+  "sampler_network_calls": 294,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_predictor_only"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_analytic_predictor_only.png
+
+=== Langevin + gauss_jacobian (exact row score) ===
+[gauss_jacobian_analytic_langevin] sampled in 487.6s, 1500 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.2329464361073392,
+  "shared_mean_error_sigma": 0.2250928771572794,
+  "shared_width_ratio": 1.1266153686304625,
+  "local_w1_over_sigma": 0.05334442047792672,
+  "local_draw_mean_error_sigma": 0.045733030483071986,
+  "marginal_score_rel_rmse": 0.3366780515346578,
+  "global_map": 1.422518953568792,
+  "global_map_error_sigma": 0.1569881066628028,
+  "global_map_error_from_truth_sigma": 0.9115750927046168,
+  "local_map_error_vs_posterior_mean_sigma": 0.047952607469746895,
+  "local_map_error_vs_conditional_mode_sigma": 1.641416720662626e-07,
+  "sample_seconds": 487.5550980470143,
+  "ascent_seconds": 0.5676232082769275,
+  "sampler_network_calls": 1500,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_langevin"
+}
+Wrote artifacts/timesteps_50/01_gauss_jacobian_analytic_langevin.png
+
+=== DPM2 + gauss_hierarchical (2 correctors, exact row score) ===
+[gauss_hierarchical_analytic_correctors2] sampled in 42.8s, 212 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.14381032983652814,
+  "shared_mean_error_sigma": 0.11474473359413849,
+  "shared_width_ratio": 1.1116745109130723,
+  "local_w1_over_sigma": 0.08338450277920903,
+  "local_draw_mean_error_sigma": 0.07017683660610571,
+  "marginal_score_rel_rmse": 0.2900106203928304,
+  "global_map": 1.4324157519632548,
+  "global_map_error_sigma": 0.08084112714843279,
+  "global_map_error_from_truth_sigma": 0.8354281131902468,
+  "local_map_error_vs_posterior_mean_sigma": 0.061119913609852854,
+  "local_map_error_vs_conditional_mode_sigma": 2.0038434314718032e-07,
+  "sample_seconds": 42.79676294699311,
+  "ascent_seconds": 0.576303387992084,
+  "sampler_network_calls": 212,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_hierarchical_analytic_correctors2"
+}
+Wrote artifacts/timesteps_50/01_gauss_hierarchical_analytic_correctors2.png
+
+=== DPM2 + gauss_hierarchical (predictor only, exact row score) ===
+[gauss_hierarchical_analytic_predictor_only] sampled in 20.6s, 98 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 4.6816145633879485,
+  "shared_mean_error_sigma": 4.681556738584873,
+  "shared_width_ratio": 2.4526466348941742,
+  "local_w1_over_sigma": 1.1304125073014588,
+  "local_draw_mean_error_sigma": 1.1291745418382098,
+  "marginal_score_rel_rmse": 1.7523951356830207,
+  "global_map": 0.8298187599819228,
+  "global_map_error_sigma": 4.717284042818717,
+  "global_map_error_from_truth_sigma": 5.471871028860531,
+  "local_map_error_vs_posterior_mean_sigma": 0.740654447429338,
+  "local_map_error_vs_conditional_mode_sigma": 4.67715284952153e-05,
+  "sample_seconds": 20.598109493032098,
+  "ascent_seconds": 0.5767823709174991,
+  "sampler_network_calls": 98,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_hierarchical_analytic_predictor_only"
+}
+Wrote artifacts/timesteps_50/01_gauss_hierarchical_analytic_predictor_only.png
+
+=== Langevin + F-NPSE (exact row score) ===
+[langevin_fnpe_analytic] sampled in 97.7s, 500 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.5315514476464005,
+  "shared_mean_error_sigma": 0.4793909359006836,
+  "shared_width_ratio": 1.480625846148686,
+  "local_w1_over_sigma": 0.12206032105265943,
+  "local_draw_mean_error_sigma": 0.1177572462297691,
+  "marginal_score_rel_rmse": 0.5865370227604328,
+  "global_map": 1.3358189413340653,
+  "global_map_error_sigma": 0.8240668721782454,
+  "global_map_error_from_truth_sigma": 1.5786538582200593,
+  "local_map_error_vs_posterior_mean_sigma": 0.06739724423435166,
+  "local_map_error_vs_conditional_mode_sigma": 2.443229095577065e-07,
+  "sample_seconds": 97.72548790322617,
+  "ascent_seconds": 0.5736304470337927,
+  "sampler_network_calls": 500,
+  "score_rel_rmse_mean": NaN,
+  "method": "langevin_fnpe_analytic"
+}
+Wrote artifacts/timesteps_50/01_langevin_fnpe_analytic.png
+Wrote artifacts/timesteps_50/methods_analytic.csv

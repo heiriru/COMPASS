@@ -1,0 +1,27 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_hierarchical (2 correctors, exact row score) ===
+[gauss_hierarchical_analytic_correctors2] sampled in 85.8s, 412 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.07330385695920168,
+  "shared_mean_error_sigma": 0.04811630239033769,
+  "shared_width_ratio": 1.0955388155790797,
+  "local_w1_over_sigma": 0.0634465788769723,
+  "local_draw_mean_error_sigma": 0.05357063870225824,
+  "marginal_score_rel_rmse": 0.20076675688730689,
+  "global_map": 1.4462375383609687,
+  "global_map_error_sigma": 0.025505111678417954,
+  "global_map_error_from_truth_sigma": 0.729081874363396,
+  "local_map_error_vs_posterior_mean_sigma": 0.0795090933715296,
+  "local_map_error_vs_conditional_mode_sigma": 1.2544814642125577e-07,
+  "sample_seconds": 85.82788825314492,
+  "ascent_seconds": 0.5751616810448468,
+  "sampler_network_calls": 412,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_hierarchical_analytic_correctors2"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_hierarchical_analytic_correctors2.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods_analytic.csv

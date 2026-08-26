@@ -112,7 +112,7 @@ def test_focused_defaults_are_small_and_estimated_from_measured_work():
         DEFAULT_DATASETS, DEFAULT_SUBJECTS, DEFAULT_DRAWS, DEFAULT_TIMESTEPS,
     )
     assert (DEFAULT_DATASETS, DEFAULT_SUBJECTS) == (5, 20)
-    assert (DEFAULT_DRAWS, DEFAULT_TIMESTEPS) == (256, 50)
+    assert (DEFAULT_DRAWS, DEFAULT_TIMESTEPS) == (4096, 50)
     args = parser().parse_args([])
     assert args.inference_method == "dpm2_gaussian"
     assert args.gaussian_precision_batch_size == 128
@@ -140,7 +140,9 @@ def test_focused_defaults_are_small_and_estimated_from_measured_work():
     sweep_seconds = estimated_sweep_runtime_seconds(
         DEFAULT_DATASETS, DEFAULT_SUBJECTS, DEFAULT_DRAWS, DEFAULT_TIMESTEPS,
     )
-    assert 300 < seconds < 600
+    # Bracket for the 4096-draw default (about 100 minutes of sampling per
+    # method); the earlier 300-600 second window described the 256-draw default.
+    assert 5000 < seconds < 8000
     assert 2.5 * seconds < sweep_seconds < 2.6 * seconds
 
 

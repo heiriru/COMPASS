@@ -1,0 +1,24 @@
+=== [2026-08-25T19:29:47+02:00] lanes finished
+/export/home/rheinric/COMPASS/Partial_Pooling/churn100/logs/laneA.status:=== [2026-08-25T18:13:22+02:00] jacobian_newton exit 0
+/export/home/rheinric/COMPASS/Partial_Pooling/churn100/logs/laneA.status:=== [2026-08-25T19:08:25+02:00] hier_stock exit 0
+/export/home/rheinric/COMPASS/Partial_Pooling/churn100/logs/laneB.status:=== [2026-08-25T17:10:01+02:00] hier_churn2 exit 0
+/export/home/rheinric/COMPASS/Partial_Pooling/churn100/logs/laneB.status:=== [2026-08-25T19:29:44+02:00] fnpse exit 0
+  jacobian_newton: 100 dataset artifacts
+  hier_churn2: 100 dataset artifacts
+  hier_stock: 100 dataset artifacts
+  fnpse: 100 dataset artifacts
+INFO CPU affinity: 3/72 CPUs (4.167%)
+  churn100/jacobian_newton/artifacts_churn_eta2_refresh20/dpm2_gauss_jacobian_newton  ->  dpm2_gauss_jacobian_newton-58ac1b7bc8bd028a
+  churn100/hier_churn2/artifacts_churn_eta2/dpm2_gauss_hierarchical  -> churn2  ->  dpm2_gauss_hierarchical_churn2-churn2e6f77134be72ce56
+  churn100/hier_stock/artifacts_churn_eta0/dpm2_gauss_hierarchical  ->  dpm2_gauss_hierarchical-e6f77134be72ce56
+  churn100/fnpse/artifacts_churn_eta0/langevin_fnpse  ->  langevin_fnpse-0af9e5f38881ae0d
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/artifacts_churn_comparison_100/churn_comparison_arms.json
+
+$ /export/home/rheinric/COMPASS/.COMPASS/bin/python /export/home/rheinric/COMPASS/Partial_Pooling/plot_partial_pooling_comparison.py --preset small --root /export/home/rheinric/COMPASS/Partial_Pooling/artifacts_churn_comparison_100 --run-signature 58ac1b7bc8bd028a --run-signature churn2e6f77134be72ce56 --run-signature e6f77134be72ce56 --run-signature 0af9e5f38881ae0d --output-signature 58ac1b7bc8bd028a
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 9.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=9 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 9 via autocvd.
+Created 31 comparison figures in /export/home/rheinric/COMPASS/Partial_Pooling/artifacts_churn_comparison_100/figures/partial_pooling/small/shared
+=== [2026-08-25T19:31:27+02:00] build exit 0

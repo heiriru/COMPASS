@@ -15,6 +15,12 @@ METHOD_STYLES = {
         "DPM-Solver-2 + global/local Gaussian moments", "#E69F00",
     ),
     "langevin_fnpse": ("Langevin + F-NPSE", "#009E73"),
+    "dpm2_gauss_hierarchical": (
+        "DPM-Solver-2 + hierarchical Gaussian (GAUSS) + Tweedie MAP", "#8172B2",
+    ),
+    "dpm2_gauss_jacobian_newton": (
+        "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + Newton MAP", "#CA9161",
+    ),
 }
 
 # Colorblind-safe colors for methods outside METHOD_STYLES, cycled in order and
@@ -30,7 +36,7 @@ def parser():
         )
     )
     result.add_argument(
-        "--preset", choices=("smoke", "full", "large"), default="full",
+        "--preset", choices=("smoke", "full", "large", "compact", "small"), default="full",
     )
     result.add_argument("--sde-type", choices=("vesde", "vpsde"), default="vesde")
     result.add_argument("--beta-min", type=float, default=0.1)

@@ -1,0 +1,52 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== Langevin + gauss_jacobian (exact row score) ===
+[gauss_jacobian_analytic_langevin] sampled in 1037.7s, 3000 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.1457250589494193,
+  "shared_mean_error_sigma": 0.1377995409707828,
+  "shared_width_ratio": 1.0710151613871446,
+  "local_w1_over_sigma": 0.041213070197782455,
+  "local_draw_mean_error_sigma": 0.03150975357805815,
+  "marginal_score_rel_rmse": 0.25333656737766574,
+  "global_map": 1.39493376906667,
+  "global_map_error_sigma": 0.3692313388133599,
+  "global_map_error_from_truth_sigma": 1.1238183248551739,
+  "local_map_error_vs_posterior_mean_sigma": 0.011252093673317472,
+  "local_map_error_vs_conditional_mode_sigma": 1.5732824131310503e-07,
+  "sample_seconds": 1037.6994142499752,
+  "ascent_seconds": 0.5818452802486718,
+  "sampler_network_calls": 3000,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic_langevin"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_jacobian_analytic_langevin.png
+
+=== DPM2 + gauss_jacobian (exact row score) ===
+[gauss_jacobian_analytic] sampled in 1316.7s, 3804 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.059491048696756095,
+  "shared_mean_error_sigma": 0.046464171153006065,
+  "shared_width_ratio": 1.0463414218310871,
+  "local_w1_over_sigma": 0.027606462718083813,
+  "local_draw_mean_error_sigma": 0.019955217778616387,
+  "marginal_score_rel_rmse": 0.16895169650527017,
+  "global_map": 1.4465190708093951,
+  "global_map_error_sigma": 0.027671251143778074,
+  "global_map_error_from_truth_sigma": 0.726915734898036,
+  "local_map_error_vs_posterior_mean_sigma": 0.07988339929345432,
+  "local_map_error_vs_conditional_mode_sigma": 2.7960257253107664e-07,
+  "sample_seconds": 1316.7098767790012,
+  "ascent_seconds": 0.5804020720534027,
+  "sampler_network_calls": 3804,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_jacobian_analytic"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_jacobian_analytic.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods_analytic.csv

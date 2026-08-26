@@ -5,6 +5,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
 import tqdm
 import datetime
+import math
 import os
 
 class TensorTupleDataset(Dataset):
@@ -36,7 +37,7 @@ class MultiObsSampler():
     composed across observations; latent dimensions not in `hierarchy` are treated as
     per-observation (local) latents and keep their individual scores.
 
-    Fourteen composition rules are implemented (`correction` argument):
+    Fifteen composition rules are implemented (`correction` argument):
 
     - "gauss" (default): Gaussian-corrected composition (Gloeckler et al. 2024,
       "Compositional simulation-based inference for time series"). The composed score
@@ -76,6 +77,48 @@ class MultiObsSampler():
       pilot covariance (never the mean), estimated from the network's own DDIM
       draws, exactly as GAUSS estimates Σ_0,j. See
       New_Attempt/derivation.md for the full derivation.
+    - "gauss_jacobian": the same hierarchical (arrow-elimination) composition as
+      "gauss_hierarchical", but the per-observation backward covariance is taken
+      from the network's own Jacobian by Tweedie's second-order identity instead
+      of from a pilot covariance. In the sampler's y = x/alpha coordinates,
+
+          Sigma_t,j(y) = lambda_t^2 ( I + lambda_t^2 grad s_j(y) )
+
+      holds *exactly* for any p(theta_0 | x_j) -- no Gaussian assumption. It
+      reduces identically to Sigma_0,j^-1 + lambda_t^-2 I (the GAUSS/pilot form
+      used by every other covariance-aware rule) when the single-observation
+      posterior really is the Gaussian N(., Sigma_0,j), so this is a strict
+      generalization rather than a competing approximation. Consequences:
+
+      * No pilot run. `posterior_covariance`, `posterior_precision`,
+        `precision_est_*`, `covariance_shrinkage` and `covariance_nugget` are
+        all unused (and rejected), removing a whole second reverse-diffusion
+        pass and five hyperparameters.
+      * The weighting is state- and time-dependent, so it tracks
+        heteroscedasticity, skew and multimodality of the single-observation
+        posteriors, which the constant-Sigma_0,j rules cannot.
+      * Cost is `len(hierarchy) + len(local latents)` forward-mode JVPs per
+        refresh -- the size of the latent block (single digits), independent of
+        the observation count and of `nodes_size`. `jacobian_refresh` amortizes
+        it further, since curvature varies far more slowly in t than the score.
+
+      Like "gauss_hierarchical" it composes only the network's own scores and
+      refuses `posterior_mean`/`global_posterior_mean` outright. It is the
+      composition counterpart of `newton_map_estimate(curvature="jacobian")`
+      and shares its curvature construction, so the two can be combined for a
+      fully pilot-free hierarchical pipeline. See
+      New_Attempt/jacobian_curvature.md for the derivation, the conditioning
+      argument and the cost accounting.
+
+    Certifying a composition:
+        `certify_composition` evaluates the *exact* tall-data target
+        p(theta)^(1-n) prod_j p(theta | x_j) at the returned samples with the
+        probability-flow ODE, giving an effective sample size and optional
+        reweighted draws. It is the only measurement here that judges a
+        composition rule without already knowing the right answer.
+        `composition_curl` reports how far the composed field is from being a
+        gradient, which is what decides whether Langevin correctors refine a
+        composed estimate or circulate it.
     - "fnpe": the exact Eq. 7 of Geffner et al.: (1-n)(1-t) * prior score + sum of
       individual scores. This is the score of the paper's bridging densities, which are
       NOT the diffusion marginals of the posterior: it is only consistent with annealed
@@ -150,8 +193,16 @@ class MultiObsSampler():
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
         self.pd_floor = 1e-3
+        self.jacobian_refresh = 1
+        self.jacobian_curvature_floor = 1e-3
         self.local_prior_mean = None
         self.local_prior_std = None
+        self._reset_jacobian_state()
+        # Counters live here as well as in sample()/map_estimate() so a freshly
+        # constructed sampler is usable by helpers that do not run a full setup.
+        self.score_network_calls = 0
+        self.evaluated_subject_rows = 0
+        self.map_diagnostics = None
         self._reset_covariance_diagnostics()
 
     DAMPING_CORRECTIONS = frozenset(
@@ -161,18 +212,24 @@ class MultiObsSampler():
         {"gauss", "gauss_damping", "hybrid", "hybrid_damping"}
     )
     FULL_GAUSSIAN_CORRECTIONS = frozenset({"full_gaussian"})
+    # Corrections whose per-observation backward covariance comes from the
+    # network's own Jacobian (Tweedie second order) rather than from a pilot
+    # covariance. They share every downstream step with the Schur family.
+    JACOBIAN_GAUSSIAN_CORRECTIONS = frozenset({"gauss_jacobian"})
     SCHUR_GAUSSIAN_CORRECTIONS = frozenset(
         {"Gauss_schur_global", "Gauss_global_local", "gauss_hierarchical"}
-    )
+    ) | JACOBIAN_GAUSSIAN_CORRECTIONS
     # Corrections that also propagate the shared-score composition into a
     # linear cross-correction of each observation's local latent score.
     LOCAL_CROSS_CORRECTIONS = frozenset(
         {"Gauss_global_local", "gauss_hierarchical"}
-    )
+    ) | JACOBIAN_GAUSSIAN_CORRECTIONS
     # Corrections that must only ever compose real, learned network scores:
     # posterior_mean / global_posterior_mean (which substitute an externally
     # supplied Gaussian's score for the network's) are rejected outright.
-    NO_MOMENT_SUBSTITUTION_CORRECTIONS = frozenset({"gauss_hierarchical"})
+    NO_MOMENT_SUBSTITUTION_CORRECTIONS = frozenset(
+        {"gauss_hierarchical"}
+    ) | JACOBIAN_GAUSSIAN_CORRECTIONS
     COVARIANCE_GAUSSIAN_CORRECTIONS = (
         FULL_GAUSSIAN_CORRECTIONS | SCHUR_GAUSSIAN_CORRECTIONS
     )
@@ -182,7 +239,8 @@ class MultiObsSampler():
     VALID_CORRECTIONS = frozenset(
         {
             "gauss", "full_gaussian", "Gauss_schur_global",
-            "Gauss_global_local", "gauss_hierarchical", "hybrid", "uncorrected",
+            "Gauss_global_local", "gauss_hierarchical", "gauss_jacobian",
+            "hybrid", "uncorrected",
             "fnpe", "legacy_mean",
             "prior_corrected_sum", "damped_sum", "minibatch_damped",
         } | DAMPING_CORRECTIONS
@@ -210,7 +268,8 @@ class MultiObsSampler():
                adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None,
                precision_est_batch_size=128, covariance_shrinkage=0.01,
-               covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3):
+               covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3,
+               jacobian_refresh=1, jacobian_curvature_floor=1e-3):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -234,7 +293,25 @@ class MultiObsSampler():
             correction: Composition rule. In addition to the existing "gauss",
                     "uncorrected", "fnpe", "damping", "gauss_damping", "hybrid"
                     and "hybrid_damping" values, accepts "legacy_mean",
-                    "prior_corrected_sum", "damped_sum" and "minibatch_damped".
+                    "prior_corrected_sum", "damped_sum", "minibatch_damped" and
+                    "gauss_jacobian" (pilot-free hierarchical GAUSS, see the
+                    class docstring).
+            jacobian_refresh: For correction="gauss_jacobian" only. Recompute
+                    the score Jacobian every this many composed-score
+                    evaluations and reuse it in between. Curvature varies far
+                    more slowly in t than the score does, so values of 5-20 cut
+                    the overhead to a few percent at essentially no accuracy
+                    cost. 1 (the default) refreshes at every evaluation.
+                    What is held between refreshes is only the network's
+                    implied Sigma_0,j; the exact lambda(t)-dependent part of
+                    Lambda_j(t) is rebuilt at every evaluation, so a lagged
+                    refresh degrades gracefully towards ordinary GAUSS with a
+                    periodically re-derived pilot covariance rather than
+                    mismatching noise scales.
+            jacobian_curvature_floor: For correction="gauss_jacobian" only.
+                    Lower bound on the eigenvalues of I - lambda^2 H_j, i.e. how
+                    close a single-observation backward kernel may come to a
+                    point mass. Caps Lambda_j at (floor * lambda^2)^-1.
             posterior_precision: Optional estimate of the single-observation posterior
                     precision on the hierarchy dimensions, used by the "gauss" correction.
                     Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
@@ -312,6 +389,13 @@ class MultiObsSampler():
         self.covariance_nugget = float(covariance_nugget)
         self.pd_epsilon = float(pd_epsilon)
         self.pd_floor = float(pd_floor)
+        self.jacobian_refresh = int(jacobian_refresh)
+        self.jacobian_curvature_floor = float(jacobian_curvature_floor)
+        if self.jacobian_refresh < 1:
+            raise ValueError("jacobian_refresh must be at least 1.")
+        if not 0.0 < self.jacobian_curvature_floor < 1.0:
+            raise ValueError("jacobian_curvature_floor must lie in (0, 1).")
+        self._reset_jacobian_state()
         if not 0.0 <= self.covariance_shrinkage < 1.0:
             raise ValueError("covariance_shrinkage must be in [0, 1).")
         if self.covariance_nugget < 0.0 or self.pd_epsilon <= 0.0:
@@ -389,6 +473,15 @@ class MultiObsSampler():
             raise NotImplementedError(
                 "Adaptive sampling and observation-score mini-batching currently "
                 "require world_size=1 so all stochastic decisions remain synchronized."
+            )
+        if world_size > 1 and correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            # The Jacobian is taken w.r.t. the *whole* synchronized state, so a
+            # rank that owns only a shard of the observations cannot form it;
+            # the shared-coordinate tangent would be missing the other shards.
+            raise NotImplementedError(
+                "correction='gauss_jacobian' requires world_size=1: the score "
+                "Jacobian is taken with respect to the full synchronized state, "
+                "which no single rank holds under the sharded sampler."
             )
         self._configure_adaptive(
             adaptive_abs_tol=adaptive_abs_tol,
@@ -480,7 +573,24 @@ class MultiObsSampler():
 
         # Covariance-aware GAUSS setup. Full mode stores HxH matrices; Schur
         # modes store one (H+L)x(H+L) matrix per observation.
-        if correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+        if correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            # No pilot moments at all: the per-observation backward precision is
+            # rebuilt from the network's Jacobian at every refresh.
+            if posterior_covariance is not None or posterior_precision is not None:
+                raise ValueError(
+                    f"correction={correction!r} derives every single-observation "
+                    "covariance from the score Jacobian and takes no pilot "
+                    "estimate; drop posterior_covariance/posterior_precision."
+                )
+            self.posterior_covariance = None
+            self.posterior_precision = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
+            self._covariance_time_cache = {}
+        elif correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             if posterior_precision is not None:
                 raise ValueError(
                     f"correction={correction!r} requires posterior_covariance, not "
@@ -678,6 +788,7 @@ class MultiObsSampler():
                      damping_at_data=1.0, damping_at_noise=None,
                      timesteps=100, eps=1e-3, iterations_per_level=3,
                      max_iterations_per_level=None, convergence_tol=1e-6,
+                     jacobian_refresh=1, jacobian_curvature_floor=1e-3,
                      device="cpu"):
         """Refine hierarchical MAP candidates by annealed compositional score ascent.
 
@@ -686,7 +797,89 @@ class MultiObsSampler():
         composed score; all other latent coordinates retain their row-specific
         score. Each annealing level alternates local and hierarchy updates until
         their normalized update is below ``convergence_tol``. Gaussian precision
-        or covariance estimates must be reused from posterior sampling.
+        or covariance estimates must be reused from posterior sampling, except
+        for ``correction="gauss_jacobian"``, which needs none.
+        """
+        state = self._configure_map_estimate(
+            data=data, condition_mask=condition_mask, init=init,
+            hierarchy=hierarchy, prior=prior, local_prior=local_prior,
+            correction=correction, posterior_precision=posterior_precision,
+            posterior_covariance=posterior_covariance,
+            posterior_mean=posterior_mean,
+            global_posterior_mean=global_posterior_mean,
+            global_posterior_covariance=global_posterior_covariance,
+            denoise_clamp=denoise_clamp, cfg_alpha=cfg_alpha,
+            damping_at_data=damping_at_data, damping_at_noise=damping_at_noise,
+            timesteps=timesteps, iterations_per_level=iterations_per_level,
+            max_iterations_per_level=max_iterations_per_level,
+            convergence_tol=convergence_tol, device=device,
+            jacobian_refresh=jacobian_refresh,
+            jacobian_curvature_floor=jacobian_curvature_floor,
+        )
+        n_obs = state["n_obs"]
+        hierarchy = state["hierarchy"]
+        candidates = state["candidates"]
+        expanded_mask = state["expanded_mask"]
+        expanded_data = state["expanded_data"]
+        latent = state["latent"]
+        shared_latent = state["shared_latent"]
+        local_latent = state["local_latent"]
+        has_local_latents = state["has_local_latents"]
+        min_iterations = state["min_iterations"]
+        max_iterations = state["max_iterations"]
+
+        times, lams = self._map_schedule(sigma_start, timesteps, eps, device)
+        indices = torch.arange(n_obs, device=device)
+        z = candidates
+        for index in range(int(timesteps)):
+            t = times[index].reshape(1, 1)
+            lam = lams[index]
+            for iteration in range(max_iterations):
+                # Gauss-Seidel block ascent: first relax the row-specific
+                # coordinates while the hierarchy is fixed, then recompute the
+                # score before moving the shared coordinates. Updating both
+                # blocks from the same stale score causes an observation-count
+                # dependent lag in tightly concentrated shared posteriors.
+                max_update = torch.zeros((), device=device)
+                if has_local_latents:
+                    score = self._get_score(
+                        z, t, expanded_mask, indices, cfg_alpha
+                    )
+                    local_update = lam**2 * score * local_latent
+                    z = z + local_update
+                    max_update = local_update.abs().max()
+                    z = z * (1 - expanded_mask) + expanded_data * expanded_mask
+
+                score = self._get_score(
+                    z, t, expanded_mask, indices, cfg_alpha
+                )
+                shared_update = lam**2 * score * shared_latent
+                z = z + shared_update
+                max_update = torch.maximum(max_update, shared_update.abs().max())
+                z[:, :, hierarchy] = z[:1, :, hierarchy]
+                z = z * (1 - expanded_mask) + expanded_data * expanded_mask
+
+                if iteration + 1 >= min_iterations:
+                    state_scale = (z * latent).abs().max().clamp_min(1.0)
+                    if max_update <= float(convergence_tol) * state_scale:
+                        break
+        return self._finalize_map(
+            z, times[-1], latent, expanded_mask, expanded_data, hierarchy, device,
+        )
+    def _configure_map_estimate(
+            self, data, condition_mask, init, hierarchy, prior, local_prior,
+            correction, posterior_precision, posterior_covariance,
+            posterior_mean, global_posterior_mean, global_posterior_covariance,
+            denoise_clamp, cfg_alpha, damping_at_data, damping_at_noise,
+            timesteps, iterations_per_level, max_iterations_per_level,
+            convergence_tol, device, jacobian_refresh=1,
+            jacobian_curvature_floor=1e-3):
+        """Validate arguments and build the shared state for MAP refinement.
+
+        This is the configuration block ``map_estimate`` used to run inline.
+        ``newton_map_estimate`` reuses it unchanged, so both estimators accept
+        identical arguments and enforce identical guards -- an A/B between them
+        therefore isolates the ascent step and nothing else.
         """
         if correction == "fnpe":
             raise ValueError(
@@ -785,6 +978,13 @@ class MultiObsSampler():
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
         self.pd_floor = 1e-3
+        self.jacobian_refresh = int(jacobian_refresh)
+        self.jacobian_curvature_floor = float(jacobian_curvature_floor)
+        if self.jacobian_refresh < 1:
+            raise ValueError("jacobian_refresh must be at least 1.")
+        if not 0.0 < self.jacobian_curvature_floor < 1.0:
+            raise ValueError("jacobian_curvature_floor must lie in (0, 1).")
+        self._reset_jacobian_state()
         self.local_prior_mean, self.local_prior_std = self._resolve_local_prior(
             local_prior
         )
@@ -832,7 +1032,27 @@ class MultiObsSampler():
         if self.local_prior_mean is not None:
             self.local_prior_mean = self.local_prior_mean.to(device)
             self.local_prior_std = self.local_prior_std.to(device)
-        if correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
+        if correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            # Pilot-free: the per-observation backward precision is rebuilt from
+            # the score Jacobian, so nothing has to be carried over from
+            # posterior sampling. This pairs with
+            # ``newton_map_estimate(curvature="jacobian")``, which builds its
+            # Newton curvature the same way, for an end-to-end pilot-free run.
+            if posterior_covariance is not None or posterior_precision is not None:
+                raise ValueError(
+                    f"correction={correction!r} derives every single-observation "
+                    "covariance from the score Jacobian and takes no pilot "
+                    "estimate; drop posterior_covariance/posterior_precision."
+                )
+            self.posterior_covariance = None
+            self.posterior_precision = None
+            self.posterior_precision_matrix = None
+            self.posterior_mean = None
+            self.global_posterior_mean = None
+            self.global_posterior_covariance = None
+            self.global_posterior_precision_matrix = None
+            self._covariance_time_cache = {}
+        elif correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             if posterior_precision is not None:
                 raise ValueError(
                     f"correction={correction!r} requires posterior_covariance, not "
@@ -928,7 +1148,24 @@ class MultiObsSampler():
         shared_latent[:, :, hierarchy] = 1
         local_latent = latent - shared_latent
         has_local_latents = bool(torch.any(local_latent).item())
+        return {
+            "n_obs": n_obs,
+            "nodes_size": nodes_size,
+            "hierarchy": hierarchy,
+            "candidates": candidates,
+            "mask": mask,
+            "expanded_mask": expanded_mask,
+            "expanded_data": expanded_data,
+            "latent": latent,
+            "shared_latent": shared_latent,
+            "local_latent": local_latent,
+            "has_local_latents": has_local_latents,
+            "min_iterations": min_iterations,
+            "max_iterations": max_iterations,
+        }
 
+    def _map_schedule(self, sigma_start, timesteps, eps, device):
+        """Log-spaced annealing schedule in noise scale, from sigma_start to eps."""
         one = torch.ones(1, device=device)
         lam_min = self.sde.lambda_t(eps * one).item()
         lam_max = self.sde.lambda_t(one).item()
@@ -940,46 +1177,457 @@ class MultiObsSampler():
             int(timesteps), device=device,
         )
         times = self.sde.time_of_lambda(lams)
-        indices = torch.arange(n_obs, device=device)
-        z = candidates
-        for index in range(int(timesteps)):
-            t = times[index].reshape(1, 1)
-            lam = lams[index]
-            for iteration in range(max_iterations):
-                # Gauss-Seidel block ascent: first relax the row-specific
-                # coordinates while the hierarchy is fixed, then recompute the
-                # score before moving the shared coordinates. Updating both
-                # blocks from the same stale score causes an observation-count
-                # dependent lag in tightly concentrated shared posteriors.
-                max_update = torch.zeros((), device=device)
-                if has_local_latents:
-                    score = self._get_score(
-                        z, t, expanded_mask, indices, cfg_alpha
-                    )
-                    local_update = lam**2 * score * local_latent
-                    z = z + local_update
-                    max_update = local_update.abs().max()
-                    z = z * (1 - expanded_mask) + expanded_data * expanded_mask
+        return times, lams
 
-                score = self._get_score(
-                    z, t, expanded_mask, indices, cfg_alpha
-                )
-                shared_update = lam**2 * score * shared_latent
-                z = z + shared_update
-                max_update = torch.maximum(max_update, shared_update.abs().max())
-                z[:, :, hierarchy] = z[:1, :, hierarchy]
-                z = z * (1 - expanded_mask) + expanded_data * expanded_mask
-
-                if iteration + 1 >= min_iterations:
-                    state_scale = (z * latent).abs().max().clamp_min(1.0)
-                    if max_update <= float(convergence_tol) * state_scale:
-                        break
-
-        alpha_final = self.sde.alpha_t(times[-1]).to(device)
+    def _finalize_map(self, z, final_time, latent, expanded_mask, expanded_data,
+                      hierarchy, device):
+        """Rescale y -> x, resynchronize the shared block, restore observed columns."""
+        alpha_final = self.sde.alpha_t(final_time).to(device)
         result = z * (alpha_final * latent + expanded_mask)
         result[:, :, hierarchy] = result[:1, :, hierarchy]
         result = result * (1 - expanded_mask) + expanded_data * expanded_mask
         return result.cpu()
+
+    #############################################
+    # ----- Arrow-Newton MAP refinement -----
+    #############################################
+
+    def newton_map_estimate(
+            self, data, condition_mask, init=None, hierarchy=None,
+            prior=None, local_prior=None,
+            correction="gauss", posterior_precision=None,
+            posterior_covariance=None, posterior_mean=None,
+            global_posterior_mean=None, global_posterior_covariance=None,
+            denoise_clamp=None, cfg_alpha=None, sigma_start=None,
+            damping_at_data=1.0, damping_at_noise=None,
+            timesteps=100, eps=1e-3, iterations_per_level=1,
+            max_iterations_per_level=None, convergence_tol=1e-6,
+            curvature="jacobian", curvature_refresh=1, trust_radius=3.0,
+            max_backtracks=2, richardson=True,
+            jacobian_refresh=1, jacobian_curvature_floor=1e-3, device="cpu"):
+        """Hierarchical MAP by annealed arrow-structured Newton ascent.
+
+        Same target as :meth:`map_estimate`, same arguments, same guards -- only
+        the ascent step differs, so a comparison between the two isolates the
+        optimizer. Both seek the stationary point ``s(z, t) = 0`` of the
+        ``lambda``-smoothed log-posterior at each annealing level, so they share
+        a fixed point; they differ only in how fast, and how reliably, they
+        reach it.
+
+        Why the step changes
+        --------------------
+        :meth:`map_estimate` takes ``z <- z + lambda**2 * s``, which is the
+        Newton step for a Gaussian of variance ``lambda**2``. The curvature of
+        the smoothed log-posterior is ``H = (Sigma_0 + lambda**2)^-1``, so that
+        step undershoots by ``1 + Sigma_0 / lambda**2`` -- one to two orders of
+        magnitude at the final levels for a local latent. Separately, the
+        alternating global/local sweep is block Gauss-Seidel on an arrow-shaped
+        system, whose contraction degrades as the observation count grows.
+
+        This method solves the arrow system directly. With ``H_j`` the joint
+        ``(g, l_j)`` curvature of observation ``j`` and ``H_prior`` the diffused
+        prior curvature on the shared block, the exact Newton step is
+
+            S      = sum_j M_j + (1 - n) H_prior,
+                     M_j = H_j[gg] - H_j[gl] H_j[ll]^-1 H_j[lg]
+            d_g    = S^-1 (s_g - sum_j H_j[gl] H_j[ll]^-1 s_l,j)
+            d_l,j  = H_j[ll]^-1 (s_l,j - H_j[lg] d_g)
+
+        i.e. the same block elimination as the score composition in
+        ``New_Attempt/derivation.md``, applied to the Newton system instead.
+        Both blocks move together and consistently, so the Gauss-Seidel lag
+        disappears by construction. Cost is one ``H x H`` solve plus ``n`` small
+        local solves per iteration -- negligible beside a network call.
+
+        Args:
+            curvature: ``"jacobian"`` (default) builds ``H_j = -grad(s_j)``
+                exactly by forward-mode AD, needs no pilot covariance and works
+                for every correction. ``"gaussian"`` reuses the already
+                validated ``posterior_covariance`` as
+                ``H_j = (Sigma_0,j + lambda**2 I)^-1``; it needs a correction
+                whose covariance spans the shared *and* local coordinates
+                (see ``SCHUR_GAUSSIAN_CORRECTIONS``).
+                Pairing ``curvature="jacobian"`` with
+                ``correction="gauss_jacobian"`` makes the whole estimate
+                pilot-free: both the composition weights and the Newton
+                curvature then come from the same network Jacobian, and nothing
+                has to be carried over from a posterior-sampling run.
+            jacobian_refresh, jacobian_curvature_floor: Passed through to
+                ``correction="gauss_jacobian"``; see :meth:`sample`. They govern
+                the *composition* weights and are independent of
+                ``curvature_refresh``, which governs the Newton step.
+            curvature_refresh: Recompute the curvature every this many
+                annealing levels. Curvature varies slowly in ``lambda``, so the
+                default of every level is already conservative.
+            trust_radius: Cap on the max-abs step, in units of ``lambda``. This
+                is what stops a lagging iterate from running out to the
+                ``denoise_clamp`` boundary.
+            max_backtracks: Halvings of the step allowed while the merit
+                ``||s||**2`` fails to decrease. ``0`` disables the safeguard.
+            richardson: Extrapolate the last two levels to ``lambda -> 0``.
+                The fixed point at level ``lambda`` is the mode of the
+                *smoothed* posterior, biased by ``O(lambda**2)`` for any skewed
+                posterior; both iterates already exist, so this is free.
+            denoise_clamp: Defaults to ``None`` here, unlike
+                :meth:`map_estimate`. With a positive-definite curvature, a
+                trust region and backtracking, the clamp is no longer
+                load-bearing, and on a mode that legitimately sits in the prior
+                tail it is a pure bias. Pass ``5.0`` to match the old default.
+
+        After the call, :attr:`map_diagnostics` reports per-level convergence,
+        backtracks, trust-region hits and the Richardson shift.
+        """
+        if curvature not in ("jacobian", "gaussian"):
+            raise ValueError("curvature must be 'jacobian' or 'gaussian'.")
+        if float(trust_radius) <= 0:
+            raise ValueError("trust_radius must be positive.")
+        if int(max_backtracks) < 0:
+            raise ValueError("max_backtracks must be nonnegative.")
+        if int(curvature_refresh) < 1:
+            raise ValueError("curvature_refresh must be at least 1.")
+        if max_iterations_per_level is None:
+            max_iterations_per_level = max(int(iterations_per_level), 10)
+
+        state = self._configure_map_estimate(
+            data=data, condition_mask=condition_mask, init=init,
+            hierarchy=hierarchy, prior=prior, local_prior=local_prior,
+            correction=correction, posterior_precision=posterior_precision,
+            posterior_covariance=posterior_covariance,
+            posterior_mean=posterior_mean,
+            global_posterior_mean=global_posterior_mean,
+            global_posterior_covariance=global_posterior_covariance,
+            denoise_clamp=denoise_clamp, cfg_alpha=cfg_alpha,
+            damping_at_data=damping_at_data, damping_at_noise=damping_at_noise,
+            timesteps=timesteps, iterations_per_level=iterations_per_level,
+            max_iterations_per_level=max_iterations_per_level,
+            convergence_tol=convergence_tol, device=device,
+            jacobian_refresh=jacobian_refresh,
+            jacobian_curvature_floor=jacobian_curvature_floor,
+        )
+        n_obs = state["n_obs"]
+        hierarchy = state["hierarchy"]
+        expanded_mask = state["expanded_mask"]
+        expanded_data = state["expanded_data"]
+        latent = state["latent"]
+        shared_latent = state["shared_latent"]
+        local_latent = state["local_latent"]
+        min_iterations = state["min_iterations"]
+        max_iterations = state["max_iterations"]
+
+        local_indices = list(self.local_latent_indices)
+        feature_order = list(hierarchy) + local_indices
+        width = len(hierarchy)
+        identity = torch.eye(width, dtype=torch.float64, device=device)
+        prior_covariance = self.prior_covariance.to(
+            device=device, dtype=torch.float64
+        )
+
+        times, lams = self._map_schedule(sigma_start, timesteps, eps, device)
+        indices = torch.arange(n_obs, device=device)
+        z = state["candidates"]
+
+        diagnostics = {
+            "levels": int(timesteps), "converged_levels": 0,
+            "iterations": 0, "backtracks": 0, "unimproved_steps": 0,
+            "trust_region_hits": 0, "richardson_shift": 0.0,
+            "curvature": curvature,
+        }
+        blocks = None
+        previous_z = None
+        previous_lambda_squared = None
+
+        for index in range(int(timesteps)):
+            t = times[index].reshape(1, 1)
+            lam = float(lams[index].item())
+            lambda_squared = lam * lam
+            if blocks is None or index % int(curvature_refresh) == 0:
+                blocks = self._map_curvature_blocks(
+                    z, t, expanded_mask, lambda_squared, curvature, feature_order,
+                )
+            prior_curvature = torch.linalg.inv(
+                prior_covariance + lambda_squared * identity
+            )
+
+            score = self._get_score(z, t, expanded_mask, indices, cfg_alpha)
+            merit = self._map_merit(score, shared_latent, local_latent)
+            for iteration in range(max_iterations):
+                update = self._arrow_newton_update(
+                    score, blocks, prior_curvature, n_obs, width, hierarchy,
+                    local_indices, lambda_squared, z,
+                )
+                update, factor = self._trust_region_scale(
+                    update, trust_radius * lam
+                )
+                diagnostics["trust_region_hits"] += int((factor < 1.0).sum())
+
+                scale = torch.ones(
+                    update.shape[1], dtype=update.dtype, device=update.device
+                )
+                for attempt in range(int(max_backtracks) + 1):
+                    candidate = self._apply_map_update(
+                        z, update * scale.view(1, -1, 1), expanded_mask,
+                        expanded_data, hierarchy,
+                    )
+                    candidate_score = self._get_score(
+                        candidate, t, expanded_mask, indices, cfg_alpha
+                    )
+                    candidate_merit = self._map_merit(
+                        candidate_score, shared_latent, local_latent
+                    )
+                    # A relative slack. Near the fixed point ||s|| -> 0, so a
+                    # strict comparison backtracks on pure float noise: the
+                    # safeguard exists to catch genuine divergence, not to
+                    # enforce monotonicity to the last bit.
+                    improved = candidate_merit <= merit * (1.0 + 1e-3)
+                    if bool(improved.all()) or attempt == int(max_backtracks):
+                        break
+                    scale = torch.where(improved, scale, scale * 0.5)
+                    diagnostics["backtracks"] += 1
+                diagnostics["unimproved_steps"] += int((~improved).sum())
+
+                applied = update * scale.view(1, -1, 1)
+                z, score, merit = candidate, candidate_score, candidate_merit
+                diagnostics["iterations"] += 1
+
+                if iteration + 1 >= min_iterations:
+                    state_scale = (z * latent).abs().max().clamp_min(1.0)
+                    if applied.abs().max() <= float(convergence_tol) * state_scale:
+                        diagnostics["converged_levels"] += 1
+                        break
+
+            if index == int(timesteps) - 2:
+                previous_z = z.clone()
+                previous_lambda_squared = lambda_squared
+
+        if (richardson and previous_z is not None
+                and previous_lambda_squared > lambda_squared):
+            # z(lambda) = z* + c lambda^2  =>  z* = z + lambda^2 (z - z_prev)
+            #                                        / (lambda_prev^2 - lambda^2)
+            weight = lambda_squared / (previous_lambda_squared - lambda_squared)
+            correction_step, _ = self._trust_region_scale(
+                (z - previous_z) * weight, trust_radius * lam
+            )
+            diagnostics["richardson_shift"] = float(correction_step.abs().max())
+            z = self._apply_map_update(
+                z, correction_step, expanded_mask, expanded_data, hierarchy,
+            )
+
+        diagnostics["score_network_calls"] = int(self.score_network_calls)
+        self.map_diagnostics = diagnostics
+        return self._finalize_map(
+            z, times[-1], latent, expanded_mask, expanded_data, hierarchy, device,
+        )
+
+    def _raw_row_scores(self, z, t, condition_mask):
+        """Uncomposed per-observation network score in y = x/alpha coordinates.
+
+        Mirrors the network call inside :meth:`_get_score` but stops before the
+        composition, and stays outside ``no_grad`` so it can be differentiated.
+        """
+        alpha = self.sde.alpha_t(t).to(z.device)
+        rows, samples, features = z.shape
+        x = z * (alpha * (1 - condition_mask) + condition_mask)
+        scores = self.SBIm.model(
+            x=x.reshape(rows * samples, features), t=t,
+            c=condition_mask.reshape(rows * samples, features),
+        )
+        scores = self.SBIm.output_scale_function(t, scores)
+        self.score_network_calls += 1
+        self.evaluated_subject_rows += int(rows)
+        return (alpha * scores).reshape(rows, samples, features)
+
+    def _row_score_jacobian(self, z, t, condition_mask, feature_order):
+        """Exact per-observation Jacobian grad(s_j) on the latent block, via JVPs.
+
+        Observation rows are independent inside the network, so a tangent that
+        perturbs one coordinate in *every* row returns that column of *every*
+        row's Jacobian in a single forward-mode pass. ``len(feature_order)``
+        JVPs therefore give the whole block, and that count is the size of the
+        latent state (single digits here), not the number of observations.
+
+        The shared coordinate is synchronized across rows, so its tangent is
+        legitimately nonzero everywhere; a local tangent is too, but rows do not
+        mix, so row ``j`` still receives exactly ``d s_j / d l_j``.
+        """
+        try:
+            from torch.func import jvp
+        except ImportError as error:                       # pragma: no cover
+            raise RuntimeError(
+                "curvature='jacobian' needs torch.func (PyTorch >= 2.0); "
+                "pass curvature='gaussian' instead."
+            ) from error
+
+        def raw_scores(state):
+            return self._raw_row_scores(state, t, condition_mask)
+
+        columns = []
+        # The fused scaled-dot-product-attention kernels have no forward-mode
+        # AD rule, so the transformer raises NotImplementedError under jvp
+        # unless attention is routed through the math backend. Only these D
+        # tangent passes pay the (modest) cost; ordinary score evaluation still
+        # gets the fused kernel.
+        with self._forward_ad_attention():
+            for feature in feature_order:
+                tangent = torch.zeros_like(z)
+                tangent[:, :, feature] = 1.0
+                _, column = jvp(raw_scores, (z,), (tangent,))
+                # Nothing differentiates *through* the curvature, and the jvp
+                # runs with grad enabled, so keeping the tangent attached would
+                # grow a graph across every annealing level / diffusion step.
+                columns.append(
+                    column[:, :, feature_order].detach().to(torch.float64)
+                )
+        return torch.stack(columns, dim=-1)
+
+    @staticmethod
+    def _forward_ad_attention():
+        """Context manager selecting an attention backend that supports jvp."""
+        try:
+            from torch.nn.attention import SDPBackend, sdpa_kernel
+        except ImportError:                                # pragma: no cover
+            from contextlib import nullcontext
+            return nullcontext()
+        return sdpa_kernel([SDPBackend.MATH])
+
+    def _map_curvature_blocks(self, z, t, condition_mask, lambda_squared,
+                              curvature, feature_order):
+        """Per-observation curvature -grad(s_j) over the latent block.
+
+        Returns shape ``(observations, candidates, D, D)`` in float64, with the
+        coordinate order ``hierarchy + local_latent_indices``.
+        """
+        dimension = len(feature_order)
+        if curvature == "jacobian":
+            jacobian = self._row_score_jacobian(
+                z, t, condition_mask, feature_order
+            )
+            blocks = -jacobian
+        else:
+            if self.posterior_covariance is None:
+                raise ValueError(
+                    "curvature='gaussian' requires posterior_covariance; pass "
+                    "it, or use curvature='jacobian' which needs no pilot "
+                    "covariance."
+                )
+            if list(self.covariance_features) != list(feature_order):
+                raise ValueError(
+                    "curvature='gaussian' needs a covariance spanning the "
+                    "shared and local coordinates, but correction="
+                    f"{self.correction!r} estimates it over "
+                    f"{list(self.covariance_features)} while the latent block "
+                    f"is {list(feature_order)}. Use a correction in "
+                    "SCHUR_GAUSSIAN_CORRECTIONS, or curvature='jacobian'."
+                )
+            covariance = self.posterior_covariance.to(
+                device=z.device, dtype=torch.float64
+            )
+            eye = torch.eye(dimension, dtype=torch.float64, device=z.device)
+            blocks = torch.linalg.inv(covariance + lambda_squared * eye)
+            blocks = blocks.unsqueeze(1).expand(-1, z.shape[1], -1, -1)
+            if blocks.shape[0] == 1:
+                blocks = blocks.expand(z.shape[0], -1, -1, -1)
+
+        # A lambda-smoothed density obeys 0 <= H <= lambda^-2 I exactly, since
+        # H = (Sigma_0 + lambda^2 I)^-1. Imposing it costs one small eigh and
+        # bounds any damage an imperfect score can do to the preconditioner.
+        blocks = 0.5 * (blocks + blocks.mT)
+        eigenvalues, eigenvectors = torch.linalg.eigh(blocks)
+        eigenvalues = eigenvalues.clamp(min=0.0, max=1.0 / lambda_squared)
+        return (eigenvectors * eigenvalues.unsqueeze(-2)) @ eigenvectors.mT
+
+    def _project_map_information(self, marginal, prior_curvature):
+        """Project each observation's curvature information onto the PSD cone.
+
+        The same argument as :meth:`_project_information`, for curvature rather
+        than backward precision: writing ``H_j = H_prior + I_j`` makes
+
+            S = sum_j H_j + (1 - n) H_prior = H_prior + sum_j I_j
+
+        an identity, so ``S`` is positive definite for every ``n`` as soon as
+        each ``I_j`` is positive semi-definite -- which every real posterior
+        satisfies, since one more observation cannot leave you less certain
+        about the shared parameters than the prior alone. An estimated ``I_j``
+        with a negative eigenvalue is outside the model class, not a hard case.
+
+        This makes the Newton direction an ascent direction unconditionally, so
+        no eigenvalue floor on ``S`` is load-bearing for correctness.
+        """
+        information = marginal - prior_curvature
+        information = 0.5 * (information + information.mT)
+        eigenvalues, eigenvectors = torch.linalg.eigh(information)
+        eigenvalues = eigenvalues.clamp_min(0.0)
+        return (eigenvectors * eigenvalues.unsqueeze(-2)) @ eigenvectors.mT
+
+    def _arrow_newton_update(self, score, blocks, prior_curvature, n_obs, width,
+                             hierarchy, local_indices, lambda_squared, z):
+        """Solve the arrow-structured Newton system for shared and local blocks."""
+        gradient_global = score[:1, :, hierarchy].to(torch.float64)
+        block_gg = blocks[..., :width, :width]
+
+        if local_indices:
+            block_gl = blocks[..., :width, width:]
+            block_lg = blocks[..., width:, :width]
+            block_ll = blocks[..., width:, width:]
+            gradient_local = score[:, :, local_indices].to(torch.float64)
+
+            # Floor the local curvature so the elimination stays well posed.
+            # The bound is non-binding whenever the local posterior is at all
+            # informative; it only catches a degenerate estimated block.
+            block_ll = 0.5 * (block_ll + block_ll.mT)
+            values, vectors = torch.linalg.eigh(block_ll)
+            values = values.clamp(
+                min=self.pd_floor / lambda_squared, max=1.0 / lambda_squared
+            )
+            block_ll = (vectors * values.unsqueeze(-2)) @ vectors.mT
+
+            solved_cross = torch.linalg.solve(block_ll, block_lg)
+            solved_gradient = torch.linalg.solve(
+                block_ll, gradient_local.unsqueeze(-1)
+            )
+            marginal = block_gg - block_gl @ solved_cross
+            numerator = gradient_global[0] - (
+                block_gl @ solved_gradient
+            ).squeeze(-1).sum(dim=0)
+        else:
+            marginal = block_gg
+            numerator = gradient_global[0]
+
+        composed = prior_curvature + self._project_map_information(
+            marginal, prior_curvature
+        ).sum(dim=0)
+        delta_global = torch.linalg.solve(
+            composed, numerator.unsqueeze(-1)
+        ).squeeze(-1)
+
+        update = torch.zeros(z.shape, dtype=torch.float64, device=z.device)
+        update[:, :, hierarchy] = delta_global.unsqueeze(0).expand(n_obs, -1, -1)
+        if local_indices:
+            update[:, :, local_indices] = solved_gradient.squeeze(-1) - (
+                solved_cross @ delta_global.unsqueeze(0).unsqueeze(-1)
+            ).squeeze(-1)
+        return update.to(z.dtype)
+
+    @staticmethod
+    def _map_merit(score, shared_latent, local_latent):
+        """Per-candidate ||s||^2 over the latent block; shared block counted once."""
+        shared = (score[:1] * shared_latent[:1]).square().sum(dim=(0, 2))
+        return shared + (score * local_latent).square().sum(dim=(0, 2))
+
+    @staticmethod
+    def _trust_region_scale(update, radius):
+        """Cap each candidate's max-abs step at `radius`; return the step and factor."""
+        magnitude = update.abs().amax(dim=2).amax(dim=0)
+        factor = torch.clamp(
+            radius / magnitude.clamp_min(torch.finfo(update.dtype).tiny), max=1.0
+        )
+        return update * factor.view(1, -1, 1), factor
+
+    @staticmethod
+    def _apply_map_update(z, update, expanded_mask, expanded_data, hierarchy):
+        """Apply a latent-only update, resynchronize shared coords, restore data."""
+        moved = z + update * (1 - expanded_mask)
+        moved[:, :, hierarchy] = moved[:1, :, hierarchy]
+        return moved * (1 - expanded_mask) + expanded_data * expanded_mask
 
     def _make_sampling_schedule(self, device):
         """Build the reverse schedule; covariance modes always run through eps."""
@@ -1379,8 +2027,127 @@ class MultiObsSampler():
         ).expand(covariance.shape[:-2] + covariance.shape[-2:])
         return torch.cholesky_solve(identity, factors)
 
-    def _effective_global_factors(self, var_t, num_observations=None):
-        """Return cached per-observation effective global precisions and R blocks.
+    def _reset_jacobian_state(self):
+        """Clear the Jacobian-curvature refresh cache and its counters."""
+        self._jacobian_call_index = 0
+        self._jacobian_cached_information = None
+        self._jacobian_evaluations = 0
+
+    @staticmethod
+    def _batched_eigh(matrices, max_batch=2048):
+        """``torch.linalg.eigh``, chunked over the leading batch dimension.
+
+        eigh is elementwise over a batch, so this is mathematically identical
+        to calling it once on the whole tensor. It exists because PyTorch's
+        batched CUDA ``eigh`` kernel allocates workspace that scales with the
+        batch size even for tiny (e.g. 2x2) matrices: at problem sizes such as
+        30 observations x 3000 posterior samples (a batch of 90,000 matrices,
+        under 6 MB of actual data at 2x2/float64) it requests tens of GB and
+        reliably OOMs an 11 GB GPU. Chunking bounds peak memory independent of
+        how many matrices are diagonalized, at the cost of extra kernel
+        launches for very large batches.
+        """
+        shape = matrices.shape
+        flat = matrices.reshape(-1, shape[-2], shape[-1])
+        if flat.shape[0] <= max_batch:
+            eigenvalues, eigenvectors = torch.linalg.eigh(flat)
+        else:
+            eigenvalue_chunks, eigenvector_chunks = [], []
+            for start in range(0, flat.shape[0], max_batch):
+                chunk_eigenvalues, chunk_eigenvectors = torch.linalg.eigh(
+                    flat[start:start + max_batch]
+                )
+                eigenvalue_chunks.append(chunk_eigenvalues)
+                eigenvector_chunks.append(chunk_eigenvectors)
+            eigenvalues = torch.cat(eigenvalue_chunks, dim=0)
+            eigenvectors = torch.cat(eigenvector_chunks, dim=0)
+        return eigenvalues.reshape(shape[:-1]), eigenvectors.reshape(shape)
+
+    def _jacobian_joint_precision(self, state, t, condition_mask, var_t):
+        """Per-observation backward precision from the network's own Jacobian.
+
+        Tweedie's identities are exact for the lambda-smoothed density, in the
+        sampler's y = x/alpha coordinates and with lambda^2 = var_t:
+
+            s_j(y)      = ( E[theta_0 | y, x_j] - y ) / lambda^2
+            grad s_j(y) = ( Cov(theta_0 | y, x_j) - lambda^2 I ) / lambda^4
+
+        so the backward-kernel covariance that every GAUSS-style composition
+        weights by is available in closed form from the score Jacobian:
+
+            Sigma_t,j(y) = lambda^2 ( I + lambda^2 grad s_j(y) )
+                         = lambda^2 ( I - lambda^2 H_j(y) ),  H_j = -grad s_j.
+
+        No Gaussian assumption on p(theta_0 | x_j) is made anywhere. If that
+        posterior *is* N(., Sigma_0,j) then grad s_j = -(Sigma_0,j + lambda^2
+        I)^-1 and the expression collapses to
+
+            Sigma_t,j = lambda^2 Sigma_0,j (Sigma_0,j + lambda^2 I)^-1
+            Lambda_j  = Sigma_t,j^-1 = Sigma_0,j^-1 + lambda^-2 I,
+
+        which is exactly the pilot-covariance form the other covariance-aware
+        corrections build. This is therefore a strict generalization of GAUSS,
+        not an alternative approximation to it.
+
+        Conditioning. Every lambda-smoothed density obeys 0 <= H_j <=
+        lambda^-2 I exactly, so the eigenvalues of H_j are clamped into
+        [0, (1 - floor) / lambda^2]. That bounds Lambda_j into
+        [lambda^-2 I, (floor * lambda^2)^-1 I]: it can never be *wider* than
+        the pure-noise kernel (the lower bound, which is what keeps the
+        composed precision well posed) and never collapse to a point mass (the
+        upper bound, set by `jacobian_curvature_floor`). Where the network's
+        Jacobian is indefinite the smoothed density is genuinely non-log-concave
+        there, and this clamp is the same projection `_map_curvature_blocks`
+        already applies on the Newton path.
+        """
+        variance = float(torch.as_tensor(var_t, dtype=torch.float64).reshape(()))
+        feature_order = list(self.full_gaussian_features)
+        # torch.func.jvp propagates tangents only with grad mode enabled, and
+        # the composition runs inside `_get_score`'s no_grad block.
+        with torch.enable_grad():
+            jacobian = self._row_score_jacobian(
+                state, t, condition_mask, feature_order
+            )
+        self._jacobian_evaluations += 1
+
+        curvature = -jacobian
+        curvature = 0.5 * (curvature + curvature.mT)
+        eigenvalues, eigenvectors = self._batched_eigh(curvature)
+        floor = float(self.jacobian_curvature_floor)
+        eigenvalues = eigenvalues.clamp(min=0.0, max=(1.0 - floor) / variance)
+        precision = 1.0 / (variance * (1.0 - variance * eigenvalues))
+        return (eigenvectors * precision.unsqueeze(-2)) @ eigenvectors.mT
+
+    def _schur_factors(self, joint_precision_t, h):
+        """Split a joint backward precision into global and cross-regression blocks.
+
+        Accepts any leading batch shape, so a constant per-observation
+        precision ``(n, D, D)`` and a state-dependent one ``(n, samples, D, D)``
+        follow the same path.
+        """
+        dimension = joint_precision_t.shape[-1]
+        identity = torch.eye(
+            dimension, dtype=joint_precision_t.dtype,
+            device=joint_precision_t.device,
+        )
+        if self.correction in self.FULL_GAUSSIAN_CORRECTIONS:
+            return joint_precision_t, None
+        factor, info = torch.linalg.cholesky_ex(joint_precision_t)
+        if torch.any(info != 0):
+            raise RuntimeError("Diffusion-time joint covariance is not positive definite.")
+        expanded_identity = identity.expand(
+            joint_precision_t.shape[:-2] + (dimension, dimension)
+        )
+        covariance_t = torch.cholesky_solve(expanded_identity, factor)
+        global_covariance = covariance_t[..., :h, :h]
+        effective_precision = self._precision_from_covariance(global_covariance)
+        cross_covariance = covariance_t[..., h:, :h]
+        cross_factor = torch.matmul(cross_covariance, effective_precision)
+        return effective_precision, cross_factor
+
+    def _effective_global_factors(self, var_t, num_observations=None,
+                                  state=None, t=None, condition_mask=None):
+        """Return per-observation effective global precisions and R blocks.
 
         The returned precisions are projected onto the set of statistically
         admissible ones, which makes the composed precision positive definite
@@ -1391,6 +2158,14 @@ class MultiObsSampler():
         `delta` there raises the effective global precision by exactly `delta`,
         and the cross-factor -A_ll^-1 A_lg does not involve that block at all,
         so the local regression coefficient is left exactly undisturbed.
+
+        For the pilot-covariance corrections the joint precision is constant in
+        the state, so the result is cached on ``(1/var_t, n)``. The
+        ``gauss_jacobian`` correction builds it from the network's Jacobian at
+        the current ``state`` instead, which is the whole point of that rule --
+        that result is state-dependent and carries a leading sample axis, so it
+        is refreshed on the `jacobian_refresh` schedule rather than cached by
+        time.
         """
         n = int(
             self.num_observations if num_observations is None
@@ -1399,6 +2174,51 @@ class MultiObsSampler():
         inverse_variance = float(
             torch.as_tensor(1.0 / var_t, dtype=torch.float64).reshape(())
         )
+        h = len(self.hierarchy)
+
+        if self.correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            if state is None or t is None or condition_mask is None:
+                raise ValueError(
+                    "correction='gauss_jacobian' needs the current state, time "
+                    "and condition mask to evaluate the score Jacobian."
+                )
+            refresh = max(1, int(self.jacobian_refresh))
+            index = int(getattr(self, "_jacobian_call_index", 0))
+            self._jacobian_call_index = index + 1
+            information = getattr(self, "_jacobian_cached_information", None)
+            if information is None or index % refresh == 0:
+                # Cache the *lambda-free* information Lambda_j(t) - lambda^-2 I,
+                # never Lambda_j(t) itself. Lambda_j carries an exact lambda^-2 I
+                # term, and the composed precision subtracts (n-1) copies of
+                # Lambda_prior(t) = Sigma_prior^-1 + lambda^-2 I built at the
+                # *current* time; reusing a stale lambda there leaves the two
+                # lambda^-2 terms mismatched, and since they diverge as lambda
+                # shrinks the composition goes indefinite for n > 1. Separating
+                # them means a lagged refresh only ever lags the network's
+                # opinion about Sigma_0,j, which is exactly the quantity the
+                # pilot-covariance rules hold fixed for the whole trajectory.
+                # This is PSD by construction: `_jacobian_joint_precision`
+                # bounds Lambda_j below by lambda^-2 I.
+                joint_precision_t = self._jacobian_joint_precision(
+                    state, t, condition_mask, 1.0 / inverse_variance,
+                )
+                identity = torch.eye(
+                    joint_precision_t.shape[-1], dtype=torch.float64,
+                    device=joint_precision_t.device,
+                )
+                information = joint_precision_t - inverse_variance * identity
+                self._jacobian_cached_information = information
+
+            identity = torch.eye(
+                information.shape[-1], dtype=torch.float64,
+                device=information.device,
+            )
+            joint_precision_t = information + inverse_variance * identity
+            joint_precision_t = joint_precision_t + self._global_block_adaptation(
+                joint_precision_t, inverse_variance, n, h,
+            )
+            return self._schur_factors(joint_precision_t, h)
+
         cache = getattr(self, "_covariance_time_cache", {})
         cache_key = (inverse_variance, n)
         if cache_key in cache:
@@ -1410,25 +2230,10 @@ class MultiObsSampler():
             dimension, dtype=torch.float64, device=covariance_precision.device
         )
         joint_precision_t = covariance_precision + inverse_variance * identity
-        h = len(self.hierarchy)
         joint_precision_t = joint_precision_t + self._global_block_adaptation(
             joint_precision_t, inverse_variance, n, h,
         )
-        if self.correction in self.FULL_GAUSSIAN_CORRECTIONS:
-            result = (joint_precision_t, None)
-        else:
-            factor, info = torch.linalg.cholesky_ex(joint_precision_t)
-            if torch.any(info != 0):
-                raise RuntimeError("Diffusion-time joint covariance is not positive definite.")
-            expanded_identity = identity.expand(
-                joint_precision_t.shape[:-2] + (dimension, dimension)
-            )
-            covariance_t = torch.cholesky_solve(expanded_identity, factor)
-            global_covariance = covariance_t[:, :h, :h]
-            effective_precision = self._precision_from_covariance(global_covariance)
-            cross_covariance = covariance_t[:, h:, :h]
-            cross_factor = torch.matmul(cross_covariance, effective_precision)
-            result = (effective_precision, cross_factor)
+        result = self._schur_factors(joint_precision_t, h)
 
         cache[cache_key] = result
         self._covariance_time_cache = cache
@@ -1436,14 +2241,18 @@ class MultiObsSampler():
 
     @staticmethod
     def _schur_global_precision(joint_precision_t, h):
-        """Marginal global precision [A^-1]_gg^-1 of a joint backward precision."""
+        """Marginal global precision [A^-1]_gg^-1 of a joint backward precision.
+
+        Any leading batch shape is accepted, so a constant per-observation
+        precision and a per-sample one share this path.
+        """
         if joint_precision_t.shape[-1] == h:
             return joint_precision_t
-        block_gg = joint_precision_t[:, :h, :h]
-        block_gl = joint_precision_t[:, :h, h:]
-        block_ll = joint_precision_t[:, h:, h:]
+        block_gg = joint_precision_t[..., :h, :h]
+        block_gl = joint_precision_t[..., :h, h:]
+        block_ll = joint_precision_t[..., h:, h:]
         return block_gg - torch.matmul(
-            block_gl, torch.linalg.solve(block_ll, joint_precision_t[:, h:, :h])
+            block_gl, torch.linalg.solve(block_ll, joint_precision_t[..., h:, :h])
         )
 
     def _global_block_adaptation(self, joint_precision_t, inverse_variance, n, h):
@@ -1459,7 +2268,7 @@ class MultiObsSampler():
         if delta is None:
             return torch.zeros_like(joint_precision_t)
         adaptation = torch.zeros_like(joint_precision_t)
-        adaptation[:, :h, :h] = delta
+        adaptation[..., :h, :h] = delta
         return adaptation
 
     def _prior_precision_at(self, inverse_variance, h, reference):
@@ -1507,7 +2316,11 @@ class MultiObsSampler():
         prior_t = self._prior_precision_at(inverse_variance, h, effective)
         information = effective - prior_t
         information = 0.5 * (information + information.mT)
-        eigenvalues, eigenvectors = torch.linalg.eigh(information)
+        # Chunked: with a per-sample precision this batch is
+        # observations x samples matrices (90,000 at 30 x 3000), which the CUDA
+        # eigh kernel cannot allocate workspace for in one call -- see
+        # _batched_eigh.
+        eigenvalues, eigenvectors = self._batched_eigh(information)
         deficits = (-eigenvalues).clamp_min(0.0)
 
         self._pd_composed_evaluations += 1
@@ -1572,8 +2385,14 @@ class MultiObsSampler():
         eigenvalue, so the deviation from the subject-score mean is amplified
         by |lambda_min| / threshold -- of order 1e7 at pd_epsilon=1e-8. The
         repair stays minimal in matrix norm but is now bounded in its effect.
+
+        `precision` is either a single ``(H, H)`` matrix shared by every sample
+        (the pilot-covariance corrections) or one ``(samples, H, H)`` matrix per
+        sample (`gauss_jacobian`, whose curvature is state-dependent). Both take
+        the same code path; the shared case is unchanged bit for bit.
         """
         precision = torch.as_tensor(precision, dtype=torch.float64)
+        batched = precision.dim() > 2
         numerator = torch.as_tensor(
             numerator, dtype=torch.float64, device=precision.device
         )
@@ -1590,7 +2409,7 @@ class MultiObsSampler():
             eigenvalues, eigenvectors = torch.linalg.eigh(precision)
             deficits = (threshold - eigenvalues).clamp_min(0.0)
             adjustment = (
-                eigenvectors * deficits.unsqueeze(0)
+                eigenvectors * deficits.unsqueeze(-2)
             ) @ eigenvectors.mT
         else:
             adjustment = torch.zeros_like(precision)
@@ -1598,21 +2417,28 @@ class MultiObsSampler():
         repaired = precision + adjustment
         score_mean = subject_scores.mean(dim=0, keepdim=True)
         repaired_numerator = numerator + torch.einsum(
-            "ij,bsj->bsi", adjustment, score_mean
+            "sij,bsj->bsi" if batched else "ij,bsj->bsi", adjustment, score_mean
         )
         repaired_factor, repaired_info = torch.linalg.cholesky_ex(repaired)
         if torch.any(repaired_info != 0):
             raise RuntimeError("Minimal spectral repair did not produce a positive precision.")
-        solved = torch.cholesky_solve(
-            repaired_numerator.squeeze(0).mT, repaired_factor
-        ).mT.unsqueeze(0)
+        if batched:
+            solved = torch.cholesky_solve(
+                repaired_numerator.squeeze(0).unsqueeze(-1), repaired_factor
+            ).squeeze(-1).unsqueeze(0)
+        else:
+            solved = torch.cholesky_solve(
+                repaired_numerator.squeeze(0).mT, repaired_factor
+            ).mT.unsqueeze(0)
 
         after = torch.linalg.eigvalsh(repaired)
         condition = float(after.max() / after.min())
-        relative = float(
+        # A batched (per-sample) precision yields one norm per sample; report
+        # the worst case so the diagnostic stays a single comparable number.
+        relative = float((
             torch.linalg.matrix_norm(adjustment)
             / (torch.linalg.matrix_norm(precision) + torch.finfo(torch.float64).eps)
-        )
+        ).max())
         self._pd_evaluation_count += 1
         self._pd_repair_count += int(needs_repair)
         self._pd_min_before.append(float(eigenvalues.min()))
@@ -1769,6 +2595,445 @@ class MultiObsSampler():
         return precision
 
     #############################################
+    # ----- Composition diagnostics -----
+    #############################################
+
+    @staticmethod
+    def _gaussian_log_density(points, mean, covariance):
+        """log N(points; mean, covariance) for points shaped (..., D)."""
+        points = points.to(torch.float64)
+        mean = mean.to(torch.float64)
+        covariance = covariance.to(torch.float64)
+        dimension = points.shape[-1]
+        factor = torch.linalg.cholesky(covariance)
+        delta = (points - mean).unsqueeze(-1)
+        solved = torch.cholesky_solve(delta, factor).squeeze(-1)
+        quadratic = (delta.squeeze(-1) * solved).sum(-1)
+        log_determinant = 2.0 * torch.log(torch.diagonal(factor)).sum()
+        return -0.5 * (
+            quadratic + log_determinant + dimension * math.log(2.0 * math.pi)
+        )
+
+    @staticmethod
+    def _joint_points(samples, data, condition_mask):
+        """Assemble full (observations, samples, nodes) node vectors.
+
+        Accepts either full node vectors or just the latent/observed columns,
+        matching what :meth:`ScoreBasedInferenceModel.sample` returns and what
+        it was given, so a certification call can be written directly against a
+        sampling call's inputs and outputs.
+        """
+        mask = torch.as_tensor(condition_mask, dtype=torch.float32)
+        nodes = int(mask.shape[-1])
+        samples = torch.as_tensor(samples, dtype=torch.float32)
+        if samples.dim() != 3:
+            raise ValueError(
+                "samples must have shape (observations, samples, features), got "
+                f"{tuple(samples.shape)}."
+            )
+        n_obs = int(samples.shape[0])
+        if mask.dim() == 1:
+            mask = mask.unsqueeze(0).repeat(n_obs, 1)
+        if mask.shape[0] != n_obs:
+            raise ValueError(
+                "condition_mask must have one row per observation "
+                f"({n_obs}), got {mask.shape[0]}."
+            )
+
+        data = torch.as_tensor(data, dtype=torch.float32)
+        if data.dim() == 1:
+            data = data.unsqueeze(0)
+        if data.shape[-1] != nodes:
+            filled = torch.zeros(n_obs, nodes)
+            filled[mask == 1] = data.flatten()
+            data = filled
+
+        if samples.shape[-1] != nodes:
+            latent_columns = torch.where(mask[0] == 0)[0]
+            if samples.shape[-1] != latent_columns.numel():
+                raise ValueError(
+                    "samples must span either every node "
+                    f"({nodes}) or every latent node ({latent_columns.numel()}), "
+                    f"got {samples.shape[-1]}."
+                )
+            filled = torch.zeros(n_obs, samples.shape[1], nodes)
+            filled[:, :, latent_columns] = samples
+            samples = filled
+
+        mask_expanded = mask.unsqueeze(1)
+        points = (
+            samples * (1 - mask_expanded) + data.unsqueeze(1) * mask_expanded
+        )
+        return points, mask
+
+    def certify_composition(
+            self, samples, data, condition_mask, hierarchy=None, prior=None,
+            timesteps=100, eps=1e-3, divergence="exact", hutchinson_samples=32,
+            proposal="gaussian", log_proposal=None, resample=False,
+            device="cpu", batch_size=4096, verbose=False):
+        """Score composed samples against the *exact* tall-data target.
+
+        Nothing else in this class measures composition error: every correction
+        is an approximation to the multi-observation score, and until now the
+        only way to judge one was to compare posteriors on a problem whose truth
+        was already known. The probability-flow ODE removes that limitation,
+        because the tall-data target factorizes into quantities the trained
+        network can evaluate exactly:
+
+            p(g, l_1..l_n | x_1..x_n)
+                proportional to  p(g)^(1-n) prod_j p(g, l_j | x_j)
+
+        (each l_j's own prior appears in exactly one factor, so only the shared
+        prior is over-counted). Every factor on the right is a *single*
+        observation conditional density, which :meth:`PFODE.log_prob` computes
+        without a KDE, so
+
+            log q(theta) = (1 - n) log p(g) + sum_j log p(g, l_j | x_j) + const
+
+        is available at any point, for any n, at the cost of ``n * num_samples``
+        PF-ODE evaluations -- once, on the returned samples, not once per
+        sampler step.
+
+        What this does and does not certify. The densities come from the same
+        trained network that produced the samples, so this isolates *composition*
+        error and is blind to the network's own error: a systematically biased
+        score yields a biased target and biased samples, and they will agree.
+        It is exactly the right instrument for choosing between corrections,
+        tuning ``jacobian_refresh``, or deciding whether Langevin correctors
+        helped, and the wrong one for asking whether the network is trained
+        well enough. The target is also smoothed by ``sigma(eps)``, like every
+        PF-ODE density here.
+
+        Reweighting. The composed sampler's own density is not tractable, so the
+        weights are self-normalized against an explicit proposal fitted to the
+        returned samples (``proposal="gaussian"``: one moment-matched Gaussian
+        over the whole latent vector; ``"factorized"``: a shared block times one
+        block per observation, better conditioned when ``n`` is large;
+        ``None`` or an explicit ``log_proposal``: your own). The effective
+        sample size then measures how far the composed samples sit from the
+        exact target, and ``resample=True`` returns draws corrected towards it.
+        A high ESS is evidence the composition landed on the target; a low one
+        localizes the disagreement, and the returned per-observation terms say
+        which observations drive it.
+
+        Args:
+            samples: Composed draws, ``(observations, samples, nodes)`` or just
+                the latent columns as returned by ``ScoreBasedInferenceModel.sample``.
+            data: The observations the samples were drawn from.
+            condition_mask: 1 = observed, 0 = latent.
+            hierarchy: Shared latent indices; defaults to the configured ones,
+                then to every latent coordinate.
+            prior: Gaussian prior over the hierarchy, as in :meth:`sample`.
+            proposal: ``"gaussian"``, ``"factorized"``, or None.
+            log_proposal: Explicit per-sample log proposal density, overriding
+                ``proposal``.
+            resample: Also return systematically resampled draws.
+
+        Returns:
+            dict with ``log_target`` (samples,), ``log_prior_term``,
+            ``log_observation_terms`` (observations, samples),
+            ``log_proposal``/``log_weights``/``weights`` (when a proposal is
+            available), ``ess``, ``ess_fraction``, ``log_evidence_gap``, and
+            ``resampled_samples`` when requested.
+        """
+        points, mask = self._joint_points(samples, data, condition_mask)
+        n_obs, num_samples, nodes = points.shape
+
+        if hierarchy is None:
+            hierarchy = getattr(self, "hierarchy", None)
+        latent_indices = torch.where(mask[0] == 0)[0].tolist()
+        if hierarchy is None:
+            hierarchy = latent_indices
+        hierarchy = [int(index) for index in hierarchy]
+        if not set(hierarchy) <= set(latent_indices):
+            raise ValueError("hierarchy indices must refer to latent coordinates.")
+        local_indices = [
+            index for index in latent_indices if index not in set(hierarchy)
+        ]
+
+        shared = points[:, :, hierarchy]
+        drift = (shared - shared[:1]).abs().max().item()
+        if drift > 1e-4:
+            raise ValueError(
+                "Shared coordinates must be synchronized across observations "
+                f"before certification; maximum deviation is {drift:.3e}."
+            )
+
+        saved_hierarchy = getattr(self, "hierarchy", None)
+        self.hierarchy = hierarchy
+        try:
+            if prior is None and saved_hierarchy == hierarchy and getattr(
+                    self, "prior_covariance", None) is not None:
+                prior_mean = self.prior_mean.detach().cpu()
+                prior_covariance = self.prior_covariance.detach().cpu()
+            else:
+                prior_mean, _, prior_covariance = self._resolve_prior(prior)
+        finally:
+            self.hierarchy = saved_hierarchy
+
+        # Single-observation conditionals, all (observation, sample) points in
+        # one batched PF-ODE pass.
+        flat_points = points.reshape(n_obs * num_samples, nodes)
+        flat_mask = mask.unsqueeze(1).expand(-1, num_samples, -1).reshape(
+            n_obs * num_samples, nodes
+        )
+        log_observation_terms = self.SBIm.pfode.log_prob(
+            data=flat_points, condition_mask=flat_mask, timesteps=timesteps,
+            eps=eps, divergence=divergence,
+            hutchinson_samples=hutchinson_samples, device=device,
+            batch_size=batch_size, verbose=verbose,
+        ).reshape(n_obs, num_samples).to(torch.float64)
+
+        log_prior_term = (1 - n_obs) * self._gaussian_log_density(
+            shared[0].to(torch.float64), prior_mean, prior_covariance,
+        )
+        log_target = log_prior_term + log_observation_terms.sum(dim=0)
+
+        result = {
+            "num_observations": n_obs,
+            "num_samples": num_samples,
+            "log_target": log_target,
+            "log_prior_term": log_prior_term,
+            "log_observation_terms": log_observation_terms,
+        }
+
+        if log_proposal is None and proposal is not None:
+            log_proposal = self._fit_log_proposal(
+                shared[0], points[:, :, local_indices], proposal,
+            )
+        if log_proposal is None:
+            return result
+
+        log_proposal = torch.as_tensor(log_proposal, dtype=torch.float64)
+        log_weights = log_target - log_proposal
+        weights = torch.softmax(log_weights, dim=0)
+        ess = float(1.0 / weights.square().sum())
+        result.update({
+            "log_proposal": log_proposal,
+            "log_weights": log_weights,
+            "weights": weights,
+            "ess": ess,
+            "ess_fraction": ess / num_samples,
+            # log of the mean unnormalized weight: the self-normalized estimate
+            # of log(Z_target / Z_proposal), useful for comparing corrections.
+            "log_evidence_gap": float(
+                torch.logsumexp(log_weights, dim=0)
+                - math.log(num_samples)
+            ),
+        })
+
+        if resample:
+            cumulative = torch.cumsum(weights, dim=0)
+            positions = (
+                torch.arange(num_samples, dtype=torch.float64) + 0.5
+            ) / num_samples
+            chosen = torch.searchsorted(
+                cumulative.contiguous(), positions.clamp(max=float(cumulative[-1]))
+            ).clamp(max=num_samples - 1)
+            result["resample_indices"] = chosen
+            result["resampled_samples"] = points[:, chosen, :]
+        return result
+
+    def _fit_log_proposal(self, shared, locals_, proposal):
+        """Moment-matched Gaussian proposal density over the composed draws."""
+        num_samples = shared.shape[0]
+        shared = shared.to(torch.float64)
+        locals_ = locals_.to(torch.float64)
+        has_locals = locals_.shape[-1] > 0
+
+        def block_density(block):
+            mean = block.mean(dim=0)
+            covariance = self._regularize_covariance(
+                torch.atleast_2d(torch.cov(block.mT))
+            )
+            return self._gaussian_log_density(block, mean, covariance)
+
+        if proposal == "factorized":
+            density = block_density(shared)
+            if has_locals:
+                for observation in range(locals_.shape[0]):
+                    density = density + block_density(locals_[observation])
+            return density
+
+        if proposal != "gaussian":
+            raise ValueError(
+                "proposal must be 'gaussian', 'factorized', None, or replaced "
+                f"by an explicit log_proposal; got {proposal!r}."
+            )
+
+        blocks = [shared]
+        if has_locals:
+            blocks.extend(locals_[observation] for observation in range(locals_.shape[0]))
+        flat = torch.cat(blocks, dim=-1)
+        if flat.shape[-1] >= num_samples:
+            # An unregularizable empirical covariance; the block-diagonal
+            # proposal is the honest fallback rather than a singular fit.
+            return self._fit_log_proposal(shared, locals_, "factorized")
+        return block_density(flat)
+
+    def composition_curl(
+            self, samples, data, condition_mask, times=None, observations=None,
+            step=None, cfg_alpha=None, device=None):
+        """Measure how far the composed score field is from being a gradient.
+
+        A score is by definition a gradient, so its Jacobian is symmetric. A
+        *composed* score is assembled from n separate per-observation scores
+        weighted by n separate precision matrices, and nothing in that
+        construction forces the result to be conservative -- the denoised-
+        prediction clamps break it further. This matters concretely: the
+        reverse-diffusion predictor only integrates the field, but a Langevin
+        corrector is an MCMC kernel whose invariant distribution is defined by
+        the field *being* a gradient. Where the antisymmetry is large,
+        correctors do not refine the sample, they circulate it, which is the
+        signature of correctors making a composed estimate worse rather than
+        better.
+
+        This evaluates the composed field on the latent block by central
+        differences and reports the relative antisymmetry
+        ``||J - J^T||_F / ||J||_F`` of its Jacobian, per diffusion time. Zero
+        means conservative (and a single observation must give zero, since the
+        composition is then the network's own score). Finite differences rather
+        than autodiff, deliberately: the composition contains eigendecompositions
+        and clamps whose derivatives are ill-conditioned or undefined, while the
+        field itself is perfectly well defined.
+
+        The sampler must already be configured -- call this after
+        :meth:`sample` or :meth:`map_estimate` with the same settings, so the
+        measured field is the one that actually produced the samples.
+
+        Probed coordinates are the shared block (perturbed in every observation
+        row at once, since it is synchronized) plus the local block of a subset
+        of observations. Cross terms between the locals of *different*
+        observations vanish identically in both directions, so restricting to a
+        subset loses nothing.
+
+        Args:
+            samples, data, condition_mask: As in :meth:`certify_composition`.
+            times: Diffusion times to probe. Defaults to five log-spaced points
+                across the sampler's own schedule.
+            observations: How many observation rows to probe local coordinates
+                for (default ``min(n, 4)``).
+            step: Finite-difference step; defaults to ``1e-3 * lambda(t)``, i.e.
+                relative to the local noise scale.
+
+        Returns:
+            dict with ``times``, and per-time ``asymmetry_mean``/``_max``,
+            ``shared_asymmetry_mean``, ``max_abs_curl`` and ``jacobian``.
+        """
+        if getattr(self, "correction", None) is None or getattr(
+                self, "hierarchy", None) is None:
+            raise RuntimeError(
+                "composition_curl needs a configured sampler: run sample() or "
+                "map_estimate() with the settings you want to diagnose first."
+            )
+
+        device = self.device if device is None else device
+        points, mask = self._joint_points(samples, data, condition_mask)
+        n_obs, num_samples, _ = points.shape
+        points = points.to(device)
+        mask = mask.to(device)
+        expanded_mask = mask.unsqueeze(1).expand(-1, num_samples, -1)
+        latent = 1 - expanded_mask
+        indices = torch.arange(n_obs, device=device)
+
+        hierarchy = list(self.hierarchy)
+        local_indices = list(getattr(self, "local_latent_indices", []) or [])
+        probe_rows = min(
+            n_obs, int(observations) if observations is not None else 4
+        )
+
+        # (column, rows) pairs: the shared block moves in every row at once.
+        probes = [(column, None) for column in hierarchy]
+        probes += [
+            (column, row)
+            for row in range(probe_rows)
+            for column in local_indices
+        ]
+        width = len(probes)
+
+        if times is None:
+            schedule = getattr(self, "timesteps_list", None)
+            if schedule is None:
+                one = torch.ones(1, device=device)
+                schedule = self.sde.time_of_lambda(torch.logspace(
+                    torch.log10(self.sde.lambda_t(one)).item(),
+                    torch.log10(self.sde.lambda_t(1e-3 * one)).item(),
+                    5, device=device,
+                ))
+            picks = torch.linspace(
+                0, len(schedule) - 1, min(5, len(schedule))
+            ).round().long()
+            times = schedule.to(device)[picks]
+        times = torch.as_tensor(times, dtype=torch.float32, device=device).flatten()
+
+        # A stale cached curvature would make the field piecewise constant and
+        # silently zero the finite differences.
+        saved_refresh = getattr(self, "jacobian_refresh", 1)
+        self.jacobian_refresh = 1
+
+        report = {
+            "times": times.detach().cpu(), "probes": probes,
+            "asymmetry_mean": [], "asymmetry_max": [],
+            "shared_asymmetry_mean": [], "max_abs_curl": [], "jacobian": [],
+        }
+        try:
+            for time_value in times:
+                t = time_value.reshape(1, 1)
+                lam = float(self.sde.lambda_t(t).reshape(()))
+                delta = float(1e-3 * lam) if step is None else float(step)
+                self._reset_jacobian_state()
+
+                columns = []
+                for column, row in probes:
+                    tangent = torch.zeros_like(points)
+                    if row is None:
+                        tangent[:, :, column] = delta
+                    else:
+                        tangent[row, :, column] = delta
+                    tangent = tangent * latent
+
+                    plus = self._get_score(
+                        points + tangent, t, expanded_mask, indices, cfg_alpha
+                    )
+                    minus = self._get_score(
+                        points - tangent, t, expanded_mask, indices, cfg_alpha
+                    )
+                    derivative = (plus - minus) / (2.0 * delta)
+                    columns.append(torch.stack([
+                        derivative[0 if probe_row is None else probe_row,
+                                   :, probe_column]
+                        for probe_column, probe_row in probes
+                    ], dim=-1))
+
+                jacobian = torch.stack(columns, dim=-1).to(torch.float64)
+                antisymmetric = jacobian - jacobian.mT
+                norm = torch.linalg.matrix_norm(jacobian).clamp_min(
+                    torch.finfo(torch.float64).eps
+                )
+                asymmetry = torch.linalg.matrix_norm(antisymmetric) / norm
+
+                shared = len(hierarchy)
+                shared_block = jacobian[..., :shared, :shared]
+                shared_norm = torch.linalg.matrix_norm(shared_block).clamp_min(
+                    torch.finfo(torch.float64).eps
+                )
+                shared_asymmetry = torch.linalg.matrix_norm(
+                    shared_block - shared_block.mT
+                ) / shared_norm
+
+                report["asymmetry_mean"].append(float(asymmetry.mean()))
+                report["asymmetry_max"].append(float(asymmetry.max()))
+                report["shared_asymmetry_mean"].append(float(shared_asymmetry.mean()))
+                report["max_abs_curl"].append(float(antisymmetric.abs().max()))
+                report["jacobian"].append(jacobian.mean(dim=0).cpu())
+        finally:
+            self.jacobian_refresh = saved_refresh
+            self._reset_jacobian_state()
+
+        report["width"] = width
+        return report
+
+    #############################################
     # ----- Multi-GPU setup -----
     #############################################
 
@@ -1891,6 +3156,7 @@ class MultiObsSampler():
             score = self._compositional_score(
                 score_table, x, t, num_observations=n_obs,
                 minibatch_selected=selected is not None,
+                condition_mask=condition_mask,
             )
 
         if self.world_size > 1:
@@ -1950,8 +3216,20 @@ class MultiObsSampler():
         scores[:, :, indices] = (x0 - theta_l) / var_t
         return scores
 
+    @staticmethod
+    def _weight_global_scores(precision, scores):
+        """Contract per-observation precisions with per-observation scores.
+
+        ``precision`` is ``(n, H, H)`` for the pilot-covariance corrections and
+        ``(n, samples, H, H)`` when it is state-dependent (`gauss_jacobian`).
+        """
+        if precision.dim() == 4:
+            return torch.einsum("nsij,nsj->nsi", precision, scores)
+        return torch.einsum("nij,nsj->nsi", precision, scores)
+
     def _compositional_score(
         self, scores, x, t, num_observations=None, minibatch_selected=False,
+        condition_mask=None,
     ):
         """
         Compose the per-observation scores on the hierarchy (shared parameter)
@@ -1972,6 +3250,10 @@ class MultiObsSampler():
           single-observation posteriors, and Lambda = (1-n) Lambda_prior + sum_j Lambda_j.
         - "full_gaussian" (Gloeckler et al. 2024, Algorithm 2): the same
           precision weighting with full covariance matrices and a linear solve.
+        - "gauss_jacobian": the hierarchical arrow-elimination composition with
+          Lambda_j(t) taken from the network's own Jacobian via Tweedie's
+          second-order identity, so the weighting is exact for any
+          single-observation posterior and needs no pilot covariance.
         - "damping" (Arruda et al. 2026, Eq. 9):
               s = d(t) [ (1-n)(1-t) prior_score + n/m sum_(j in B) s_j ]
         - "gauss_damping": d(t) times the Gaussian-corrected score.
@@ -2037,7 +3319,7 @@ class MultiObsSampler():
 
         elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             effective_precision, cross_factor = self._effective_global_factors(
-                var_t, n,
+                var_t, n, state=x, t=t, condition_mask=condition_mask,
             )
             if self.correction == "Gauss_global_local" and (
                     getattr(self, "global_posterior_mean", None) is not None):
@@ -2058,7 +3340,14 @@ class MultiObsSampler():
                 )
             else:
                 global_scores = scores[:, :, h].to(torch.float64)
-            if effective_precision.shape[0] == 1:
+            if effective_precision.dim() == 4:
+                # State-dependent curvature: one precision per observation and
+                # per sample, so the composed precision keeps a sample axis.
+                precision_sum = effective_precision.sum(dim=0)
+                weighted_sum = self._weight_global_scores(
+                    effective_precision, global_scores
+                ).sum(dim=0, keepdim=True)
+            elif effective_precision.shape[0] == 1:
                 precision_sum = n * effective_precision[0]
                 weighted_sum = torch.einsum(
                     "ij,bsj->bsi", effective_precision[0],
@@ -2066,8 +3355,8 @@ class MultiObsSampler():
                 )
             else:
                 precision_sum = effective_precision.sum(dim=0)
-                weighted_sum = torch.einsum(
-                    "nij,nsj->nsi", effective_precision, global_scores
+                weighted_sum = self._weight_global_scores(
+                    effective_precision, global_scores
                 ).sum(dim=0, keepdim=True)
 
             inverse_variance = torch.as_tensor(
@@ -2161,14 +3450,19 @@ class MultiObsSampler():
             # backward kernel. `composed` is the clamped score, so the local
             # kick inherits the bound the shared coordinates already carry.
             cross_factor, global_scores = pending_cross_correction
-            if cross_factor.shape[0] == 1:
-                cross_factor = cross_factor.expand(n, -1, -1)
             global_delta = (
                 composed.to(torch.float64).expand(n, -1, -1) - global_scores
             )
-            local_delta = torch.einsum(
-                "nlg,nsg->nsl", cross_factor, global_delta
-            )
+            if cross_factor.dim() == 4:
+                local_delta = torch.einsum(
+                    "nslg,nsg->nsl", cross_factor, global_delta
+                )
+            else:
+                if cross_factor.shape[0] == 1:
+                    cross_factor = cross_factor.expand(n, -1, -1)
+                local_delta = torch.einsum(
+                    "nlg,nsg->nsl", cross_factor, global_delta
+                )
             scores[:, :, self.local_latent_indices] = (
                 scores[:, :, self.local_latent_indices]
                 + local_delta.to(scores.dtype)

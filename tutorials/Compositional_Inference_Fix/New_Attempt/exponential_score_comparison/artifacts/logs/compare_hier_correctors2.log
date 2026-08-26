@@ -1,0 +1,28 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h16d2_n200000/Model_checkpoint.pt
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== DPM2 + gauss_hierarchical (2 correctors) ===
+[gauss_hierarchical_correctors2] sampled in 45.4s, 412 network calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.26969224623931315,
+  "shared_mean_error_sigma": 0.2689711403131772,
+  "shared_width_ratio": 1.0101541922178339,
+  "local_w1_over_sigma": 0.07897639183038534,
+  "local_draw_mean_error_sigma": 0.07318715543530249,
+  "marginal_score_rel_rmse": 0.49966551867773656,
+  "global_map": 1.4165950793291389,
+  "global_map_error_sigma": 0.20256700120964583,
+  "global_map_error_from_truth_sigma": 0.9571539872514598,
+  "local_map_error_vs_posterior_mean_sigma": 0.5048628530110086,
+  "local_map_error_vs_conditional_mode_sigma": 0.5170382384722285,
+  "sample_seconds": 45.425299040041864,
+  "ascent_seconds": 1.4681879072450101,
+  "sampler_network_calls": 412,
+  "score_rel_rmse_mean": NaN,
+  "method": "gauss_hierarchical_correctors2"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_gauss_hierarchical_correctors2.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods.csv

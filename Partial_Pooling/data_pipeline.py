@@ -43,7 +43,13 @@ def _sde_split(config, split, size, subjects):
 def _slice(value, start, stop):
     if isinstance(value, dict):
         return {key: _slice(item, start, stop) for key, item in value.items()}
-    return value[start:stop]
+    # ``clone`` is required, not cosmetic: ``torch.save`` serializes a view's
+    # entire underlying storage, so writing slices directly makes every shard
+    # as large as the whole split and the split's disk cost quadratic in
+    # ``train_size`` (100,000 samples -> 49 shards of 78 MB = 2.1 GB;
+    # 400,000 samples would need ~61 GB). Detaching each slice into its own
+    # contiguous storage keeps a shard at its own size.
+    return value[start:stop].clone()
 
 
 def _write_shards(directory, split, payload, config, force):

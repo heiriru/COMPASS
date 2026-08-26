@@ -1,0 +1,27 @@
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+
+=== Langevin + F-NPSE (exact row score) ===
+[langevin_fnpe_analytic] sampled in 206.8s, 1000 score calls
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.1757588658876583,
+  "shared_mean_error_sigma": 0.11840684021509543,
+  "shared_width_ratio": 1.2093273434708876,
+  "local_w1_over_sigma": 0.042025538948511645,
+  "local_draw_mean_error_sigma": 0.03040958359514786,
+  "marginal_score_rel_rmse": 0.34684719754042015,
+  "global_map": 1.4222862334097999,
+  "global_map_error_sigma": 0.1587786793786497,
+  "global_map_error_from_truth_sigma": 0.9133656654204637,
+  "local_map_error_vs_posterior_mean_sigma": 0.04764297834947298,
+  "local_map_error_vs_conditional_mode_sigma": 1.7475630883074772e-07,
+  "sample_seconds": 206.83744554314762,
+  "ascent_seconds": 0.6109458478167653,
+  "sampler_network_calls": 1000,
+  "score_rel_rmse_mean": NaN,
+  "method": "langevin_fnpe_analytic"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/01_langevin_fnpe_analytic.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/methods_analytic.csv

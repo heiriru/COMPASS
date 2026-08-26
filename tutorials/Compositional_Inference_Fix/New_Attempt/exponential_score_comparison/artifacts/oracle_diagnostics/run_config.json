@@ -1,0 +1,62 @@
+{
+  "config": "h16d2",
+  "train_samples": 200000,
+  "seed": 0,
+  "device": "cuda",
+  "output": "artifacts/oracle_diagnostics",
+  "eps": 0.001,
+  "eps_values": [
+    0.001,
+    0.0003,
+    0.0001
+  ],
+  "lambdas": [
+    0.05,
+    0.1,
+    0.2,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "dpm_steps": [
+    50,
+    100,
+    200,
+    400
+  ],
+  "mcmc_steps": [
+    5,
+    10,
+    20,
+    40
+  ],
+  "terminal_steps": [
+    0,
+    10,
+    50
+  ],
+  "oracle_steps": 100,
+  "oracle_samples": 96,
+  "oracle_langevin_steps": 3,
+  "analytic_steps": 50,
+  "analytic_samples": 64,
+  "analytic_langevin_steps": 3,
+  "score_states": 48,
+  "trajectory_samples": 384,
+  "trajectory_levels": 8,
+  "visited_score_states": 48,
+  "curl_states": 12,
+  "exact_curl_states": 8,
+  "convergence_samples": 256,
+  "terminal_samples": 128,
+  "marginal_samples": 5000,
+  "reference_samples": 1500,
+  "quadrature_points": 1001,
+  "run_analytic_sampling": false,
+  "skip_oracle": true,
+  "skip_trajectories": true,
+  "skip_convergence": false,
+  "skip_curl": true,
+  "quick": false,
+  "replot": false
+}

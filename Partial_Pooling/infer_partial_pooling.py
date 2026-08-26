@@ -18,6 +18,8 @@ DEFAULT_MAP_TIMESTEPS = 20
 DEFAULT_MAP_ITERATIONS = 3
 DEFAULT_MAP_LOGPROB_TIMESTEPS = 20
 MAP_SETTINGS_VERSION = 5
+MAP_ESTIMATORS = ("method_default", "kde_global_then_local_ascent")
+DEFAULT_MAP_ESTIMATOR = "method_default"
 MAP_RETRY_SIGMA_START = 0.1
 MAP_RETRY_TIMESTEPS = 10
 MAP_COHERENCE_QUANTILE = 0.95
@@ -36,6 +38,7 @@ INFERENCE_METHODS = (
     "dpm2_gaussian", "dpm2_full_gaussian",
     "dpm2_gauss_global_local", "dpm2_gauss_global_local_moment",
     "dpm2_gauss_hierarchical",
+    "dpm2_gauss_jacobian_newton",
     "langevin_fnpse",
 )
 
@@ -84,6 +87,18 @@ def inference_plan(name):
             "order": 2,
             "label": "DPM-Solver-2 + hierarchical Gaussian (GAUSS)",
         }
+    if name == "dpm2_gauss_jacobian_newton":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "gauss_jacobian",
+            "order": 2,
+            "map_method": "newton",
+            "label": (
+                "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) "
+                "+ arrow-Newton MAP"
+            ),
+        }
     if name == "langevin_fnpse":
         return {
             "name": name,
@@ -125,7 +140,7 @@ def parser():
         )
     )
     result.add_argument(
-        "--preset", choices=("smoke", "full", "large"), default="full",
+        "--preset", choices=("smoke", "full", "large", "compact", "small"), default="full",
     )
     result.add_argument("--sde-type", choices=("vesde", "vpsde"), default="vesde")
     result.add_argument("--beta-min", type=float, default=0.1)
@@ -195,6 +210,17 @@ def parser():
     result.add_argument(
         "--langevin-snr", type=float, default=0.1,
         help="Langevin signal-to-noise ratio for the F-NPSE reference.",
+    )
+    result.add_argument(
+        "--map-estimator", choices=MAP_ESTIMATORS,
+        default=DEFAULT_MAP_ESTIMATOR,
+        help=(
+            "method_default: each method's own mode finder (compositional "
+            "hierarchical score ascent, or the global KDE mode for F-NPSE). "
+            "kde_global_then_local_ascent: fix the globals at their posterior "
+            "KDE mode, then refine only the locals by conditioned score "
+            "ascent, identically for every method."
+        ),
     )
     result.add_argument("--map-starts", type=int, default=DEFAULT_MAP_STARTS)
     result.add_argument("--map-timesteps", type=int, default=DEFAULT_MAP_TIMESTEPS)
@@ -321,6 +347,11 @@ def inference_signature(config_signature, args, plan):
             else None
         ),
     }
+    if args.map_estimator != DEFAULT_MAP_ESTIMATOR:
+        # Inserted only when a non-default estimator is selected, so that every
+        # signature published before this option existed still hashes to the
+        # same value and its completed artifacts stay reusable.
+        payload["map_estimator"] = args.map_estimator
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(encoded.encode()).hexdigest()[:16]
 
@@ -507,6 +538,24 @@ def _map_settings(args):
     plan = inference_plan(args.inference_method)
     from Partial_Pooling.schema import LOCAL_NAMES
 
+    if args.map_estimator == "kde_global_then_local_ascent":
+        # Deliberately method-independent apart from the draws it consumes:
+        # no composition, no correction, no candidate log-probability ranking.
+        return {
+            "version": MAP_SETTINGS_VERSION,
+            "map_estimator": args.map_estimator,
+            "estimator": "kde_global_then_local_score_ascent",
+            "coherence_limit": _prior_coherence_limit(
+                args.subjects, len(LOCAL_NAMES),
+            ),
+            "global_stage": "standardized_gaussian_kde_mode_of_draws",
+            "local_stage": "conditioned_annealed_tweedie_score_ascent",
+            "timesteps": int(args.map_timesteps),
+            "iterations_per_level": int(args.map_iterations),
+            "sampling_correction": plan["correction"],
+            "optimizer_correction": None,
+            "map_method": "tweedie",
+        }
     return {
         "version": MAP_SETTINGS_VERSION,
         "coherence_limit": _prior_coherence_limit(
@@ -519,20 +568,21 @@ def _map_settings(args):
         "sampling_correction": plan["correction"],
         "optimizer_correction": (
             plan["correction"]
-            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
+            if plan["correction"] != "fnpe" else None
         ),
+        "map_method": plan.get("map_method", "tweedie"),
         "estimator": (
             "validated_hierarchical_score_map"
-            if plan["correction"] in GAUSSIAN_CORRECTIONS
+            if plan["correction"] != "fnpe"
             else "posterior_global_kde_mode"
         ),
         "retry_sigma_start": (
             MAP_RETRY_SIGMA_START
-            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
+            if plan["correction"] != "fnpe" else None
         ),
         "retry_timesteps": (
             min(MAP_RETRY_TIMESTEPS, int(args.map_timesteps))
-            if plan["correction"] in GAUSSIAN_CORRECTIONS else None
+            if plan["correction"] != "fnpe" else None
         ),
     }
 
@@ -683,6 +733,125 @@ def _fnpse_kde_map(posterior, args, torch):
     }
 
 
+def _kde_global_then_local_ascent_map(
+    model, observations, posterior, normalizers, args, config, device, torch,
+):
+    """Fix the globals at their posterior KDE mode, then ascend the locals.
+
+    A two-stage estimator that is identical for every inference method, so a
+    comparison isolates the posterior sampler rather than the mode finder:
+
+    1. The seven shared coordinates are set to the joint KDE mode of the global
+       posterior draws, exactly as ``_fnpse_kde_map`` already selects F-NPSE's
+       global mode (standardized 7-dimensional Gaussian KDE, evaluated at the
+       draws, arg-max retained).
+    2. Those globals are then *conditioned* -- moved from the latent block into
+       the condition mask -- and only the three local coordinates per subject
+       are refined by annealed Tweedie score ascent.
+
+    Stage 2 needs no score composition and therefore no correction argument at
+    all. Once the shared coordinates are fixed, the subjects are conditionally
+    independent: subject r's locals are the mode of p(l_r | x_r, globals), a
+    single-observation problem that the network scores directly. That is what
+    makes this estimator applicable to F-NPSE, whose bridging scores do not
+    define a compositional MAP objective and which
+    ``MultiObsSampler.map_estimate`` rejects outright.
+
+    The hierarchical ascent path cannot express this: it requires every
+    hierarchy coordinate to be latent, so conditioning the globals is only
+    possible through the per-row ``PFODE.map_estimate``. One consequence is
+    recorded rather than hidden -- the per-row ascent applies no local prior
+    clamp, so this function reports prior-box violations in its diagnostics
+    instead of bounding the denoised prediction the way
+    ``hierarchical_map_estimate`` does.
+    """
+    from Partial_Pooling.schema import GLOBAL_INDICES
+
+    started = time.perf_counter()
+    global_count = len(GLOBAL_INDICES)
+    global_draws = posterior["globals"].float()
+    local_draws = posterior["locals"].float()
+    subjects = int(observations.shape[0])
+    theta_normalizer = normalizers["theta"]
+    normalized_observations = normalizers["observations"].transform(observations)
+
+    # Stage 1: joint KDE mode of the global draws.
+    density = _global_kde_state(global_draws, torch)
+    selected = int(torch.argmax(density["scores"]))
+    globals_hat = global_draws[selected]
+
+    # Stage 2: condition the globals, ascend the locals per subject.
+    local_init = local_draws.median(dim=0).values
+    raw_theta = torch.cat((
+        globals_hat.unsqueeze(0).expand(subjects, -1), local_init,
+    ), dim=1)
+    latent_width = int(raw_theta.shape[1])
+    normalized_theta = theta_normalizer.transform(raw_theta)
+    rows = torch.cat((normalized_theta, normalized_observations), dim=1)
+    condition_mask = torch.cat((
+        torch.ones(global_count),
+        torch.zeros(latent_width - global_count),
+        torch.ones(normalized_observations.shape[-1]),
+    ))
+
+    # Anneal from the posterior spread of the local draws, in the normalized
+    # coordinates the ascent actually moves in.
+    normalized_draws = theta_normalizer.transform(torch.cat((
+        global_draws[:, None, :].expand(-1, subjects, -1),
+        local_draws,
+    ), dim=2).reshape(-1, latent_width)).reshape(-1, subjects, latent_width)
+    sigma_start = float(
+        normalized_draws[:, :, global_count:]
+        .std(dim=0, unbiased=False).max().clamp_min(1e-3)
+    )
+
+    print(
+        f"  KDE global mode (draw {selected}) fixed; ascending "
+        f"{latent_width - global_count} local coordinates for {subjects} "
+        f"subjects ({args.map_timesteps} levels, sigma_start={sigma_start:.3g})",
+        flush=True,
+    )
+    refined = model.map_estimate(
+        data=rows, condition_mask=condition_mask, init=rows,
+        sigma_start=sigma_start, timesteps=args.map_timesteps,
+        iterations_per_level=args.map_iterations, device=device,
+    )
+    raw_map = theta_normalizer.inverse(refined[:, :latent_width].cpu())
+
+    # The globals were conditioned, so they must come back bit-for-bit.
+    clamp_error = float((raw_map[:, :global_count] - globals_hat).abs().max())
+    if clamp_error > 1e-3:
+        raise RuntimeError(
+            "Conditioned globals drifted during local ascent "
+            f"(error {clamp_error:.3e})."
+        )
+    if not bool(torch.isfinite(raw_map).all()):
+        raise RuntimeError("Local score ascent produced non-finite estimates.")
+
+    validation = _hierarchy_validation_state(posterior, density, torch)
+    diagnostics = _joint_candidate_diagnostics(
+        torch.cat((
+            globals_hat.unsqueeze(0).expand(subjects, -1),
+            raw_map[:, global_count:],
+        ), dim=1),
+        density, validation, torch,
+    )
+    return {
+        "globals": globals_hat,
+        "locals": raw_map[:, global_count:],
+        "selected_candidate": selected,
+        "candidate_scores": density["scores"],
+        "settings": _map_settings(args),
+        "runtime_seconds": time.perf_counter() - started,
+        "shared_synchronization_max_abs": 0.0,
+        "estimator": "kde_global_then_local_score_ascent",
+        "selection_phase": "kde_global_mode_then_local_ascent",
+        "global_clamp_max_abs": clamp_error,
+        "local_ascent_sigma_start": sigma_start,
+        "validation": diagnostics,
+    }
+
+
 def _joint_map_dataset(
     model, observations, posterior, normalizers, args, config, device, torch,
 ):
@@ -691,6 +860,11 @@ def _joint_map_dataset(
     from Partial_Pooling.schema import GLOBAL_INDICES
 
     plan = inference_plan(args.inference_method)
+    if args.map_estimator == "kde_global_then_local_ascent":
+        return _kde_global_then_local_ascent_map(
+            model, observations, posterior, normalizers, args, config,
+            device, torch,
+        )
     if plan["correction"] == "fnpe":
         return _fnpse_kde_map(posterior, args, torch)
 
@@ -707,8 +881,12 @@ def _joint_map_dataset(
         )
         if plan.get("moment_projection", False):
             gaussian_state["posterior_mean"] = posterior.get("posterior_mean")
-    if not gaussian_state or any(
-        value is None for value in gaussian_state.values()
+    # "gauss_jacobian" is pilot-free by construction (its covariance comes from
+    # the network's own Jacobian at each step, not a saved pilot estimate), so
+    # it never populates -- and must never require -- gaussian_state.
+    if plan["correction"] != "gauss_jacobian" and (
+        not gaussian_state
+        or any(value is None for value in gaussian_state.values())
     ):
         raise RuntimeError(
             "Gaussian MAP requires the matching estimate saved during "
@@ -760,21 +938,42 @@ def _joint_map_dataset(
 
     def refine_candidate(start, sigma_start, timesteps, label):
         try:
-            refined = model.hierarchical_map_estimate(
-                data=start,
-                condition_mask=condition_mask,
-                init=start,
-                hierarchy=hierarchy,
-                prior=prior,
-                local_prior=local_prior,
-                correction=plan["correction"],
-                **gaussian_state,
-                sigma_start=sigma_start,
-                timesteps=timesteps,
-                iterations_per_level=args.map_iterations,
-                max_iterations_per_level=args.map_iterations,
-                device=device,
-            )
+            if plan.get("map_method") == "newton":
+                # Pilot-free arrow-Newton ascent: curvature="jacobian" builds
+                # H_j = -grad(s_j) by forward-mode AD directly from the
+                # network, matching correction="gauss_jacobian"'s own
+                # pilot-free covariance -- both come from the same Jacobian,
+                # so this needs no gaussian_state at all (see
+                # MultiObsSampler.newton_map_estimate's docstring).
+                refined = model.multi_obs_sampler.newton_map_estimate(
+                    data=start,
+                    condition_mask=condition_mask,
+                    init=start,
+                    hierarchy=hierarchy,
+                    prior=prior,
+                    local_prior=local_prior,
+                    correction=plan["correction"],
+                    curvature="jacobian",
+                    sigma_start=sigma_start,
+                    timesteps=timesteps,
+                    device=device,
+                )
+            else:
+                refined = model.hierarchical_map_estimate(
+                    data=start,
+                    condition_mask=condition_mask,
+                    init=start,
+                    hierarchy=hierarchy,
+                    prior=prior,
+                    local_prior=local_prior,
+                    correction=plan["correction"],
+                    **gaussian_state,
+                    sigma_start=sigma_start,
+                    timesteps=timesteps,
+                    iterations_per_level=args.map_iterations,
+                    max_iterations_per_level=args.map_iterations,
+                    device=device,
+                )
         except RuntimeError as error:
             if not _is_numerical_map_failure(error):
                 raise

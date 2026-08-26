@@ -1,0 +1,89 @@
+{
+  "combined_figures": [
+    "error_distributions.png",
+    "error_vs_observations.png",
+    "global_forest.png"
+  ],
+  "method_specific_figures": {
+    "dpm2_gauss_hierarchical": [
+      "global_parity_dpm2_gauss_hierarchical.png",
+      "local_parity_dpm2_gauss_hierarchical.png",
+      "global_residuals_dpm2_gauss_hierarchical.png",
+      "local_residuals_dpm2_gauss_hierarchical.png",
+      "global_forest_dpm2_gauss_hierarchical.png",
+      "local_shrinkage_dpm2_gauss_hierarchical.png",
+      "error_distributions_dpm2_gauss_hierarchical.png"
+    ],
+    "dpm2_gauss_hierarchical_churn2": [
+      "global_parity_dpm2_gauss_hierarchical_churn2.png",
+      "local_parity_dpm2_gauss_hierarchical_churn2.png",
+      "global_residuals_dpm2_gauss_hierarchical_churn2.png",
+      "local_residuals_dpm2_gauss_hierarchical_churn2.png",
+      "global_forest_dpm2_gauss_hierarchical_churn2.png",
+      "local_shrinkage_dpm2_gauss_hierarchical_churn2.png",
+      "error_distributions_dpm2_gauss_hierarchical_churn2.png"
+    ],
+    "dpm2_gauss_jacobian_newton": [
+      "global_parity_dpm2_gauss_jacobian_newton.png",
+      "local_parity_dpm2_gauss_jacobian_newton.png",
+      "global_residuals_dpm2_gauss_jacobian_newton.png",
+      "local_residuals_dpm2_gauss_jacobian_newton.png",
+      "global_forest_dpm2_gauss_jacobian_newton.png",
+      "local_shrinkage_dpm2_gauss_jacobian_newton.png",
+      "error_distributions_dpm2_gauss_jacobian_newton.png"
+    ],
+    "langevin_fnpse": [
+      "global_parity_langevin_fnpse.png",
+      "local_parity_langevin_fnpse.png",
+      "global_residuals_langevin_fnpse.png",
+      "local_residuals_langevin_fnpse.png",
+      "global_forest_langevin_fnpse.png",
+      "local_shrinkage_langevin_fnpse.png",
+      "error_distributions_langevin_fnpse.png"
+    ]
+  },
+  "output_signature": "6dc80a088b683d32",
+  "preset": "small",
+  "runs": [
+    {
+      "completed_datasets": 5,
+      "label": "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + Newton MAP",
+      "method": "dpm2_gauss_jacobian_newton",
+      "observation_counts": [
+        20
+      ],
+      "point_estimator": "kde_global_then_local_score_ascent",
+      "signature": "6dc80a088b683d32"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "Dpm2 Gauss Hierarchical Churn2",
+      "method": "dpm2_gauss_hierarchical_churn2",
+      "observation_counts": [
+        20
+      ],
+      "point_estimator": "kde_global_then_local_score_ascent",
+      "signature": "churn2a1a823fc7f09e730"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "DPM-Solver-2 + hierarchical Gaussian (GAUSS) + Tweedie MAP",
+      "method": "dpm2_gauss_hierarchical",
+      "observation_counts": [
+        20
+      ],
+      "point_estimator": "kde_global_then_local_score_ascent",
+      "signature": "a1a823fc7f09e730"
+    },
+    {
+      "completed_datasets": 5,
+      "label": "Langevin + F-NPSE",
+      "method": "langevin_fnpse",
+      "observation_counts": [
+        20
+      ],
+      "point_estimator": "kde_global_then_local_score_ascent",
+      "signature": "ab32e8737eb0ed51"
+    }
+  ]
+}

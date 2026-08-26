@@ -1,0 +1,134 @@
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/models/h128d6_n200000/Model_checkpoint.pt
+true g = 1.54100   exact posterior: mean 1.38648, sd 0.12997, mode 1.44292, wall at 1.63255
+network floor: single-observation score error
+  lam=0.05  relative score RMSE 0.1023
+  lam=0.1   relative score RMSE 0.0514
+  lam=0.2   relative score RMSE 0.0274
+  lam=0.5   relative score RMSE 0.0198
+  lam=1     relative score RMSE 0.0127
+  lam=2     relative score RMSE 0.0086
+
+=== DPM2 + gauss_hierarchical ===
+[gauss_hierarchical] sampled in 948.0s, 1268 network calls
+[gauss_hierarchical] probing the composed score against exact quadrature
+[gauss_hierarchical]   lam=0.05  shared 1.0039  local 0.2693
+[gauss_hierarchical]   lam=0.1   shared 1.4002  local 0.2985
+[gauss_hierarchical]   lam=0.2   shared 1.3888  local 0.2890
+[gauss_hierarchical]   lam=0.5   shared 0.7143  local 0.2567
+[gauss_hierarchical]   lam=1     shared 0.3979  local 0.2127
+[gauss_hierarchical]   lam=2     shared 0.2503  local 0.1420
+{
+  "observations": 30,
+  "num_samples": 3000,
+  "excluded_draws": 0,
+  "shared_w1_over_sigma": 0.49909656013324577,
+  "shared_mean_error_sigma": 0.4988189049272206,
+  "shared_width_ratio": 1.0499684153583924,
+  "local_w1_over_sigma": 0.04609135944439281,
+  "local_draw_mean_error_sigma": 0.03618073071032283,
+  "marginal_score_rel_rmse": 0.6646442840859375,
+  "global_map": 1.3780557691981692,
+  "global_map_error_sigma": 0.4990923968045344,
+  "global_map_error_from_truth_sigma": 1.2536793828463484,
+  "local_map_error_vs_posterior_mean_sigma": 0.23657815764806794,
+  "local_map_error_vs_conditional_mode_sigma": 0.23822406731391696,
+  "sample_seconds": 948.0373693769798,
+  "ascent_seconds": 7.685729502234608,
+  "sampler_network_calls": 1274,
+  "score_rel_rmse_lam0.05": 1.0038930524215912,
+  "local_score_rel_rmse_lam0.05": 0.2692973780122249,
+  "score_rel_rmse_lam0.1": 1.4002044515352199,
+  "local_score_rel_rmse_lam0.1": 0.2984701532111133,
+  "score_rel_rmse_lam0.2": 1.3888207702861137,
+  "local_score_rel_rmse_lam0.2": 0.2890425299693632,
+  "score_rel_rmse_lam0.5": 0.7143017421237201,
+  "local_score_rel_rmse_lam0.5": 0.256746712122013,
+  "score_rel_rmse_lam1": 0.39789971866315094,
+  "local_score_rel_rmse_lam1": 0.21271057489099313,
+  "score_rel_rmse_lam2": 0.2502896437240914,
+  "local_score_rel_rmse_lam2": 0.14196335405939914,
+  "score_rel_rmse_mean": 0.8592348964589812,
+  "method": "gauss_hierarchical"
+}
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/control_h128d6/01_gauss_hierarchical.png
+
+=== DPM2 + gauss_jacobian (Newton MAP) ===
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/compare.py", line 956, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/compare.py", line 890, in main
+    samples, sampler, runtime = draw(
+                                ^^^^^
+  File "/export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/compare.py", line 262, in draw
+    samples = sampler.sample(
+              ^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 712, in sample
+    samples = self._sample_loop(rank, data, condition_mask, num_samples)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1714, in _sample_loop
+    samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3916, in _dpm_sampler
+    data = self._dpm_solver_2_step(data, t_now, t_next, condition_mask, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3846, in _dpm_solver_2_step
+    score_half = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3156, in _get_score
+    score = self._compositional_score(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3321, in _compositional_score
+    effective_precision, cross_factor = self._effective_global_factors(
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2202, in _effective_global_factors
+    joint_precision_t = self._jacobian_joint_precision(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2108, in _jacobian_joint_precision
+    jacobian = self._row_score_jacobian(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1473, in _row_score_jacobian
+    _, column = jvp(raw_scores, (z,), (tangent,))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/_functorch/eager_transforms.py", line 1149, in jvp
+    return _jvp_with_argnums(
+           ^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/_functorch/eager_transforms.py", line 1208, in _jvp_with_argnums
+    result_duals = func(*duals)
+                   ^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1461, in raw_scores
+    return self._raw_row_scores(state, t, condition_mask)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1430, in _raw_row_scores
+    scores = self.SBIm.model(
+             ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ConditionTransformer.py", line 295, in forward
+    x = block(x, c, t, return_attn_weights)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ConditionTransformer.py", line 177, in forward
+    attn_output = self.attn(
+                  ^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 1494, in forward
+    attn_output, attn_output_weights = F.multi_head_attention_forward(
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/functional.py", line 6718, in multi_head_attention_forward
+    attn_output = scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 34.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 25.88 MiB is free. Including non-PyTorch memory, this process has 10.54 GiB memory in use. Of the allocated memory 10.28 GiB is allocated by PyTorch, and 65.77 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

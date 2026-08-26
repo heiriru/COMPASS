@@ -1,0 +1,27 @@
+true g = 1.54100   exact posterior mean 1.38648, sd 0.12997, wall 1.63255
+
+=== Production start (unmodified) ===
+  196.3s  594 calls  W1 2.5982  width 1.535
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_baseline_production_start/01_baseline_production_start.png
+
+=== A0: exact diffused start ===
+  193.5s  594 calls  W1 0.3868  width 0.806
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_A0_exact_start/01_A0_exact_start.png
+
+=== A1: locals at x_j - 1/rate ===
+  193.4s  594 calls  W1 0.2744  width 0.786
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_A1_observation_start/01_A1_observation_start.png
+
+=== A1b: single-observation posterior means ===
+  193.6s  594 calls  W1 0.0937  width 0.896
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_A1b_single_observation_start/01_A1b_single_observation_start.png
+
+=== A2: composed-field Tweedie warm start ===
+  194.5s  597 calls  W1 0.5676  width 0.749
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_A2_composed_warm_start/01_A2_composed_warm_start.png
+
+=== A3: lambda_max 3.89 -> 9.85 (sigma 25) ===
+  194.2s  594 calls  W1 0.3301  width 1.033
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_A3_wide_schedule/01_A3_wide_schedule.png
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/initialization_experiments.csv
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/05_initialization_experiments.png
