@@ -7,6 +7,8 @@ import torch.multiprocessing as mp
 
 import schedulefree
 
+from .schema import ConditionalMenu, GroupedBernoulli
+
 import tqdm
 import datetime
 import time
@@ -22,7 +24,11 @@ class TensorTupleDataset(Dataset):
     def __getitem__(self, idx):
         data = self.tensor1[idx]
 
-        if isinstance(self.tensor2, torch.distributions.Distribution):
+        # Either a per-example mask tensor, or anything that can draw one:
+        # a torch Distribution, or the schema-aware GroupedBernoulli.
+        if isinstance(self.tensor2, torch.distributions.Distribution) or hasattr(
+            self.tensor2, "sample"
+        ):
             cond_mask = self.tensor2.sample(data.shape)
         else:
             cond_mask = self.tensor2[idx]
@@ -44,7 +50,9 @@ class Trainer():
     #############################################
     def train(self, world_size, train_data, val_data=None,
               max_epochs=500, early_stopping_patience=20, batch_size=128, lr=1e-3,
-              path=None, name="Model", device="cpu", verbose=True, time_sampling="mixture"):
+              path=None, name="Model", device="cpu", verbose=True,
+              time_sampling="mixture", mask_loss_weights=None,
+              mask_sampler=None, validation_mask_seed=20250718):
 
         """
         Training function for the score prediction task
@@ -91,6 +99,22 @@ class Trainer():
         self.verbose = verbose
         self.eps = 1e-3 # Epsilon for numerical stability and endpoint in diffusion process
         self.time_sampling = time_sampling
+        # Condition-mask sampler. None keeps the historical Bernoulli(0.33)
+        # draw; a ConditionalMenu concentrates the draws on the conditionals the
+        # samplers actually evaluate.
+        self.mask_sampler = mask_sampler
+        self.validation_mask_seed = validation_mask_seed
+        self.mask_loss_weights = []
+        for mask, weight in (mask_loss_weights or []):
+            mask = torch.as_tensor(mask, dtype=torch.float32)
+            if mask.shape != (self.SBIm.nodes_size,):
+                raise ValueError(
+                    "Each mask_loss_weights mask must have shape "
+                    f"({self.SBIm.nodes_size},); got {tuple(mask.shape)}."
+                )
+            if float(weight) <= 0.0:
+                raise ValueError("Mask loss weights must be positive.")
+            self.mask_loss_weights.append((mask, float(weight)))
 
         if self.world_size > 1:
             mp.spawn(self._train_loop, args=(train_data, val_data), nprocs=self.world_size)
@@ -117,8 +141,15 @@ class Trainer():
         # Check data structure
         data_loader = self._prepare_data(train_data, batch_size=self.batch_size, rank=rank)
         if val_data is not None:
+            # Validation draws its masks once, from a dedicated seed, so every
+            # epoch scores the model on the *same* task. Redrawing them each
+            # epoch turns validation into a moving target: for a ConditionalMenu
+            # the six conditionals differ ~50x in magnitude, so the epoch-to-
+            # epoch swing swamps real progress and both early stopping and
+            # best-checkpoint selection end up firing on a lucky draw.
             val_loader = self._prepare_data(
-                val_data, batch_size=self.batch_size, rank=rank
+                val_data, batch_size=self.batch_size, rank=rank,
+                fixed_masks=self._fixed_validation_masks(val_data),
             )
 
         # Init tracking variables
@@ -255,6 +286,24 @@ class Trainer():
 
         return loss
 
+    def _fixed_validation_masks(self, val_data):
+        """One mask per validation row, drawn once from a dedicated seed.
+
+        The global RNG state is saved and restored, so adding this does not
+        shift any other random draw in training.
+        """
+        sampler = getattr(self, "mask_sampler", None)
+        if sampler is None:
+            sampler = GroupedBernoulli(self.SBIm.schema, 0.33)
+        state = torch.random.get_rng_state()
+        try:
+            torch.manual_seed(getattr(self, "validation_mask_seed", 20250718))
+            return sampler.sample(
+                (val_data.shape[0], self.SBIm.nodes_size)
+            ).to(val_data.dtype)
+        finally:
+            torch.random.set_rng_state(state)
+
     def _sample_timesteps(self, batch_size):
         """Draw diffusion times according to the configured time_sampling scheme."""
         t_uniform = torch.rand(batch_size, 1, device=self.device) * (1. - self.eps) + self.eps
@@ -287,14 +336,41 @@ class Trainer():
         The target is the noise added to the data at a specific timestep 
         Meaning the prediction is the approximation of the noise added to the data
         '''
+        raw_condition_mask = condition_mask.to(score.device)
         sigma_t = self.sde.marginal_prob_std(timestep).unsqueeze(1).to(score.device)
         x_1 = x_1.unsqueeze(2).to(score.device)
         condition_mask = condition_mask.unsqueeze(2).to(score.device)
         score = score.unsqueeze(2)
 
-        loss = torch.mean(sigma_t**2 * torch.sum((1-condition_mask)*(x_1+sigma_t*score)**2))
+        # Per-example residual sum, shape (batch,).
+        per_example = torch.sum(
+            (1-condition_mask) * (x_1 + sigma_t*score)**2, dim=(1, 2),
+        )
 
-        return loss
+        # Optional per-mask reweighting, normalized to mean 1 so that all-ones
+        # weights reproduce the unweighted loss exactly.
+        weights = torch.ones_like(per_example)
+        for mask, weight in getattr(self, "mask_loss_weights", []):
+            match = torch.all(
+                raw_condition_mask == mask.to(raw_condition_mask.device),
+                dim=1,
+            )
+            weights = torch.where(match, weight, weights)
+        weights = weights / weights.mean()
+
+        # The sigma^2 factor is applied as the batch mean, not per example. That
+        # is the form every existing checkpoint was trained under, so it is kept
+        # deliberately rather than "corrected" to sum_j sigma_j^2 S_j: changing
+        # it would silently redefine the objective and make new arms
+        # incomparable with the frozen baselines.
+        #
+        # The result is a *sum* over the batch, which is what makes it
+        # batch-size invariant after Trainer._run_epoch divides by the batch
+        # size. Returning a batch mean here instead gives the final short batch
+        # of an epoch (8 rows of a 5,000-row validation split) sixteen times the
+        # weight of a full one, which makes the reported validation loss swing
+        # by tens of percent and drives early stopping off a handful of rows.
+        return torch.mean(sigma_t**2) * torch.sum(weights * per_example)
     
     #############################################
     # ----- Multi-GPU setup -----
@@ -337,8 +413,19 @@ class Trainer():
 
         return data, condition_mask, idx
 
-    def _prepare_data(self, data, batch_size, rank):
-        condition_mask = torch.distributions.bernoulli.Bernoulli(0.33)
+    def _prepare_data(self, data, batch_size, rank, fixed_masks=None):
+        # Grouped by the model's node schema: an IID item is observed or latent
+        # as a whole, so a trial's features never split across the conditioning
+        # boundary. The marginal rate of observed *scalars* stays 0.33, which is
+        # what keeps a grouped model comparable with the legacy one; for an
+        # all-atomic schema this is the same Bernoulli(0.33) draw as before.
+        # A tensor of masks makes the conditioning a fixed property of each row;
+        # a sampler redraws it every time the row is visited.
+        condition_mask = fixed_masks
+        if condition_mask is None:
+            condition_mask = getattr(self, "mask_sampler", None)
+        if condition_mask is None:
+            condition_mask = GroupedBernoulli(self.SBIm.schema, 0.33)
 
         dataset = TensorTupleDataset(data, condition_mask)
 
@@ -370,7 +457,8 @@ class Trainer():
                 'hidden_size': self.SBIm.hidden_size,
                 'depth': self.SBIm.depth,
                 'num_heads': self.SBIm.num_heads,
-                'mlp_ratio': self.SBIm.mlp_ratio
+                'mlp_ratio': self.SBIm.mlp_ratio,
+                **self.SBIm.architecture_payload(),
             }
             torch.save(state_dict, f"{self.path}/{name}.pt")
         else:

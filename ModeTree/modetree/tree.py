@@ -229,6 +229,12 @@ class ModeTree:
         self.counters["newton_iterations"] += result.iterations
         return result
 
+    @staticmethod
+    def _is_mode(precision):
+        return precision is not None and bool(
+            (torch.linalg.eigvalsh(0.5 * (precision + precision.mT)) > 0).all()
+        )
+
     def _dedupe(self, branches, composer):
         kept = []
         for branch in branches:
@@ -236,6 +242,14 @@ class ModeTree:
             for other in kept:
                 P = other.global_precision
                 if P is None:
+                    continue
+                # Never merge into a saddle.  A saddle has no basin, so
+                # "duplicate of the saddle" is not a meaningful statement, and
+                # with a generous Mahalanobis tolerance it swallows the very
+                # branches the saddle just spawned: at n = 1 the two modes sit
+                # only 1.8 local standard deviations from the origin, so the
+                # discovery returned zero branches.
+                if not self._is_mode(P):
                     continue
                 if mahalanobis(branch.global_state, other.global_state, P) \
                         < self.config.merge_tolerance:
@@ -554,6 +568,8 @@ class ModeTree:
             duplicate = False
             for other in kept:
                 other_theta, other_P, _ = other[0]
+                if not (self._is_mode(P) and self._is_mode(other_P)):
+                    continue
                 if min(mahalanobis(theta[: self.d_g], other_theta[: self.d_g], P),
                        mahalanobis(theta[: self.d_g], other_theta[: self.d_g],
                                    other_P)) < self.config.merge_tolerance:

@@ -8,6 +8,11 @@ import tqdm
 import datetime
 import os
 
+from .churn import (
+    DEFAULT_ETA as DEFAULT_CHURN_ETA, GAMMA_CAP as DEFAULT_CHURN_GAMMA_CAP,
+    apply_churn, resolve_corrector_steps, schedule_ceiling,
+)
+
 class TensorTupleDataset(Dataset):
     def __init__(self, tensor1, tensor2, err=None):
 
@@ -42,9 +47,12 @@ class Sampler():
     
     def sample(self, world_size, data, err=None, condition_mask=None, 
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None,
-               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3,
+               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=None, final_corrector_steps=3,
+               churn_eta=DEFAULT_CHURN_ETA, churn_s_noise=1.0,
+               churn_gamma_cap=DEFAULT_CHURN_GAMMA_CAP,
                device="cpu", verbose=True, method="dpm", save_trajectory=False,
-               result_dict=None, capture_attention=True):
+               result_dict=None, capture_attention=True,
+               terminal_denoise=False):
         """
         Sample from the model using the specified method
 
@@ -75,6 +83,10 @@ class Sampler():
             save_trajectory: Whether to save the intermediate denoising trajectory
             capture_attention: Whether to retain midpoint attention weights for
                     interpretability. Defaults to True for compatibility.
+            terminal_denoise: Apply one deterministic probability-flow step
+                    from ``eps`` to zero noise. This removes the residual
+                    diffusion noise left by stopping at ``eps`` while keeping
+                    the historical behavior as the default.
         """
 
         # Set parameters
@@ -87,13 +99,29 @@ class Sampler():
         self.method = method
         self.save_trajectory = save_trajectory
         self.capture_attention = bool(capture_attention)
+        self.terminal_denoise = bool(terminal_denoise)
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
         self.solver_stats = None
 
+        # Churn is the default stochastic predictor here too. Until now it lived
+        # only in benchmark-local copies patched over MultiObsSampler, so the
+        # single-observation route could not be churned at all -- and
+        # predictor-only sampling without churn returns approximately the prior
+        # (the known initialisation failure churn exists to fix).
+        self.churn_eta = float(churn_eta)
+        self.churn_s_noise = float(churn_s_noise)
+        self.churn_gamma_cap = float(churn_gamma_cap)
+        if self.churn_eta < 0.0:
+            raise ValueError("churn_eta must be nonnegative.")
+        if self.churn_gamma_cap <= 0.0:
+            raise ValueError("churn_gamma_cap must be positive.")
+
         if method == "dpm":
             self.corrector_steps_interval = corrector_steps_interval
-            self.corrector_steps = corrector_steps
+            self.corrector_steps = resolve_corrector_steps(
+                corrector_steps, method, self.churn_eta,
+            )
             self.final_corrector_steps = final_corrector_steps
             self.snr = snr
             self.order = order
@@ -163,9 +191,18 @@ class Sampler():
             else:
                 raise ValueError(f"Sampling method {self.method} not recognized.")
 
+            if self.terminal_denoise:
+                samples = self._terminal_denoise(
+                    samples, condition_mask_batch
+                )
+
             # Solvers run in the rescaled y-space; convert back to x = alpha * y
             # on the latent dims (alpha = 1 for VESDE).
-            alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(samples.device)
+            terminal_time = (
+                torch.zeros_like(self.timesteps_list[-1])
+                if self.terminal_denoise else self.timesteps_list[-1]
+            )
+            alpha_end = self.sde.alpha_t(terminal_time).to(samples.device)
             samples = samples * (alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
 
             # Store samples
@@ -394,6 +431,20 @@ class Sampler():
 
         data += random_noise_samples
         return data
+
+    def _terminal_denoise(self, data, condition_mask):
+        """First-order probability-flow update from ``eps`` to clean data.
+
+        In rescaled VE coordinates the PF-ODE increment from noise scale
+        ``lambda_eps`` to zero is ``lambda_eps**2 * score``. Evaluating the
+        score at the last supported time is also Tweedie's posterior-mean
+        denoiser. The error vanishes with ``eps`` and observed coordinates stay
+        fixed.
+        """
+        t_eps = self.timesteps_list[-1].reshape(-1, 1)
+        lam_eps = self.sde.lambda_t(t_eps)
+        score = self._get_score(data, t_eps, condition_mask, self.cfg_alpha)
+        return data + lam_eps.square() * score * (1 - condition_mask)
   
     #############################################
     # ----- Basic Sampling -----
@@ -540,7 +591,7 @@ class Sampler():
 
     def _dpm_sampler(self, data, condition_mask, 
                      order=2, 
-                     snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3):
+                     snr=0.1, corrector_steps_interval=5, corrector_steps=0, final_corrector_steps=3):
         """
         Hybrid sampling approach combining DPM-Solver with Predictor-Corrector refinement.
 
@@ -559,20 +610,30 @@ class Sampler():
             self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
             self.data_t[:,0,:,:] = data
 
+        # Observed coordinates are conditioning data: churn must not perturb them.
+        latent = 1 - condition_mask
+        ceiling = schedule_ceiling(self.sde, data.device)
+
         # Main sampling loop
 
         for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose):
             
-            # ------- PREDICTOR: DPM-Solver -------
+            # ------- PREDICTOR: churn up, then DPM-Solver down -------
             t_now = self.timesteps_list[i].reshape(-1, 1)
             t_next = self.timesteps_list[i+1].reshape(-1, 1)
 
+            data, t_start = apply_churn(
+                data, latent, self.sde, t_now, t_next, self.churn_eta,
+                gamma_cap=self.churn_gamma_cap, ceiling=ceiling,
+                s_noise=self.churn_s_noise,
+            )
+
             if order == 1:
-                data = self._dpm_solver_1_step(data, t_now, t_next, condition_mask)
+                data = self._dpm_solver_1_step(data, t_start, t_next, condition_mask)
             elif order == 2:
-                data = self._dpm_solver_2_step(data, t_now, t_next, condition_mask)
+                data = self._dpm_solver_2_step(data, t_start, t_next, condition_mask)
             elif order == 3:
-                data = self._dpm_solver_3_step(data, t_now, t_next, condition_mask)
+                data = self._dpm_solver_3_step(data, t_start, t_next, condition_mask)
             else:
                 raise ValueError(f"Only orders 1, 2 or 3 are supported in the DPM-Solver.")
             

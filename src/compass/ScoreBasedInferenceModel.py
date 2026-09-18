@@ -2,7 +2,16 @@ import torch
 import torch.nn as nn
 
 from .ConditionTransformer import ConditionTransformer
+from .GroupedTransformer import GroupedTransformer
+from .TokenizedTransformer import TokenizedTransformer
+from .schema import (
+    Atomic, IID, NodeSchema, ConditionalMenu, SIX_CONDITIONALS,
+    hierarchical_roles, nested_hierarchical_roles,
+)
 from .SDE import VESDE, VPSDE
+from .churn import (
+    DEFAULT_ETA as DEFAULT_CHURN_ETA, GAMMA_CAP as DEFAULT_CHURN_GAMMA_CAP,
+)
 from .Sampler import Sampler
 from .Trainer import Trainer
 from .MultiObsSampler import MultiObsSampler
@@ -12,10 +21,82 @@ from .PFODE import PFODE
 # ///////////////////////////////////// Diffusion Model /////////////////////////////////////////
 #################################################################################################
 
+# Bumped whenever a checkpoint's architecture payload changes shape. Legacy
+# checkpoints predate the field entirely and are recognised by its absence.
+ARCH_VERSION = 1
+ARCHITECTURES = ("legacy", "tokenized", "grouped")
+
+
+def _resolve_architecture(nodes_size, theta_size, x_spec, arch, schema):
+    """Decide the architecture and node schema from the constructor signature.
+
+    ``nodes_size=`` alone keeps meaning the legacy per-node network, exactly as
+    before. ``theta_size=`` / ``x_spec=`` select the schema-driven network. A
+    legacy model must never enter the new implementation by accident, so the
+    combinations are checked rather than coerced.
+    """
+    if schema is not None:
+        if not isinstance(schema, NodeSchema):
+            schema = NodeSchema.from_dict(schema)
+        arch = arch or ("grouped" if schema.has_group else "tokenized")
+    elif theta_size is not None or x_spec is not None:
+        if theta_size is None or x_spec is None:
+            raise ValueError(
+                "The schema signature needs both theta_size= and x_spec=; got "
+                f"theta_size={theta_size!r}, x_spec={x_spec!r}."
+            )
+        if nodes_size is not None:
+            raise ValueError(
+                "Pass either nodes_size= (legacy) or theta_size=/x_spec= "
+                "(schema), not both."
+            )
+        if arch == "legacy":
+            raise ValueError(
+                "arch='legacy' is not available for the schema signature; the "
+                "legacy network is built from nodes_size= alone."
+            )
+        schema = NodeSchema.from_spec(theta_size, x_spec)
+        arch = arch or ("grouped" if schema.has_group else "tokenized")
+    elif nodes_size is not None:
+        schema = NodeSchema.legacy(nodes_size)
+        arch = arch or "legacy"
+    else:
+        raise ValueError(
+            "ScoreBasedInferenceModel needs either nodes_size= or "
+            "theta_size=/x_spec=."
+        )
+    if arch not in ARCHITECTURES:
+        raise ValueError(
+            f"Unknown arch {arch!r}; choose one of {', '.join(ARCHITECTURES)}."
+        )
+    if arch == "legacy" and not schema.is_atomic:
+        raise ValueError(
+            "arch='legacy' is one token per scalar; this schema groups "
+            f"{schema.nodes_size} nodes into {schema.token_count} tokens."
+        )
+    # A nested schema selects the two-level trunk, and nothing else may. The
+    # rule runs both ways on purpose: a Group schema in the flat trunk would
+    # flatten every repeat into one context, silently discarding the nesting the
+    # block exists to express, and a flat schema in the grouped trunk has no
+    # repeats to iterate. Neither fails loudly on its own, so both are refused
+    # here rather than discovered in a training curve.
+    if schema.has_group and arch != "grouped":
+        raise ValueError(
+            f"A schema with a Group block is arch='grouped', not {arch!r}. "
+            "Drop the explicit arch= and it is selected automatically."
+        )
+    if arch == "grouped" and not schema.has_group:
+        raise ValueError(
+            "arch='grouped' is the two-level trunk and needs a Group block; "
+            f"this schema has none ({[b.kind for b in schema.blocks]})."
+        )
+    return arch, schema
+
+
 class ScoreBasedInferenceModel(nn.Module):
     def __init__(
             self,
-            nodes_size,         # Number of features in joint (theta, x)
+            nodes_size=None,    # Number of features in joint (theta, x) -- legacy signature
             sde_type="vesde",   # Type of Stochastic Differential Equation (SDE)
             sigma=25.0,         # Variance for VESDE
             beta_min=0.1,       # Minimum beta for VPSDE
@@ -24,12 +105,50 @@ class ScoreBasedInferenceModel(nn.Module):
             depth=6,            # Number of transformer blocks
             num_heads=16,       # Number of attention heads
             mlp_ratio=4,        # Ratio of MLP hidden size to embedding size
-            device="cpu"        # Device to initialize the model on
+            device="cpu",       # Device to initialize the model on
+            theta_size=None,    # Schema signature: number of parameter dimensions
+            x_spec=None,        # Schema signature: observation blocks (Atomic / IID / Group)
+            arch=None,          # "legacy", "tokenized" or "grouped"; per signature
+            trunk="shared",     # Tokenized trunk: "shared" or "position"
+            token_offset=False, # Tokenized ablation: per-token modulation offset
+            time_embedding_size=256,  # Width of the diffusion-time embedding
+            per_position_head=False,  # Per-scalar readout for atomic blocks
+            schema=None,        # Prebuilt NodeSchema (used by load)
+            depth_within=None,  # Grouped trunk: blocks inside one repeat
+            depth_across=None,  # Grouped trunk: blocks over globals + repeats
+            depth_readout=None, # Grouped trunk: blocks after the broadcast back
             ):
 
         super(ScoreBasedInferenceModel, self).__init__()
 
-        self.nodes_size = nodes_size
+        arch, schema = _resolve_architecture(
+            nodes_size, theta_size, x_spec, arch, schema,
+        )
+        self.arch = arch
+        self.schema = schema
+        self.trunk = trunk if arch == "tokenized" else None
+        self.token_offset = bool(token_offset) if arch == "tokenized" else False
+        # The diffusion-time embedding is a function of t alone, but it sets the
+        # input width of every adaLN modulation, so at small hidden_size it is
+        # the single largest block in the budget (131,584 of 463,364 parameters
+        # for the trial-h64/d2 arm). Both schema trunks expose it; only the
+        # legacy network is pinned at 256, so its checkpoints stay loadable.
+        self.time_embedding_size = (
+            256 if arch == "legacy" else int(time_embedding_size)
+        )
+        self.per_position_head = (
+            False if arch == "legacy" else bool(per_position_head)
+        )
+        # The two-level trunk has three depths where the flat one has a single
+        # ``depth``. Both level depths fall back to ``depth`` so a config that
+        # already says depth=2 gets the recommended 2+2+0 without needing a new
+        # field, and the readout stack defaults to empty because its blocks are
+        # extra capacity rather than part of the routing.
+        self.depth_within = depth if depth_within is None else int(depth_within)
+        self.depth_across = depth if depth_across is None else int(depth_across)
+        self.depth_readout = 0 if depth_readout is None else int(depth_readout)
+        self.nodes_size = schema.nodes_size
+        self.token_count = schema.token_count
         self.sde_type = sde_type
         self.sigma = sigma
         self.beta_min = beta_min
@@ -49,8 +168,27 @@ class ScoreBasedInferenceModel(nn.Module):
             raise ValueError("Invalid SDE type")
         
         # Init Model
-        self.model = ConditionTransformer(nodes_size=self.nodes_size, hidden_size=hidden_size, 
-                                       depth=depth, num_heads=num_heads, mlp_ratio=mlp_ratio)
+        if self.arch == "legacy":
+            self.model = ConditionTransformer(
+                nodes_size=self.nodes_size, hidden_size=hidden_size,
+                depth=depth, num_heads=num_heads, mlp_ratio=mlp_ratio,
+            )
+        elif self.arch == "grouped":
+            self.model = GroupedTransformer(
+                schema=self.schema, hidden_size=hidden_size,
+                time_embedding_size=self.time_embedding_size,
+                depth_within=self.depth_within, depth_across=self.depth_across,
+                depth_readout=self.depth_readout, num_heads=num_heads,
+                mlp_ratio=mlp_ratio, per_position_head=self.per_position_head,
+            )
+        else:
+            self.model = TokenizedTransformer(
+                schema=self.schema, hidden_size=hidden_size, depth=depth,
+                num_heads=num_heads, mlp_ratio=mlp_ratio, trunk=self.trunk,
+                token_offset=self.token_offset,
+                time_embedding_size=self.time_embedding_size,
+                per_position_head=self.per_position_head,
+            )
         self.model.to(device)
         
         # Init Trainer
@@ -98,7 +236,10 @@ class ScoreBasedInferenceModel(nn.Module):
     def train(self, theta, x, theta_val=None, x_val=None,
                 batch_size=128, max_epochs=500, lr=1e-3, device="cpu",
                 verbose=True, path=None, name="Model", early_stopping_patience=20,
-                time_sampling="mixture"):
+                time_sampling="mixture", mask_loss_weights=None,
+                mask_sampler=None, mask_menu="bernoulli",
+                mask_roles=None, mask_weights=None,
+                mask_bernoulli_fraction=0.0, mask_bernoulli_probability=0.33):
         """
         Train the model on the provided data
 
@@ -117,7 +258,49 @@ class ScoreBasedInferenceModel(nn.Module):
             early_stopping_patience: Number of epochs to wait before early stopping
             time_sampling: Diffusion-time sampling scheme during training
                     ("mixture" (default), "uniform" or "log_sigma"); see Trainer.train
+            mask_loss_weights: Optional list of (mask, weight) loss-balancing
+                    pairs. Masks are still sampled by the ordinary Bernoulli
+                    sampler; this only reweights examples after drawing them.
+            mask_sampler: Optional object with ``sample(shape)`` returning a
+                    condition mask, replacing the default Bernoulli(0.33) draw.
+                    ``compass.ConditionalMenu`` restricts training to a named
+                    menu of conditionals (see ``compass.SIX_CONDITIONALS``).
+                    Supplying this overrides ``mask_menu``.
+            mask_menu: Which condition-mask distribution to train under.
+
+                    ``"bernoulli"`` (default) draws every node's conditioning
+                    flag independently at ``mask_bernoulli_probability``, which
+                    spreads the signal over all ``2**tokens`` conditionals.
+
+                    ``"six"`` trains on the six non-degenerate conditionals over
+                    a (global, local, observation) partition -- ``p(g,l|x)``,
+                    ``p(g|l,x)``, ``p(l|g,x)``, ``p(x|g,l)``, ``p(x,l|g)``,
+                    ``p(x,g|l)`` -- **drawn uniformly**, so each is seen 1/6 =
+                    16.7% of the time and the deployed posterior ``p(g,l|x)``
+                    goes from never-drawn to one draw in six. Requires
+                    ``mask_roles``.
+
+                    Caveat, measured rather than assumed: under a uniform menu
+                    the three conditionals with the observations *latent* carry
+                    5-7x the loss of the three with them observed, so roughly
+                    four fifths of the gradient goes to generating ``x``. If the
+                    posterior conditionals are what matter, pass ``mask_weights``
+                    to upweight them, or mix a Bernoulli fraction back in.
+            mask_roles: ``(global_size, local_size)`` for the ``"six"`` menu, i.e.
+                    the node vector is ``[g (global_size), l (local_size), x]``.
+                    A ``dict`` of explicit ``{role: node indices}`` is also
+                    accepted for layouts that are not in that order.
+            mask_weights: Optional relative probabilities of the six patterns.
+                    ``None`` (the default) is the uniform draw described above.
+            mask_bernoulli_fraction: Probability that a ``"six"`` draw falls back
+                    to the Bernoulli sampler, so the general conditional
+                    capability is not lost. ``0.0`` (default) is menu-only.
+            mask_bernoulli_probability: Rate for the Bernoulli draws.
         """
+        mask_sampler = self._resolve_mask_sampler(
+            mask_sampler, mask_menu, mask_roles, mask_weights,
+            mask_bernoulli_fraction, mask_bernoulli_probability,
+        )
 
         # Combine theta and x into a single tensor
         # train_data: (num_samples, node_size)
@@ -133,7 +316,51 @@ class ScoreBasedInferenceModel(nn.Module):
 
         self.trainer.train(world_size=world_size, train_data=train_data, val_data=val_data,
                             max_epochs=max_epochs, early_stopping_patience=early_stopping_patience, batch_size=batch_size, lr=lr,
-                            path=path, name=name, device=device, verbose=verbose, time_sampling=time_sampling)
+                            path=path, name=name, device=device, verbose=verbose,
+                            time_sampling=time_sampling,
+                            mask_loss_weights=mask_loss_weights,
+                            mask_sampler=mask_sampler)
+
+
+    def _resolve_mask_sampler(self, mask_sampler, mask_menu, mask_roles,
+                              mask_weights, bernoulli_fraction,
+                              bernoulli_probability):
+        """Turn the ``mask_menu`` API call into a concrete mask sampler."""
+        if mask_sampler is not None:
+            if mask_menu not in (None, "bernoulli"):
+                raise ValueError(
+                    "Pass either mask_sampler or mask_menu, not both; got "
+                    f"mask_menu={mask_menu!r} alongside an explicit sampler."
+                )
+            return mask_sampler
+        if mask_menu in (None, "bernoulli"):
+            # None means "the Trainer's own default", which is the Bernoulli draw.
+            return None
+        if mask_menu != "six":
+            raise ValueError(
+                f"Unknown mask_menu {mask_menu!r}; choose 'bernoulli' or 'six', "
+                "or pass an explicit mask_sampler."
+            )
+        if mask_roles is None:
+            raise ValueError(
+                "mask_menu='six' needs mask_roles=(global_size, local_size) to "
+                "say which nodes are group-level, subject-level and observed. "
+                "The six conditionals are defined over that partition."
+            )
+        if isinstance(mask_roles, dict):
+            roles = mask_roles
+        else:
+            global_size, local_size = mask_roles
+            roles = (
+                nested_hierarchical_roles(self.schema, global_size, local_size)
+                if self.schema.has_group
+                else hierarchical_roles(self.schema, global_size, local_size)
+            )
+        return ConditionalMenu(
+            self.schema, roles, SIX_CONDITIONALS, weights=mask_weights,
+            bernoulli_fraction=bernoulli_fraction,
+            bernoulli_probability=bernoulli_probability,
+        )
 
     #############################################
     # ----- Sample -----
@@ -146,13 +373,17 @@ class ScoreBasedInferenceModel(nn.Module):
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                damping_at_data=1.0, damping_at_noise=None,
+               composition_temperature=1.0,
                composition_batch_size=None,
-               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3, terminal_corrector_steps=0,
+               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=None, final_corrector_steps=3, terminal_corrector_steps=0,
+               churn_eta=DEFAULT_CHURN_ETA, churn_s_noise=1.0,
+               churn_gamma_cap=DEFAULT_CHURN_GAMMA_CAP,
                adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
                adaptive_safety=0.9, adaptive_exponent=0.9,
                adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False,
-               capture_attention=True, precision_est_batch_size=128,
+               capture_attention=True, terminal_denoise=False,
+               precision_est_batch_size=128,
                covariance_shrinkage=0.01, covariance_nugget=1e-6,
                pd_epsilon=1e-8, pd_floor=1e-3,
                jacobian_refresh=1, jacobian_curvature_floor=1e-3):
@@ -207,6 +438,8 @@ class ScoreBasedInferenceModel(nn.Module):
             damping_at_data: Damping endpoint d(0) at the data end
             damping_at_noise: Damping endpoint d(1) at the noise end; defaults
                     to 1/sqrt(number of observations)
+            composition_temperature: Likelihood-ratio temperature for the
+                    shared compositional score; 1.0 preserves the original.
             composition_batch_size: Optional observation mini-batch size for
                     the unbiased "damping" or "minibatch_damped" estimator.
                     True mini-batching is restricted to all-global latent models.
@@ -215,8 +448,21 @@ class ScoreBasedInferenceModel(nn.Module):
             order: Order of DPM-Solver (1, 2 or 3)
             snr: Signal-to-noise ratio for Langevin steps
             corrector_steps_interval: Interval for applying corrector steps
-            corrector_steps: Number of Langevin MCMC steps per iteration
+            corrector_steps: Number of Langevin MCMC steps per iteration. ``None``
+                    (the default) means the method's own default: 0 under
+                    "dpm", where the churned predictor replaces them, and 5
+                    under "langevin", which is corrector-only by definition.
+                    Asking for both churn and correctors is an error.
             final_corrector_steps: Extra correction steps at the end
+            churn_eta: Karras churn strength for the DPM predictor (default
+                    2.0). Each level steps up in noise and then takes the
+                    deterministic step down, at no extra score evaluations.
+                    0.0 recovers the stock probability-flow predictor.
+                    See ``compass.churn`` for the measurements behind the default.
+            churn_s_noise: Scale on the injected churn noise (Karras S_noise).
+            churn_gamma_cap: Per-step noise-up cap; the schedule is geometric,
+                    so this clamp is what makes churn_eta saturate above
+                    ~gamma_cap/(1-r). Raise it to sweep past that.
 
             - Adaptive reverse-SDE parameters -
             adaptive_abs_tol: Absolute local-error tolerance
@@ -233,11 +479,28 @@ class ScoreBasedInferenceModel(nn.Module):
             save_trajectory: Whether to save the intermediate denoising trajectory
             capture_attention: Retain midpoint attention weights during standard
                     single-observation sampling. Defaults to True for compatibility.
+            terminal_denoise: For standard single-observation sampling, apply
+                    one deterministic probability-flow step from ``eps`` to
+                    zero noise. Defaults to False for backward compatibility.
         """
 
         # Combine data and create condition mask
         # 0 for latent values, 1 for observed values
         data = None
+        # The convenience masks below assume the node vector splits contiguously
+        # into [theta, x]. A nested schema does not: each repeat carries its own
+        # latent locals *inside* the observed block, so
+        # [zeros(nodes - width), ones(width)] would condition the wrong nodes.
+        # Refuse rather than build a plausible-looking wrong mask.
+        if self.schema.has_group and condition_mask is None and (
+                theta is not None or x is not None):
+            raise ValueError(
+                "A grouped schema interleaves latent per-repeat parameters with "
+                "the observations, so there is no contiguous [theta, x] split to "
+                "infer a condition_mask from. Pass the full "
+                f"{self.nodes_size}-wide node vector as x= together with an "
+                "explicit condition_mask=."
+            )
         if theta is None and x is not None:
             # If only x is provided, use it as the data
             data = x
@@ -268,8 +531,10 @@ class ScoreBasedInferenceModel(nn.Module):
         if multi_obs_inference == False:
             samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
+                                    churn_eta=churn_eta, churn_s_noise=churn_s_noise, churn_gamma_cap=churn_gamma_cap,
                                     verbose=verbose, method=method, save_trajectory=save_trajectory,
-                                    capture_attention=capture_attention)
+                                    capture_attention=capture_attention,
+                                    terminal_denoise=terminal_denoise)
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
@@ -286,8 +551,10 @@ class ScoreBasedInferenceModel(nn.Module):
                                       denoise_clamp=denoise_clamp,
                                       damping_at_data=damping_at_data,
                                       damping_at_noise=damping_at_noise,
+                                      composition_temperature=composition_temperature,
                                       composition_batch_size=composition_batch_size,
                                       order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
+                                      churn_eta=churn_eta, churn_s_noise=churn_s_noise, churn_gamma_cap=churn_gamma_cap,
                                       terminal_corrector_steps=terminal_corrector_steps,
                                       covariance_shrinkage=covariance_shrinkage,
                                       covariance_nugget=covariance_nugget,
@@ -438,6 +705,38 @@ class ScoreBasedInferenceModel(nn.Module):
     # ----- Save & Load -----
     #############################################
 
+    def architecture_payload(self):
+        """The fields a checkpoint needs to rebuild this network exactly.
+
+        Legacy checkpoints carry no ``arch_version``; writing one for a legacy
+        model would make old and new checkpoints indistinguishable by absence,
+        so the legacy payload is left byte-identical to what it always was.
+        """
+        if self.arch == "legacy":
+            return {}
+        payload = {
+            "arch_version": ARCH_VERSION,
+            "arch": self.arch,
+            "schema": self.schema.to_dict(),
+            "trunk": self.trunk,
+            "token_offset": self.token_offset,
+        }
+        # Written only when they differ from the historical defaults, so every
+        # checkpoint trained before these options existed still round-trips
+        # byte-for-byte and keeps arch_version 1.
+        if self.time_embedding_size != 256:
+            payload["time_embedding_size"] = self.time_embedding_size
+        if self.per_position_head:
+            payload["per_position_head"] = True
+        if self.arch == "grouped":
+            # Always written for a grouped model: unlike the options above there
+            # is no historical default to fall back on, and a wrong depth would
+            # load silently into a differently shaped state dict.
+            payload["depth_within"] = self.depth_within
+            payload["depth_across"] = self.depth_across
+            payload["depth_readout"] = self.depth_readout
+        return payload
+
     def save(self, path, name="Model"):
         state_dict = {
                 'model_state_dict' : self.model.state_dict(),
@@ -449,13 +748,23 @@ class ScoreBasedInferenceModel(nn.Module):
                 'hidden_size': self.hidden_size,
                 'depth': self.depth,
                 'num_heads': self.num_heads,
-                'mlp_ratio': self.mlp_ratio
+                'mlp_ratio': self.mlp_ratio,
+                **self.architecture_payload(),
             }
 
         torch.save(state_dict, f"{path}/{name}.pt")
 
     @staticmethod
-    def load(path, device=None):
+    def load(path, device=None, arch=None):
+        """Rebuild a saved model, dispatching on the checkpoint's architecture.
+
+        A checkpoint written before schemas existed carries no ``arch_version``
+        and is loaded as ``arch="legacy"``. Asking for a different architecture
+        than the checkpoint records is an error, never a conversion: the
+        parameter shapes of the two trunks are incompatible by construction, and
+        silently reinterpreting one as the other is the failure mode this
+        dispatch exists to prevent.
+        """
 
         if device is None:
             # Automatically detect device
@@ -463,8 +772,42 @@ class ScoreBasedInferenceModel(nn.Module):
 
         checkpoint = torch.load(path, map_location=device)
 
+        stored_arch = (
+            checkpoint.get('arch', 'tokenized')
+            if 'arch_version' in checkpoint else 'legacy'
+        )
+        if arch is not None and arch != stored_arch:
+            raise RuntimeError(
+                f"{path} is an arch={stored_arch!r} checkpoint"
+                + (" (it predates arch_version)" if stored_arch == 'legacy' else "")
+                + f"; arch={arch!r} was requested. Architectures are not "
+                "convertible -- retrain instead."
+            )
+        version = checkpoint.get('arch_version')
+        if version is not None and version > ARCH_VERSION:
+            raise RuntimeError(
+                f"{path} was written with arch_version {version}; this COMPASS "
+                f"supports up to {ARCH_VERSION}."
+            )
+
         model = ScoreBasedInferenceModel(
-            nodes_size=checkpoint['nodes_size'],
+            nodes_size=checkpoint['nodes_size'] if stored_arch == 'legacy' else None,
+            schema=(
+                NodeSchema.from_dict(checkpoint['schema'])
+                if stored_arch != 'legacy' else None
+            ),
+            arch=stored_arch,
+            trunk=checkpoint.get('trunk', 'shared'),
+            token_offset=checkpoint.get('token_offset', False),
+            time_embedding_size=checkpoint.get('time_embedding_size', 256),
+            per_position_head=checkpoint.get('per_position_head', False),
+            # None for every non-grouped checkpoint, which puts the constructor
+            # back on its own fallbacks; a grouped checkpoint always carries all
+            # three, so a shape mismatch is impossible rather than merely
+            # unlikely.
+            depth_within=checkpoint.get('depth_within'),
+            depth_across=checkpoint.get('depth_across'),
+            depth_readout=checkpoint.get('depth_readout'),
             sde_type=checkpoint['sde_type'],
             sigma=checkpoint['sigma'],
             beta_min=checkpoint.get('beta_min', 0.1),
@@ -472,7 +815,7 @@ class ScoreBasedInferenceModel(nn.Module):
             hidden_size=checkpoint['hidden_size'],
             depth=checkpoint['depth'],
             num_heads=checkpoint['num_heads'],
-            mlp_ratio=checkpoint['mlp_ratio']
+            mlp_ratio=checkpoint['mlp_ratio'],
         )
 
         incompatible = model.model.load_state_dict(

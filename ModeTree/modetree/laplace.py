@@ -228,6 +228,32 @@ class MultimodalPosterior:
     def map_global(self):
         return self.branches[self.map_index].global_state
 
+    # --- the section-6 result interface -------------------------------------
+    @property
+    def mode_locations(self):
+        return torch.stack([b.global_state for b in self.branches])
+
+    @property
+    def mode_weights(self):
+        return (self.weights_plus if self.weights_plus is not None
+                else self.weights)
+
+    @property
+    def mode_log_heights(self):
+        """``E_b``: the reconstructed log density *at* each mode, gauge-fixed to
+        ``E_0 = 0``.  Deliberately distinct from :attr:`mode_weights`, which is
+        the integrated mass -- the two rank branches differently whenever a
+        narrow peak competes with a broad one."""
+        return torch.tensor([b.energy for b in self.branches], dtype=torch.float64)
+
+    @property
+    def mode_covariances(self):
+        return torch.stack([b.global_covariance for b in self.branches])
+
+    @property
+    def mass_global(self):
+        return self.branches[self.mass_index].global_state
+
     def sample(self, count, generator=None, use_plus=True):
         """Draw from ``sum_b w_b N(g_b, P_b^-1)``."""
         w = self.weights_plus if (use_plus and self.weights_plus is not None) else self.weights
@@ -245,7 +271,7 @@ class MultimodalPosterior:
 
 
 def assemble(composer, mode_results, multiple_paths=True, laplace_plus_samples=0,
-             seed=0, tol=1e-10, laplace_plus_kwargs=None):
+             seed=0, tol=1e-10, laplace_plus_kwargs=None, min_mode_weight=0.0):
     """Milestones D-G end to end for a set of already-refined modes."""
     # Energies are reconstructed on the *full* state for a hierarchical model:
     # the path integral is over (g, l_1..l_n), which is what makes E_b the joint
@@ -278,6 +304,28 @@ def assemble(composer, mode_results, multiple_paths=True, laplace_plus_samples=0
         weights_plus = softmax_weights(
             torch.tensor([b.log_evidence_plus for b in branches], dtype=torch.float64)
         )
+    # Milestone K pruning, defaulted off.  A branch is dropped only on final
+    # evidence, never on an intermediate noisy-time weight, and the dropped set
+    # is reported rather than silently discarded.
+    pruned = []
+    if min_mode_weight > 0.0 and len(branches) > 1:
+        final = weights_plus if weights_plus is not None else weights
+        keep = [b for b, w in enumerate(final) if float(w) >= min_mode_weight]
+        if keep and len(keep) < len(branches):
+            pruned = [
+                {"position": branches[b].global_state.tolist(),
+                 "weight": float(final[b])}
+                for b in range(len(branches)) if b not in keep
+            ]
+            branches = [branches[b] for b in keep]
+            log_z = torch.tensor([b.log_evidence for b in branches],
+                                 dtype=torch.float64)
+            weights = softmax_weights(log_z)
+            if weights_plus is not None:
+                weights_plus = softmax_weights(torch.tensor(
+                    [b.log_evidence_plus for b in branches], dtype=torch.float64
+                ))
+
     energies = torch.tensor([b.energy for b in branches], dtype=torch.float64)
     return MultimodalPosterior(
         branches=branches, weights=weights, weights_plus=weights_plus,
@@ -289,5 +337,15 @@ def assemble(composer, mode_results, multiple_paths=True, laplace_plus_samples=0
         diagnostics={
             "score_evaluations": graph.evaluations,
             "n_branches": len(branches),
+            "pruned_branches": pruned,
+            "max_path_disagreement": (max(graph.path_disagreement.values())
+                                      if graph.path_disagreement else 0.0),
+            "max_cycle_residual": (max(abs(v) for v in graph.cycle_residuals.values())
+                                   if graph.cycle_residuals else None),
+            "max_reverse_residual": (max(graph.reverse_residual.values())
+                                     if graph.reverse_residual else 0.0),
+            "energy_fit_residual": graph.residual,
+            "laplace_plus_ess": [b.ess for b in branches],
+            "log_determinants": [b.log_det_H for b in branches],
         },
     )

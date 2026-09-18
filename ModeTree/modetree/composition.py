@@ -445,6 +445,21 @@ class BatchedCleanComposer(CleanComposer):
         )
         return torch.cat([global_part, locals_], dim=-1)
 
+    def global_curvature(self, states):
+        """Batched global Hessian block ``A`` for all-global states.
+
+        ``states`` is ``(..., d_g)``; returns ``(..., d_g, d_g)``.  Used by
+        :func:`modetree.refine.refine_batch` so a whole probe set is refined in
+        one pass.
+        """
+        assert not self.d_l
+        states = torch.as_tensor(states, dtype=torch.float64)
+        H_prior = self.source.prior_hessian(states)
+        H = self.source.hessians_all(_rows_state(self, states))
+        self.hessian_evaluations += self.n
+        A = H_prior + (H - H_prior.unsqueeze(-3)).sum(-3)
+        return 0.5 * (A + A.mT)
+
     def blocks(self, state):
         state = torch.as_tensor(state, dtype=torch.float64).reshape(-1)
         g = state[: self.d_g]

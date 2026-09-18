@@ -221,3 +221,31 @@ def test_gaussian_prior_object_matches_the_tuple_formula():
     lam = 0.8
     expected = -(y - 0.5) / (2.0 + lam ** 2)
     assert float((prior.score(y, 0.0, lam) - expected).abs().max()) < 1e-12
+
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_discovery_at_small_n_does_not_merge_into_the_saddle(n):
+    """Regression: at n = 1 the two modes sit ~1.8 local standard deviations
+    from the origin, so a generous Mahalanobis merge tolerance swallowed the
+    branches the saddle had just spawned and discovery returned *nothing*."""
+    model = B.bimodal_1d(n, "symmetric")
+    ref = B.reference_1d(model)
+    tree = ModeTree(
+        ComposedField(DiffusedOracle(model), "gauss_jacobian"),
+        make_composer(model), ModeTreeConfig(),
+        prior_std=model.prior_cov.diagonal().sqrt(),
+    )
+    branches = tree.run()
+    found = sorted(float(b.global_state) for b in branches)
+    truth = sorted(float(m) for m in ref.modes.reshape(-1))
+    assert len(found) == 2
+    assert max(abs(a - b) for a, b in zip(found, truth)) < 1e-3
+
+
+def test_saddles_are_never_merge_targets():
+    """A saddle has no basin, so nothing may be called a duplicate of it."""
+    indefinite = torch.tensor([[-2.0]], dtype=torch.float64)
+    definite = torch.tensor([[2.0]], dtype=torch.float64)
+    assert not ModeTree._is_mode(indefinite)
+    assert ModeTree._is_mode(definite)
+    assert not ModeTree._is_mode(None)

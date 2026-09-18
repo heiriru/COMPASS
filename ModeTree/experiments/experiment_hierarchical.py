@@ -71,12 +71,16 @@ def run(d_g, d_l, n, generator):
     rows = []
     reference = reference_1d_global(model) if d_g == 1 else None
 
-    # the true global modes: from the grid in 1-D, from a dense multi-start
-    # refinement of the exact marginal composer otherwise
+    # The true global modes come from refining the *exact* locals-marginalised
+    # composer, seeded at the row factors' own component centres.  A blind
+    # multi-start sweep is not viable at d_g = 7: a line through one coordinate
+    # misses every mode and a grid is exponential.  The component centres are a
+    # property of the benchmark construction, not of the method under test, so
+    # using them here costs no validity -- the *method* still has to find its
+    # modes without them.
     marginal = make_composer(model, marginal=True)
-    seeds = torch.linspace(-4, 4, 17, dtype=torch.float64)
-    starts = torch.zeros(seeds.numel(), d_g, dtype=torch.float64)
-    starts[:, 0] = seeds
+    centres = torch.stack([f.means[:, :d_g] for f in model.factors]).mean(0)
+    starts = torch.cat([centres, torch.zeros(1, d_g, dtype=torch.float64)])
     truth = []
     for start in starts:
         result = refine_mode(marginal, start, tol=1e-11, max_iter=200)
