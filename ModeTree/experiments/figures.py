@@ -275,11 +275,15 @@ def figure_6_calibration(case="map_vs_mass", n=16, repeats=200):
     factors centred on it, and ranks the truth inside the returned posterior.
     """
     torch.manual_seed(0)
-    tau = 4.0
+    tau = 2.0
     ranks, coverage = [], {q: 0 for q in (0.5, 0.8, 0.9, 0.95)}
     draws = 200
     for repeat in range(repeats):
-        truth = float(torch.randn(1, dtype=torch.float64) * 1.0)
+        # SBC is only valid when the truth is drawn from the *same* prior the
+        # inference uses.  Drawing it from a narrower distribution than the
+        # model's N(0, tau^2) makes the ranks non-uniform for a reason that has
+        # nothing to do with the method.
+        truth = float(torch.randn(1, dtype=torch.float64) * tau)
         factors = []
         for _ in range(n):
             centre = truth + float(torch.randn(1, dtype=torch.float64)) * 0.5

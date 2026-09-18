@@ -55,6 +55,27 @@ def reference_1d_global(model, lo=-12.0, hi=12.0, points=100_001):
     return grid.reshape(-1), logp
 
 
+def w1_from_mixture(posterior, grid, logp):
+    """Exact W1 of the returned Gaussian mixture against the global reference.
+
+    ModeTree returns a density, so a sampled W1 measures the caller's draw
+    count: at 1000 draws the Monte-Carlo floor is ~0.03 here, which is the same
+    size as the differences being compared.
+    """
+    density = logp.exp()
+    cdf = torch.cumulative_trapezoid(density, grid, dim=0)
+    cdf = torch.cat([torch.zeros(1, dtype=torch.float64), cdf])
+    total = torch.zeros_like(grid)
+    weights = (posterior.weights_plus if posterior.weights_plus is not None
+               else posterior.weights)
+    for weight, branch in zip(weights, posterior.branches):
+        mean = float(branch.global_state.reshape(()))
+        sigma = float(branch.global_covariance.reshape(()).sqrt())
+        z = (grid - mean) / (sigma * (2.0 ** 0.5))
+        total = total + float(weight) * 0.5 * (1.0 + torch.erf(z))
+    return float(torch.trapz((total - cdf).abs(), grid))
+
+
 def w1_from_samples(samples, grid, logp):
     density = logp.exp()
     cdf = torch.cumulative_trapezoid(density, grid, dim=0)
@@ -139,6 +160,7 @@ def run(d_g, d_l, n, generator):
         }
         if reference is not None:
             row["w1"] = w1_from_samples(samples[:, 0], *reference)
+            row["w1_analytic"] = w1_from_mixture(posterior, *reference)
         rows.append(row)
 
     for rule, sampler in (("gauss_jacobian", "diffusion"), ("fnpe", "langevin")):
@@ -176,7 +198,9 @@ def main():
                           f"{row['error']}", flush=True)
                     continue
                 print(f"dg={d_g} dl={d_l} n={n:4d} {row['method']:16s} "
-                      f"W1={row.get('w1', float('nan')):.4f} "
+                      f"W1={row.get('w1', float('nan')):.4f}"
+                      + (f"/{row['w1_analytic']:.4f}"
+                         if 'w1_analytic' in row else "") + " "
                       f"B={row.get('n_branches', '-')}/"
                       f"{row.get('n_true_modes', '-')} "
                       f"recall={row.get('mode_recall', float('nan')):.2f} "

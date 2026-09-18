@@ -85,11 +85,11 @@ Nine 1-D regimes × `n = 1, 2, 4, 8, 16, 32, 64, 100`
 
 | quantity | worst over all cells |
 |---|---|
-| final score norm `max ||S_0||` | `1.1e-12` |
-| MAP error / posterior sd | `1.4e-9` |
-| energy-gap error (vs exact mode log heights) | `2.3e-13` |
+| final score norm `max ||S_0||` | `2.9e-11` (`tilt_2.0`, `n = 1`) |
+| MAP error / posterior sd | `1.3e-9` (`narrow_broad`, `n = 64`) |
+| energy-gap error (vs exact mode log heights) | `3.8e-13` (`empty_valley`, `n = 64`) |
 | mode-weight TV (structured Laplace) | `0.020` (`narrow_broad`, `n = 1`); `< 5e-4` for `n >= 8` |
-| mode-weight TV (Laplace+) | `0.006` (`narrow_broad`, `n = 1`); `< 5e-4` for `n >= 4` |
+| mode-weight TV (Laplace+) | `0.006` (`narrow_broad`, `n = 1`); `< 1.2e-3` for `n >= 4` |
 | minimum Laplace+ ESS fraction | `0.87` |
 
 The gate passes decisively, so the discovery milestones were worth building.
@@ -140,7 +140,8 @@ and mode-weight total variation:
 | nearly_tied | 0.123 | 0.126 | **3.5e-6** |
 | empty_valley | 0.0080 | 0.0090 | **4.2e-14** |
 
-Missing posterior mass is zero on every 1-D regime at every `n >= 2`.
+Missing posterior mass is zero on every 1-D regime at every `n >= 2`; the sole
+exception in 48 discovery cells is `narrow_broad` at `n = 1`.
 `uncorrected` diverges outright at large `n` on the asymmetric targets
 (`e_MAP/sd` of 33 and 87 on `map_vs_mass` and `narrow_broad` at `n = 100`).
 
@@ -157,7 +158,7 @@ The error ladder (section 11 of the brief) is implemented as
 | rung | isolates | result |
 |---|---|---|
 | known modes + oracle score | energy integration, Laplace, Laplace+ | machine precision; weight TV `< 5e-4` for `n >= 8` |
-| oracle score + discovery | mode discovery | identical to the known-mode rung on every 1-D regime for `n >= 2`; at `n = 1` a shallow secondary mode is missed on the two asymmetric targets |
+| oracle score + discovery | mode discovery | identical to the known-mode rung on every 1-D regime and every `n >= 2`; the single discovery failure in the whole 1-D study is `narrow_broad` at `n = 1`, where the secondary mode is shallow and no bifurcation announces it (0.60 of the mass missed) |
 | perturbed row scores | network bias | see below |
 
 Injected row-score error (`artifacts/score_error_scaling.json`), fitted
@@ -196,12 +197,25 @@ sentinels only, and with curvature spawning only.
   the dominant central mode reaches — is found at every `n` with sentinels and
   never without (missing mass 0.098). This is exactly what section 15 was
   designed to test.
+  Across the twenty 2-D cells: with sentinels (alone or with curvature) mean
+  mode recall is 1.00, missing mass 0.000 and the worst weight TV 0.003; with
+  curvature spawning alone mean recall is 0.36 and mean missing mass 0.48.
 * In one dimension the two mechanisms are complementary: `symmetric` and
   `empty_valley` bifurcate and are found by curvature; `map_vs_mass` and
   `narrow_broad` never bifurcate (the continuation slides into one basin) and
-  are found only by sentinels. Disabling sentinels on `map_vs_mass` at `n = 8`
-  drops mode recall to 0.5, leaves 0.34 of the mass undiscovered, and returns
-  the *wrong* MAP (`e_MAP/sd = 2.1`).
+  are found only by sentinels. The full ablation at `n = 100`
+  (`artifacts/ablations.json`) makes the point sharply -- `no_sentinel` is the
+  **only** variant that breaks anything:
+
+  | case | variant | recall | missing mass | e_MAP/sd |
+  |---|---|---|---|---|
+  | map_vs_mass | full | 1.00 | 0.000 | 1.4e-10 |
+  | map_vs_mass | no_sentinel | 0.50 | 0.339 | **2.11** |
+  | empty_valley | no_sentinel | 0.50 | 0.500 | 5.5e-13 |
+  | narrow_broad | no_sentinel | 0.00 | 1.000 | **87.1** |
+
+  every other variant (`no_curvature`, `one_path`, `stride2/4/8`, both switch
+  times, `tangent`) is bit-identical in accuracy to `full`.
 
 Five implementation facts decided whether discovery works at all. Each is
 recorded as a comment at the point of use, because each looked like a tuning
@@ -234,6 +248,21 @@ detail and was actually a correctness bug:
 
 The mode-equivalence metric is the spectral absolute value of the precision, not
 the raw quadratic form, which is indefinite at a saddle.
+
+**Milestones M and N, answered by the same ablation.** Sparse JAC is free:
+`jacobian_stride = 8` cuts Jacobian evaluations by 2.2x (2578 -> 1193 on
+`map_vs_mass` at `n = 100`) at *zero* accuracy cost, and saves ~15% wall clock.
+The switch time barely matters over two decades (`t = 0.05` to `t = 0.002`
+change nothing but the Jacobian count). And the sophisticated tangent predictor
+of Milestone H is **not worth keeping**: it costs more Jacobian evaluations
+(2688 vs 2578) and more wall clock (11.2 s vs 9.4 s on `empty_valley`) than the
+trivial carry-over predictor, for no accuracy gain anywhere. The default stays
+`predictor="carry"`, as the brief asked be determined by measurement.
+
+Multi-path integration and cycle consistency are likewise free of accuracy
+*benefit* on the oracle field (`one_path` matches `full` exactly), which is the
+expected result for a conservative field -- their value is as instrumentation
+for the learned-score case, where the field is not conservative.
 
 ### 3.5 Sections 13–17: the special tests
 
