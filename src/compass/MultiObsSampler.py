@@ -8,6 +8,11 @@ import datetime
 import math
 import os
 
+from .churn import (
+    DEFAULT_ETA as DEFAULT_CHURN_ETA, GAMMA_CAP as DEFAULT_CHURN_GAMMA_CAP,
+    apply_churn, resolve_corrector_steps, schedule_ceiling,
+)
+
 class TensorTupleDataset(Dataset):
     def __init__(self, tensor1, tensor2):
         self.tensor1 = tensor1
@@ -189,6 +194,7 @@ class MultiObsSampler():
         self.SBIm = SBIm
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
+        self.prior_object = None
         self.covariance_shrinkage = 0.01
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
@@ -216,6 +222,7 @@ class MultiObsSampler():
     # network's own Jacobian (Tweedie second order) rather than from a pilot
     # covariance. They share every downstream step with the Schur family.
     JACOBIAN_GAUSSIAN_CORRECTIONS = frozenset({"gauss_jacobian"})
+    JACOBIAN_CORRECTIONS = JACOBIAN_GAUSSIAN_CORRECTIONS | frozenset({"bp_jac"})
     SCHUR_GAUSSIAN_CORRECTIONS = frozenset(
         {"Gauss_schur_global", "Gauss_global_local", "gauss_hierarchical"}
     ) | JACOBIAN_GAUSSIAN_CORRECTIONS
@@ -239,7 +246,7 @@ class MultiObsSampler():
     VALID_CORRECTIONS = frozenset(
         {
             "gauss", "full_gaussian", "Gauss_schur_global",
-            "Gauss_global_local", "gauss_hierarchical", "gauss_jacobian",
+            "Gauss_global_local", "gauss_hierarchical", "gauss_jacobian", "bp_jac",
             "hybrid", "uncorrected",
             "fnpe", "legacy_mean",
             "prior_corrected_sum", "damped_sum", "minibatch_damped",
@@ -248,6 +255,9 @@ class MultiObsSampler():
     TRUE_MINIBATCH_CORRECTIONS = frozenset({"damping", "minibatch_damped"})
     DAMPED_CORRECTIONS = DAMPING_CORRECTIONS | frozenset(
         {"damped_sum", "minibatch_damped"}
+    )
+    TEMPERABLE_CORRECTIONS = frozenset(
+        {"fnpe", "gauss_hierarchical", "gauss_jacobian", "bp_jac"}
     )
 
     #############################################
@@ -261,15 +271,20 @@ class MultiObsSampler():
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
                damping_at_data=1.0, damping_at_noise=None,
+               damping_schedule="exponential",
+               composition_temperature=1.0,
                composition_batch_size=None,
-               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=5, final_corrector_steps=3, terminal_corrector_steps=0, terminal_corrector_counts=None,
+               order=2, snr=0.1, corrector_steps_interval=5, corrector_steps=None, final_corrector_steps=3, terminal_corrector_steps=0, terminal_corrector_counts=None,
+               churn_eta=DEFAULT_CHURN_ETA, churn_s_noise=1.0,
+               churn_gamma_cap=DEFAULT_CHURN_GAMMA_CAP,
                adaptive_abs_tol=0.002576, adaptive_rel_tol=0.1,
                adaptive_safety=0.9, adaptive_exponent=0.9,
                adaptive_max_evals=10000, adaptive_initial_step=None,
                device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None,
                precision_est_batch_size=128, covariance_shrinkage=0.01,
                covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3,
-               jacobian_refresh=1, jacobian_curvature_floor=1e-3):
+               jacobian_refresh=1, jacobian_curvature_floor=1e-3,
+               jacobian_block_size=2, jacobian_pooling="contiguous"):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -294,9 +309,13 @@ class MultiObsSampler():
                     "uncorrected", "fnpe", "damping", "gauss_damping", "hybrid"
                     and "hybrid_damping" values, accepts "legacy_mean",
                     "prior_corrected_sum", "damped_sum", "minibatch_damped" and
-                    "gauss_jacobian" (pilot-free hierarchical GAUSS, see the
+                    "gauss_jacobian" (pilot-free hierarchical GAUSS) and
+                    "bp_jac" (block-pooled Jacobian composition; see the
                     class docstring).
             jacobian_refresh: For correction="gauss_jacobian" only. Recompute
+            jacobian_block_size: Number of observations K pooled by ``bp_jac``
+                    before its Jacobian is inverted. The final short block is
+                    weighted by its actual size.
                     the score Jacobian every this many composed-score
                     evaluations and reuse it in between. Curvature varies far
                     more slowly in t than the score does, so values of 5-20 cut
@@ -342,6 +361,11 @@ class MultiObsSampler():
             damping_at_data: Damping endpoint d(0), where t=0 is the data end.
             damping_at_noise: Damping endpoint d(1), where t=1 is the noise end.
                     Defaults to 1/sqrt(num_observations).
+            composition_temperature: Likelihood-ratio temperature beta for
+                    ``fnpe``, ``gauss_hierarchical`` and ``gauss_jacobian``.
+                    The shared score becomes
+                    ``s_prior + beta * (s_composed - s_prior)``. beta=1
+                    preserves the original method exactly.
             composition_batch_size: Optional number of observation scores used in
                     each unbiased damping update. None uses every observation except
                     for "minibatch_damped", whose default is min(3, R). True
@@ -381,9 +405,14 @@ class MultiObsSampler():
         self.save_trajectory = save_trajectory
         self.hierarchy = hierarchy
         self.correction = correction
+        self.composition_temperature = float(composition_temperature)
+        if not math.isfinite(self.composition_temperature) or self.composition_temperature <= 0.0:
+            raise ValueError("composition_temperature must be finite and positive.")
         self.denoise_clamp = denoise_clamp
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
+        self.jacobian_block_size = int(jacobian_block_size)
+        self.jacobian_pooling = str(jacobian_pooling)
         self.solver_stats = None
         self.covariance_shrinkage = float(covariance_shrinkage)
         self.covariance_nugget = float(covariance_nugget)
@@ -393,6 +422,10 @@ class MultiObsSampler():
         self.jacobian_curvature_floor = float(jacobian_curvature_floor)
         if self.jacobian_refresh < 1:
             raise ValueError("jacobian_refresh must be at least 1.")
+        if self.jacobian_block_size < 1:
+            raise ValueError("jacobian_block_size must be at least 1.")
+        if self.jacobian_pooling not in {"contiguous", "score_sorted"}:
+            raise ValueError("jacobian_pooling must be 'contiguous' or 'score_sorted'.")
         if not 0.0 < self.jacobian_curvature_floor < 1.0:
             raise ValueError("jacobian_curvature_floor must lie in (0, 1).")
         self._reset_jacobian_state()
@@ -406,20 +439,39 @@ class MultiObsSampler():
             raise ValueError("pd_floor must be positive.")
         self._reset_covariance_diagnostics()
 
+        # The terminal-corrector settings are read by _sample_loop, which every
+        # method shares, so they must exist for every method. Initializing them
+        # only for "dpm"/"langevin" made "euler" and "adaptive" raise
+        # AttributeError on the shared path -- which took the damping and hybrid
+        # corrections down with them, since those are exercised through euler.
+        self.terminal_corrector_steps = int(terminal_corrector_steps)
+        if self.terminal_corrector_steps < 0:
+            raise ValueError("terminal_corrector_steps must be nonnegative.")
+        self.terminal_corrector_counts = tuple(sorted({
+            int(count) for count in (terminal_corrector_counts or ())
+        }))
+        if any(count < 1 for count in self.terminal_corrector_counts):
+            raise ValueError("terminal_corrector_counts must contain positive integers.")
+        if self.terminal_corrector_counts and self.terminal_corrector_steps:
+            raise ValueError("Specify either terminal_corrector_steps or terminal_corrector_counts, not both.")
+
+        # Churn is the default stochastic predictor; see compass/churn.py for the
+        # measurements that made it the default and for why it and the Langevin
+        # correctors are alternatives rather than complements.
+        self.churn_eta = float(churn_eta)
+        self.churn_s_noise = float(churn_s_noise)
+        self.churn_gamma_cap = float(churn_gamma_cap)
+        if self.churn_eta < 0.0:
+            raise ValueError("churn_eta must be nonnegative.")
+        if self.churn_gamma_cap <= 0.0:
+            raise ValueError("churn_gamma_cap must be positive.")
+
         if method in ("dpm", "langevin"):
             self.corrector_steps_interval = corrector_steps_interval
-            self.corrector_steps = corrector_steps
+            self.corrector_steps = resolve_corrector_steps(
+                corrector_steps, method, self.churn_eta,
+            )
             self.final_corrector_steps = final_corrector_steps
-            self.terminal_corrector_steps = int(terminal_corrector_steps)
-            if self.terminal_corrector_steps < 0:
-                raise ValueError("terminal_corrector_steps must be nonnegative.")
-            self.terminal_corrector_counts = tuple(sorted({
-                int(count) for count in (terminal_corrector_counts or ())
-            }))
-            if any(count < 1 for count in self.terminal_corrector_counts):
-                raise ValueError("terminal_corrector_counts must contain positive integers.")
-            if self.terminal_corrector_counts and self.terminal_corrector_steps:
-                raise ValueError("Specify either terminal_corrector_steps or terminal_corrector_counts, not both.")
             self.snr = snr
             self.order = order
 
@@ -427,6 +479,13 @@ class MultiObsSampler():
             choices = "', '".join(sorted(self.VALID_CORRECTIONS))
             raise ValueError(
                 f"Unknown correction '{correction}'. Choose from '{choices}'."
+            )
+        if (self.composition_temperature != 1.0
+                and correction not in self.TEMPERABLE_CORRECTIONS):
+            choices = "', '".join(sorted(self.TEMPERABLE_CORRECTIONS))
+            raise ValueError(
+                "composition_temperature is supported only for correction="
+                f"'{choices}'."
             )
         if method not in ("euler", "dpm", "langevin", "adaptive"):
             raise ValueError(
@@ -449,7 +508,7 @@ class MultiObsSampler():
             composition_batch_size = min(3, num_observations)
         self._configure_damping(
             num_observations, damping_at_data, damping_at_noise,
-            composition_batch_size,
+            composition_batch_size, damping_schedule,
         )
         if (composition_batch_size is not None
                 and correction not in self.TRUE_MINIBATCH_CORRECTIONS):
@@ -474,12 +533,12 @@ class MultiObsSampler():
                 "Adaptive sampling and observation-score mini-batching currently "
                 "require world_size=1 so all stochastic decisions remain synchronized."
             )
-        if world_size > 1 and correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+        if world_size > 1 and correction in self.JACOBIAN_CORRECTIONS:
             # The Jacobian is taken w.r.t. the *whole* synchronized state, so a
             # rank that owns only a shard of the observations cannot form it;
             # the shared-coordinate tangent would be missing the other shards.
             raise NotImplementedError(
-                "correction='gauss_jacobian' requires world_size=1: the score "
+                "Jacobian composition requires world_size=1: the score "
                 "Jacobian is taken with respect to the full synchronized state, "
                 "which no single rank holds under the sharded sampler."
             )
@@ -573,7 +632,7 @@ class MultiObsSampler():
 
         # Covariance-aware GAUSS setup. Full mode stores HxH matrices; Schur
         # modes store one (H+L)x(H+L) matrix per observation.
-        if correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+        if correction in self.JACOBIAN_CORRECTIONS:
             # No pilot moments at all: the per-observation backward precision is
             # rebuilt from the network's Jacobian at every refresh.
             if posterior_covariance is not None or posterior_precision is not None:
@@ -613,6 +672,7 @@ class MultiObsSampler():
                             feature_indices=self.covariance_features,
                         )
                     )
+                    global_posterior_mean = global_posterior_mean[:, :len(self.hierarchy)]
                     global_posterior_covariance = posterior_covariance[:, :len(self.hierarchy), :len(self.hierarchy)]
                 else:
                     posterior_covariance = self._estimate_posterior_covariance(
@@ -714,7 +774,8 @@ class MultiObsSampler():
         return samples
 
     def _configure_damping(self, num_observations, damping_at_data,
-                           damping_at_noise, composition_batch_size):
+                           damping_at_noise, composition_batch_size,
+                           damping_schedule="exponential"):
         """Validate and store damping endpoints and mini-batch size."""
         n = int(num_observations)
         if n < 1:
@@ -734,6 +795,9 @@ class MultiObsSampler():
             )
         self.damping_at_data = at_data
         self.damping_at_noise = at_noise
+        if damping_schedule not in {"exponential", "linear", "cosine", "quadratic", "sqrt"}:
+            raise ValueError(f"Unknown damping_schedule={damping_schedule!r}.")
+        self.damping_schedule = damping_schedule
         self.composition_batch_size = batch_size
 
     def _configure_adaptive(self, adaptive_abs_tol, adaptive_rel_tol,
@@ -764,18 +828,23 @@ class MultiObsSampler():
         self.adaptive_initial_step = initial_step
 
     def _damping_factor(self, t):
-        """Exponential schedule with explicit data/noise endpoint semantics."""
+        """Endpoint-preserving damping schedule, with t=0 at the data end."""
         t = torch.as_tensor(t)
         at_data = torch.as_tensor(
             self.damping_at_data, dtype=t.dtype, device=t.device
         )
-        log_ratio = torch.log(
-            torch.as_tensor(
-                self.damping_at_noise / self.damping_at_data,
-                dtype=t.dtype, device=t.device,
-            )
+        at_noise = torch.as_tensor(
+            self.damping_at_noise, dtype=t.dtype, device=t.device
         )
-        return at_data * torch.exp(log_ratio * t)
+        if self.damping_schedule == "exponential":
+            return at_data * torch.exp(torch.log(at_noise / at_data) * t)
+        if self.damping_schedule == "linear":
+            return at_data + (at_noise - at_data) * t
+        if self.damping_schedule == "cosine":
+            return at_noise + (at_data - at_noise) * torch.cos(torch.pi * t / 2)
+        if self.damping_schedule == "quadratic":
+            return at_data + (at_noise - at_data) * t.square()
+        return at_data + (at_noise - at_data) * torch.sqrt(t)
 
     @torch.no_grad()
     def map_estimate(self, data, condition_mask, init=None, hierarchy=None,
@@ -1778,8 +1847,30 @@ class MultiObsSampler():
     #############################################
 
     def _resolve_prior(self, prior):
-        """Resolve a Gaussian prior to mean, marginal std, and covariance tensors."""
+        """Resolve the prior to mean, marginal std, and covariance tensors.
+
+        Accepts either the historical ``prior=(mean, scale)`` tuple or a prior
+        *object* exposing ``score(theta_y, t, lambda_t)``, ``.mean`` and
+        ``.covariance`` -- see :mod:`compass.priors`.  The tuple path below is
+        untouched, so existing callers are bit-for-bit unaffected; an object
+        prior is additionally stored on ``self.prior_object`` and its exact
+        diffused score replaces the Gaussian one in
+        :meth:`_diffused_gaussian_prior_score`.
+
+        A non-Gaussian prior matters here because the composition subtracts
+        ``(n-1)`` copies of the prior score: a prior that is wrong about where
+        its mass sits is amplified n-fold, which for a multimodal prior means
+        the composed field inherits a mode the target does not have.
+        """
         n_hierarchy = len(self.hierarchy)
+        from .priors import resolve_prior_object
+        prior_object = resolve_prior_object(prior, n_hierarchy)
+        self.prior_object = prior_object
+        if prior_object is not None:
+            mean = prior_object.mean.to(torch.float32).flatten()
+            covariance = prior_object.covariance.to(torch.float32)
+            std = torch.diagonal(covariance).sqrt()
+            return mean, std, covariance
         if prior is None:
             print("WARNING: No prior provided for compositional score modeling. "
                   "Assuming a standard normal prior N(0, 1) over the shared parameters. "
@@ -2032,6 +2123,7 @@ class MultiObsSampler():
         self._jacobian_call_index = 0
         self._jacobian_cached_information = None
         self._jacobian_evaluations = 0
+        self._bp_jacobian_cached = None
 
     @staticmethod
     def _batched_eigh(matrices, max_batch=2048):
@@ -2117,6 +2209,64 @@ class MultiObsSampler():
         eigenvalues = eigenvalues.clamp(min=0.0, max=(1.0 - floor) / variance)
         precision = 1.0 / (variance * (1.0 - variance * eigenvalues))
         return (eigenvectors * precision.unsqueeze(-2)) @ eigenvectors.mT
+
+    def _bp_jacobian_score(self, scores, state, t, condition_mask, var_t):
+        """Pool scores/Jacobians by block, then form the BP-JAC precision ratio."""
+        refresh = max(1, int(self.jacobian_refresh))
+        index = int(getattr(self, "_jacobian_call_index", 0))
+        self._jacobian_call_index = index + 1
+        jacobian = getattr(self, "_bp_jacobian_cached", None)
+        if jacobian is None or index % refresh == 0:
+            with torch.enable_grad():
+                jacobian = self._row_score_jacobian(
+                    state, t, condition_mask, list(self.hierarchy)
+                )
+            self._bp_jacobian_cached = jacobian
+            self._jacobian_evaluations += 1
+
+        global_scores = scores[:, :, self.hierarchy].to(torch.float64)
+        jacobian = jacobian.to(torch.float64)
+        n, samples, width = global_scores.shape
+        identity = torch.eye(width, dtype=torch.float64, device=state.device)
+        inverse_variance = torch.as_tensor(
+            1.0 / var_t, dtype=torch.float64, device=state.device
+        ).reshape(())
+        precision_sum = torch.zeros(
+            samples, width, width, dtype=torch.float64, device=state.device
+        )
+        weighted_sum = torch.zeros(
+            samples, width, dtype=torch.float64, device=state.device
+        )
+        ordering = (global_scores.mean(dim=(1, 2)).argsort()
+                    if self.jacobian_pooling == "score_sorted"
+                    else torch.arange(n, device=state.device))
+        for start in range(0, n, self.jacobian_block_size):
+            stop = min(start + self.jacobian_block_size, n)
+            size = stop - start
+            members = ordering[start:stop]
+            mean_score = global_scores[members].mean(dim=0)
+            mean_jacobian = jacobian[members].mean(dim=0)
+            block_precision = inverse_variance * torch.linalg.inv(
+                identity + var_t * mean_jacobian
+            )
+            precision_sum += size * block_precision
+            weighted_sum += size * torch.einsum(
+                "sij,sj->si", block_precision, mean_score
+            )
+
+        theta_h = state[:1, :, self.hierarchy]
+        prior_score = self._diffused_gaussian_prior_score(theta_h, t).to(torch.float64)
+        precision_prior = self.prior_precision_matrix.to(
+            device=state.device, dtype=torch.float64
+        ) + inverse_variance * identity
+        weighted_prior = torch.einsum(
+            "ij,bsj->bsi", precision_prior, prior_score
+        ).squeeze(0)
+        numerator = weighted_sum + (1 - n) * weighted_prior
+        composed_precision = precision_sum + (1 - n) * precision_prior
+        return torch.linalg.solve(
+            composed_precision, numerator.unsqueeze(-1)
+        ).squeeze(-1).unsqueeze(0).to(scores.dtype)
 
     def _schur_factors(self, joint_precision_t, h):
         """Split a joint backward precision into global and cross-regression blocks.
@@ -3164,7 +3314,16 @@ class MultiObsSampler():
         return score
 
     def _diffused_gaussian_prior_score(self, theta_y, t):
-        """Return the noised Gaussian-prior score in y=x/alpha coordinates."""
+        """Return the noised prior score in y=x/alpha coordinates.
+
+        With an object prior (``compass.priors``) this is that prior's own exact
+        diffused score; the Gaussian branches below are the historical path and
+        are what a ``prior=(mean, scale)`` tuple still takes.
+        """
+        prior_object = getattr(self, "prior_object", None)
+        if prior_object is not None:
+            lam = self.sde.lambda_t(t).to(theta_y.device).reshape(())
+            return prior_object.score(theta_y, t, lam).to(theta_y.dtype)
         if self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             var_t = self.sde.lambda_t(t).to(theta_y.device).square()
             identity = torch.eye(
@@ -3317,6 +3476,11 @@ class MultiObsSampler():
                 (1 - n) * (1 - t) * prior_score + scaled_sum_scores
             )
 
+        elif self.correction == "bp_jac":
+            composed = self._bp_jacobian_score(
+                scores, x, t, condition_mask, var_t
+            )
+
         elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             effective_precision, cross_factor = self._effective_global_factors(
                 var_t, n, state=x, t=t, condition_mask=condition_mask,
@@ -3434,6 +3598,13 @@ class MultiObsSampler():
             composed = numerator / Lambda
             if self.correction in self.DAMPING_CORRECTIONS:
                 composed = self._damping_factor(t) * composed
+
+        # Temper only the evidence contribution to the shared score. At t=0,
+        # s - s_prior is the likelihood-ratio score. At intermediate VE
+        # marginals this is a calibrated bridge; beta=1 is exactly the old path.
+        beta = getattr(self, "composition_temperature", 1.0)
+        if beta != 1.0:
+            composed = prior_score + beta * (composed - prior_score)
 
         # Clamp the denoised prediction of the composed score as well. Not valid for
         # Damped scores deliberately change the score magnitude, so a second
@@ -3883,10 +4054,11 @@ class MultiObsSampler():
 
     def _dpm_sampler(self, data, condition_mask, idx,
                      order=2,
-                     snr=0.1, corrector_steps_interval=5, corrector_steps=5,
+                     snr=0.1, corrector_steps_interval=5, corrector_steps=0,
                      final_corrector_steps=3, terminal_corrector_steps=0):
         """
-        Hybrid sampling approach combining DPM-Solver with Predictor-Corrector refinement.
+        DPM-Solver predictor, stochastic by default (Karras churn), with optional
+        Predictor-Corrector refinement.
 
         Args:
             data: Input data
@@ -3896,6 +4068,12 @@ class MultiObsSampler():
             corrector_steps_interval: Interval for applying corrector steps
             corrector_steps: Number of Langevin MCMC steps per iteration
             final_corrector_steps: Extra correction steps at the end
+
+        The churn strength is ``self.churn_eta`` (default 2.0). Each level steps
+        **up** in noise by ``gamma = min(eta * rel_step, churn_gamma_cap)`` and
+        then takes the ordinary deterministic step down, which costs no extra
+        score evaluations. ``churn_eta=0`` recovers the stock probability-flow
+        predictor. See ``compass/churn.py``.
         """
 
         if self.save_trajectory:
@@ -3903,19 +4081,33 @@ class MultiObsSampler():
             self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
             self.data_t[:,0,:,:] = data
 
+        # Observed coordinates are conditioning data: churn must not perturb them.
+        latent = 1 - condition_mask
+        ceiling = schedule_ceiling(self.sde, data.device)
+
         # Main sampling loop
         for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose, total=self.timesteps-1):
 
-            # ------- PREDICTOR: DPM-Solver -------
+            # ------- PREDICTOR: churn up, then DPM-Solver down -------
             t_now = self.timesteps_list[i].reshape(-1, 1)
             t_next = self.timesteps_list[i+1].reshape(-1, 1)
 
+            # _shared_noise keeps the hierarchy coordinates identical across
+            # observation rows, as everywhere else in this sampler.
+            data, t_start = apply_churn(
+                data, latent, self.sde, t_now, t_next, self.churn_eta,
+                gamma_cap=self.churn_gamma_cap, ceiling=ceiling,
+                s_noise=self.churn_s_noise, noise_fn=self._shared_noise,
+                sigma_min=getattr(self, "churn_sigma_min", 0.0),
+                sigma_max=getattr(self, "churn_sigma_max", float("inf")),
+            )
+
             if order == 1:
-                data = self._dpm_solver_1_step(data, t_now, t_next, condition_mask, idx)
+                data = self._dpm_solver_1_step(data, t_start, t_next, condition_mask, idx)
             elif order == 2:
-                data = self._dpm_solver_2_step(data, t_now, t_next, condition_mask, idx)
+                data = self._dpm_solver_2_step(data, t_start, t_next, condition_mask, idx)
             elif order == 3:
-                data = self._dpm_solver_3_step(data, t_now, t_next, condition_mask, idx)
+                data = self._dpm_solver_3_step(data, t_start, t_next, condition_mask, idx)
             else:
                 raise ValueError(f"Only orders 1, 2 or 3 are supported in the DPM-Solver.")
 

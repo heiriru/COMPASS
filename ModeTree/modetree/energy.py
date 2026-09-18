@@ -211,8 +211,8 @@ def pairwise_energies(score_fn, modes, multiple_paths=True, tol=1e-10,
 
 def reconcile(means, sigma, B, weight_floor=1e-12):
     """Weighted graph-Laplacian least squares for ``E`` with ``E_0 = 0``."""
-    if B == 1:
-        return torch.zeros(1, dtype=torch.float64), 0.0
+    if B <= 1:
+        return torch.zeros(max(B, 0), dtype=torch.float64), 0.0
     rows, rhs, weights = [], [], []
     for (a, b), value in means.items():
         row = torch.zeros(B, dtype=torch.float64)

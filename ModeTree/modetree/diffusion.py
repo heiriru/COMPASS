@@ -209,7 +209,7 @@ class ComposedField:
     RULES = ("uncorrected", "fnpe", "gauss_jacobian")
 
     def __init__(self, oracle, rule="gauss_jacobian", curvature_floor=1e-3,
-                 project=True):
+                 project=True, jacobian_refresh=1):
         assert rule in self.RULES, rule
         self.oracle = oracle
         self.rule = rule
@@ -217,6 +217,18 @@ class ComposedField:
         self.project = project
         self.d_g, self.d_l, self.n = oracle.d_g, oracle.d_l, oracle.n
         self.last_diagnostics = {}
+        # Milestone M2: reuse the Jacobian for `jacobian_refresh` consecutive
+        # evaluations.  What is cached is the *lambda-free* information
+        # Lambda_j - lambda^-2 I, exactly as MultiObsSampler does: Lambda_j
+        # carries an exact lambda^-2 I term and the composition subtracts
+        # (n-1) copies of Lambda_prior(t) built at the current lambda, so
+        # caching Lambda_j itself leaves the two lambda^-2 terms mismatched and
+        # the composed precision goes indefinite for n > 1.
+        self.jacobian_refresh = int(jacobian_refresh)
+        self._jacobian_index = 0
+        self._cached_information = None
+        self._cached_cross = None
+        self._cached_shape = None
 
     @property
     def dim(self):
@@ -240,10 +252,28 @@ class ComposedField:
             precision = None
             diagnostics = {}
         else:
-            jac = self.oracle.row_jacobians(rows_state, lam)
-            effective, cross, diagnostics = row_jacobian_factor(
-                jac, lam, self.d_g, self.curvature_floor
+            inverse_variance = 1.0 / lam ** 2
+            identity = torch.eye(self.d_g, dtype=torch.float64)
+            reuse = (
+                self.jacobian_refresh > 1
+                and self._cached_information is not None
+                and self._cached_shape == tuple(rows_state.shape)
+                and self._jacobian_index % self.jacobian_refresh != 0
             )
+            if reuse:
+                effective = self._cached_information + inverse_variance * identity
+                cross = self._cached_cross
+                diagnostics = {"jacobian_reused": True}
+            else:
+                jac = self.oracle.row_jacobians(rows_state, lam)
+                effective, cross, diagnostics = row_jacobian_factor(
+                    jac, lam, self.d_g, self.curvature_floor
+                )
+                self._cached_information = effective - inverse_variance * identity
+                self._cached_cross = cross
+                self._cached_shape = tuple(rows_state.shape)
+                diagnostics["jacobian_reused"] = False
+            self._jacobian_index += 1
             prior_t = self.oracle.prior_backward_precision(lam)
             if self.project:
                 delta, extra = project_information(effective, prior_t)

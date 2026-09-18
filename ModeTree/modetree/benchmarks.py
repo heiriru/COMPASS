@@ -431,7 +431,12 @@ def reference_2d(model, lo, hi, points=1201):
     axes = [torch.linspace(lo[k], hi[k], points, dtype=torch.float64) for k in range(2)]
     G0, G1 = torch.meshgrid(axes[0], axes[1], indexing="ij")
     pts = torch.stack([G0.reshape(-1), G1.reshape(-1)], dim=-1)
-    logp = model.global_log_prob(pts).reshape(points, points)
+    # chunked: at n = 100 a 401^2 grid times n rows times K components is
+    # gigabytes in one call
+    chunks = []
+    for start in range(0, pts.shape[0], 20_000):
+        chunks.append(model.global_log_prob(pts[start:start + 20_000]))
+    logp = torch.cat(chunks).reshape(points, points)
     cell = float(axes[0][1] - axes[0][0]) * float(axes[1][1] - axes[1][0])
     logz = torch.logsumexp(logp.reshape(-1), 0) + math.log(cell)
     logp = logp - logz
@@ -456,12 +461,21 @@ def reference_2d(model, lo, hi, points=1201):
     offsets = [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (dx, dy) != (0, 0)]
     neigh = torch.stack(stacks)                            # (8, P, P)
     best = neigh.argmax(0)
+    # A local maximum must be a *fixed point* of the ascent map.  Its neighbours
+    # are all lower, so argmax still names one of them and the chain walks back
+    # out of the basin; the pointer doubling below then terminates wherever the
+    # walk stalls and the basin masses come out badly wrong (measured
+    # 0.625/0.125/0.125/0.125 on a four-fold symmetric target that must be
+    # 0.25 each).
+    at_maximum = logp >= neigh.max(0).values
     step_x = torch.tensor([o[0] for o in offsets])
     step_y = torch.tensor([o[1] for o in offsets])
     ii = torch.arange(points).reshape(-1, 1).expand(points, points)
     jj = torch.arange(points).reshape(1, -1).expand(points, points)
-    tgt_i = (ii + step_x[best]).clamp(0, points - 1)
-    tgt_j = (jj + step_y[best]).clamp(0, points - 1)
+    tgt_i = torch.where(at_maximum, ii,
+                        (ii + step_x[best]).clamp(0, points - 1))
+    tgt_j = torch.where(at_maximum, jj,
+                        (jj + step_y[best]).clamp(0, points - 1))
     flat_tgt = (tgt_i * points + tgt_j).reshape(-1)
     flat_labels = labels.reshape(-1).clone()
     # pointer doubling until every cell points at a maximum
@@ -612,20 +626,51 @@ def empty_valley_1d(n, tau=6.0, separation=5.0):
 # 2-D regimes (A2)
 # ----------------------------------------------------------------------------
 
+def calibrate_component_weights(means, covs, targets, n):
+    """Component weights giving prescribed *tall* mode log-height gaps.
+
+    For well-separated components the factor's log density at mode ``k`` is
+    ``log w_k - 1/2 log|2 pi S_k|``, so the tall gap between modes ``k`` and
+    ``0`` is ``n`` times the difference of those.  Solving for ``log w_k``,
+
+        log w_k = targets[k] / n + 1/2 ( d log 2pi + log|S_k| ) + const.
+
+    Tempering the *weights* alone is not enough: the ``-1/2 log|S_k|`` volume
+    term is multiplied by ``n`` as well, so two components differing only in
+    covariance (``narrow_broad``, ``unequal_covariance``) still lose a mode
+    exponentially fast.  Putting the volume term into the calibration is what
+    keeps a 2-D benchmark genuinely multimodal at ``n = 100``; ``targets`` are
+    in nats of *tall* log height relative to component 0, so the mode structure
+    is fixed along the whole n ladder by construction.
+    """
+    covs = torch.as_tensor(covs, dtype=torch.float64)
+    targets = torch.as_tensor(targets, dtype=torch.float64).reshape(-1)
+    logdet = torch.linalg.slogdet(covs).logabsdet
+    dim = covs.shape[-1]
+    log_w = targets / n + 0.5 * (dim * math.log(2.0 * math.pi) + logdet)
+    return torch.softmax(log_w, dim=0)
+
+
 def four_mode_2d(n, regime="symmetric", tau=3.0, radius=2.0):
-    """2-D benchmark with 2-4 separated global modes."""
+    """2-D benchmark with 2-4 separated global modes.
+
+    Component weights come from :func:`calibrate_component_weights`, so the
+    prescribed tall mode heights hold at every ``n``.
+    """
     corners = torch.tensor(
         [[radius, radius], [-radius, radius], [-radius, -radius], [radius, -radius]],
         dtype=torch.float64,
     )
     if regime == "symmetric":
-        w = torch.full((4,), 0.25, dtype=torch.float64)
+        targets = torch.zeros(4, dtype=torch.float64)
         covs = torch.stack([torch.eye(2, dtype=torch.float64)] * 4)
     elif regime == "unequal_weights":
-        w = torch.tensor([0.40, 0.28, 0.20, 0.12], dtype=torch.float64)
+        targets = torch.tensor([0.0, -0.8, -1.5, -2.5], dtype=torch.float64)
         covs = torch.stack([torch.eye(2, dtype=torch.float64)] * 4)
     elif regime == "unequal_covariance":
-        w = torch.full((4,), 0.25, dtype=torch.float64)
+        # heights exactly tied, masses set purely by the mode volumes: the
+        # cleanest possible separation of "MAP" from "largest mode mass"
+        targets = torch.zeros(4, dtype=torch.float64)
         covs = torch.stack([
             torch.tensor([[1.0, 0.0], [0.0, 1.0]], dtype=torch.float64),
             torch.tensor([[0.4, 0.15], [0.15, 1.6]], dtype=torch.float64),
@@ -633,28 +678,36 @@ def four_mode_2d(n, regime="symmetric", tau=3.0, radius=2.0):
             torch.tensor([[0.7, 0.0], [0.0, 0.7]], dtype=torch.float64),
         ])
     elif regime == "narrow_broad":
-        w = torch.tensor([0.30, 0.70], dtype=torch.float64)
+        # the 2-D map_vs_mass: the narrow mode is the higher peak, the broad one
+        # carries the larger mass
+        targets = torch.tensor([0.6, 0.0], dtype=torch.float64)
         corners = corners[:2]
         covs = torch.stack([
             0.25 * torch.eye(2, dtype=torch.float64),
             1.60 * torch.eye(2, dtype=torch.float64),
         ])
     elif regime == "remote_small":
-        # section 15: a dominant central mode plus a remote 5-10% mode that no
-        # bifurcation of the dominant mode can reach.
+        # section 15: a dominant central mode plus a remote mode carrying a few
+        # per cent of the mass that no bifurcation of the dominant mode reaches.
         corners = torch.tensor([[0.0, 0.0], [4.2, 3.4]], dtype=torch.float64)
-        w = torch.tensor([0.90, 0.10], dtype=torch.float64)
+        # targets are *likelihood* gaps; the global prior contributes once (not
+        # n times), and at radius 5.4 with tau = 3 that alone is -1.6 nats, so a
+        # zero target here lands the remote mode at ~10% of the mass at every n
+        targets = torch.tensor([0.0, 0.0], dtype=torch.float64)
         covs = torch.stack([
             1.0 * torch.eye(2, dtype=torch.float64),
             0.55 * torch.eye(2, dtype=torch.float64),
         ])
     else:
         raise ValueError(regime)
+    w = calibrate_component_weights(corners, covs, targets, n)
     factors = [GaussianMixture(w, corners, covs) for _ in range(n)]
     return FactorModel(
         torch.zeros(2, dtype=torch.float64),
         (tau ** 2) * torch.eye(2, dtype=torch.float64),
-        factors, name=f"four_mode_2d/{regime}", meta={"regime": regime},
+        factors, name=f"four_mode_2d/{regime}",
+        meta={"regime": regime, "targets": targets.tolist(),
+              "weights": w.tolist()},
     )
 
 

@@ -247,11 +247,18 @@ class MultimodalPosterior:
 def assemble(composer, mode_results, multiple_paths=True, laplace_plus_samples=0,
              seed=0, tol=1e-10, laplace_plus_kwargs=None):
     """Milestones D-G end to end for a set of already-refined modes."""
-    modes = [r.theta[: composer.d_g] for r in mode_results]
+    # Energies are reconstructed on the *full* state for a hierarchical model:
+    # the path integral is over (g, l_1..l_n), which is what makes E_b the joint
+    # log density the structured Laplace determinant below belongs to.  Only
+    # Laplace+ is restricted to the global block.
+    if not mode_results:
+        raise ValueError(
+            "assemble() needs at least one converged mode; the discovery stage "
+            "returned none."
+        )
+    modes = [r.theta for r in mode_results]
 
     def score_fn(batch):
-        if composer.d_l:
-            raise NotImplementedError
         return composer.score(batch)
 
     graph = mode_energies(
