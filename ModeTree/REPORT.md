@@ -292,17 +292,39 @@ for the learned-score case, where the field is not conservative.
 
 ### 3.6 Calibration
 
-SBC on 191 simulated datasets at `n = 16` (`artifacts/calibration.json`,
-figure 6): mean rank 0.524 (uniform: 0.5), rank sd 0.301 (uniform: 0.289).
-Empirical coverage against nominal:
+SBC on 196 simulated datasets at `n = 16` (`artifacts/calibration.json`,
+figure 6), with the ground truth drawn from the model's own prior — drawing it
+from anything narrower makes the ranks non-uniform for reasons that have nothing
+to do with the method, and that was a bug in the first version of this harness.
+
+Mean SBC rank 0.502 (uniform: 0.5), rank sd 0.305 (uniform: 0.289). Empirical
+coverage against nominal, standard error about 0.036:
 
 | nominal | 50% | 80% | 90% | 95% |
 |---|---|---|---|---|
-| empirical | 0.429 | 0.817 | 0.921 | 0.932 |
+| empirical | 0.418 | 0.796 | 0.929 | 0.969 |
 
-with a standard error of about 0.036. Coverage is close to nominal at the 80%
-and 90% levels and modestly low (about 2 se) at 50%. This is the weakest
-measurement in the report — see 5.1.
+There is no detectable bias (mean rank 0.502) and the 80% interval is exact;
+50% coverage is about 2.3 se low and the 90%/95% levels about 1.3 se high. The
+rank histogram is not flat — it has a pronounced dip around 0.5 — so there is
+residual miscalibration.
+
+Two caveats on how much that means, both of which have to be resolved before
+this number is worth quoting against F-NPSE:
+
+* the intervals are **equal-tailed**, and on a bimodal posterior an equal-tailed
+  interval spans the valley between the modes. It is not the credible region a
+  user of a multimodal posterior would take (an HDR would be), and equal-tailed
+  intervals on a bimodal target distort low and high nominal levels in opposite
+  directions more or less by construction — which is the pattern observed;
+* the rank statistic itself is awkward here: the posterior median sits in the
+  valley, so a rank near 0.5 requires the truth to land in a region that carries
+  almost no mass, and the central dip is partly that geometry rather than an
+  error.
+
+This is the weakest measurement in the report; the right version of it uses HDR
+intervals, more datasets, and the same measurement for F-NPSE as a comparator.
+See 5.1.
 
 ### 3.7 Hierarchical models, including the COMPASS shape
 
@@ -419,9 +441,10 @@ density* rather than draws. The split at `n = 100` is 4.22 s discovery +
   empirical except the injected-error study of 3.3, which is a controlled proxy
   and is labelled as one.
 * **SBC is run at one `(case, n)` only**, on a synthetic bimodal target, with
-  191 datasets and 200 draws each — resolution about ±0.036 on coverage. It is
-  not enough to compare ModeTree's calibration against F-NPSE's, which is what
-  failure condition 3 asks for.
+  196 datasets and 200 draws each (resolution about ±0.036 on coverage), using
+  equal-tailed rather than HDR intervals, and *without* the same measurement for
+  F-NPSE. It is therefore not enough to answer failure condition 3, and 3.6 says
+  so rather than reading the result either way.
 * **Laplace+ for hierarchical models** is not implemented; it is defined on the
   global block, and the hierarchical path uses ordinary structured Laplace. The
   profiled-composer route is sketched in `laplace._global_score`, not built.

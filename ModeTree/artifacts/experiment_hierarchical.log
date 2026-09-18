@@ -1,12 +1,4 @@
 dg=1 dl=1 n=   1 oracle_known     W1=0.0986/0.0000 B=2/2 recall=1.00 0.05s
-dg=1 dl=1 n=   1 oracle_tree      W1=0.0567/0.0000 B=2/2 recall=1.00 1.59s
-dg=1 dl=1 n=   1 gauss_jacobian_sampler W1=0.1590 B=-/- recall=nan 0.66s
-dg=1 dl=1 n=   1 fnpe_sampler     W1=0.1632 B=-/- recall=nan 0.75s
-dg=1 dl=1 n=   4 oracle_known     W1=0.0729/0.0022 B=2/2 recall=1.00 0.03s
-dg=1 dl=1 n=   4 oracle_tree      FAILED RuntimeError('log-determinant requested for a non-SPD matrix')
-dg=1 dl=1 n=   4 gauss_jacobian_sampler W1=0.0636 B=-/- recall=nan 1.95s
-dg=1 dl=1 n=   4 fnpe_sampler     W1=0.1393 B=-/- recall=nan 1.73s
-dg=1 dl=1 n=  16 oracle_known     W1=0.0382/0.0006 B=2/2 recall=1.00 0.03s
-dg=1 dl=1 n=  16 oracle_tree      FAILED RuntimeError('log-determinant requested for a non-SPD matrix')
-dg=1 dl=1 n=  16 gauss_jacobian_sampler W1=0.2169 B=-/- recall=nan 5.96s
-dg=1 dl=1 n=  16 fnpe_sampler     W1=0.2604 B=-/- recall=nan 4.37s
+dg=1 dl=1 n=   1 oracle_tree      W1=0.0567/0.0000 B=2/2 recall=1.00 1.57s
+dg=1 dl=1 n=   1 gauss_jacobian_sampler W1=0.1590 B=-/- recall=nan 0.65s
+dg=1 dl=1 n=   1 fnpe_sampler     W1=0.1632 B=-/- recall=nan 0.73s

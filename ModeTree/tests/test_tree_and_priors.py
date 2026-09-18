@@ -276,3 +276,32 @@ def test_final_clean_sweep_finds_a_mode_narrower_than_every_checkpoint():
         prior_std=model.prior_cov.diagonal().sqrt(),
     )
     assert len(tree.run()) == 1          # the documented failure it repairs
+
+
+def test_local_block_is_checked_before_a_branch_is_called_a_maximum():
+    """A joint maximum needs the whole negative Hessian positive definite.
+
+    Regression: checking only the global Schur complement let a branch through
+    whose local block was indefinite, and the failure then surfaced downstream
+    as a non-SPD Cholesky inside the structured Laplace determinant.
+    """
+    from modetree.composition import ArrowBlocks
+    from modetree.refine import refine_mode
+
+    model = B.hierarchical(16, d_g=1, d_l=1, modes=2)
+    clean = make_composer(model)
+    tree = ModeTree(
+        ComposedField(DiffusedOracle(model), "gauss_jacobian"), clean,
+        ModeTreeConfig(levels=20, probe_iterations=40, sentinel_checkpoints=2,
+                       sentinel_sobol=6),
+        prior_std=model.prior_cov.diagonal().sqrt(),
+    )
+    branches = tree.run()
+    assert branches
+    for branch in branches:
+        blocks = branch.diagnostics["clean_result"].blocks
+        assert bool((torch.linalg.eigvalsh(blocks.global_precision()) > 0).all())
+        assert bool((torch.linalg.eigvalsh(-blocks.C) > 0).all())
+    # and the structured Laplace determinant is therefore well defined
+    assemble(clean, [b.diagnostics["clean_result"] for b in branches],
+             laplace_plus_samples=0)

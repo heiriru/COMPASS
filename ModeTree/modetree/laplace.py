@@ -64,7 +64,16 @@ def branch_laplace(composer, mode_result, energy):
     if torch.any(info != 0):
         raise RuntimeError("branch global precision is not positive definite")
     log_det_global = float(2.0 * torch.log(torch.diagonal(factor)).sum())
-    log_det_H = float(blocks.log_det_negative_hessian())
+    try:
+        log_det_H = float(blocks.log_det_negative_hessian())
+    except RuntimeError as error:                       # pragma: no cover
+        raise RuntimeError(
+            "branch at "
+            f"{mode_result.theta[: composer.d_g].tolist()} is not a joint "
+            "maximum: its local curvature block is not negative definite, so "
+            "log|H| = log|P_g| + sum_i log|-C_i| is undefined.  The branch "
+            "should have been rejected by refine_mode's is_local_maximum test."
+        ) from error
     covariance = torch.cholesky_inverse(factor)
     covariance = 0.5 * (covariance + covariance.mT)
     return BranchLaplace(

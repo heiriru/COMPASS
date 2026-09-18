@@ -99,6 +99,14 @@ def refine_mode(composer, seed, tol=1e-9, max_iter=100, radius=None,
         precision = blocks.global_precision()
         curvature = torch.linalg.eigvalsh(precision)
         is_max = bool((curvature > 0).all())
+        # A joint maximum needs the *whole* negative Hessian positive definite,
+        # not only its global Schur complement.  Checking the global block alone
+        # lets a branch through whose local block is indefinite, and the
+        # structured Laplace determinant log|H| = log|P_g| + sum_i log|-C_i|
+        # then fails downstream with a non-SPD Cholesky rather than at the point
+        # where the branch was wrongly accepted.
+        if is_max and blocks.C is not None:
+            is_max = bool((torch.linalg.eigvalsh(-blocks.C) > 0).all())
     except RuntimeError:
         is_max = False
     converged = norm < max(tol * 1e3, 1e-7) and (is_max or not require_mode)
