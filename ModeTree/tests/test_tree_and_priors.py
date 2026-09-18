@@ -249,3 +249,30 @@ def test_saddles_are_never_merge_targets():
     assert not ModeTree._is_mode(indefinite)
     assert ModeTree._is_mode(definite)
     assert not ModeTree._is_mode(None)
+
+
+def test_final_clean_sweep_finds_a_mode_narrower_than_every_checkpoint():
+    """A mode of width w is invisible in the lambda-smoothed field above
+    lambda ~ w.  In 2-D narrow_broad at n = 100 the narrow mode has posterior
+    width ~0.05 while the last diffusion-time sentinel checkpoint sits at
+    lambda ~ 0.4, so only a sweep against the clean field can find it -- and it
+    is the MAP branch, carrying 36% of the mass."""
+    model = B.four_mode_2d(100, "narrow_broad")
+    config = ModeTreeConfig(sentinel_sobol=16, max_branches=12)
+    tree = ModeTree(
+        ComposedField(DiffusedOracle(model), "gauss_jacobian"),
+        make_composer(model), config,
+        prior_std=model.prior_cov.diagonal().sqrt(),
+    )
+    found = sorted(float(b.global_state[0]) for b in tree.run())
+    assert len(found) == 2
+    assert found[0] < 0 < found[1]
+
+    without = ModeTreeConfig(sentinel_sobol=16, max_branches=12,
+                             final_clean_sentinels=False)
+    tree = ModeTree(
+        ComposedField(DiffusedOracle(model), "gauss_jacobian"),
+        make_composer(model), without,
+        prior_std=model.prior_cov.diagonal().sqrt(),
+    )
+    assert len(tree.run()) == 1          # the documented failure it repairs

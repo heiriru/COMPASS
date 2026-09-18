@@ -79,13 +79,17 @@ def test_quadrature_converges_with_refinement():
     a = torch.tensor([2.0, 2.0], dtype=torch.float64)
     b = torch.tensor([-2.0, -2.0], dtype=torch.float64)
     exact = float(model.global_log_prob(b) - model.global_log_prob(a))
+    # at the production order (q = 16) panel doubling converges from 2e-1 to
+    # machine precision in four refinements; at q = 4 the same ladder only
+    # reaches 1e-5, which is why the order is not the knob being tuned
     errors = []
     for panels in (1, 2, 4, 8, 16):
-        got = integrate_segment(composer.score, a, b, q=4, adaptive=False,
+        got = integrate_segment(composer.score, a, b, q=16, adaptive=False,
                                 panel_ladder=(panels,))
         errors.append(abs(got.value - exact))
-    assert errors[-1] < 1e-7
-    assert errors[-1] < errors[0]
+    assert errors[-1] < 1e-12
+    assert errors[-1] < errors[0] / 1e10
+    assert all(b <= a for a, b in zip(errors[:-1], errors[1:]))
 
 
 def test_empty_valley_symmetric_energies_close():

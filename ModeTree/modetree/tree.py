@@ -136,6 +136,14 @@ class ModeTreeConfig:
     sentinel_top_eigendirs: int = 3
     sentinel_sobol: int = 8
     sentinel_scale: tuple = (1.0, 2.5)
+    # One last sentinel sweep against the *clean* composed field, after the
+    # switch.  A mode of width w only appears in the lambda-smoothed field below
+    # lambda ~ w, so a narrow mode can be invisible at every diffusion-time
+    # checkpoint and still be a genuine maximum of the target: measured, the
+    # 2-D narrow_broad benchmark loses its MAP branch (36% of the mass) at
+    # n >= 64 with diffusion-time sentinels alone.  Probing the clean field
+    # directly costs one batched refinement and has no such blind spot.
+    final_clean_sentinels: bool = True
     switch_to_clean_t: float = 0.02
     levels: int = 32
     lambda_max: float | None = None
@@ -495,8 +503,14 @@ class ModeTree:
             )
             branch.score_norm = result.score_norm
             branch.diagnostics["clean_result"] = result
+            eigenvalues = torch.linalg.eigvalsh(branch.global_precision)
+            branch.diagnostics["last_positive_sigma"] = float(
+                1.0 / eigenvalues.min().clamp_min(1e-300).sqrt()
+            )
             final.append(branch)
         final = self._dedupe(final, self.clean)
+        if cfg.sentinel_enabled and cfg.final_clean_sentinels and final:
+            final = self._final_clean_sweep(final, template)
 
         self.counters["score_evaluations"] = self.field.oracle.score_calls
         self.counters["jacobian_evaluations"] = self.field.oracle.jacobian_calls
@@ -550,6 +564,49 @@ class ModeTree:
                 continue
             out.append(((result.theta, P, result.score_norm), parent, origin))
         return self._collapse_candidates(out)
+
+    def _final_clean_sweep(self, branches, template):
+        """Sentinel probes against the clean field, after the switch (N + J).
+
+        See ``ModeTreeConfig.final_clean_sentinels``: the diffusion-time
+        checkpoints are blind to any mode narrower than the noise scale they sit
+        at, so the last word belongs to the target itself.
+        """
+        probes = []
+        for branch in list(branches):
+            for probe in self._sentinel_probes(
+                    branch, sobol=branch is branches[0]):
+                probes.append((probe, branch.branch_id, "sentinel_clean"))
+        if not probes:
+            return branches
+        probes = probes[: self.config.max_candidates_per_level]
+        accepted = self._refine_candidates(self.clean, probes, 0.0)
+        for probe_result, parent, origin in accepted:
+            if len(branches) >= self.config.max_branches:
+                break
+            theta, P, norm = probe_result
+            marker = len(self.events)
+            candidate = self._new_branch(theta, 0.0, parent, origin)
+            candidate.global_precision = P
+            candidate.global_covariance = torch.cholesky_inverse(
+                torch.linalg.cholesky(P)
+            )
+            candidate.score_norm = norm
+            candidate.diagnostics["clean_result"] = refine_mode(
+                self.clean, theta, tol=1e-11, max_iter=200
+            )
+            if not candidate.diagnostics["clean_result"].diagnostics[
+                    "is_local_maximum"]:
+                self._next_id -= 1
+                del self.events[marker:]
+                continue
+            merged = self._dedupe(branches + [candidate], self.clean)
+            if len(merged) > len(branches):
+                branches = merged
+            else:
+                self._next_id -= 1
+                del self.events[marker:]
+        return branches
 
     def _collapse_candidates(self, accepted):
         """Collapse probe results that landed in the same basin.
