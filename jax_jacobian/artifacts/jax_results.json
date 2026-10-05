@@ -1,0 +1,161 @@
+{
+  "framework": "jax",
+  "jax": "0.11.2",
+  "dtype": "float32",
+  "device": "cuda:0",
+  "accuracy": [
+    {
+      "lambda": 0.003,
+      "score_rel_err": 1.0133123546662051e-05,
+      "jacfwd_vmap_rel_err": 1.3765393750352762e-06,
+      "jvp_scan_rel_err": 1.2095167202713003e-06,
+      "diag_jvp_rel_err": 1.134770830236007e-06,
+      "fd_rel_err": 0.005116324137818103,
+      "diag_fd_rel_err": 0.005116324137818103
+    },
+    {
+      "lambda": 0.03,
+      "score_rel_err": 1.064587884940419e-05,
+      "jacfwd_vmap_rel_err": 1.1073479283672144e-06,
+      "jvp_scan_rel_err": 1.0884565088782864e-06,
+      "diag_jvp_rel_err": 1.0214385333369505e-06,
+      "fd_rel_err": 0.001185356917894522,
+      "diag_fd_rel_err": 0.001185356917894522
+    },
+    {
+      "lambda": 0.3,
+      "score_rel_err": 6.997565363178554e-07,
+      "jacfwd_vmap_rel_err": 4.028744229203305e-07,
+      "jvp_scan_rel_err": 3.2669212348531244e-07,
+      "diag_jvp_rel_err": 3.177150144091126e-07,
+      "fd_rel_err": 0.0009522801121790979,
+      "diag_fd_rel_err": 0.0009522801121790979
+    },
+    {
+      "lambda": 3.0,
+      "score_rel_err": 3.304445845632127e-07,
+      "jacfwd_vmap_rel_err": 3.539190318272876e-07,
+      "jvp_scan_rel_err": 3.1842419348476435e-07,
+      "diag_jvp_rel_err": 3.2594136015123856e-07,
+      "fd_rel_err": 0.0032619397615878134,
+      "diag_fd_rel_err": 0.0032619397615878134
+    }
+  ],
+  "timing": [
+    {
+      "rows": 20,
+      "draws": 6,
+      "batch": 120,
+      "forward": {
+        "median_ms": 0.9684464894235134,
+        "p10_ms": 0.9605580940842628,
+        "p90_ms": 0.9852148592472076,
+        "first_call_ms": 1419.360077008605
+      },
+      "jacfwd_vmap": {
+        "median_ms": 8.251781575381756,
+        "p10_ms": 7.982994569465518,
+        "p90_ms": 8.318665623664856,
+        "first_call_ms": 2161.8737396784127
+      },
+      "jvp_scan": {
+        "median_ms": 13.258932624012232,
+        "p10_ms": 13.202500296756625,
+        "p90_ms": 15.458041848614812,
+        "first_call_ms": 1882.300078868866
+      },
+      "diag_jvp": {
+        "median_ms": 1.657235436141491,
+        "p10_ms": 1.6452874522656202,
+        "p90_ms": 1.6849019099026918,
+        "first_call_ms": 1879.8838541842997
+      },
+      "fd": {
+        "median_ms": 7.9748190473765135,
+        "p10_ms": 6.847370974719524,
+        "p90_ms": 8.093130122870209,
+        "first_call_ms": 1345.7976919598877
+      },
+      "diag_fd": {
+        "median_ms": 1.3732209336012602,
+        "p10_ms": 1.321057928726077,
+        "p90_ms": 1.398485992103815,
+        "first_call_ms": 1280.8638350106776
+      }
+    },
+    {
+      "rows": 20,
+      "draws": 64,
+      "batch": 1280,
+      "forward": {
+        "median_ms": 7.602301426231861,
+        "p10_ms": 7.5751350261271,
+        "p90_ms": 7.6366322580724955,
+        "first_call_ms": 1857.54330502823
+      },
+      "jacfwd_vmap": {
+        "median_ms": 69.56489966250956,
+        "p10_ms": 69.52804704196751,
+        "p90_ms": 69.60800401866436,
+        "first_call_ms": 3436.7555798962712
+      },
+      "jvp_scan": {
+        "median_ms": 115.0037832558155,
+        "p10_ms": 114.9294261354953,
+        "p90_ms": 115.11845025233924,
+        "first_call_ms": 2434.33595681563
+      },
+      "diag_jvp": {
+        "median_ms": 11.833160417154431,
+        "p10_ms": 11.569151375442743,
+        "p90_ms": 12.753493012860417,
+        "first_call_ms": 2311.2640897743404
+      },
+      "fd": {
+        "median_ms": 91.60974295809865,
+        "p10_ms": 90.92075661756098,
+        "p90_ms": 92.10577043704689,
+        "first_call_ms": 2243.960191961378
+      },
+      "diag_fd": {
+        "median_ms": 13.124865014106035,
+        "p10_ms": 13.05265068076551,
+        "p90_ms": 15.185037441551685,
+        "first_call_ms": 1999.1468009538949
+      }
+    },
+    {
+      "rows": 20,
+      "draws": 256,
+      "batch": 5120,
+      "forward": {
+        "median_ms": 28.399899136275053,
+        "p10_ms": 28.279392700642347,
+        "p90_ms": 28.600083803758025,
+        "first_call_ms": 2606.6384352743626
+      },
+      "jvp_scan": {
+        "median_ms": 526.6522124875337,
+        "p10_ms": 525.6652706302702,
+        "p90_ms": 528.0970141291618,
+        "first_call_ms": 3656.0386549681425
+      },
+      "diag_jvp": {
+        "median_ms": 52.187234396114945,
+        "p10_ms": 52.07081958651543,
+        "p90_ms": 52.33863280154765,
+        "first_call_ms": 3128.4505068324506
+      },
+      "diag_fd": {
+        "median_ms": 65.1597511023283,
+        "p10_ms": 64.55609174445271,
+        "p90_ms": 66.0325348842889,
+        "first_call_ms": 2800.5341049283743
+      }
+    }
+  ],
+  "failures": {
+    "jacfwd_vmap@20x256": "NOT_FOUND: All configs failed during profiling or were excluded from selection.",
+    "fd@20x256": "RESOURCE_EXHAUSTED: Out of memory while trying to allocate 6.71GiB with allocator GPU_0_bfc on device 0. [tf-allocator-allocation-error=''] [executable_name='jit__lambda']"
+  }
+}
