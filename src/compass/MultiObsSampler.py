@@ -223,6 +223,15 @@ class MultiObsSampler():
         # negative curvature (precision 1/(v(1 - v kappa)) < 1/v, still positive). The upper
         # clip (1 - floor)/v always stays: past 1/v the precision is infinite or negative.
         self.curvature_lower_clip = os.environ.get("COMPASS_CURVATURE_CLIP", "1") != "0"
+        # How the composed precision Lambda_S = Lambda_prior(t) + sum_j I_j is kept positive
+        # definite (set_pd_strategy). "row_projection" (default) is the per-row PSD projection
+        # above, bit for bit. Every strategy records whether the *raw* Lambda_S was PD.
+        self.pd_strategy = os.environ.get("COMPASS_PD_STRATEGY", "row_projection")
+        self.pd_fallback = os.environ.get("COMPASS_PD_FALLBACK", "repair")
+        self.pd_nugget = float(os.environ.get("COMPASS_PD_NUGGET", "0.1"))
+        # Denoised-prediction clamp: "coordinate" (default, per-coordinate clip) or
+        # "metric" (conservative: projection in the denoiser's own metric; set_clamp_mode).
+        self.clamp_mode = os.environ.get("COMPASS_CLAMP_MODE", "coordinate")
         self.covariance_shrinkage = 0.01
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
@@ -2438,6 +2447,15 @@ class MultiObsSampler():
         self._pd_adaptation_relative_mean = []
         self._curv_eigenvalues = 0
         self._curv_negative = 0
+        self._lams_calls = 0
+        self._lams_samples = 0
+        self._lams_bad = 0
+        self._lams_bad_calls = 0
+        self._lams_min_relative = float("inf")
+        self._lams_trace = []
+        self._clamp_calls = 0
+        self._clamp_active = 0
+        self._clamp_elements = 0
 
     @property
     def covariance_diagnostics(self):
@@ -2481,6 +2499,30 @@ class MultiObsSampler():
                 max(adaptation_relatives) if adaptation_relatives else 0.0
             ),
             "information_projection": bool(getattr(self, "information_projection", True)),
+            # Raw composed precision Lambda_S = Lambda_prior(t) + sum_j I_j (before any
+            # PD strategy acts): how often a sample's Lambda_S was not positive definite.
+            "pd_strategy": getattr(self, "pd_strategy", "row_projection"),
+            "pd_fallback": getattr(self, "pd_fallback", "repair"),
+            "pd_nugget": getattr(self, "pd_nugget", 0.1),
+            "lambda_s_checks": int(getattr(self, "_lams_calls", 0)),
+            "lambda_s_nonpd_samples": int(getattr(self, "_lams_bad", 0)),
+            "lambda_s_nonpd_fraction": (
+                getattr(self, "_lams_bad", 0) / getattr(self, "_lams_samples", 0)
+                if getattr(self, "_lams_samples", 0) else 0.0),
+            "lambda_s_nonpd_call_fraction": (
+                getattr(self, "_lams_bad_calls", 0) / getattr(self, "_lams_calls", 0)
+                if getattr(self, "_lams_calls", 0) else 0.0),
+            # min eigenvalue of Lambda_S times lambda^2 (1 = the pure-noise precision)
+            "lambda_s_min_relative": (
+                None if getattr(self, "_lams_min_relative", float("inf")) == float("inf")
+                else getattr(self, "_lams_min_relative")),
+            # (lambda, share of samples with non-PD Lambda_S, min eigenvalue * lambda^2) per call
+            "lambda_s_trace": list(getattr(self, "_lams_trace", [])),
+            "clamp_mode": getattr(self, "clamp_mode", "coordinate"),
+            "clamp_calls": int(getattr(self, "_clamp_calls", 0)),
+            "clamp_active_fraction": (
+                getattr(self, "_clamp_active", 0) / getattr(self, "_clamp_elements", 0)
+                if getattr(self, "_clamp_elements", 0) else 0.0),
             "curvature_lower_clip": bool(getattr(self, "curvature_lower_clip", True)),
             # share of gauss_jacobian curvature eigenvalues below 0 (what the lower clip zeroes)
             "negative_curvature_fraction": (
@@ -2886,6 +2928,8 @@ class MultiObsSampler():
                 device=information.device,
             )
             joint_precision_t = information + inverse_variance * identity
+            # metric of the conservative clamp (set_clamp_mode("metric"))
+            self._last_joint_precision = joint_precision_t
             joint_precision_t = joint_precision_t + self._global_block_adaptation(
                 joint_precision_t, inverse_variance, n, h,
             )
@@ -2894,6 +2938,7 @@ class MultiObsSampler():
         cache = getattr(self, "_covariance_time_cache", {})
         cache_key = (inverse_variance, n)
         if cache_key in cache:
+            self._last_row_delta = getattr(self, "_row_delta_cache", {}).get(cache_key)
             return cache[cache_key]
 
         covariance_precision = self.posterior_precision_matrix.to(torch.float64)
@@ -2907,6 +2952,8 @@ class MultiObsSampler():
         )
         result = self._schur_factors(joint_precision_t, h)
 
+        self._row_delta_cache = getattr(self, "_row_delta_cache", {})
+        self._row_delta_cache[cache_key] = getattr(self, "_last_row_delta", None)
         cache[cache_key] = result
         self._covariance_time_cache = cache
         return result
@@ -2998,8 +3045,12 @@ class MultiObsSampler():
         posteriors really are narrower than the prior.
         """
         effective = self._schur_global_precision(joint_precision_t, h)
-        delta = self._project_information(effective, inverse_variance, h)
-        if delta is None:
+        # Kept for _apply_pd_strategy: the lift, whether or not it is applied here. The
+        # other strategies act on the composed level and leave the row precisions raw.
+        delta = self._project_information(effective, inverse_variance, h, apply=True)
+        self._last_row_delta = delta
+        if (delta is None or self.pd_strategy != "row_projection"
+                or not self.information_projection):
             return torch.zeros_like(joint_precision_t)
         adaptation = torch.zeros_like(joint_precision_t)
         adaptation[..., :h, :h] = delta
@@ -3048,7 +3099,7 @@ class MultiObsSampler():
             h, dtype=torch.float64, device=reference.device
         )
 
-    def _project_information(self, effective, inverse_variance, h):
+    def _project_information(self, effective, inverse_variance, h, apply=None):
         """Project each observation's information onto the admissible cone.
 
         Writing Lambda_j(t) = Lambda_prior(t) + I_j(t) defines I_j(t), the
@@ -3118,9 +3169,167 @@ class MultiObsSampler():
         self._pd_adaptation_relative.append(float(relative.max()))
         self._pd_adaptation_relative_mean = getattr(self, "_pd_adaptation_relative_mean", [])
         self._pd_adaptation_relative_mean.append(float(relative.mean()))
-        if not self.information_projection:
+        if not (self.information_projection if apply is None else apply):
             return None
         return delta
+
+    PD_STRATEGIES = ("row_projection", "composed_check", "gloeckler",
+                     "row_projection_post", "row_projection_consistent")
+    PD_FALLBACKS = ("repair", "row_projection", "gloeckler")
+
+    def set_pd_strategy(self, strategy, fallback=None, nugget=None):
+        """Choose how the composed precision Lambda_S is kept positive definite.
+
+        - "row_projection" (default): project every row's information I_j onto the
+          PSD cone and weight the row's own score by the lifted precision
+          (`_project_information`). Unchanged, bit for bit.
+        - "composed_check": compose the raw I_j and only check Lambda_S =
+          Lambda_prior(t) + sum_j I_j. Samples whose Lambda_S is not PD are counted
+          (covariance_diagnostics['lambda_s_*']) and handled by `fallback`:
+          "repair" (the composed-level spectral repair of _solve_composed_global),
+          "row_projection" (the default rule, on the failing samples only) or
+          "gloeckler" (the rule below, on the failing samples only).
+        - "gloeckler": Gloeckler et al. 2025 (ICLR, "Compositional SBI for time
+          series", App. B.3 and markovsbi CorrectedScoreFn): every factor gets
+          V max(-A, 0) V^T / (n-1) + nugget * I, with Lambda_S = V A V^T, on every
+          call with n > 1; the scores are weighted by the adjusted precisions.
+        - "row_projection_post": the default rule applied after the Schur
+          reduction instead of before it. A consistency check: must equal the
+          default to float rounding.
+        - "row_projection_consistent": the same lifted precision K_j + Delta_j, but
+          the row's score is replaced by the score of the *same* Gaussian with that
+          precision (same clean mean mu_j = y + (K_j^-1 + lambda^2) s_j), i.e. the
+          weighted term becomes (K_j + Delta_j) K_j^-1 Lambda_j s_j instead of
+          (Lambda_j + Delta_j) s_j. The default rule lifts the precision but keeps
+          the score of the unlifted Gaussian.
+        """
+        if strategy not in self.PD_STRATEGIES:
+            raise ValueError(f"pd strategy must be one of {self.PD_STRATEGIES}")
+        self.pd_strategy = strategy
+        if fallback is not None:
+            if fallback not in self.PD_FALLBACKS:
+                raise ValueError(f"pd fallback must be one of {self.PD_FALLBACKS}")
+            self.pd_fallback = fallback
+        if nugget is not None:
+            self.pd_nugget = float(nugget)
+        self._covariance_time_cache = {}
+
+    def _gloeckler_lift(self, eigenvalues, eigenvectors, n):
+        """Per-factor precision lift of Gloeckler et al.: V max(-A,0) V^T/(n-1) + eps I."""
+        deficits = (-eigenvalues).clamp_min(0.0) / max(n - 1, 1)
+        lift = (eigenvectors * deficits.unsqueeze(-2)) @ eigenvectors.mT
+        identity = torch.eye(lift.shape[-1], dtype=lift.dtype, device=lift.device)
+        return lift + self.pd_nugget * identity
+
+    def _apply_pd_strategy(self, precision, numerator, effective, global_scores,
+                           inverse_variance, n):
+        """Check Lambda_S and apply the selected PD strategy at the composed level.
+
+        ``precision`` is the composed Lambda_S, (H, H) or (samples, H, H);
+        ``numerator`` (1, samples, H); ``effective`` the per-row precisions the
+        numerator was weighted with, (rows, H, H) or (rows, samples, H, H);
+        ``global_scores`` (rows, samples, H). Returns the (precision, numerator)
+        to solve. The default strategy only records diagnostics.
+        """
+        strategy = self.pd_strategy
+        delta = getattr(self, "_last_row_delta", None)
+        self._last_row_delta = None
+        rows = global_scores.shape[0]
+        if delta is not None and delta.dim() == 3 and delta.shape[0] == 1 and rows > 1:
+            delta = delta.expand(rows, -1, -1)
+        samples = numerator.shape[1]
+        raw = precision
+        if strategy == "row_projection" and delta is not None and self.information_projection:
+            # The rows arrive projected already; check what the raw Lambda_S was.
+            raw = precision - delta.sum(dim=0)
+        raw = 0.5 * (raw + raw.mT)
+        eigenvalues, eigenvectors = torch.linalg.eigh(raw)
+        minimum = eigenvalues[..., 0]
+        bad = minimum <= 0
+        if bad.dim() == 0:
+            bad = bad.expand(samples)
+            minimum = minimum.expand(samples)
+        variance = float(1.0 / inverse_variance)
+        self._lams_calls = getattr(self, "_lams_calls", 0) + 1
+        self._lams_samples = getattr(self, "_lams_samples", 0) + int(bad.numel())
+        self._lams_bad = getattr(self, "_lams_bad", 0) + int(bad.sum())
+        self._lams_bad_calls = getattr(self, "_lams_bad_calls", 0) + int(bool(bad.any()))
+        # min eigenvalue in units of lambda^-2 (the pure-noise precision)
+        relative = float(minimum.min()) * variance
+        self._lams_min_relative = min(getattr(self, "_lams_min_relative", float("inf")), relative)
+        trace = getattr(self, "_lams_trace", [])
+        trace.append((variance ** 0.5, float(bad.float().mean()), relative))
+        self._lams_trace = trace
+        if strategy in ("row_projection", "composed_check") and not (
+                strategy == "composed_check" and bool(bad.any()) and self.pd_fallback != "repair"):
+            return precision, numerator
+
+        if effective.dim() == 3 and effective.shape[0] == 1 and rows > 1:
+            effective = effective.expand(rows, -1, -1)
+
+        def weighted(matrices, vectors):
+            # (rows[, samples], H, H) x (rows, samples, H) -> (1, samples, H)
+            if matrices.dim() == 4:
+                return torch.einsum("nsij,nsj->si", matrices, vectors).unsqueeze(0)
+            return torch.einsum("nij,nsj->si", matrices, vectors).unsqueeze(0)
+
+        def per_sample(matrix):
+            # broadcast a (H, H) composed matrix to (samples, H, H)
+            return matrix if matrix.dim() == 3 else matrix.expand(samples, -1, -1)
+
+        if strategy == "composed_check":
+            mask = bad.reshape(samples, 1, 1).to(precision.dtype)
+            if self.pd_fallback == "row_projection":
+                if delta is None:
+                    return precision, numerator
+                lift = delta.sum(dim=0)
+                extra = weighted(delta, global_scores)
+            else:  # gloeckler on the failing samples
+                lift_one = self._gloeckler_lift(eigenvalues, eigenvectors, n)
+                lift = n * lift_one
+                extra = torch.einsum(
+                    "...ij,bsj->bsi" if lift_one.dim() == 2 else "sij,bsj->bsi",
+                    lift_one, global_scores.sum(dim=0, keepdim=True))
+            precision = per_sample(precision) + mask * per_sample(lift)
+            numerator = numerator + mask.squeeze(-1).unsqueeze(0) * extra
+            return precision, numerator
+
+        if strategy == "gloeckler":
+            if n <= 1:
+                return precision, numerator
+            lift_one = self._gloeckler_lift(eigenvalues, eigenvectors, n)
+            extra = torch.einsum(
+                "ij,bsj->bsi" if lift_one.dim() == 2 else "sij,bsj->bsi",
+                lift_one, global_scores.sum(dim=0, keepdim=True))
+            return precision + n * lift_one, numerator + extra
+
+        if delta is None:
+            return precision, numerator
+        lift = delta.sum(dim=0)
+        if strategy == "row_projection_post":
+            return precision + lift, numerator + weighted(delta, global_scores)
+        # row_projection_consistent: Delta_j K_j^-1 Lambda_j s_j, K_j = Lambda_j - lambda^-2 I
+        identity = torch.eye(effective.shape[-1], dtype=effective.dtype, device=effective.device)
+        clean = effective - inverse_variance * identity
+        if delta.dim() == 4 and clean.dim() == 3:
+            clean = clean.unsqueeze(1).expand_as(delta)
+            effective_full = effective.unsqueeze(1).expand_as(delta)
+        else:
+            effective_full = effective
+        clean = 0.5 * (clean + clean.mT)
+        k_values, k_vectors = self._batched_eigh(clean)
+        # A row with (numerically) no clean precision has no finite mean; floor it.
+        floor = 1e-6 * k_values.abs().amax(dim=-1, keepdim=True).clamp_min(1e-12)
+        k_inverse = (k_vectors / k_values.clamp_min(0.0).maximum(floor).unsqueeze(-2)) @ k_vectors.mT
+        weighted_scores = (effective_full @ global_scores.unsqueeze(-1)
+                           if effective_full.dim() == 4 else
+                           torch.einsum("nij,nsj->nsi", effective_full, global_scores).unsqueeze(-1))
+        if delta.dim() == 4:
+            extra = (delta @ (k_inverse @ weighted_scores)).squeeze(-1).sum(dim=0, keepdim=True)
+        else:
+            extra = torch.einsum("nij,nsj->si", delta @ k_inverse,
+                                 weighted_scores.squeeze(-1)).unsqueeze(0)
+        return precision + lift, numerator + extra
 
     def _marginal_global_factors(self, var_t):
         """Return clean-moment GAUSS precisions for p(g | x_j)."""
@@ -4001,12 +4210,173 @@ class MultiObsSampler():
         mean = self.local_prior_mean.to(scores)
         std = self.local_prior_std.to(scores)
         theta_l = x[:, :, indices]
+        self._count_clamp(theta_l + var_t * scores[:, :, indices],
+                          mean - self.denoise_clamp * std, mean + self.denoise_clamp * std)
         x0 = torch.clamp(
             theta_l + var_t * scores[:, :, indices],
             min=mean - self.denoise_clamp * std,
             max=mean + self.denoise_clamp * std,
         )
         scores[:, :, indices] = (x0 - theta_l) / var_t
+        return scores
+
+    CLAMP_MODES = ("coordinate", "metric")
+
+    def set_clamp_mode(self, mode):
+        """How the denoised predictions m = y + lambda^2 s are clamped into their box.
+
+        - "coordinate" (default): clip every coordinate on its own. The clamped score
+          (clip(m) - y)/lambda^2 is not conservative where some coordinates are clipped
+          and others are not: d s~_i/d y_j - d s~_j/d y_i = (D_ii - D_jj) H_ij / ...
+        - "metric": m~ = argmin_{z in B} (z - m)^T A (z - m) with A the inverse
+          Jacobian of the denoiser, i.e. the backward precision -- the row's joint
+          Lambda_j(t) (globals and locals clamped together) and the composed
+          Lambda(t) for the composed score. This is the conjugate construction
+          psi_B = (psi* + iota_B)* with psi(y) = |y|^2/2 + lambda^2 log p_t(y) taken
+          to second order, so it is exactly conservative where psi is quadratic and
+          leaves m unchanged wherever m is already inside B. Corrections without a
+          precision fall back to "coordinate".
+        """
+        if mode not in self.CLAMP_MODES:
+            raise ValueError(f"clamp mode must be one of {self.CLAMP_MODES}")
+        self.clamp_mode = mode
+
+    @staticmethod
+    def _box_qp(center, metric, lower, upper, max_iterations=None):
+        """argmin_{lower <= z <= upper} (z - center)^T metric (z - center), batched.
+
+        center/lower/upper (..., D) (bounds may be +-inf), metric (..., D, D) SPD.
+        Primal active-set method (Nocedal & Wright, Alg. 16.3), run in lockstep over the
+        batch: from the feasible clip, solve the equality QP on the free coordinates,
+        step to it or to the first blocking bound, and release the bound with the most
+        negative multiplier once the step is zero. Finite termination at the KKT point.
+        Rows whose center lies inside the box are returned exactly unchanged.
+        """
+        dimension = center.shape[-1]
+        max_iterations = 6 * dimension + 10 if max_iterations is None else max_iterations
+        center = center.to(torch.float64)
+        metric = metric.to(torch.float64).expand(center.shape[:-1] + (dimension, dimension))
+        lower = lower.to(torch.float64).expand_as(center)
+        upper = upper.to(torch.float64).expand_as(center)
+        z = torch.maximum(torch.minimum(center, upper), lower)
+        outside = (z != center).any(dim=-1)
+        if not bool(outside.any()):
+            return center
+        at_lower = z == lower
+        at_upper = (z == upper) & ~at_lower
+        eye = torch.eye(dimension, dtype=torch.float64, device=center.device)
+        scale = center.abs().amax(dim=-1, keepdim=True).clamp_min(1.0)
+        tolerance = 1e-12 * scale
+        for _ in range(max_iterations):
+            active = at_lower | at_upper
+            free = ~active
+            fixed = torch.where(active, z - center, torch.zeros_like(z))
+            rhs = torch.where(free, -(metric @ fixed.unsqueeze(-1)).squeeze(-1), torch.zeros_like(z))
+            pair = free.unsqueeze(-1) & free.unsqueeze(-2)
+            system = torch.where(pair, metric, torch.zeros_like(metric)) + eye * active.unsqueeze(-1)
+            target = torch.where(free, center + torch.linalg.solve(system, rhs.unsqueeze(-1)).squeeze(-1), z)
+            step = target - z
+            moving = (step.abs() > tolerance).any(dim=-1, keepdim=True)
+            # largest feasible fraction of the step
+            room = torch.where(step < 0, (lower - z) / step.clamp(max=-1e-300),
+                               torch.where(step > 0, (upper - z) / step.clamp(min=1e-300),
+                                           torch.full_like(z, float("inf"))))
+            room = torch.where(free, room.clamp_min(0.0), torch.full_like(z, float("inf")))
+            alpha, blocking = room.min(dim=-1, keepdim=True)
+            alpha = alpha.clamp(max=1.0)
+            blocked = moving & (alpha < 1.0)
+            z = torch.where(moving, z + alpha * step, z)
+            hit = torch.zeros_like(free).scatter(-1, blocking, True) & blocked
+            hit_lower = hit & (step < 0)
+            hit_upper = hit & (step > 0)
+            z = torch.where(hit_lower, lower, torch.where(hit_upper, upper, z))
+            z = torch.maximum(torch.minimum(z, upper), lower)
+            at_lower = at_lower | hit_lower
+            at_upper = at_upper | hit_upper
+            # multipliers where the step is zero: g >= 0 at a lower bound, g <= 0 at an upper one
+            gradient = (metric @ (z - center).unsqueeze(-1)).squeeze(-1)
+            wrong = torch.where(at_lower, -gradient, torch.where(at_upper, gradient, torch.zeros_like(z)))
+            wrong = torch.where(moving, torch.zeros_like(wrong), wrong)
+            worst, index = wrong.max(dim=-1, keepdim=True)
+            release = torch.zeros_like(free).scatter(-1, index, True) & (worst > tolerance * metric.diagonal(
+                dim1=-2, dim2=-1).abs().amax(dim=-1, keepdim=True))
+            at_lower = at_lower & ~release
+            at_upper = at_upper & ~release
+            if not bool((moving | release.any(dim=-1, keepdim=True)).any()):
+                break
+        return torch.where(outside.unsqueeze(-1), z, center)
+
+    def _count_clamp(self, center, lower, upper):
+        """Diagnostics: share of (row, sample) vectors whose denoised prediction left the box."""
+        out = ((center < lower) | (center > upper)).any(dim=-1)
+        self._clamp_calls = getattr(self, "_clamp_calls", 0) + 1
+        self._clamp_active = getattr(self, "_clamp_active", 0) + int(out.sum())
+        self._clamp_elements = getattr(self, "_clamp_elements", 0) + int(out.numel())
+
+    def _row_clamp_metric(self, var_t, rows):
+        """(features, metric) for the joint per-row clamp, or None when no precision exists."""
+        if self.correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            metric = getattr(self, "_last_joint_precision", None)
+            if metric is None:
+                return None
+            return list(self.full_gaussian_features), metric
+        if (self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS
+                and getattr(self, "posterior_precision_matrix", None) is not None):
+            precision = self.posterior_precision_matrix.to(torch.float64)
+            identity = torch.eye(precision.shape[-1], dtype=torch.float64, device=precision.device)
+            metric = precision + identity / float(var_t)
+            if metric.dim() == 2:
+                metric = metric.unsqueeze(0)
+            return list(self.covariance_features), metric.unsqueeze(1)
+        return None
+
+    def _metric_row_clamp(self, scores, x, var_t, global_lower, global_upper, features, metric):
+        """Clamp each row's joint denoised prediction in the metric of its own precision."""
+        h = list(self.hierarchy)
+        locals_ = list(getattr(self, "local_latent_indices", None) or [])
+        has_local_box = (self.denoise_clamp is not None and locals_
+                         and getattr(self, "local_prior_mean", None) is not None
+                         and scores.shape[0] == x.shape[0])
+        lower = torch.full((len(features),), float("-inf"), dtype=torch.float64, device=x.device)
+        upper = torch.full_like(lower, float("inf"))
+        position = {f: i for i, f in enumerate(features)}
+        for k, f in enumerate(h):
+            lower[position[f]] = float(torch.as_tensor(global_lower).flatten()[k])
+            upper[position[f]] = float(torch.as_tensor(global_upper).flatten()[k])
+        if has_local_box:
+            mean = self.local_prior_mean.to(device=x.device, dtype=torch.float64)
+            std = self.local_prior_std.to(device=x.device, dtype=torch.float64)
+            for k, f in enumerate(locals_):
+                if f in position:
+                    lower[position[f]] = mean[k] - self.denoise_clamp * std[k]
+                    upper[position[f]] = mean[k] + self.denoise_clamp * std[k]
+        y = x[:, :, features].to(torch.float64)
+        center = y + float(var_t) * scores[:, :, features].to(torch.float64)
+        self._count_clamp(center, lower, upper)
+        clamped = self._box_qp(center, metric, lower, upper)
+        scores[:, :, features] = ((clamped - y) / float(var_t)).to(scores.dtype)
+        if has_local_box and any(f not in position for f in locals_):
+            scores = self._clamp_local_scores(scores, x, var_t)
+        return scores
+
+    def _metric_local_clamp(self, scores, x, var_t):
+        """Local clamp after the cross-correction, in the metric Lambda_j,ll (globals fixed)."""
+        locals_ = list(getattr(self, "local_latent_indices", None) or [])
+        metric = getattr(self, "_last_joint_precision", None)
+        h = len(self.hierarchy)
+        if (self.denoise_clamp is None or not locals_ or metric is None
+                or getattr(self, "local_prior_mean", None) is None
+                or scores.shape[0] != x.shape[0]
+                or list(self.full_gaussian_features) != list(self.hierarchy) + locals_):
+            return self._clamp_local_scores(scores, x, var_t)
+        mean = self.local_prior_mean.to(device=x.device, dtype=torch.float64)
+        std = self.local_prior_std.to(device=x.device, dtype=torch.float64)
+        y = x[:, :, locals_].to(torch.float64)
+        center = y + float(var_t) * scores[:, :, locals_].to(torch.float64)
+        lower, upper = mean - self.denoise_clamp * std, mean + self.denoise_clamp * std
+        self._count_clamp(center, lower, upper)
+        clamped = self._box_qp(center, metric[..., h:, h:], lower, upper)
+        scores[:, :, locals_] = ((clamped - y) / float(var_t)).to(scores.dtype)
         return scores
 
     @staticmethod
@@ -4058,6 +4428,7 @@ class MultiObsSampler():
         n = scores.shape[0] if num_observations is None else int(num_observations)
         m = scores.shape[0]
         pending_cross_correction = None
+        composed_solved_precision = None
 
         var_t = self.sde.lambda_t(t).to(x.device)**2
         scores = self._moment_projected_scores(scores, x, var_t)
@@ -4071,6 +4442,8 @@ class MultiObsSampler():
         )
 
         theta_h = x[:1, :, h]                                   # (1, num_samples, H), shared
+        early_factors = None
+        row_metric = None
 
         # Stabilize the individual scores by clamping their denoised prediction
         # E[theta_0 | theta_t, x_j] = theta_t + var_t * s_j to a box around the prior.
@@ -4087,12 +4460,28 @@ class MultiObsSampler():
                 t_mean, t_std = (v.to(theta_h.device) for v in self.training_prior)
                 ilo = t_mean - self.denoise_clamp * t_std
                 ihi = t_mean + self.denoise_clamp * t_std
-            x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=ilo, max=ihi)
-            scores[:, :, h] = (x0 - theta_h) / var_t
+            row_metric = None
+            if self.clamp_mode == "metric":
+                if (early_factors is None
+                        and self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS):
+                    # the metric is the row precision: build it before the clamp
+                    early_factors = self._effective_global_factors(
+                        var_t, n, state=x, t=t, condition_mask=condition_mask,
+                        row_scores=raw_row_scores,
+                    )
+                row_metric = self._row_clamp_metric(var_t, scores.shape[0])
+            if row_metric is not None:
+                scores = self._metric_row_clamp(scores, x, var_t, ilo, ihi, *row_metric)
+            else:
+                self._count_clamp(theta_h + var_t * scores[:, :, h],
+                                  torch.as_tensor(ilo).to(theta_h), torch.as_tensor(ihi).to(theta_h))
+                x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=ilo, max=ihi)
+                scores[:, :, h] = (x0 - theta_h) / var_t
         # The same tail protection for the row-local latents. Without a local
         # prior nothing here bounds them, so a bad local score -- or a local
         # cross-correction fed by a bad composed score -- is free to run away.
-        scores = self._clamp_local_scores(scores, x, var_t)
+        if not (self.denoise_clamp is not None and row_metric is not None):
+            scores = self._clamp_local_scores(scores, x, var_t)
 
         sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)
         scaled_sum_scores = sum_scores * (n / m) if minibatch_selected else sum_scores
@@ -4136,16 +4525,22 @@ class MultiObsSampler():
             )
 
         elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
-            effective_precision, cross_factor = self._effective_global_factors(
-                var_t, n, state=x, t=t, condition_mask=condition_mask,
-                row_scores=raw_row_scores,
-            )
+            effective_precision, cross_factor = early_factors if early_factors is not None else (
+                self._effective_global_factors(
+                    var_t, n, state=x, t=t, condition_mask=condition_mask,
+                    row_scores=raw_row_scores,
+                ))
             if self.correction == "Gauss_global_local" and (
                     getattr(self, "global_posterior_mean", None) is not None):
                 # Compose only marginal p(g_t | x_j) scores.  The joint-network
                 # g score is conditional on the current local state and must not
                 # enter this cross-subject update.
                 effective_precision, _ = self._marginal_global_factors(var_t)
+                if self.pd_strategy != "row_projection":
+                    raise NotImplementedError(
+                        "set_pd_strategy: only row_projection is implemented for the "
+                        "marginal Gauss_global_local branch")
+                self._last_row_delta = None  # projected below, on its own terms
                 # Marginal pilot moments need the same information projection
                 # as the Schur ones; without it this branch composes against an
                 # indefinite Lambda exactly as before.
@@ -4209,7 +4604,11 @@ class MultiObsSampler():
                 )
                 numerator = weighted_sum + weighted_prior - n * torch.einsum(
                     "ij,bsj->bsi", train_precision_t, train_score)
-            composed64, _, _, _ = self._solve_composed_global(
+            composed_precision, numerator = self._apply_pd_strategy(
+                composed_precision, numerator, effective_precision,
+                global_scores, inverse_variance, n,
+            )
+            composed64, composed_solved_precision, _, _ = self._solve_composed_global(
                 composed_precision, numerator, global_scores
             )
             composed = composed64.to(scores.dtype)
@@ -4278,8 +4677,16 @@ class MultiObsSampler():
         # (The individual network-score tail clamp above still applies.)
         if (self.denoise_clamp is not None
                 and self.correction not in ({"fnpe"} | self.DAMPED_CORRECTIONS)):
-            x0 = torch.clamp(theta_h + var_t * composed, min=lo, max=hi)
-            composed = (x0 - theta_h) / var_t
+            composed_center = theta_h + var_t * composed
+            lo_t = torch.as_tensor(lo).to(composed_center)
+            hi_t = torch.as_tensor(hi).to(composed_center)
+            self._count_clamp(composed_center, lo_t, hi_t)
+            if self.clamp_mode == "metric" and composed_solved_precision is not None:
+                x0 = self._box_qp(composed_center, composed_solved_precision, lo_t, hi_t)
+                composed = ((x0 - theta_h.to(torch.float64)) / float(var_t)).to(composed.dtype)
+            else:
+                x0 = torch.clamp(composed_center, min=lo, max=hi)
+                composed = (x0 - theta_h) / var_t
 
         if pending_cross_correction is not None:
             # s_l = s_l,j - Lambda_ll^-1 Lambda_lg (s_composed - s_g,j): the
@@ -4304,7 +4711,10 @@ class MultiObsSampler():
                 scores[:, :, self.local_latent_indices]
                 + local_delta.to(scores.dtype)
             )
-            scores = self._clamp_local_scores(scores, x, var_t)
+            if self.clamp_mode == "metric" and self.correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+                scores = self._metric_local_clamp(scores, x, var_t)
+            else:
+                scores = self._clamp_local_scores(scores, x, var_t)
 
         if not torch.all(torch.isfinite(composed)):
             name = "full-Gaussian" if (

@@ -1,0 +1,33 @@
+A gauss    lam 0.3 active 0.87  antisym median coord 0.224 metric 0 conj 0  |metric-conj|/|s| 0  |coord-conj|/|s| 0.0689
+A gauss    lam 0.7 active 0.63  antisym median coord 0.343 metric 0 conj 6.48e-12  |metric-conj|/|s| 8.19e-17  |coord-conj|/|s| 0.0872
+A gauss    lam 1.5 active 0.34  antisym median coord 0.218 metric 6.6e-12 conj 6.6e-12  |metric-conj|/|s| 1.23e-16  |coord-conj|/|s| 0.111
+A mixture  lam 0.3 active 0.89  antisym median coord 0.096 metric 5.21e-11 conj 0  |metric-conj|/|s| 3.11e-08  |coord-conj|/|s| 0.0392
+A mixture  lam 0.7 active 0.78  antisym median coord 0.106 metric 0.00129 conj 6.18e-12  |metric-conj|/|s| 0.000932  |coord-conj|/|s| 0.0478
+A mixture  lam 1.5 active 0.39  antisym median coord 0.105 metric 0.00197 conj 1.34e-11  |metric-conj|/|s| 0.000921  |coord-conj|/|s| 0.0414
+B gauss    exact     b=1.0 none       meanErr 0.011 covErr 0.007 corr 0.847 (ref 0.848) SW1 0.009 outsideB 0.529 (ref 0.525) runaway 0.0000  1s
+B gauss    exact     b=1.0 coordinate meanErr 0.151 covErr 1.157 corr 0.714 (ref 0.848) SW1 0.248 outsideB 0.075 (ref 0.525) runaway 0.0000  1s
+B gauss    exact     b=1.0 metric     meanErr 0.114 covErr 1.236 corr 0.676 (ref 0.848) SW1 0.263 outsideB 0.070 (ref 0.525) runaway 0.0000  7s
+B gauss    exact     b=1.0 conjugate  meanErr 0.114 covErr 1.236 corr 0.676 (ref 0.848) SW1 0.263 outsideB 0.070 (ref 0.525) runaway 0.0000  22s
+B gauss    exact     b=1.5 coordinate meanErr 0.070 covErr 0.602 corr 0.803 (ref 0.848) SW1 0.101 outsideB 0.039 (ref 0.256) runaway 0.0000  1s
+B gauss    exact     b=1.5 metric     meanErr 0.056 covErr 0.660 corr 0.795 (ref 0.848) SW1 0.107 outsideB 0.036 (ref 0.256) runaway 0.0000  7s
+B gauss    exact     b=1.5 conjugate  meanErr 0.056 covErr 0.660 corr 0.795 (ref 0.848) SW1 0.107 outsideB 0.036 (ref 0.256) runaway 0.0000  22s
+B gauss    exact     b=2.5 coordinate meanErr 0.015 covErr 0.070 corr 0.843 (ref 0.848) SW1 0.015 outsideB 0.005 (ref 0.031) runaway 0.0000  1s
+B gauss    exact     b=2.5 metric     meanErr 0.014 covErr 0.078 corr 0.842 (ref 0.848) SW1 0.016 outsideB 0.004 (ref 0.031) runaway 0.0000  7s
+B gauss    exact     b=2.5 conjugate  meanErr 0.014 covErr 0.078 corr 0.842 (ref 0.848) SW1 0.016 outsideB 0.004 (ref 0.031) runaway 0.0000  20s
+C gauss    corrupted b=3.0 none       meanErr 0.295 covErr 0.398 corr 0.816 (ref 0.848) SW1 0.348 outsideB 0.000 (ref 0.007) runaway 0.9972  1s
+C gauss    corrupted b=3.0 coordinate meanErr 0.118 covErr 0.663 corr 0.821 (ref 0.848) SW1 0.132 outsideB 0.006 (ref 0.007) runaway 0.0000  1s
+C gauss    corrupted b=3.0 metric     meanErr 0.062 covErr 0.339 corr 0.801 (ref 0.848) SW1 0.071 outsideB 0.001 (ref 0.007) runaway 0.0000  12s
+B mixture  exact     b=1.0 none       meanErr 0.011 covErr 0.015 corr 0.814 (ref 0.817) SW1 0.011 outsideB 0.694 (ref 0.689) runaway 0.0000  2s
+B mixture  exact     b=1.0 coordinate meanErr 0.014 covErr 1.197 corr 0.882 (ref 0.817) SW1 0.260 outsideB 0.117 (ref 0.689) runaway 0.0000  2s
+B mixture  exact     b=1.0 metric     meanErr 0.036 covErr 1.212 corr 0.880 (ref 0.817) SW1 0.270 outsideB 0.116 (ref 0.689) runaway 0.0000  10s
+B mixture  exact     b=1.0 conjugate  meanErr 0.031 covErr 1.223 corr 0.873 (ref 0.817) SW1 0.270 outsideB 0.115 (ref 0.689) runaway 0.0000  80s
+B mixture  exact     b=1.5 coordinate meanErr 0.013 covErr 0.416 corr 0.855 (ref 0.817) SW1 0.079 outsideB 0.053 (ref 0.322) runaway 0.0000  2s
+B mixture  exact     b=1.5 metric     meanErr 0.025 covErr 0.415 corr 0.860 (ref 0.817) SW1 0.083 outsideB 0.052 (ref 0.322) runaway 0.0000  11s
+B mixture  exact     b=1.5 conjugate  meanErr 0.025 covErr 0.415 corr 0.860 (ref 0.817) SW1 0.082 outsideB 0.053 (ref 0.322) runaway 0.0000  69s
+B mixture  exact     b=2.5 coordinate meanErr 0.011 covErr 0.018 corr 0.814 (ref 0.817) SW1 0.011 outsideB 0.001 (ref 0.008) runaway 0.0000  2s
+B mixture  exact     b=2.5 metric     meanErr 0.011 covErr 0.018 corr 0.814 (ref 0.817) SW1 0.011 outsideB 0.001 (ref 0.008) runaway 0.0000  10s
+B mixture  exact     b=2.5 conjugate  meanErr 0.011 covErr 0.018 corr 0.814 (ref 0.817) SW1 0.011 outsideB 0.001 (ref 0.008) runaway 0.0000  36s
+C mixture  corrupted b=3.0 none       meanErr 0.355 covErr 0.280 corr 0.773 (ref 0.817) SW1 0.324 outsideB 0.000 (ref 0.000) runaway 0.9976  2s
+C mixture  corrupted b=3.0 coordinate meanErr 0.016 covErr 0.446 corr 0.710 (ref 0.817) SW1 0.107 outsideB 0.002 (ref 0.000) runaway 0.0000  2s
+C mixture  corrupted b=3.0 metric     meanErr 0.028 covErr 0.224 corr 0.786 (ref 0.817) SW1 0.049 outsideB 0.000 (ref 0.000) runaway 0.0000  13s
+wrote results/clamp_study.json and figures/clamp_*.png

@@ -1,0 +1,15 @@
+FAILED tests/test_instantaneous_divergence.py::test_transformer_legacy_and_optional_return_contracts
+FAILED tests/test_instantaneous_divergence.py::test_instantaneous_target_exact_hutchinson_and_masks
+FAILED tests/test_instantaneous_divergence.py::test_learned_pfode_matches_exact_for_ve_and_vp
+FAILED tests/test_instantaneous_divergence.py::test_learned_mode_requires_trained_head
+FAILED tests/test_instantaneous_divergence.py::test_legacy_and_new_checkpoint_loading
+FAILED tests/test_instantaneous_divergence.py::test_legacy_trainer_batch_return_and_opt_in_head_update
+FAILED tests/test_instantaneous_divergence.py::test_public_training_api_is_opt_in
+FAILED tests/test_memory_bounded_attention.py::test_validation_uses_configured_training_batch_size
+FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_heun_vesde - Ty...
+FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_heun_vpsde - Ty...
+FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_euler - TypeErr...
+FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_defaults_trajectory_and_validation
+FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_public_sampling_paths_and_batched_masks
+ERROR tests/test_multiobs_analytic.py - RuntimeError: test_multiobs_analytic....
+13 failed, 436 passed, 18 warnings, 1 error in 789.59s (0:13:09)
