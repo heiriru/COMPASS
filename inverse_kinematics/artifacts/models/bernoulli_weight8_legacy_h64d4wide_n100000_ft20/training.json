@@ -1,0 +1,21 @@
+{
+  "base_checkpoint": "inverse_kinematics/artifacts/models/legacy_h64d4wide_n200000/Model_checkpoint.pt",
+  "cpu_info": {
+    "active_cpus": 3,
+    "host_cpus": 72,
+    "percent": 4.166666666666667
+  },
+  "epochs_requested": 20,
+  "focus_fraction": 0.0,
+  "focus_selection": "abs(x1) < 0.2",
+  "mask_sampler": "GroupedBernoulli(schema, 0.33)",
+  "output_checkpoint": "inverse_kinematics/artifacts/models/bernoulli_weight8_legacy_h64d4wide_n100000_ft20/Model_checkpoint.pt",
+  "posterior_mask_fixed": false,
+  "posterior_mask_loss_weight": 8.0,
+  "samples": 100000,
+  "seconds": 97.93868056102656,
+  "seed": 71,
+  "selection_depends_only_on_observation": true,
+  "time_sampling": "mixture",
+  "validation_samples": 10000
+}

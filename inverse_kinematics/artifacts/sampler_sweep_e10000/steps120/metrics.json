@@ -1,0 +1,126 @@
+{
+  "abc": {
+    "bandwidth": 0.05,
+    "case_indices": [
+      0
+    ],
+    "prior_draws": 20000
+  },
+  "churn_eta": 2.0,
+  "experiment": "all parameters local; ordinary non-compositional sample",
+  "models": {
+    "e10000": {
+      "abc_comparison": [
+        {
+          "abc_ess": 106.79723358154297,
+          "angle_1": {
+            "reference_mean": -0.5560488700866699,
+            "reference_sd": 0.34132546186447144,
+            "sample_mean": -0.5601011514663696,
+            "sample_sd": 0.32709574699401855,
+            "w1": 0.021194402583077213,
+            "w1_over_reference_sd": 0.06209440827327666
+          },
+          "angle_1_positive_mass": {
+            "absolute_error": 0.019700043052434918,
+            "reference": 0.05470004305243492,
+            "sample": 0.035
+          },
+          "angle_2": {
+            "reference_mean": -0.43426185846328735,
+            "reference_sd": 0.38930341601371765,
+            "sample_mean": -0.3764761686325073,
+            "sample_sd": 0.4085216224193573,
+            "w1": 0.06347123006619113,
+            "w1_over_reference_sd": 0.16303794792274473
+          },
+          "angle_3": {
+            "reference_mean": -0.207230806350708,
+            "reference_sd": 0.4293162524700165,
+            "sample_mean": -0.28650128841400146,
+            "sample_sd": 0.4506356120109558,
+            "w1": 0.0810748367454275,
+            "w1_over_reference_sd": 0.18884641864586707
+          },
+          "height_arm": {
+            "reference_mean": -0.017985273152589798,
+            "reference_sd": 0.12524114549160004,
+            "sample_mean": -0.0185661893337965,
+            "sample_sd": 0.11957540363073349,
+            "w1": 0.013497103948441417,
+            "w1_over_reference_sd": 0.10776892765921461
+          },
+          "observation_index": 0
+        }
+      ],
+      "checkpoint": "inverse_kinematics/artifacts/models/legacy_h16d2_n10000_six_weighted_log_sigma_e10000/Model_checkpoint.pt",
+      "parameters": {
+        "angle_1": {
+          "coverage_50": 0.4,
+          "coverage_80": 0.72,
+          "coverage_95": 0.88,
+          "mean_rank": 0.5164,
+          "median_posterior_sd": 0.32000643014907837,
+          "median_posterior_sd_over_prior_sd": 0.6400128602981567,
+          "posterior_mean_rmse": 0.36578401923179626,
+          "posterior_mean_rmse_over_prior_sd": 0.7315680384635925,
+          "rank_ks_pvalue": 0.7334795935916135,
+          "rank_ks_statistic": 0.09399999999999997,
+          "rank_sd": 0.31669079750521606
+        },
+        "angle_2": {
+          "coverage_50": 0.52,
+          "coverage_80": 0.82,
+          "coverage_95": 0.94,
+          "mean_rank": 0.59788,
+          "median_posterior_sd": 0.4015200734138489,
+          "median_posterior_sd_over_prior_sd": 0.8030401468276978,
+          "posterior_mean_rmse": 0.41765421628952026,
+          "posterior_mean_rmse_over_prior_sd": 0.8353084325790405,
+          "rank_ks_pvalue": 0.052793838497198986,
+          "rank_ks_statistic": 0.18700000000000006,
+          "rank_sd": 0.2713602650893969
+        },
+        "angle_3": {
+          "coverage_50": 0.44,
+          "coverage_80": 0.74,
+          "coverage_95": 0.88,
+          "mean_rank": 0.35808000000000006,
+          "median_posterior_sd": 0.43883419036865234,
+          "median_posterior_sd_over_prior_sd": 0.8776683807373047,
+          "posterior_mean_rmse": 0.47397199273109436,
+          "posterior_mean_rmse_over_prior_sd": 0.9479439854621887,
+          "rank_ks_pvalue": 0.007537853679136397,
+          "rank_ks_statistic": 0.23199999999999998,
+          "rank_sd": 0.27884285970446376
+        },
+        "height_arm": {
+          "coverage_50": 0.48,
+          "coverage_80": 0.64,
+          "coverage_95": 0.92,
+          "mean_rank": 0.43182000000000004,
+          "median_posterior_sd": 0.14621618390083313,
+          "median_posterior_sd_over_prior_sd": 0.5848647356033325,
+          "posterior_mean_rmse": 0.20179860293865204,
+          "posterior_mean_rmse_over_prior_sd": 0.8071944117546082,
+          "rank_ks_pvalue": 0.07403426939736657,
+          "rank_ks_statistic": 0.178,
+          "rank_sd": 0.3124676433861037
+        }
+      },
+      "posterior_predictive_endpoint": {
+        "fraction_within_0.05": 0.9614,
+        "fraction_within_0.10": 0.98318,
+        "mean_distance": 0.01925685926629405,
+        "median_distance": 0.012290042708650153,
+        "p90_distance": 0.03170427262226395
+      },
+      "seconds": 14.01628346182406
+    }
+  },
+  "observations": 50,
+  "posterior_draws": 1000,
+  "seed": 7,
+  "terminal_denoise": true,
+  "timesteps": 120
+}

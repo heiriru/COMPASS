@@ -1,0 +1,53 @@
+{
+  "batch_size": 128,
+  "bayesflow": "2.0.13",
+  "calibration_error": {
+    "Angle 1": 0.0056140350877192935,
+    "Angle 2": 0.047631578947368435,
+    "Angle 3": 0.011842105263157893,
+    "Height Arm": 0.006052631578947365
+  },
+  "draws": 1000,
+  "endpoint_error_mean": 0.01435885206241884,
+  "endpoint_error_median": 0.012132072716430086,
+  "epochs": 200,
+  "figures": [
+    "08_bayesflow_calibration_ecdf.png",
+    "09_bayesflow_recovery.png",
+    "10_bayesflow_arm_posterior.png",
+    "11_bayesflow_posterior_single.png",
+    "12_bayesflow_arm_single.png"
+  ],
+  "final_loss": 0.8141892552375793,
+  "method": "bayesflow DiffusionModel (single observation)",
+  "parameters": 509460,
+  "reference_url": "https://bayesflow.org/v2.0.13/_examples/Diffusion_Models.html",
+  "simulations": 10000,
+  "single_observation": {
+    "fraction_positive": [
+      0.389,
+      0.553,
+      0.45,
+      0.457
+    ],
+    "mean": [
+      -0.0941367581441882,
+      0.16157537678815426,
+      -0.07755898089287802,
+      -0.0863172521442175
+    ],
+    "note": "x1 = 0 is where the arm's reflection costs no prior mass",
+    "observables": [
+      0.0,
+      1.5
+    ],
+    "std": [
+      0.36120733169088276,
+      0.8209128348913212,
+      0.6531089926843858,
+      1.1650991898910683
+    ]
+  },
+  "test_datasets": 300,
+  "train_seconds": 57.53468162799254
+}

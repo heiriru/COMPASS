@@ -1,0 +1,50 @@
+{
+  "arch": "legacy",
+  "churn_eta": 2.0,
+  "config": "h16d2",
+  "draws": 1500,
+  "exact_x1_zero": true,
+  "methods": {
+    "langevin_fnpse_arruda_damped": {
+      "colour": "#D28A00",
+      "dip_ratio": 0.19565816945724884,
+      "fraction_positive": 0.5646666666666667,
+      "label": "Langevin + F-NPSE + Arruda damping",
+      "mode_mass_ratio": 0.7501356149201189,
+      "modes": [
+        -0.81,
+        0.625
+      ],
+      "posterior_std": 0.6705621570488683,
+      "seconds": 3.2217785171233118,
+      "w1_over_sigma": 0.18372525303590695
+    }
+  },
+  "observations": 2,
+  "reference": {
+    "dip_ratio": 0.0011327936583444209,
+    "mean": 0.0,
+    "mode_mass_ratio": 0.9978851332504508,
+    "modes": [
+      -0.73,
+      0.73
+    ],
+    "std": 0.7271663803587042
+  },
+  "seed": 99,
+  "select_x1": 0.0,
+  "single_observation": {
+    "dip_ratio": 0.732583707111335,
+    "fraction_positive": 0.5153333333333333,
+    "mode_mass_ratio": 0.9673682932476299,
+    "modes": [
+      -0.6499999999999999,
+      0.585
+    ],
+    "observables": [
+      0.0,
+      1.5
+    ]
+  },
+  "true_angle": 0.6
+}

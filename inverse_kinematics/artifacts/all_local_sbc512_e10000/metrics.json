@@ -1,0 +1,168 @@
+{
+  "abc": {
+    "bandwidth": 0.05,
+    "case_indices": [
+      0,
+      511
+    ],
+    "prior_draws": 400000
+  },
+  "churn_eta": 2.0,
+  "experiment": "all parameters local; ordinary non-compositional sample",
+  "models": {
+    "sixw_e10000": {
+      "abc_comparison": [
+        {
+          "abc_ess": 114.72610473632812,
+          "angle_1": {
+            "reference_mean": -1.1181138753890991,
+            "reference_sd": 0.23605704307556152,
+            "sample_mean": -1.0061708688735962,
+            "sample_sd": 0.2515883147716522,
+            "w1": 0.11188820576133954,
+            "w1_over_reference_sd": 0.47398800011878606
+          },
+          "angle_1_positive_mass": {
+            "absolute_error": 2.3836626807413163e-16,
+            "reference": 2.3836626807413163e-16,
+            "sample": 0.0
+          },
+          "angle_2": {
+            "reference_mean": -0.704497754573822,
+            "reference_sd": 0.3399811387062073,
+            "sample_mean": -0.7901759743690491,
+            "sample_sd": 0.41181430220603943,
+            "w1": 0.0969784403863724,
+            "w1_over_reference_sd": 0.28524653089704416
+          },
+          "angle_3": {
+            "reference_mean": -0.4022107720375061,
+            "reference_sd": 0.38673752546310425,
+            "sample_mean": -0.5091175436973572,
+            "sample_sd": 0.40618249773979187,
+            "w1": 0.10759007502378962,
+            "w1_over_reference_sd": 0.2781992124890244
+          },
+          "height_arm": {
+            "reference_mean": -0.08654257655143738,
+            "reference_sd": 0.13705378770828247,
+            "sample_mean": -0.17015324532985687,
+            "sample_sd": 0.15009401738643646,
+            "w1": 0.08348700370368667,
+            "w1_over_reference_sd": 0.6091550266482811
+          },
+          "observation_index": 0
+        },
+        {
+          "abc_ess": 11222.6494140625,
+          "angle_1": {
+            "reference_mean": 0.1945919394493103,
+            "reference_sd": 0.33093997836112976,
+            "sample_mean": 0.15999723970890045,
+            "sample_sd": 0.3487749993801117,
+            "w1": 0.0365734060200716,
+            "w1_over_reference_sd": 0.11051371369874753
+          },
+          "angle_1_positive_mass": {
+            "absolute_error": 0.048613011837005615,
+            "reference": 0.7048630118370056,
+            "sample": 0.65625
+          },
+          "angle_2": {
+            "reference_mean": 0.10246211290359497,
+            "reference_sd": 0.42316243052482605,
+            "sample_mean": 0.1433960348367691,
+            "sample_sd": 0.4354223608970642,
+            "w1": 0.04355725545013669,
+            "w1_over_reference_sd": 0.10293270930530132
+          },
+          "angle_3": {
+            "reference_mean": 0.04274231195449829,
+            "reference_sd": 0.444064199924469,
+            "sample_mean": 0.06123622506856918,
+            "sample_sd": 0.4491957426071167,
+            "w1": 0.033130232504244184,
+            "w1_over_reference_sd": 0.07460685304034713
+          },
+          "height_arm": {
+            "reference_mean": -0.009980553761124611,
+            "reference_sd": 0.1880660057067871,
+            "sample_mean": -0.02217266522347927,
+            "sample_sd": 0.1784447580575943,
+            "w1": 0.023935937684919188,
+            "w1_over_reference_sd": 0.12727413226523035
+          },
+          "observation_index": 511
+        }
+      ],
+      "checkpoint": "/export/home/rheinric/COMPASS/inverse_kinematics/artifacts/models/legacy_h16d2_n10000_six_weighted_log_sigma_e10000/Model_checkpoint.pt",
+      "parameters": {
+        "angle_1": {
+          "coverage_50": 0.474609375,
+          "coverage_80": 0.76171875,
+          "coverage_95": 0.916015625,
+          "mean_rank": 0.5024528503417969,
+          "median_posterior_sd": 0.3234397768974304,
+          "median_posterior_sd_over_prior_sd": 0.6468795537948608,
+          "posterior_mean_rmse": 0.34857094287872314,
+          "posterior_mean_rmse_over_prior_sd": 0.6971418857574463,
+          "rank_ks_pvalue": 0.7602505922183,
+          "rank_ks_statistic": 0.029296875,
+          "rank_sd": 0.3002372351437129
+        },
+        "angle_2": {
+          "coverage_50": 0.46875,
+          "coverage_80": 0.791015625,
+          "coverage_95": 0.919921875,
+          "mean_rank": 0.49469757080078125,
+          "median_posterior_sd": 0.40814852714538574,
+          "median_posterior_sd_over_prior_sd": 0.8162970542907715,
+          "posterior_mean_rmse": 0.43254101276397705,
+          "posterior_mean_rmse_over_prior_sd": 0.8650820255279541,
+          "rank_ks_pvalue": 0.6872898291320877,
+          "rank_ks_statistic": 0.03125,
+          "rank_sd": 0.29743728554545235
+        },
+        "angle_3": {
+          "coverage_50": 0.462890625,
+          "coverage_80": 0.80078125,
+          "coverage_95": 0.947265625,
+          "mean_rank": 0.5070152282714844,
+          "median_posterior_sd": 0.4451600909233093,
+          "median_posterior_sd_over_prior_sd": 0.8903201818466187,
+          "posterior_mean_rmse": 0.4740610420703888,
+          "posterior_mean_rmse_over_prior_sd": 0.9481220841407776,
+          "rank_ks_pvalue": 0.5396908419641835,
+          "rank_ks_statistic": 0.03515625,
+          "rank_sd": 0.2944141621737192
+        },
+        "height_arm": {
+          "coverage_50": 0.470703125,
+          "coverage_80": 0.77734375,
+          "coverage_95": 0.951171875,
+          "mean_rank": 0.5218734741210938,
+          "median_posterior_sd": 0.15171533823013306,
+          "median_posterior_sd_over_prior_sd": 0.6068613529205322,
+          "posterior_mean_rmse": 0.18352550268173218,
+          "posterior_mean_rmse_over_prior_sd": 0.7341020107269287,
+          "rank_ks_pvalue": 0.13778768691005971,
+          "rank_ks_statistic": 0.05078125,
+          "rank_sd": 0.29687283342556864
+        }
+      },
+      "posterior_predictive_endpoint": {
+        "fraction_within_0.05": 0.9720230102539062,
+        "fraction_within_0.10": 0.9967727661132812,
+        "mean_distance": 0.01578334999617856,
+        "median_distance": 0.012103617945584575,
+        "p90_distance": 0.03061854977024887
+      },
+      "seconds": 43.224675664212555
+    }
+  },
+  "observations": 512,
+  "posterior_draws": 512,
+  "seed": 812,
+  "terminal_denoise": true,
+  "timesteps": 80
+}

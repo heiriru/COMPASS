@@ -1,0 +1,66 @@
+{
+  "benchmark_reference": "https://arxiv.org/pdf/2101.10763.pdf",
+  "cpu": {
+    "active_cpus": 3,
+    "host_cpus": 72,
+    "percent": 4.166666666666667
+  },
+  "draws_file": "simulations-10000.npz",
+  "figures": [
+    "01_example_simulations.png",
+    "02_prior_parameters.png",
+    "03_observation_space.png"
+  ],
+  "illustration": {
+    "acceptance_rate": 3.3333333333333335e-05,
+    "consistent_arms": 120,
+    "example_arms": 6,
+    "rejection_draws": 3600000,
+    "target_observable": [
+      -0.026918199419197833,
+      1.7088595939649331
+    ],
+    "tolerance": 0.01
+  },
+  "observable_mean": [
+    -0.014276610149145353,
+    1.5205186042621228
+  ],
+  "observable_std": [
+    1.041648807957936,
+    0.5128528177565057
+  ],
+  "parameter_mean": [
+    0.0009987399247173992,
+    -0.009192182828031149,
+    0.0013707302348368192,
+    -0.005023690008433892
+  ],
+  "parameter_names": [
+    "height_arm",
+    "angle_1",
+    "angle_2",
+    "angle_3"
+  ],
+  "parameter_std": [
+    0.25075608553135154,
+    0.49946927006746505,
+    0.497691440010242,
+    0.5041452046763832
+  ],
+  "prior_scales": [
+    0.25,
+    0.5,
+    0.5,
+    0.5
+  ],
+  "reference_url": "https://bayesflow.org/v2.0.13/_examples/Diffusion_Models.html",
+  "root_seed": 2026,
+  "segment_lengths": [
+    0.5,
+    0.5,
+    1.0
+  ],
+  "simulations": 10000,
+  "stage": "simulation only; no model is constructed or trained"
+}

@@ -1,0 +1,78 @@
+{
+ "gauss_hierarchical": {
+  "mean": -0.018181184614601137,
+  "sd": 0.43247023575976973,
+  "mode": -0.48,
+  "mean_error_sigma": 0.4910545300298152,
+  "width_ratio": 0.8770168440842714,
+  "w1_over_sigma": 0.5346615648183086,
+  "dip_ratio": 0.5569871254883192,
+  "mode_mass_ratio": 0.7657347441226485,
+  "positive_mass": 0.4727036901991213,
+  "seconds": 5.92894863919355,
+  "endpoint_mean": 0.08614672901986435,
+  "endpoint_median": 0.07339113343644427
+ },
+ "gauss_jacobian": {
+  "mean": -0.009207710662594765,
+  "sd": 0.48257092134529256,
+  "mode": -0.51,
+  "mean_error_sigma": 0.509252054749719,
+  "width_ratio": 0.9786172353377427,
+  "w1_over_sigma": 0.5123598884790166,
+  "dip_ratio": 0.307452287396123,
+  "mode_mass_ratio": 0.7928575680918806,
+  "positive_mass": 0.4722200776284375,
+  "seconds": 7.33942309813574,
+  "endpoint_mean": 0.0804964067512648,
+  "endpoint_median": 0.0693259810067513
+ },
+ "langevin_fnpse": {
+  "mean": -0.08033985698502522,
+  "sd": 0.46738950319625816,
+  "mode": -0.53,
+  "mean_error_sigma": 0.3650014559286433,
+  "width_ratio": 0.94783047053207,
+  "w1_over_sigma": 0.39756137359849086,
+  "dip_ratio": 0.5041929831764762,
+  "mode_mass_ratio": 0.5690360188761735,
+  "positive_mass": 0.4102618502987934,
+  "seconds": 11.02364001609385,
+  "endpoint_mean": 0.08535058160287232,
+  "endpoint_median": 0.07299367500964654
+ },
+ "mixture_product": {
+  "mean": -0.2745081165854572,
+  "sd": 0.48962721100854967,
+  "mode": -0.595,
+  "mean_error_sigma": -0.028757050843367483,
+  "width_ratio": 0.9929268556993432,
+  "w1_over_sigma": 0.06448632336569055,
+  "dip_ratio": 0.01103998807802798,
+  "mode_mass_ratio": 0.33652723263142975,
+  "positive_mass": 0.2522268901041814,
+  "seconds": 21.720867993077263,
+  "endpoint_mean": 0.02189796494701079,
+  "endpoint_median": 0.015546060960937184,
+  "diagnostics": {
+   "chosen_k": [
+    4,
+    4,
+    5,
+    4,
+    4,
+    5,
+    4,
+    5
+   ],
+   "k_median": 4.0,
+   "components": 64,
+   "cancellation_ratio": 5.3515188557058675,
+   "outside_support": 0.013893429533728296,
+   "support": [
+    -0.7229917023777962,
+    0.7110546060204506
+   ]
+  }
+ }
+}

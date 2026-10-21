@@ -1,0 +1,52 @@
+{
+  "arch": "legacy",
+  "arruda_damping_at_noise": null,
+  "arruda_damping_schedule": "exponential",
+  "churn_eta": 2.0,
+  "config": "h16d2",
+  "draws": 4000,
+  "exact_x1_zero": true,
+  "methods": {
+    "gauss_jacobian": {
+      "colour": "#5E60CE",
+      "dip_ratio": 0.20595189279208015,
+      "fraction_positive": 0.58225,
+      "label": "DPM2 + gauss_jacobian + churn",
+      "mode_mass_ratio": 0.7326985811651507,
+      "modes": [
+        -0.565,
+        0.5800000000000001
+      ],
+      "posterior_std": 0.5218561381680592,
+      "seconds": 18.49412949802354,
+      "w1_over_sigma": 0.28798784377928516
+    }
+  },
+  "observations": 8,
+  "reference": {
+    "dip_ratio": 7.381404095214214e-07,
+    "mean": 5.551115123125783e-17,
+    "mode_mass_ratio": 1.0,
+    "modes": [
+      -0.7,
+      0.7000000000000002
+    ],
+    "std": 0.6705779374695233
+  },
+  "seed": 99,
+  "select_x1": 0.0,
+  "single_observation": {
+    "dip_ratio": 0.7256987852119476,
+    "fraction_positive": 0.52,
+    "mode_mass_ratio": 0.941547463413372,
+    "modes": [
+      -0.595,
+      0.605
+    ],
+    "observables": [
+      0.0,
+      1.5
+    ]
+  },
+  "true_angle": 0.6
+}

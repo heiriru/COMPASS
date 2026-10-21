@@ -1,0 +1,50 @@
+{
+  "arch": "legacy",
+  "churn_eta": 2.0,
+  "config": "h16d2",
+  "draws": 1500,
+  "exact_x1_zero": true,
+  "methods": {
+    "langevin_fnpse": {
+      "colour": "#2A9D8F",
+      "dip_ratio": 0.2293674798023849,
+      "fraction_positive": 0.608,
+      "label": "Langevin + F-NPSE",
+      "mode_mass_ratio": 0.6399154661634485,
+      "modes": [
+        -0.605,
+        0.585
+      ],
+      "posterior_std": 0.538321156075961,
+      "seconds": 10.266246694140136,
+      "w1_over_sigma": 0.2958918852013882
+    }
+  },
+  "observations": 16,
+  "reference": {
+    "dip_ratio": 3.5137276177135942e-12,
+    "mean": 1.6653345369377348e-16,
+    "mode_mass_ratio": 0.999999999997056,
+    "modes": [
+      -0.69,
+      0.69
+    ],
+    "std": 0.6706278856458144
+  },
+  "seed": 99,
+  "select_x1": 0.0,
+  "single_observation": {
+    "dip_ratio": 0.732583707111335,
+    "fraction_positive": 0.5153333333333333,
+    "mode_mass_ratio": 0.9673682932476299,
+    "modes": [
+      -0.6499999999999999,
+      0.585
+    ],
+    "observables": [
+      0.0,
+      1.5
+    ]
+  },
+  "true_angle": 0.6
+}

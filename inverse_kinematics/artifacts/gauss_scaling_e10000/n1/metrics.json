@@ -1,0 +1,64 @@
+{
+  "arch": "legacy",
+  "churn_eta": 2.0,
+  "config": "h16d2",
+  "draws": 1500,
+  "exact_x1_zero": true,
+  "methods": {
+    "gauss_hierarchical": {
+      "colour": "#E76F51",
+      "dip_ratio": 0.7607324486863433,
+      "fraction_positive": 0.49,
+      "label": "DPM2 + gauss_hierarchical + churn",
+      "mode_mass_ratio": 0.9361080535388231,
+      "modes": [
+        -0.45999999999999996,
+        0.3900000000000001
+      ],
+      "posterior_std": 0.4813589322280428,
+      "seconds": 8.509848698042333,
+      "w1_over_sigma": 0.02359452224069913
+    },
+    "gauss_jacobian": {
+      "colour": "#5E60CE",
+      "dip_ratio": 0.8933753193378711,
+      "fraction_positive": 0.49,
+      "label": "DPM2 + gauss_jacobian + churn",
+      "mode_mass_ratio": 0.9942504860297883,
+      "modes": [
+        -0.5149999999999999,
+        0.42500000000000027
+      ],
+      "posterior_std": 0.4844892261718064,
+      "seconds": 6.104135263944045,
+      "w1_over_sigma": 0.03244848849543821
+    }
+  },
+  "observations": 1,
+  "reference": {
+    "dip_ratio": 0.7171959688075156,
+    "mean": 2.7755575615628914e-17,
+    "mode_mass_ratio": 0.9999999999999999,
+    "modes": [
+      -0.4849999999999999,
+      0.4849999999999999
+    ],
+    "std": 0.48348457171180004
+  },
+  "seed": 99,
+  "select_x1": 0.0,
+  "single_observation": {
+    "dip_ratio": 0.732583707111335,
+    "fraction_positive": 0.5153333333333333,
+    "mode_mass_ratio": 0.9673682932476299,
+    "modes": [
+      -0.6499999999999999,
+      0.585
+    ],
+    "observables": [
+      0.0,
+      1.5
+    ]
+  },
+  "true_angle": 0.6
+}

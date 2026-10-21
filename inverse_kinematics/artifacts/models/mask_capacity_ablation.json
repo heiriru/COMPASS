@@ -1,0 +1,56 @@
+{
+  "question": "why the network did not learn the bimodal score",
+  "observation": [
+    0.0,
+    1.5
+  ],
+  "note": "n=1 through MultiObsSampler, where composition is a no-op, with churn 2 and no Langevin correctors",
+  "bayesflow": {
+    "label": "BayesFlow",
+    "sd": 0.821,
+    "endpoint": 0.0144,
+    "parameters": 509460
+  },
+  "arms": [
+    {
+      "label": "baseline h16d2",
+      "parameters": 367136,
+      "posterior_mask_share": 0.022,
+      "data_dependent_parameters": 5056,
+      "dip_ratio": 1.0,
+      "fraction_positive": 0.478,
+      "sd_angle_1": 0.37,
+      "endpoint_error": 0.0933
+    },
+    {
+      "label": "A: menu h16d2",
+      "parameters": 367136,
+      "posterior_mask_share": 0.69,
+      "data_dependent_parameters": 5056,
+      "dip_ratio": 0.486,
+      "fraction_positive": 0.452,
+      "sd_angle_1": 0.787,
+      "endpoint_error": 0.078
+    },
+    {
+      "label": "B: wide h64d4",
+      "parameters": 3163008,
+      "posterior_mask_share": 0.022,
+      "data_dependent_parameters": 334208,
+      "dip_ratio": 0.368,
+      "fraction_positive": 0.522,
+      "sd_angle_1": 0.786,
+      "endpoint_error": 0.0756
+    },
+    {
+      "label": "C: both h64d4+menu",
+      "parameters": 3163008,
+      "posterior_mask_share": 0.69,
+      "data_dependent_parameters": 334208,
+      "dip_ratio": 0.283,
+      "fraction_positive": 0.498,
+      "sd_angle_1": 0.784,
+      "endpoint_error": 0.0747
+    }
+  ]
+}

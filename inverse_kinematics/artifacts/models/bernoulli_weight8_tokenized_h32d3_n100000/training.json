@@ -1,0 +1,21 @@
+{
+  "base_checkpoint": "/export/home/rheinric/COMPASS/inverse_kinematics/artifacts/models/tokenized_h32d3_n200000/Model_checkpoint.pt",
+  "cpu_info": {
+    "active_cpus": 3,
+    "host_cpus": 72,
+    "percent": 4.166666666666667
+  },
+  "epochs_requested": 40,
+  "focus_fraction": 0.5,
+  "focus_selection": "abs(x1) < 0.2",
+  "mask_sampler": "GroupedBernoulli(schema, 0.33)",
+  "output_checkpoint": "inverse_kinematics/artifacts/models/bernoulli_weight8_tokenized_h32d3_n100000/Model_checkpoint.pt",
+  "posterior_mask_fixed": false,
+  "posterior_mask_loss_weight": 8.0,
+  "samples": 100000,
+  "seconds": 86.31140283215791,
+  "seed": 71,
+  "selection_depends_only_on_observation": true,
+  "time_sampling": "mixture",
+  "validation_samples": 12000
+}
