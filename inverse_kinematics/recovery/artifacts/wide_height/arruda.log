@@ -1,0 +1,690 @@
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.52s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.52s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.44s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.61s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.91s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.91s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.08s/batch]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.08s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.03211855388857657,
+    "std": 0.33893037509513396,
+    "wasserstein_over_reference_std": 0.10617537335361106,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d0/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.03653422924800543,
+    "std": 0.3125633624325544,
+    "wasserstein_over_reference_std": 0.146326643250606,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d0/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.06909729716533912,
+    "std": 0.2083772102343285,
+    "wasserstein_over_reference_std": 0.35902486676055817,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d0/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.09507320887903915,
+    "std": 0.1582098892079263,
+    "wasserstein_over_reference_std": 1.0614459809217487,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d0/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6321093263924122,
+    "std": 0.04475423817566261,
+    "wasserstein_over_reference_std": 6.892584123214599,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d0/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.11s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.18s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.80s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.42s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.02s/batch]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.02s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.020296333587146363,
+    "std": 0.3460955278676891,
+    "wasserstein_over_reference_std": 0.05955880900581858,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d1/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.017935649606020888,
+    "std": 0.17357195098410572,
+    "wasserstein_over_reference_std": 0.1235731956348085,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d1/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.09256705692654942,
+    "std": 0.17519344819134666,
+    "wasserstein_over_reference_std": 0.4004833619131802,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d1/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.264402809940133,
+    "std": 0.20733773921516815,
+    "wasserstein_over_reference_std": 0.8062102767770879,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d1/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6094499682411552,
+    "std": 0.02344617094002684,
+    "wasserstein_over_reference_std": 2.372073737464562,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d1/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.31s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.17s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.38s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.38s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.61s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.90s/batch]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.90s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": 0.04513370856933761,
+    "std": 0.6491227763403348,
+    "wasserstein_over_reference_std": 0.10018906017203698,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d2/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": 0.02021077437166241,
+    "std": 0.3678102872460683,
+    "wasserstein_over_reference_std": 0.07163939073680095,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d2/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": 0.011159660095261642,
+    "std": 0.21824862768721656,
+    "wasserstein_over_reference_std": 0.2013424248776275,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d2/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.08082153374530025,
+    "std": 0.2003636829859796,
+    "wasserstein_over_reference_std": 0.6857312597147717,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d2/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6221120226904749,
+    "std": 0.05524726515787692,
+    "wasserstein_over_reference_std": 3.851829900711255,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d2/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.95s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.60s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.74s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.74s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.030720397103665163,
+    "std": 0.47728411235688173,
+    "wasserstein_over_reference_std": 0.03644822198992949,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d3/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.053179085008858235,
+    "std": 0.36115679164572423,
+    "wasserstein_over_reference_std": 0.15290231215788752,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d3/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.2573706143996387,
+    "std": 0.23925088258268937,
+    "wasserstein_over_reference_std": 0.8907510967775835,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d3/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.4100410944882606,
+    "std": 0.24737319160064525,
+    "wasserstein_over_reference_std": 1.1647681761551043,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d3/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6538594070076943,
+    "std": 0.048624064523639446,
+    "wasserstein_over_reference_std": 2.3919162644446783,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d3/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.38s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.38s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.24s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.68s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.68s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.09s/batch]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.64s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.64s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.044215112244506596,
+    "std": 0.38068854660379936,
+    "wasserstein_over_reference_std": 0.13974385194694308,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d4/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.04656050751192379,
+    "std": 0.2985051516954133,
+    "wasserstein_over_reference_std": 0.18484954138598444,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d4/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.08676452831111965,
+    "std": 0.2138603801230211,
+    "wasserstein_over_reference_std": 0.42532178377174007,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d4/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.23420460409417865,
+    "std": 0.19946675350523818,
+    "wasserstein_over_reference_std": 1.043572596392277,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d4/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.5981226848885417,
+    "std": 0.023599778870788585,
+    "wasserstein_over_reference_std": 2.3662750580183145,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d4/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.83s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.04s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.04s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.90s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:08<00:00, 68.17s/batch]Sampling: 100%|██████████| 1/1 [01:08<00:00, 68.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.03s/batch]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.03s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.018789278919284697,
+    "std": 0.48689644018981415,
+    "wasserstein_over_reference_std": 0.03701029184894046,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d5/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.0493184784000623,
+    "std": 0.3791705147151781,
+    "wasserstein_over_reference_std": 0.1902850104902302,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d5/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.12906844873758383,
+    "std": 0.3228524756522277,
+    "wasserstein_over_reference_std": 0.37997383012905633,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d5/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.16423986018594589,
+    "std": 0.18013256727109644,
+    "wasserstein_over_reference_std": 0.9978478745997241,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d5/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6602240451779217,
+    "std": 0.08013290171691353,
+    "wasserstein_over_reference_std": 4.992708416965156,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d5/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.29s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.29s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.55s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.74s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.19s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.19s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.36s/batch]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.36s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.020859083357994676,
+    "std": 0.4382264429199405,
+    "wasserstein_over_reference_std": 0.1025698745002287,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d6/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.050563565085147276,
+    "std": 0.34681033663012295,
+    "wasserstein_over_reference_std": 0.24696675079414024,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d6/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.053146523700736,
+    "std": 0.18781813925200577,
+    "wasserstein_over_reference_std": 0.4027907455387972,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d6/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.09936811700827093,
+    "std": 0.20425553197978946,
+    "wasserstein_over_reference_std": 0.8017368384102584,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d6/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6475228175111115,
+    "std": 0.04306271796612751,
+    "wasserstein_over_reference_std": 3.7639287289422536,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d6/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.06s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.19s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.19s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.50s/batch]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.88s/batch]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.35s/batch]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.35s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.02511750308200135,
+    "std": 0.46292397669497193,
+    "wasserstein_over_reference_std": 0.03927567284598601,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d7/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.03358000618894585,
+    "std": 0.25107974601328703,
+    "wasserstein_over_reference_std": 0.18151366873497418,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d7/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.07322654880836489,
+    "std": 0.27497661769683357,
+    "wasserstein_over_reference_std": 0.4183996299512525,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d7/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.06922492740306188,
+    "std": 0.3820214970494069,
+    "wasserstein_over_reference_std": 0.4508368879496286,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d7/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6603330345581635,
+    "std": 0.10713557349227175,
+    "wasserstein_over_reference_std": 2.595323214398686,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d7/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.20s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.92s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.63s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.29s/batch]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.29s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.69s/batch]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.69s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.005712471896666102,
+    "std": 0.24856979199046925,
+    "wasserstein_over_reference_std": 0.2521348738561745,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d8/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.031076285469753204,
+    "std": 0.22601469020210727,
+    "wasserstein_over_reference_std": 0.19513592928393658,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d8/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.0410433830571128,
+    "std": 0.17978601467319705,
+    "wasserstein_over_reference_std": 0.2576511619808054,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d8/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.3168891983013018,
+    "std": 0.15996841750918037,
+    "wasserstein_over_reference_std": 1.1416787186864703,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d8/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.5909280674308538,
+    "std": 0.02166142620367906,
+    "wasserstein_over_reference_std": 2.542244432738352,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d8/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
+CPU cap: 3/72 logical CPUs; affinity=[36, 37, 38]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from Arruda/artifacts/ik/wide_sdh10/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.75s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.27s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.27s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.87s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.87s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.59s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.59s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.33s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.34s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 1,
+    "bridge": 1.0,
+    "mean": -0.0788838124209724,
+    "std": 0.4641945350101565,
+    "wasserstein_over_reference_std": 0.08646140190881026,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d9/samples_n1_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 2,
+    "bridge": 1.0,
+    "mean": -0.07596672731020954,
+    "std": 0.3423138148040593,
+    "wasserstein_over_reference_std": 0.15813943133301958,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d9/samples_n2_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.14211930235000908,
+    "std": 0.32862803194418044,
+    "wasserstein_over_reference_std": 0.22227017844415328,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d9/samples_n8_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.14012917263442068,
+    "std": 0.2363794867916594,
+    "wasserstein_over_reference_std": 0.5158407597215318,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d9/samples_n32_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.6382122360442299,
+    "std": 0.157199535934695,
+    "wasserstein_over_reference_std": 3.4879411075969213,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/wide_sdh10/d9/samples_n128_bridge1.npy",
+    "method": "Arruda adaptive, d=1"
+  }
+]
