@@ -1,0 +1,32 @@
+{
+  "arch": "legacy",
+  "config": "h32d3wide",
+  "mask_menu": "six_weighted",
+  "max_epochs_override": null,
+  "mixture": {
+    "mu_0": 2.5,
+    "sigma_x": 0.8,
+    "tau_g": 0.4,
+    "tau_l": 0.7,
+    "weights": [
+      0.5,
+      0.5
+    ]
+  },
+  "nodes": 3,
+  "parameters": 597664,
+  "sde": {
+    "sde_type": "vesde",
+    "sigma": 15.0
+  },
+  "seed": 7,
+  "settings": {
+    "depth": 3,
+    "hidden_size": 32,
+    "mlp_ratio": 4,
+    "num_heads": 4
+  },
+  "simulations": 200000,
+  "time_sampling": "log_sigma",
+  "train_seconds": 595.3481124800164
+}

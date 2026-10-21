@@ -106,8 +106,21 @@ PRECISION_EST_SAMPLES = 4096
 SCORE_LAMBDAS = (0.05, 0.1, 0.2, 0.5, 1.0, 2.0)
 SCORE_STATES = 512
 
+# Every arm below that names correctors, or that calls itself "predictor only",
+# pins churn_eta=0.0 explicitly. Churn is the library default now
+# (compass.churn), and without the pin the "predictor only" control -- the
+# eta = 0 baseline the whole initialization story rests on (W1 2.598 sigma) --
+# would silently become a churned sampler and stop being a control.
 CORRECTOR = {"corrector_steps_interval": 1, "corrector_steps": 10,
-             "final_corrector_steps": 3, "snr": 0.2}
+             "final_corrector_steps": 3, "snr": 0.2, "churn_eta": 0.0}
+PREDICTOR_ONLY = {"corrector_steps": 0, "final_corrector_steps": 0,
+                  "terminal_corrector_steps": 0, "churn_eta": 0.0}
+
+# The default recipe: corrector-free, stochastic predictor. eta = 2 is the
+# measured optimum once the score is learned (the corrector-free optimum drops
+# from 4 with an exact row score to 2 with a learned one).
+CHURN = {"corrector_steps": 0, "final_corrector_steps": 0,
+         "terminal_corrector_steps": 0, "churn_eta": 2.0}
 
 METHODS = {
     "gauss_hierarchical": {
@@ -129,7 +142,7 @@ METHODS = {
             "precision_est_samples": PRECISION_EST_SAMPLES,
             "precision_est_timesteps": TIMESTEPS,
             "corrector_steps_interval": 1, "corrector_steps": 2,
-            "final_corrector_steps": 3, "snr": 0.2,
+            "final_corrector_steps": 3, "snr": 0.2, "churn_eta": 0.0,
         },
     },
     "gauss_hierarchical_predictor_only": {
@@ -139,9 +152,7 @@ METHODS = {
         "sample_kwargs": {
             "method": "dpm", "order": 2, "correction": "gauss_hierarchical",
             "precision_est_samples": PRECISION_EST_SAMPLES,
-            "precision_est_timesteps": TIMESTEPS,
-            "corrector_steps": 0, "final_corrector_steps": 0,
-            "terminal_corrector_steps": 0,
+            "precision_est_timesteps": TIMESTEPS, **PREDICTOR_ONLY,
         },
     },
     "gauss_jacobian": {
@@ -165,7 +176,7 @@ METHODS = {
         "sample_kwargs": {
             "method": "dpm", "order": 2, "correction": "gauss_jacobian",
             "corrector_steps_interval": 1, "corrector_steps": 2,
-            "final_corrector_steps": 3, "snr": 0.2,
+            "final_corrector_steps": 3, "snr": 0.2, "churn_eta": 0.0,
         },
     },
     "gauss_jacobian_predictor_only": {
@@ -174,9 +185,68 @@ METHODS = {
         "note": "pilot-free; no interleaved or terminal Langevin correctors",
         "sample_kwargs": {
             "method": "dpm", "order": 2, "correction": "gauss_jacobian",
-            "corrector_steps": 0, "final_corrector_steps": 0,
-            "terminal_corrector_steps": 0,
+            **PREDICTOR_ONLY,
         },
+    },
+    "gauss_hierarchical_churn2": {
+        "label": "DPM2 + churn 2 + gauss_hierarchical",
+        "colour": CORAL,
+        "note": "corrector-free stochastic predictor; the default recipe",
+        "sample_kwargs": {
+            "method": "dpm", "order": 2, "correction": "gauss_hierarchical",
+            "precision_est_samples": PRECISION_EST_SAMPLES,
+            "precision_est_timesteps": TIMESTEPS, **CHURN,
+        },
+    },
+    "gauss_hierarchical_churn4": {
+        "label": "DPM2 + churn 4 + gauss_hierarchical",
+        "colour": "#9D4EDD",
+        "note": "corrector-free stochastic predictor, eta=4 comparison",
+        "sample_kwargs": {
+            "method": "dpm", "order": 2, "correction": "gauss_hierarchical",
+            "precision_est_samples": PRECISION_EST_SAMPLES,
+            "precision_est_timesteps": TIMESTEPS,
+            **dict(CHURN, churn_eta=4.0),
+        },
+    },
+    "gauss_jacobian_churn2": {
+        "label": "DPM2 + churn 2 + gauss_jacobian (Newton MAP)",
+        "colour": TEAL,
+        "note": "pilot-free curvature, corrector-free predictor; the default recipe",
+        "newton_map": True,
+        "sample_kwargs": {
+            "method": "dpm", "order": 2, "correction": "gauss_jacobian",
+            **CHURN,
+        },
+    },
+    "gauss_jacobian_churn4": {
+        "label": "DPM2 + churn 4 + gauss_jacobian", "colour": TEAL,
+        "note": "pilot-free curvature; corrector-free stochastic predictor",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "gauss_jacobian", **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_k1_churn4": {
+        "label": "BP-JAC K=1, churn 4", "colour": "#7B2CBF", "note": "block-pooled Jacobian composition; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 1, **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_k2_churn4": {
+        "label": "BP-JAC K=2, churn 4", "colour": "#7B2CBF", "note": "block-pooled Jacobian composition; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 2, **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_k5_churn4": {
+        "label": "BP-JAC K=5, churn 4", "colour": "#7B2CBF", "note": "block-pooled Jacobian composition; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 5, **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_k10_churn4": {
+        "label": "BP-JAC K=10, churn 4", "colour": "#7B2CBF", "note": "block-pooled Jacobian composition; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 10, **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_kn_churn4": {
+        "label": "BP-JAC K=N, churn 4", "colour": "#7B2CBF", "note": "one pooled Jacobian block; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 30, **dict(CHURN, churn_eta=4.0)},
+    },
+    "bp_jac_k5_adaptive_churn4": {
+        "label": "BP-JAC adaptive K=5, churn 4", "colour": "#7B2CBF", "note": "score-sorted pooled Jacobian blocks; predictor only",
+        "sample_kwargs": {"method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 5, "jacobian_pooling": "score_sorted", **dict(CHURN, churn_eta=4.0)},
     },
     "langevin_fnpe": {
         "label": "Langevin + F-NPSE",
@@ -188,6 +258,13 @@ METHODS = {
         },
     },
 }
+
+# The default sweep is pure churn plus the external Langevin + F-NPSE baseline.
+# The corrector and predictor-only arms stay reachable by name: they are the
+# controls that established why churn is the default, and README.md's tables
+# cite them.
+DEFAULT_METHODS = ("gauss_hierarchical_churn2", "gauss_jacobian_churn2",
+                   "langevin_fnpe")
 
 
 # ---------------------------------------------------------------------------
@@ -861,8 +938,11 @@ def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--methods", nargs="+", default=list(METHODS),
-                        choices=list(METHODS))
+    parser.add_argument("--methods", nargs="+", default=list(DEFAULT_METHODS),
+                        choices=list(METHODS),
+                        help="Default sweep is corrector-free (pure churn) plus "
+                             "the Langevin+F-NPSE baseline. The corrector and "
+                             "predictor-only arms remain available by name.")
     parser.add_argument("--stage", nargs="+", default=["score", "sample"],
                         choices=["score", "sample"])
     parser.add_argument("--config", default="h8d1")

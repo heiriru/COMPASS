@@ -1,0 +1,60 @@
+problem=ik sources=['learned'] checkpoint=ikKa_h16d2_n200000_s7 sde_sigma=8.0 prior_sd=0.5
+learned  n=   8 t=0.03     lam=0.1788  modes=[np.float64(-0.5622)]  valleys=[]  ref=[-0.4125, 0.4575]  dip=1.000 (ref 0.069)  W1/sd=1.0907  15s
+learned  n=   8 t=0.01     lam=0.1010  modes=[np.float64(-0.6018)]  valleys=[]  ref=[-0.4125, 0.4575]  dip=1.000 (ref 0.069)  W1/sd=1.1557  11s
+learned  n=   8 t=0.003    lam=0.0549  modes=[np.float64(-0.6304)]  valleys=[]  ref=[-0.4125, 0.4575]  dip=1.000 (ref 0.069)  W1/sd=1.2096  11s
+learned  n=   8 t=0.001    lam=0.0317  modes=[np.float64(-0.6324), np.float64(0.0116)]  valleys=[np.float64(-0.2686)]  ref=[-0.4125, 0.4575]  dip=0.112 (ref 0.069)  W1/sd=0.7839  11s
+learned  n=  16 t=0.03     lam=0.1788  modes=[np.float64(-0.5916)]  valleys=[]  ref=[-0.4875, 0.4762]  dip=1.000 (ref 0.003)  W1/sd=1.1495  19s
+learned  n=  16 t=0.01     lam=0.1010  modes=[np.float64(-0.6247)]  valleys=[]  ref=[-0.4875, 0.4762]  dip=1.000 (ref 0.003)  W1/sd=1.2116  19s
+learned  n=  16 t=0.003    lam=0.0549  modes=[np.float64(-0.6498)]  valleys=[]  ref=[-0.4875, 0.4762]  dip=1.000 (ref 0.003)  W1/sd=1.2609  19s
+learned  n=  16 t=0.001    lam=0.0317  modes=[np.float64(-0.6498), np.float64(-0.2283)]  valleys=[np.float64(-0.2584)]  ref=[-0.4875, 0.4762]  dip=0.968 (ref 0.003)  W1/sd=1.2432  19s
+learned  n=  32 t=0.03     lam=0.1788  modes=[np.float64(-0.5914), np.float64(0.161), np.float64(0.1889), np.float64(0.2212), np.float64(0.3307)]  valleys=[np.float64(0.1411), np.float64(0.1772), np.float64(0.1977), np.float64(0.2379)]  ref=[-0.4238, 0.48]  dip=0.840 (ref 0.000)  W1/sd=1.5460  38s
+learned  n=  32 t=0.01     lam=0.1010  modes=[np.float64(-0.6173), np.float64(0.3966)]  valleys=[np.float64(0.0896)]  ref=[-0.4238, 0.48]  dip=0.096 (ref 0.000)  W1/sd=1.5982  37s
+learned  n=  32 t=0.003    lam=0.0549  modes=[np.float64(-0.6328)]  valleys=[]  ref=[-0.4238, 0.48]  dip=1.000 (ref 0.000)  W1/sd=1.6286  37s
+learned  n=  32 t=0.001    lam=0.0317  modes=[np.float64(-0.6248), np.float64(-0.0508)]  valleys=[np.float64(-0.2692)]  ref=[-0.4238, 0.48]  dip=0.241 (ref 0.000)  W1/sd=1.6049  37s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/first_order_topology/ik_Ka_bimodal_rows.json
+problem=ik sources=['learned'] checkpoint=ikKbpre_h16d2_n200000_s7 sde_sigma=8.0 prior_sd=0.5
+learned  n=   8 t=0.03     lam=0.1788  modes=[np.float64(-0.5046), np.float64(0.1318), np.float64(0.4909)]  valleys=[np.float64(0.051), np.float64(0.1579)]  ref=[-0.4125, 0.4575]  dip=0.036 (ref 0.069)  W1/sd=0.9251  16s
+learned  n=   8 t=0.01     lam=0.1010  modes=[np.float64(-0.5175), np.float64(0.4206)]  valleys=[np.float64(0.1598)]  ref=[-0.4125, 0.4575]  dip=0.084 (ref 0.069)  W1/sd=1.0175  11s
+learned  n=   8 t=0.003    lam=0.0549  modes=[np.float64(-0.5457), np.float64(-0.5398), np.float64(0.3498)]  valleys=[np.float64(-0.5403), np.float64(0.1653)]  ref=[-0.4125, 0.4575]  dip=0.290 (ref 0.069)  W1/sd=1.0675  11s
+learned  n=   8 t=0.001    lam=0.0317  modes=[np.float64(-0.5819), np.float64(0.2275), np.float64(0.237), np.float64(0.2492), np.float64(0.3181), np.float64(0.3832)]  valleys=[np.float64(0.1702), np.float64(0.2303), np.float64(0.2466), np.float64(0.2924), np.float64(0.3571)]  ref=[-0.4125, 0.4575]  dip=0.914 (ref 0.069)  W1/sd=1.1482  12s
+learned  n=  16 t=0.03     lam=0.1788  modes=[np.float64(-0.5315), np.float64(0.5066)]  valleys=[np.float64(0.0507)]  ref=[-0.4875, 0.4762]  dip=0.001 (ref 0.003)  W1/sd=0.2835  20s
+learned  n=  16 t=0.01     lam=0.1010  modes=[np.float64(-0.537), np.float64(0.4309)]  valleys=[np.float64(0.1413)]  ref=[-0.4875, 0.4762]  dip=0.005 (ref 0.003)  W1/sd=1.0152  20s
+learned  n=  16 t=0.003    lam=0.0549  modes=[np.float64(-0.5622), np.float64(0.3627)]  valleys=[np.float64(0.1595)]  ref=[-0.4875, 0.4762]  dip=0.060 (ref 0.003)  W1/sd=1.0808  20s
+learned  n=  16 t=0.001    lam=0.0317  modes=[np.float64(-0.5961), np.float64(0.1837), np.float64(0.2134), np.float64(0.2339), np.float64(0.2571), np.float64(0.266), np.float64(0.3118), np.float64(0.3806)]  valleys=[np.float64(0.1701), np.float64(0.1838), np.float64(0.23), np.float64(0.2452), np.float64(0.26), np.float64(0.3109), np.float64(0.3613)]  ref=[-0.4875, 0.4762]  dip=0.882 (ref 0.003)  W1/sd=1.1594  20s
+learned  n=  32 t=0.03     lam=0.1788  modes=[np.float64(-0.5189), np.float64(0.5123)]  valleys=[np.float64(0.0443)]  ref=[-0.4238, 0.48]  dip=0.000 (ref 0.000)  W1/sd=0.2469  37s
+learned  n=  32 t=0.01     lam=0.1010  modes=[np.float64(-0.5051), np.float64(0.4364)]  valleys=[np.float64(0.0739)]  ref=[-0.4238, 0.48]  dip=0.000 (ref 0.000)  W1/sd=1.3481  37s
+learned  n=  32 t=0.003    lam=0.0549  modes=[np.float64(-0.5376), np.float64(0.0777), np.float64(0.3791)]  valleys=[np.float64(0.0749), np.float64(0.0874)]  ref=[-0.4238, 0.48]  dip=0.003 (ref 0.000)  W1/sd=1.4218  37s
+learned  n=  32 t=0.001    lam=0.0317  modes=[np.float64(-0.5635), np.float64(0.1887), np.float64(0.2478), np.float64(0.2653), np.float64(0.3189)]  valleys=[np.float64(0.1874), np.float64(0.2474), np.float64(0.2612), np.float64(0.3069)]  ref=[-0.4238, 0.48]  dip=1.000 (ref 0.000)  W1/sd=1.4856  37s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/first_order_topology/ik_Kbpre_bimodal_rows.json
+problem=ik sources=['learned'] checkpoint=ikKa_h16d2_n200000_s7 sde_sigma=8.0 prior_sd=0.5
+learned  n=   8 t=0.03     lam=0.1788  modes=[np.float64(-0.0228)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.1090  16s
+learned  n=   8 t=0.01     lam=0.1010  modes=[np.float64(0.0816)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.5979  12s
+learned  n=   8 t=0.003    lam=0.0549  modes=[np.float64(0.186)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=1.2470  11s
+learned  n=   8 t=0.001    lam=0.0317  modes=[np.float64(0.2034)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=1.5272  12s
+learned  n=  16 t=0.03     lam=0.1788  modes=[np.float64(0.0394)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.2597  20s
+learned  n=  16 t=0.01     lam=0.1010  modes=[np.float64(0.1483)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.7931  19s
+learned  n=  16 t=0.003    lam=0.0549  modes=[np.float64(0.2045)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=1.3905  19s
+learned  n=  16 t=0.001    lam=0.0317  modes=[np.float64(0.2071)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=1.5929  19s
+learned  n=  32 t=0.03     lam=0.1788  modes=[np.float64(0.0589)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.1846  36s
+learned  n=  32 t=0.01     lam=0.1010  modes=[np.float64(0.1596)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=1.3897  36s
+learned  n=  32 t=0.003    lam=0.0549  modes=[np.float64(0.2137)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=2.3320  36s
+learned  n=  32 t=0.001    lam=0.0317  modes=[np.float64(0.2107)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=2.3110  37s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/first_order_topology/ik_Ka_stock_rows.json
+problem=ik sources=['learned'] checkpoint=ikKbpre_h16d2_n200000_s7 sde_sigma=8.0 prior_sd=0.5
+learned  n=   8 t=0.03     lam=0.1788  modes=[np.float64(-0.0587)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.2924  16s
+learned  n=   8 t=0.01     lam=0.1010  modes=[np.float64(-0.0594)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.2801  11s
+learned  n=   8 t=0.003    lam=0.0549  modes=[np.float64(-0.0693)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.3594  11s
+learned  n=   8 t=0.001    lam=0.0317  modes=[np.float64(-0.0663)]  valleys=[]  ref=[-0.0488, 0.0525]  dip=1.000 (ref 0.997)  W1/sd=0.3688  11s
+learned  n=  16 t=0.03     lam=0.1788  modes=[np.float64(0.0153)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.4744  20s
+learned  n=  16 t=0.01     lam=0.1010  modes=[np.float64(0.0172), np.float64(0.0302)]  valleys=[np.float64(0.0299)]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.4047  20s
+learned  n=  16 t=0.003    lam=0.0549  modes=[np.float64(0.0009)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.6392  20s
+learned  n=  16 t=0.001    lam=0.0317  modes=[np.float64(-0.0193)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.8657  20s
+learned  n=  32 t=0.03     lam=0.1788  modes=[np.float64(0.049)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.4498  37s
+learned  n=  32 t=0.01     lam=0.1010  modes=[np.float64(0.0463)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.4118  36s
+learned  n=  32 t=0.003    lam=0.0549  modes=[np.float64(0.0154)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.7269  36s
+learned  n=  32 t=0.001    lam=0.0317  modes=[np.float64(0.0144)]  valleys=[]  ref=[0.0637]  dip=1.000 (ref 1.000)  W1/sd=0.7597  37s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/first_order_topology/ik_Kbpre_stock_rows.json

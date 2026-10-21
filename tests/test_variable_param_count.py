@@ -172,27 +172,40 @@ def test_variable_param_count_end_to_end():
 
 
 def test_bic_criterion():
-    """criterion='bic' must run, penalize the extra parameter harder than AIC
-    (k*ln(n) > 2k for n > 8) and still pick the simpler true model."""
+    """criterion='bic' must run, pick the simpler true model, and charge exactly
+    the counted penalty.
+
+    The rows are independent (no shared parameters), so the extra parameter of
+    model B is a *local* parameter: one per row, N = 25 of them, each informed
+    by only that row's n_per_observation = 2 scalars. Counted BIC therefore
+    charges N * ln(2) and AIC charges 2 N (AICc is undefined here because
+    K >= n_data - 1 and falls back to AIC). The historical per-row convention,
+    which used ln(N) for every row, is still reproducible with
+    ic_convention='legacy'.
+    """
     torch.manual_seed(0)
     np.random.seed(0)
-    x = _make_observations(n_obs=25)
+    n_obs = 25
+    x = _make_observations(n_obs=n_obs)
 
-    mtf_aic = _build_mtf()
-    mtf_aic.compare(x=x, num_samples=400, device="cpu", verbose=False, criterion="aic")
-    mtf_bic = _build_mtf()
-    mtf_bic.compare(x=x, num_samples=400, device="cpu", verbose=False, criterion="bic")
+    gaps = {}
+    for convention in ("counted", "legacy"):
+        for criterion in ("aic", "bic"):
+            mtf = _build_mtf()
+            mtf.compare(x=x, num_samples=400, device="cpu", verbose=False,
+                        criterion=criterion, ic_convention=convention)
+            assert mtf.stats["A_2params"]["AIC"] < mtf.stats["B_3params"]["AIC"]
+            assert mtf.stats["A_2params"]["model_prob"] > 0.9
+            gaps[convention, criterion] = (
+                mtf.stats["B_3params"]["AIC"] - mtf.stats["A_2params"]["AIC"]).item()
+    print("criterion gaps:", gaps)
 
-    assert mtf_bic.stats["A_2params"]["AIC"] < mtf_bic.stats["B_3params"]["AIC"]
-    p_a = mtf_bic.stats["A_2params"]["model_prob"]
-    assert p_a > 0.9, f"simpler model should dominate under BIC, got {100*p_a:.1f}%"
-
-    # per-obs penalty difference: BIC = (k2-k1)*ln(n) vs AICc ~ 2*(k2-k1); with the
-    # same mock likelihoods the BIC gap between models must be larger for n=25
-    gap_aic = (mtf_aic.stats["B_3params"]["AIC"] - mtf_aic.stats["A_2params"]["AIC"])
-    gap_bic = (mtf_bic.stats["B_3params"]["AIC"] - mtf_bic.stats["A_2params"]["AIC"])
-    print(f"criterion gaps: AICc {gap_aic:.2f}, BIC {gap_bic:.2f}")
-    assert gap_bic > gap_aic, "BIC should penalize the extra parameter harder than AIC(c)"
+    # Both models fit identically (the spurious parameter does not enter the
+    # likelihood), so the gap is the penalty difference alone.
+    assert abs(gaps["counted", "aic"] - 2 * n_obs) < 1e-3
+    assert abs(gaps["counted", "bic"] - n_obs * np.log(2)) < 1e-3
+    # Legacy reproduces the historical behaviour (k * ln(N) per row).
+    assert gaps["legacy", "bic"] > gaps["legacy", "aic"]
 
 
 def test_small_sample_guard_no_crash_and_warns():

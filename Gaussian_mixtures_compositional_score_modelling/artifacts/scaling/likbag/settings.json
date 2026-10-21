@@ -1,0 +1,42 @@
+{
+  "arch": "tokenized",
+  "artifacts": "/export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts",
+  "bag": 64,
+  "branch_mass": 0.75,
+  "checkpoint": "/export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts/models/tokenized_h32d3wide_n200000_six_weighted_log_sigma/Model_checkpoint.pt",
+  "churn_eta": 4.0,
+  "config": "h32d3wide",
+  "denoise_clamp": 5.0,
+  "device": "cuda",
+  "draws": 1500,
+  "evidence_clip": 8.0,
+  "jacobian_refresh": 5,
+  "kde_bandwidth": null,
+  "mask_menu": "six_weighted",
+  "methods": [
+    "mixture_product_likelihood_bagged"
+  ],
+  "observations": [
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "oracle": false,
+  "parameters": 268545,
+  "pilot_draws": 1000,
+  "regimes": [
+    "asymmetric"
+  ],
+  "replicates": 1,
+  "score_source": "network",
+  "seed": 2026,
+  "simulations": 200000,
+  "single_draws": 8000,
+  "spread": 1.0,
+  "support_quantile": 0.001,
+  "tag": "likbag",
+  "time_sampling": "log_sigma",
+  "timesteps": 100
+}

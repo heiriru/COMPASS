@@ -1,0 +1,5 @@
+sampling eps 0.001
+hierarchical_R_nocurv gauss_jacobian_FD    n=4   P(g>0)=0.627 E|g|=1.210 sd=1.229  64s
+hierarchical_R_nocurv gauss_jacobian_FD    n=16  P(g>0)=0.643 E|g|=1.224 sd=1.233  155s
+hierarchical_R_nocurv gauss_jacobian_FD    n=64  P(g>0)=0.660 E|g|=1.141 sd=1.145  516s
+hierarchical_R_nocurv gauss_jacobian_FD    n=128 P(g>0)=0.662 E|g|=1.113 sd=1.118  1024s

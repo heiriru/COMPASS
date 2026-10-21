@@ -1,0 +1,11 @@
+- name=smoke
+- method=compass_legacy_full_fixeps
+- task=two_moons
+- task.num_simulations=10000
+- eval=nll_cov_posterior
+- save_model=false
+- ++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_22-26-50/local/compass_model
+- ++eval.metric.nll_posterior.num_samples=500
+- ++eval.metric.nll_posterior.batch_size=250
+- ++eval.metric.cov_posterior.num_samples=100
+- ++eval.metric.cov_posterior.batch_size=50

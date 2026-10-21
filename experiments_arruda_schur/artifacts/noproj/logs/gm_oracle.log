@@ -1,0 +1,28 @@
+CPU affinity: 3/72 CPUs (4.167%)
+Score source: the EXACT diffused score, not a network.
+asymmetric     n=8   T=+0.5295  w=(0.250, 0.750)  modes=(-1.137, +1.207)  branch sd=0.274  posterior sd=1.051
+  asymmetric     n=8   rep=0 gauss_jacobian_FD              W1/sd=0.5986 mass=0.805 (exact 0.750) 149.4s
+  asymmetric     n=8   rep=0 arruda_direct                  W1/sd=0.5132 mass=0.526 (exact 0.750) 275.2s
+asymmetric     n=16  T=+0.8108  w=(0.250, 0.750)  modes=(-0.730, +0.801)  branch sd=0.221  posterior sd=0.699
+  asymmetric     n=16  rep=0 gauss_jacobian_FD              W1/sd=1.2277 mass=0.673 (exact 0.750) 118.7s
+  asymmetric     n=16  rep=0 arruda_direct                  W1/sd=0.4371 mass=0.569 (exact 0.750) 598.6s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  asymmetric     n=32  rep=0 gauss_jacobian_FD              W1/sd=2.4758 mass=0.616 (exact 0.750) 211.1s
+  asymmetric     n=32  rep=0 arruda_direct                  W1/sd=0.4888 mass=0.551 (exact 0.750) 1178.1s
+asymmetric     n=64  T=+2.4982  w=(0.250, 0.750)  modes=(-0.213, +0.284)  branch sd=0.126  posterior sd=0.249
+  asymmetric     n=64  rep=0 gauss_jacobian_FD              W1/sd=4.5931 mass=0.590 (exact 0.750) 248.3s
+  asymmetric     n=64  rep=0 arruda_direct                  W1/sd=0.4628 mass=0.523 (exact 0.750) 2323.6s
+symmetric      n=8   T=-0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  symmetric      n=8   rep=0 gauss_jacobian_FD              W1/sd=0.5152 mass=0.555 (exact 0.500) 122.1s
+  symmetric      n=8   rep=0 arruda_direct                  W1/sd=0.1812 mass=0.433 (exact 0.500) 312.7s
+symmetric      n=16  T=-0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  symmetric      n=16  rep=0 gauss_jacobian_FD              W1/sd=1.0795 mass=0.579 (exact 0.500) 130.5s
+  symmetric      n=16  rep=0 arruda_direct                  W1/sd=0.1939 mass=0.455 (exact 0.500) 720.4s
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  symmetric      n=32  rep=0 gauss_jacobian_FD              W1/sd=2.1209 mass=0.438 (exact 0.500) 256.3s
+  symmetric      n=32  rep=0 arruda_direct                  W1/sd=0.2713 mass=0.485 (exact 0.500) 1314.2s
+symmetric      n=64  T=-0.0000  w=(0.500, 0.500)  modes=(-0.248, +0.248)  branch sd=0.126  posterior sd=0.279
+  symmetric      n=64  rep=0 gauss_jacobian_FD              W1/sd=4.0456 mass=0.449 (exact 0.500) 97.1s
+  symmetric      n=64  rep=0 arruda_direct                  W1/sd=0.0776 mass=0.502 (exact 0.500) 612.4s
+
+24 rows in 144.5 minutes -> /export/home/rheinric/COMPASS/experiments_arruda_schur/artifacts/gm/oracle/scaling/posteriors_noproj

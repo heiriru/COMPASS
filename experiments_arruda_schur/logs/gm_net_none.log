@@ -1,0 +1,70 @@
+CPU affinity: 3/72 CPUs (4.167%)
+tokenized/h32d3wide 268,545 parameters (six_weighted, log_sigma)
+asymmetric     n=8   T=+0.5295  w=(0.250, 0.750)  modes=(-1.137, +1.207)  branch sd=0.274  posterior sd=1.051
+  asymmetric     n=8   rep=0 gauss_jacobian_FD              W1/sd=0.7577 mass=0.281 (exact 0.750) 34.5s
+  asymmetric     n=8   rep=0 arruda_direct                  W1/sd=1.1220 mass=0.025 (exact 0.750) 36.1s
+  asymmetric     n=8   rep=0 arruda_gauss_direct            W1/sd=0.7582 mass=0.281 (exact 0.750) 61.6s
+  asymmetric     n=8   rep=0 arruda_laplace                 W1/sd=1.1220 mass=0.025 (exact 0.750) 83.7s
+  asymmetric     n=8   rep=0 arruda_gauss_laplace           W1/sd=0.7570 mass=0.281 (exact 0.750) 94.5s
+  asymmetric     n=8   rep=1 gauss_jacobian_FD              W1/sd=0.8632 mass=0.266 (exact 0.750) 40.0s
+  asymmetric     n=8   rep=1 arruda_direct                  W1/sd=1.1240 mass=0.010 (exact 0.750) 32.4s
+  asymmetric     n=8   rep=1 arruda_gauss_direct            W1/sd=0.8608 mass=0.266 (exact 0.750) 65.0s
+  asymmetric     n=8   rep=1 arruda_laplace                 W1/sd=1.1240 mass=0.010 (exact 0.750) 87.2s
+  asymmetric     n=8   rep=1 arruda_gauss_laplace           W1/sd=0.8596 mass=0.265 (exact 0.750) 94.7s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  asymmetric     n=32  rep=0 gauss_jacobian_FD              W1/sd=1.9239 mass=0.025 (exact 0.750) 114.1s
+  asymmetric     n=32  rep=0 arruda_direct                  W1/sd=1.1288 mass=0.000 (exact 0.750) 129.2s
+  asymmetric     n=32  rep=0 arruda_gauss_direct            W1/sd=1.9244 mass=0.026 (exact 0.750) 222.6s
+  asymmetric     n=32  rep=0 arruda_laplace                 W1/sd=1.1290 mass=0.000 (exact 0.750) 319.0s
+  asymmetric     n=32  rep=0 arruda_gauss_laplace           W1/sd=1.9230 mass=0.026 (exact 0.750) 334.9s
+  asymmetric     n=32  rep=1 gauss_jacobian_FD              W1/sd=1.7764 mass=0.027 (exact 0.750) 100.5s
+  asymmetric     n=32  rep=1 arruda_direct                  W1/sd=1.1285 mass=0.000 (exact 0.750) 123.7s
+  asymmetric     n=32  rep=1 arruda_gauss_direct            W1/sd=1.7838 mass=0.026 (exact 0.750) 215.1s
+  asymmetric     n=32  rep=1 arruda_laplace                 W1/sd=1.1283 mass=0.000 (exact 0.750) 306.5s
+  asymmetric     n=32  rep=1 arruda_gauss_laplace           W1/sd=1.7583 mass=0.026 (exact 0.750) 271.9s
+asymmetric     n=128 T=+4.7482  w=(0.250, 0.750)  modes=(-0.096, +0.166)  branch sd=0.091  posterior sd=0.146
+  asymmetric     n=128 rep=0 gauss_jacobian_FD              W1/sd=10.1169 mass=0.006 (exact 0.750) 371.4s
+  asymmetric     n=128 rep=0 arruda_direct                  W1/sd=11.7044 mass=0.000 (exact 0.750) 449.9s
+  asymmetric     n=128 rep=0 arruda_gauss_direct            W1/sd=10.0954 mass=0.006 (exact 0.750) 803.5s
+  asymmetric     n=128 rep=0 arruda_laplace                 W1/sd=11.6872 mass=0.000 (exact 0.750) 1161.8s
+  asymmetric     n=128 rep=0 arruda_gauss_laplace           W1/sd=10.0903 mass=0.007 (exact 0.750) 1157.3s
+  asymmetric     n=128 rep=1 gauss_jacobian_FD              W1/sd=10.0785 mass=0.004 (exact 0.750) 422.4s
+  asymmetric     n=128 rep=1 arruda_direct                  W1/sd=11.7658 mass=0.000 (exact 0.750) 397.6s
+  asymmetric     n=128 rep=1 arruda_gauss_direct            W1/sd=10.0650 mass=0.005 (exact 0.750) 455.6s
+  asymmetric     n=128 rep=1 arruda_laplace                 W1/sd=11.7644 mass=0.000 (exact 0.750) 700.7s
+  asymmetric     n=128 rep=1 arruda_gauss_laplace           W1/sd=10.0905 mass=0.004 (exact 0.750) 707.3s
+symmetric      n=8   T=-0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  symmetric      n=8   rep=0 gauss_jacobian_FD              W1/sd=0.4861 mass=0.254 (exact 0.500) 17.3s
+  symmetric      n=8   rep=0 arruda_direct                  W1/sd=0.9580 mass=0.221 (exact 0.500) 17.4s
+  symmetric      n=8   rep=0 arruda_gauss_direct            W1/sd=0.4880 mass=0.253 (exact 0.500) 30.1s
+  symmetric      n=8   rep=0 arruda_laplace                 W1/sd=0.9584 mass=0.221 (exact 0.500) 45.8s
+  symmetric      n=8   rep=0 arruda_gauss_laplace           W1/sd=0.4913 mass=0.253 (exact 0.500) 46.3s
+  symmetric      n=8   rep=1 gauss_jacobian_FD              W1/sd=0.4196 mass=0.340 (exact 0.500) 17.4s
+  symmetric      n=8   rep=1 arruda_direct                  W1/sd=0.9564 mass=0.231 (exact 0.500) 17.6s
+  symmetric      n=8   rep=1 arruda_gauss_direct            W1/sd=0.4202 mass=0.340 (exact 0.500) 30.1s
+  symmetric      n=8   rep=1 arruda_laplace                 W1/sd=0.9569 mass=0.231 (exact 0.500) 46.0s
+  symmetric      n=8   rep=1 arruda_gauss_laplace           W1/sd=0.4205 mass=0.340 (exact 0.500) 46.7s
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  symmetric      n=32  rep=0 gauss_jacobian_FD              W1/sd=1.3678 mass=0.031 (exact 0.500) 64.2s
+  symmetric      n=32  rep=0 arruda_direct                  W1/sd=0.9138 mass=0.018 (exact 0.500) 67.4s
+  symmetric      n=32  rep=0 arruda_gauss_direct            W1/sd=1.3703 mass=0.031 (exact 0.500) 115.3s
+  symmetric      n=32  rep=0 arruda_laplace                 W1/sd=0.9137 mass=0.018 (exact 0.500) 175.4s
+  symmetric      n=32  rep=0 arruda_gauss_laplace           W1/sd=1.3632 mass=0.032 (exact 0.500) 179.0s
+  symmetric      n=32  rep=1 gauss_jacobian_FD              W1/sd=1.3128 mass=0.029 (exact 0.500) 63.9s
+  symmetric      n=32  rep=1 arruda_direct                  W1/sd=0.9131 mass=0.025 (exact 0.500) 69.7s
+  symmetric      n=32  rep=1 arruda_gauss_direct            W1/sd=1.3159 mass=0.029 (exact 0.500) 115.1s
+  symmetric      n=32  rep=1 arruda_laplace                 W1/sd=0.9130 mass=0.024 (exact 0.500) 176.6s
+  symmetric      n=32  rep=1 arruda_gauss_laplace           W1/sd=1.3156 mass=0.030 (exact 0.500) 178.5s
+symmetric      n=128 T=-0.0000  w=(0.500, 0.500)  modes=(-0.131, +0.131)  branch sd=0.091  posterior sd=0.160
+  symmetric      n=128 rep=0 gauss_jacobian_FD              W1/sd=8.7739 mass=0.004 (exact 0.500) 250.2s
+  symmetric      n=128 rep=0 arruda_direct                  W1/sd=10.3113 mass=0.001 (exact 0.500) 268.7s
+  symmetric      n=128 rep=0 arruda_gauss_direct            W1/sd=8.7276 mass=0.005 (exact 0.500) 454.6s
+  symmetric      n=128 rep=0 arruda_laplace                 W1/sd=10.3040 mass=0.001 (exact 0.500) 698.5s
+  symmetric      n=128 rep=0 arruda_gauss_laplace           W1/sd=8.7697 mass=0.005 (exact 0.500) 709.4s
+  symmetric      n=128 rep=1 gauss_jacobian_FD              W1/sd=8.6679 mass=0.006 (exact 0.500) 249.7s
+  symmetric      n=128 rep=1 arruda_direct                  W1/sd=10.2808 mass=0.000 (exact 0.500) 266.8s
+  symmetric      n=128 rep=1 arruda_gauss_direct            W1/sd=8.6484 mass=0.005 (exact 0.500) 451.3s
+  symmetric      n=128 rep=1 arruda_laplace                 W1/sd=10.2509 mass=0.000 (exact 0.500) 704.3s
+  symmetric      n=128 rep=1 arruda_gauss_laplace           W1/sd=8.6356 mass=0.008 (exact 0.500) 700.8s
+
+72 rows in 261.4 minutes -> /export/home/rheinric/COMPASS/experiments_arruda_schur/artifacts/gm/none/scaling/net

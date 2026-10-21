@@ -1,0 +1,205 @@
+INFO Selected physical GPU [8] via autocvd.
+CPU affinity: 3/72 CPUs (4.167%)
+Score source: the EXACT diffused score, not a network.
+symmetric      n=1   T=+0.0000  w=(0.500, 0.500)  modes=(-2.190, +2.190)  branch sd=0.374  posterior sd=2.222
+  symmetric      n=1   rep=0 langevin_fnpse                 W1/sd=0.0221 mass=0.510 (exact 0.500) 6.1s
+  symmetric      n=1   rep=0 gauss_hierarchical             W1/sd=0.0057 mass=0.499 (exact 0.500) 7.5s
+  symmetric      n=1   rep=0 gauss_jacobian                 W1/sd=0.0057 mass=0.499 (exact 0.500) 5.3s
+  symmetric      n=1   rep=1 langevin_fnpse                 W1/sd=0.0123 mass=0.505 (exact 0.500) 4.8s
+  symmetric      n=1   rep=1 gauss_hierarchical             W1/sd=0.0237 mass=0.510 (exact 0.500) 7.5s
+  symmetric      n=1   rep=1 gauss_jacobian                 W1/sd=0.0083 mass=0.503 (exact 0.500) 2.5s
+  symmetric      n=1   rep=2 langevin_fnpse                 W1/sd=0.0098 mass=0.498 (exact 0.500) 4.7s
+  symmetric      n=1   rep=2 gauss_hierarchical             W1/sd=0.0234 mass=0.512 (exact 0.500) 7.4s
+  symmetric      n=1   rep=2 gauss_jacobian                 W1/sd=0.0380 mass=0.519 (exact 0.500) 2.5s
+symmetric      n=2   T=+0.0000  w=(0.500, 0.500)  modes=(-1.948, +1.948)  branch sd=0.353  posterior sd=1.980
+  symmetric      n=2   rep=0 langevin_fnpse                 W1/sd=0.1428 mass=0.506 (exact 0.500) 4.8s
+  symmetric      n=2   rep=0 gauss_hierarchical             W1/sd=0.1446 mass=0.515 (exact 0.500) 7.4s
+  symmetric      n=2   rep=0 gauss_jacobian                 W1/sd=0.1419 mass=0.494 (exact 0.500) 2.6s
+  symmetric      n=2   rep=1 langevin_fnpse                 W1/sd=0.1365 mass=0.503 (exact 0.500) 4.8s
+  symmetric      n=2   rep=1 gauss_hierarchical             W1/sd=0.1541 mass=0.512 (exact 0.500) 7.4s
+  symmetric      n=2   rep=1 gauss_jacobian                 W1/sd=0.1398 mass=0.505 (exact 0.500) 2.6s
+  symmetric      n=2   rep=2 langevin_fnpse                 W1/sd=0.1382 mass=0.497 (exact 0.500) 4.8s
+  symmetric      n=2   rep=2 gauss_hierarchical             W1/sd=0.5012 mass=0.725 (exact 0.500) 7.4s
+  symmetric      n=2   rep=2 gauss_jacobian                 W1/sd=0.1421 mass=0.512 (exact 0.500) 2.6s
+symmetric      n=4   T=+0.0000  w=(0.500, 0.500)  modes=(-1.596, +1.596)  branch sd=0.320  posterior sd=1.628
+  symmetric      n=4   rep=0 langevin_fnpse                 W1/sd=1.0988 mass=0.109 (exact 0.500) 4.9s
+  symmetric      n=4   rep=0 gauss_hierarchical             W1/sd=1.3284 mass=0.983 (exact 0.500) 7.4s
+  symmetric      n=4   rep=0 gauss_jacobian                 W1/sd=0.9830 mass=0.840 (exact 0.500) 2.8s
+  symmetric      n=4   rep=1 langevin_fnpse                 W1/sd=0.4818 mass=0.430 (exact 0.500) 4.9s
+  symmetric      n=4   rep=1 gauss_hierarchical             W1/sd=0.6741 mass=0.681 (exact 0.500) 7.4s
+  symmetric      n=4   rep=1 gauss_jacobian                 W1/sd=0.5561 mass=0.616 (exact 0.500) 2.8s
+  symmetric      n=4   rep=2 langevin_fnpse                 W1/sd=0.7186 mass=0.707 (exact 0.500) 4.8s
+  symmetric      n=4   rep=2 gauss_hierarchical             W1/sd=1.2634 mass=0.042 (exact 0.500) 7.4s
+  symmetric      n=4   rep=2 gauss_jacobian                 W1/sd=0.7960 mass=0.251 (exact 0.500) 2.8s
+symmetric      n=8   T=-0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  symmetric      n=8   rep=0 langevin_fnpse                 W1/sd=1.1275 mass=0.334 (exact 0.500) 5.0s
+  symmetric      n=8   rep=0 gauss_hierarchical             W1/sd=0.9582 mass=0.571 (exact 0.500) 7.4s
+  symmetric      n=8   rep=0 gauss_jacobian                 W1/sd=0.9595 mass=0.567 (exact 0.500) 3.2s
+  symmetric      n=8   rep=1 langevin_fnpse                 W1/sd=1.2390 mass=0.270 (exact 0.500) 5.0s
+  symmetric      n=8   rep=1 gauss_hierarchical             W1/sd=0.9507 mass=0.437 (exact 0.500) 7.4s
+  symmetric      n=8   rep=1 gauss_jacobian                 W1/sd=1.0212 mass=0.606 (exact 0.500) 3.2s
+  symmetric      n=8   rep=2 langevin_fnpse                 W1/sd=1.0705 mass=0.634 (exact 0.500) 5.1s
+  symmetric      n=8   rep=2 gauss_hierarchical             W1/sd=1.3680 mass=0.206 (exact 0.500) 7.4s
+  symmetric      n=8   rep=2 gauss_jacobian                 W1/sd=1.0719 mass=0.363 (exact 0.500) 3.2s
+symmetric      n=16  T=-0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  symmetric      n=16  rep=0 langevin_fnpse                 W1/sd=2.1047 mass=0.314 (exact 0.500) 5.4s
+  symmetric      n=16  rep=0 gauss_hierarchical             W1/sd=2.0317 mass=0.654 (exact 0.500) 7.6s
+  symmetric      n=16  rep=0 gauss_jacobian                 W1/sd=1.9420 mass=0.591 (exact 0.500) 3.7s
+  symmetric      n=16  rep=1 langevin_fnpse                 W1/sd=1.9827 mass=0.613 (exact 0.500) 5.3s
+  symmetric      n=16  rep=1 gauss_hierarchical             W1/sd=1.9510 mass=0.400 (exact 0.500) 7.6s
+  symmetric      n=16  rep=1 gauss_jacobian                 W1/sd=1.8629 mass=0.477 (exact 0.500) 3.7s
+  symmetric      n=16  rep=2 langevin_fnpse                 W1/sd=2.1050 mass=0.687 (exact 0.500) 5.4s
+  symmetric      n=16  rep=2 gauss_hierarchical             W1/sd=2.1899 mass=0.262 (exact 0.500) 7.7s
+  symmetric      n=16  rep=2 gauss_jacobian                 W1/sd=1.9056 mass=0.438 (exact 0.500) 3.7s
+antisymmetric  n=1   T=+0.0000  w=(0.500, 0.500)  modes=(-2.190, +2.190)  branch sd=0.374  posterior sd=2.222
+  antisymmetric  n=1   rep=0 langevin_fnpse                 W1/sd=0.0221 mass=0.510 (exact 0.500) 4.7s
+  antisymmetric  n=1   rep=0 gauss_hierarchical             W1/sd=0.0057 mass=0.499 (exact 0.500) 7.5s
+  antisymmetric  n=1   rep=0 gauss_jacobian                 W1/sd=0.0057 mass=0.499 (exact 0.500) 2.5s
+  antisymmetric  n=1   rep=1 langevin_fnpse                 W1/sd=0.0123 mass=0.505 (exact 0.500) 4.7s
+  antisymmetric  n=1   rep=1 gauss_hierarchical             W1/sd=0.0237 mass=0.510 (exact 0.500) 7.4s
+  antisymmetric  n=1   rep=1 gauss_jacobian                 W1/sd=0.0083 mass=0.503 (exact 0.500) 2.5s
+  antisymmetric  n=1   rep=2 langevin_fnpse                 W1/sd=0.0098 mass=0.498 (exact 0.500) 4.7s
+  antisymmetric  n=1   rep=2 gauss_hierarchical             W1/sd=0.0234 mass=0.512 (exact 0.500) 7.4s
+  antisymmetric  n=1   rep=2 gauss_jacobian                 W1/sd=0.0380 mass=0.519 (exact 0.500) 2.5s
+antisymmetric  n=2   T=+0.0000  w=(0.500, 0.500)  modes=(-1.948, +1.948)  branch sd=0.353  posterior sd=1.980
+  antisymmetric  n=2   rep=0 langevin_fnpse                 W1/sd=0.1366 mass=0.499 (exact 0.500) 4.8s
+  antisymmetric  n=2   rep=0 gauss_hierarchical             W1/sd=0.1442 mass=0.540 (exact 0.500) 7.4s
+  antisymmetric  n=2   rep=0 gauss_jacobian                 W1/sd=0.1316 mass=0.504 (exact 0.500) 2.6s
+  antisymmetric  n=2   rep=1 langevin_fnpse                 W1/sd=0.1458 mass=0.515 (exact 0.500) 4.8s
+  antisymmetric  n=2   rep=1 gauss_hierarchical             W1/sd=0.3556 mass=0.657 (exact 0.500) 7.4s
+  antisymmetric  n=2   rep=1 gauss_jacobian                 W1/sd=0.1386 mass=0.509 (exact 0.500) 2.7s
+  antisymmetric  n=2   rep=2 langevin_fnpse                 W1/sd=0.1426 mass=0.511 (exact 0.500) 4.8s
+  antisymmetric  n=2   rep=2 gauss_hierarchical             W1/sd=0.1964 mass=0.580 (exact 0.500) 7.5s
+  antisymmetric  n=2   rep=2 gauss_jacobian                 W1/sd=0.1150 mass=0.501 (exact 0.500) 2.6s
+antisymmetric  n=4   T=+0.0000  w=(0.500, 0.500)  modes=(-1.596, +1.596)  branch sd=0.320  posterior sd=1.628
+  antisymmetric  n=4   rep=0 langevin_fnpse                 W1/sd=0.3963 mass=0.486 (exact 0.500) 4.9s
+  antisymmetric  n=4   rep=0 gauss_hierarchical             W1/sd=0.4188 mass=0.560 (exact 0.500) 7.9s
+  antisymmetric  n=4   rep=0 gauss_jacobian                 W1/sd=0.3729 mass=0.499 (exact 0.500) 2.9s
+  antisymmetric  n=4   rep=1 langevin_fnpse                 W1/sd=0.3876 mass=0.510 (exact 0.500) 4.9s
+  antisymmetric  n=4   rep=1 gauss_hierarchical             W1/sd=0.4683 mass=0.591 (exact 0.500) 7.5s
+  antisymmetric  n=4   rep=1 gauss_jacobian                 W1/sd=0.3765 mass=0.506 (exact 0.500) 3.0s
+  antisymmetric  n=4   rep=2 langevin_fnpse                 W1/sd=0.3852 mass=0.506 (exact 0.500) 5.0s
+  antisymmetric  n=4   rep=2 gauss_hierarchical             W1/sd=0.3724 mass=0.475 (exact 0.500) 7.5s
+  antisymmetric  n=4   rep=2 gauss_jacobian                 W1/sd=0.3785 mass=0.506 (exact 0.500) 2.9s
+antisymmetric  n=8   T=+0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  antisymmetric  n=8   rep=0 langevin_fnpse                 W1/sd=0.8589 mass=0.495 (exact 0.500) 5.1s
+  antisymmetric  n=8   rep=0 gauss_hierarchical             W1/sd=0.8432 mass=0.517 (exact 0.500) 7.6s
+  antisymmetric  n=8   rep=0 gauss_jacobian                 W1/sd=0.8647 mass=0.497 (exact 0.500) 3.2s
+  antisymmetric  n=8   rep=1 langevin_fnpse                 W1/sd=0.8667 mass=0.505 (exact 0.500) 5.1s
+  antisymmetric  n=8   rep=1 gauss_hierarchical             W1/sd=0.9109 mass=0.440 (exact 0.500) 7.5s
+  antisymmetric  n=8   rep=1 gauss_jacobian                 W1/sd=0.8708 mass=0.507 (exact 0.500) 3.3s
+  antisymmetric  n=8   rep=2 langevin_fnpse                 W1/sd=0.8584 mass=0.501 (exact 0.500) 5.1s
+  antisymmetric  n=8   rep=2 gauss_hierarchical             W1/sd=0.9554 mass=0.599 (exact 0.500) 7.6s
+  antisymmetric  n=8   rep=2 gauss_jacobian                 W1/sd=0.8673 mass=0.510 (exact 0.500) 3.3s
+antisymmetric  n=16  T=+0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  antisymmetric  n=16  rep=0 langevin_fnpse                 W1/sd=1.7991 mass=0.490 (exact 0.500) 5.4s
+  antisymmetric  n=16  rep=0 gauss_hierarchical             W1/sd=1.8165 mass=0.544 (exact 0.500) 7.6s
+  antisymmetric  n=16  rep=0 gauss_jacobian                 W1/sd=1.8248 mass=0.503 (exact 0.500) 3.7s
+  antisymmetric  n=16  rep=1 langevin_fnpse                 W1/sd=1.8129 mass=0.511 (exact 0.500) 5.3s
+  antisymmetric  n=16  rep=1 gauss_hierarchical             W1/sd=1.7940 mass=0.487 (exact 0.500) 7.6s
+  antisymmetric  n=16  rep=1 gauss_jacobian                 W1/sd=1.8274 mass=0.503 (exact 0.500) 3.8s
+  antisymmetric  n=16  rep=2 langevin_fnpse                 W1/sd=1.7941 mass=0.505 (exact 0.500) 5.4s
+  antisymmetric  n=16  rep=2 gauss_hierarchical             W1/sd=1.8324 mass=0.556 (exact 0.500) 7.5s
+  antisymmetric  n=16  rep=2 gauss_jacobian                 W1/sd=1.8301 mass=0.511 (exact 0.500) 3.7s
+asymmetric     n=1   T=+0.2834  w=(0.250, 0.750)  modes=(-2.155, +2.225)  branch sd=0.374  posterior sd=1.933
+  asymmetric     n=1   rep=0 langevin_fnpse                 W1/sd=0.0353 mass=0.735 (exact 0.750) 4.7s
+  asymmetric     n=1   rep=0 gauss_hierarchical             W1/sd=0.0277 mass=0.739 (exact 0.750) 7.4s
+  asymmetric     n=1   rep=0 gauss_jacobian                 W1/sd=0.0057 mass=0.750 (exact 0.750) 2.5s
+  asymmetric     n=1   rep=1 langevin_fnpse                 W1/sd=0.0082 mass=0.749 (exact 0.750) 4.7s
+  asymmetric     n=1   rep=1 gauss_hierarchical             W1/sd=0.0067 mass=0.750 (exact 0.750) 7.4s
+  asymmetric     n=1   rep=1 gauss_jacobian                 W1/sd=0.0162 mass=0.745 (exact 0.750) 2.5s
+  asymmetric     n=1   rep=2 langevin_fnpse                 W1/sd=0.0282 mass=0.741 (exact 0.750) 4.7s
+  asymmetric     n=1   rep=2 gauss_hierarchical             W1/sd=0.0295 mass=0.763 (exact 0.750) 7.4s
+  asymmetric     n=1   rep=2 gauss_jacobian                 W1/sd=0.0185 mass=0.757 (exact 0.750) 2.5s
+asymmetric     n=2   T=+0.3186  w=(0.250, 0.750)  modes=(-1.913, +1.983)  branch sd=0.353  posterior sd=1.724
+  asymmetric     n=2   rep=0 langevin_fnpse                 W1/sd=0.2845 mass=0.666 (exact 0.750) 4.8s
+  asymmetric     n=2   rep=0 gauss_hierarchical             W1/sd=0.2239 mass=0.799 (exact 0.750) 7.4s
+  asymmetric     n=2   rep=0 gauss_jacobian                 W1/sd=0.2293 mass=0.696 (exact 0.750) 2.6s
+  asymmetric     n=2   rep=1 langevin_fnpse                 W1/sd=0.1801 mass=0.726 (exact 0.750) 4.8s
+  asymmetric     n=2   rep=1 gauss_hierarchical             W1/sd=0.2144 mass=0.787 (exact 0.750) 7.4s
+  asymmetric     n=2   rep=1 gauss_jacobian                 W1/sd=0.1784 mass=0.729 (exact 0.750) 2.6s
+  asymmetric     n=2   rep=2 langevin_fnpse                 W1/sd=0.1831 mass=0.729 (exact 0.750) 4.8s
+  asymmetric     n=2   rep=2 gauss_hierarchical             W1/sd=0.1931 mass=0.775 (exact 0.750) 7.4s
+  asymmetric     n=2   rep=2 gauss_jacobian                 W1/sd=0.1520 mass=0.746 (exact 0.750) 2.6s
+asymmetric     n=4   T=+0.3889  w=(0.250, 0.750)  modes=(-1.561, +1.631)  branch sd=0.320  posterior sd=1.419
+  asymmetric     n=4   rep=0 langevin_fnpse                 W1/sd=0.4814 mass=0.718 (exact 0.750) 4.9s
+  asymmetric     n=4   rep=0 gauss_hierarchical             W1/sd=0.4535 mass=0.761 (exact 0.750) 7.4s
+  asymmetric     n=4   rep=0 gauss_jacobian                 W1/sd=0.5042 mass=0.703 (exact 0.750) 2.8s
+  asymmetric     n=4   rep=1 langevin_fnpse                 W1/sd=0.5399 mass=0.679 (exact 0.750) 4.9s
+  asymmetric     n=4   rep=1 gauss_hierarchical             W1/sd=0.6101 mass=0.845 (exact 0.750) 7.4s
+  asymmetric     n=4   rep=1 gauss_jacobian                 W1/sd=0.5140 mass=0.696 (exact 0.750) 2.8s
+  asymmetric     n=4   rep=2 langevin_fnpse                 W1/sd=1.9601 mass=0.062 (exact 0.750) 4.9s
+  asymmetric     n=4   rep=2 gauss_hierarchical             W1/sd=0.7606 mass=0.915 (exact 0.750) 7.4s
+  asymmetric     n=4   rep=2 gauss_jacobian                 W1/sd=0.5380 mass=0.813 (exact 0.750) 2.8s
+asymmetric     n=8   T=+0.5295  w=(0.250, 0.750)  modes=(-1.137, +1.207)  branch sd=0.274  posterior sd=1.051
+  asymmetric     n=8   rep=0 langevin_fnpse                 W1/sd=1.5273 mass=0.454 (exact 0.750) 5.1s
+  asymmetric     n=8   rep=0 gauss_hierarchical             W1/sd=1.3375 mass=0.926 (exact 0.750) 7.5s
+  asymmetric     n=8   rep=0 gauss_jacobian                 W1/sd=1.0635 mass=0.795 (exact 0.750) 3.2s
+  asymmetric     n=8   rep=1 langevin_fnpse                 W1/sd=1.6032 mass=0.417 (exact 0.750) 5.1s
+  asymmetric     n=8   rep=1 gauss_hierarchical             W1/sd=1.1507 mass=0.845 (exact 0.750) 7.5s
+  asymmetric     n=8   rep=1 gauss_jacobian                 W1/sd=1.0705 mass=0.693 (exact 0.750) 3.2s
+  asymmetric     n=8   rep=2 langevin_fnpse                 W1/sd=1.1551 mass=0.844 (exact 0.750) 5.1s
+  asymmetric     n=8   rep=2 gauss_hierarchical             W1/sd=1.7646 mass=0.347 (exact 0.750) 7.5s
+  asymmetric     n=8   rep=2 gauss_jacobian                 W1/sd=1.5111 mass=0.458 (exact 0.750) 3.2s
+asymmetric     n=16  T=+0.8108  w=(0.250, 0.750)  modes=(-0.730, +0.801)  branch sd=0.221  posterior sd=0.699
+  asymmetric     n=16  rep=0 langevin_fnpse                 W1/sd=2.5312 mass=0.478 (exact 0.750) 5.4s
+  asymmetric     n=16  rep=0 gauss_hierarchical             W1/sd=2.1515 mass=0.807 (exact 0.750) 7.9s
+  asymmetric     n=16  rep=0 gauss_jacobian                 W1/sd=2.1783 mass=0.670 (exact 0.750) 3.9s
+  asymmetric     n=16  rep=1 langevin_fnpse                 W1/sd=2.4837 mass=0.956 (exact 0.750) 5.5s
+  asymmetric     n=16  rep=1 gauss_hierarchical             W1/sd=2.6359 mass=0.418 (exact 0.750) 7.9s
+  asymmetric     n=16  rep=1 gauss_jacobian                 W1/sd=2.5998 mass=0.440 (exact 0.750) 3.8s
+  asymmetric     n=16  rep=2 langevin_fnpse                 W1/sd=3.2219 mass=0.185 (exact 0.750) 5.4s
+  asymmetric     n=16  rep=2 gauss_hierarchical             W1/sd=2.3585 mass=0.908 (exact 0.750) 7.8s
+  asymmetric     n=16  rep=2 gauss_jacobian                 W1/sd=2.0925 mass=0.762 (exact 0.750) 3.9s
+natural        n=1   T=+1.2996  w=(0.006, 0.994)  modes=(-2.029, +2.351)  branch sd=0.374  posterior sd=0.513
+  natural        n=1   rep=0 langevin_fnpse                 W1/sd=0.0215 mass=0.994 (exact 0.994) 4.9s
+  natural        n=1   rep=0 gauss_hierarchical             W1/sd=0.0231 mass=0.995 (exact 0.994) 7.5s
+  natural        n=1   rep=0 gauss_jacobian                 W1/sd=0.0231 mass=0.995 (exact 0.994) 2.5s
+  natural        n=1   rep=1 langevin_fnpse                 W1/sd=0.0322 mass=0.001 (exact 0.000) 4.7s
+  natural        n=1   rep=1 gauss_hierarchical             W1/sd=0.0252 mass=0.000 (exact 0.000) 7.5s
+  natural        n=1   rep=1 gauss_jacobian                 W1/sd=0.0244 mass=0.000 (exact 0.000) 2.6s
+  natural        n=1   rep=2 langevin_fnpse                 W1/sd=0.0458 mass=0.000 (exact 0.000) 4.8s
+  natural        n=1   rep=2 gauss_hierarchical             W1/sd=0.0200 mass=0.000 (exact 0.000) 7.5s
+  natural        n=1   rep=2 gauss_jacobian                 W1/sd=0.0205 mass=0.000 (exact 0.000) 2.5s
+natural        n=2   T=-5.8459  w=(1.000, 0.000)  modes=(-2.593, +1.303)  branch sd=0.353  posterior sd=0.353
+  natural        n=2   rep=0 langevin_fnpse                 W1/sd=0.1810 mass=0.000 (exact 0.000) 4.8s
+  natural        n=2   rep=0 gauss_hierarchical             W1/sd=0.1893 mass=0.000 (exact 0.000) 7.4s
+  natural        n=2   rep=0 gauss_jacobian                 W1/sd=0.1788 mass=0.000 (exact 0.000) 2.6s
+  natural        n=2   rep=1 langevin_fnpse                 W1/sd=0.1983 mass=0.000 (exact 0.000) 4.8s
+  natural        n=2   rep=1 gauss_hierarchical             W1/sd=0.2038 mass=0.000 (exact 0.000) 7.5s
+  natural        n=2   rep=1 gauss_jacobian                 W1/sd=0.2079 mass=0.000 (exact 0.000) 2.6s
+  natural        n=2   rep=2 langevin_fnpse                 W1/sd=0.2408 mass=0.000 (exact 0.000) 4.8s
+  natural        n=2   rep=2 gauss_hierarchical             W1/sd=0.2678 mass=0.000 (exact 0.000) 7.4s
+  natural        n=2   rep=2 gauss_jacobian                 W1/sd=0.2562 mass=0.000 (exact 0.000) 2.6s
+natural        n=4   T=+6.7324  w=(0.000, 1.000)  modes=(-0.987, +2.205)  branch sd=0.320  posterior sd=0.320
+  natural        n=4   rep=0 langevin_fnpse                 W1/sd=0.7581 mass=1.000 (exact 1.000) 5.0s
+  natural        n=4   rep=0 gauss_hierarchical             W1/sd=0.8031 mass=1.000 (exact 1.000) 7.6s
+  natural        n=4   rep=0 gauss_jacobian                 W1/sd=0.7427 mass=1.000 (exact 1.000) 2.8s
+  natural        n=4   rep=1 langevin_fnpse                 W1/sd=0.4723 mass=1.000 (exact 1.000) 4.9s
+  natural        n=4   rep=1 gauss_hierarchical             W1/sd=0.4817 mass=1.000 (exact 1.000) 7.5s
+  natural        n=4   rep=1 gauss_jacobian                 W1/sd=0.4726 mass=1.000 (exact 1.000) 2.8s
+  natural        n=4   rep=2 langevin_fnpse                 W1/sd=0.5395 mass=0.000 (exact 0.000) 4.9s
+  natural        n=4   rep=2 gauss_hierarchical             W1/sd=0.5556 mass=0.000 (exact 0.000) 7.6s
+  natural        n=4   rep=2 gauss_jacobian                 W1/sd=0.5325 mass=0.000 (exact 0.000) 2.9s
+natural        n=8   T=-12.6453  w=(1.000, 0.000)  modes=(-2.012, +0.333)  branch sd=0.274  posterior sd=0.274
+  natural        n=8   rep=0 langevin_fnpse                 W1/sd=1.5500 mass=0.000 (exact 0.000) 5.1s
+  natural        n=8   rep=0 gauss_hierarchical             W1/sd=1.5817 mass=0.000 (exact 0.000) 7.5s
+  natural        n=8   rep=0 gauss_jacobian                 W1/sd=1.5379 mass=0.000 (exact 0.000) 3.2s
+  natural        n=8   rep=1 langevin_fnpse                 W1/sd=0.4179 mass=0.000 (exact 0.000) 5.1s
+  natural        n=8   rep=1 gauss_hierarchical             W1/sd=0.4259 mass=0.000 (exact 0.000) 7.5s
+  natural        n=8   rep=1 gauss_jacobian                 W1/sd=0.4173 mass=0.000 (exact 0.000) 3.2s
+  natural        n=8   rep=2 langevin_fnpse                 W1/sd=0.5999 mass=1.000 (exact 1.000) 5.2s
+  natural        n=8   rep=2 gauss_hierarchical             W1/sd=0.6120 mass=1.000 (exact 1.000) 7.6s
+  natural        n=8   rep=2 gauss_jacobian                 W1/sd=0.6185 mass=1.000 (exact 1.000) 3.2s
+natural        n=16  T=+39.6686  w=(0.000, 1.000)  modes=(+0.954, +2.486)  branch sd=0.221  posterior sd=0.221
+  natural        n=16  rep=0 langevin_fnpse                 W1/sd=0.5165 mass=1.000 (exact 1.000) 5.4s
+  natural        n=16  rep=0 gauss_hierarchical             W1/sd=0.5135 mass=1.000 (exact 1.000) 7.6s
+  natural        n=16  rep=0 gauss_jacobian                 W1/sd=0.4970 mass=1.000 (exact 1.000) 3.8s
+  natural        n=16  rep=1 langevin_fnpse                 W1/sd=1.2897 mass=1.000 (exact 1.000) 5.3s
+  natural        n=16  rep=1 gauss_hierarchical             W1/sd=1.2867 mass=1.000 (exact 1.000) 7.6s
+  natural        n=16  rep=1 gauss_jacobian                 W1/sd=1.2657 mass=1.000 (exact 1.000) 3.7s
+  natural        n=16  rep=2 langevin_fnpse                 W1/sd=1.7890 mass=0.000 (exact 0.000) 5.6s
+  natural        n=16  rep=2 gauss_hierarchical             W1/sd=1.8022 mass=0.000 (exact 0.000) 7.9s
+  natural        n=16  rep=2 gauss_jacobian                 W1/sd=1.7657 mass=0.000 (exact 0.000) 3.9s
+
+240 rows in 15.6 minutes -> /export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts/scaling/oracle

@@ -195,6 +195,31 @@ class LaplaceRowScoreNetwork(_RowScoreBase):
         return score_g, (weight * derivative).sum(dim=1)
 
 
+class ExponentialRowScoreNetwork(_RowScoreBase):
+    """Exact row score for the original exponential ``hierarchy``.
+
+    Delegates both branches to ``analytic_compare.ExactRowScoreNetwork`` rather
+    than restating them, so the exponential arm of a cross-problem sweep is
+    graded by the *same* closed form the rest of this directory already uses.
+    The base class supplies the ``SBIm.model`` surface and the alpha rescale;
+    only the two quadrature branches differ per noise law.
+    """
+
+    def __init__(self, sde, module, nodes=769, chunk=8192):
+        super().__init__(sde, module, chunk=chunk)
+        # Imported here, not at module scope: ``analytic_compare`` imports
+        # ``compare``, which imports this module for the symmetric sweep.
+        import analytic_compare
+
+        self.exact = analytic_compare.ExactRowScoreNetwork(sde, nodes=nodes)
+
+    def _conditioned(self, g, l_t, obs, lam):
+        return self.exact._conditioned(g, l_t, obs, lam)
+
+    def _diffused(self, g_t, l_t, obs, lam):
+        return self.exact._diffused(g_t, l_t, obs, lam)
+
+
 class ExactSingleObservationSampler:
     """Exact draws from ``p(g, l | x_j)``; the pilot ``gauss_hierarchical`` needs.
 
@@ -232,7 +257,8 @@ class AnalyticModel:
                  seed=0):
         self.sde = sde
         self.problem = module
-        if row_score_class is LaplaceRowScoreNetwork:
+        if row_score_class in (LaplaceRowScoreNetwork,
+                               ExponentialRowScoreNetwork):
             self.model = row_score_class(sde, module, nodes=nodes).to(device)
         else:
             self.model = row_score_class(sde, module).to(device)

@@ -1,0 +1,26 @@
+INFO Selected physical GPU [8] via autocvd.
+CPU affinity: 3/72 CPUs (4.167%)
+tokenized/h32d3wide 268,545 parameters (six_weighted, log_sigma)
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  symmetric      n=32  rep=0 gauss_jacobian                 W1/sd=4.0509 mass=0.223 (exact 0.500) 71.5s
+  symmetric      n=32  rep=0 gauss_jacobian_mixture_prior   W1/sd=1.3487 mass=0.030 (exact 0.500) 64.5s
+  symmetric      n=32  rep=0 marginal_product               W1/sd=1.9197 mass=0.000 (exact 0.500) 259.5s
+  symmetric      n=32  rep=1 gauss_jacobian                 W1/sd=3.8930 mass=0.311 (exact 0.500) 22.8s
+  symmetric      n=32  rep=1 gauss_jacobian_mixture_prior   W1/sd=1.2741 mass=0.034 (exact 0.500) 22.9s
+  symmetric      n=32  rep=1 marginal_product               W1/sd=2.8594 mass=0.000 (exact 0.500) 211.2s
+antisymmetric  n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  antisymmetric  n=32  rep=0 gauss_jacobian                 W1/sd=3.5177 mass=0.355 (exact 0.500) 22.8s
+  antisymmetric  n=32  rep=0 gauss_jacobian_mixture_prior   W1/sd=0.8745 mass=0.054 (exact 0.500) 22.9s
+  antisymmetric  n=32  rep=0 marginal_product               W1/sd=2.9847 mass=1.000 (exact 0.500) 212.2s
+  antisymmetric  n=32  rep=1 gauss_jacobian                 W1/sd=3.5035 mass=0.344 (exact 0.500) 22.8s
+  antisymmetric  n=32  rep=1 gauss_jacobian_mixture_prior   W1/sd=0.8567 mass=0.052 (exact 0.500) 22.9s
+  antisymmetric  n=32  rep=1 marginal_product               W1/sd=1.0553 mass=0.000 (exact 0.500) 211.4s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  asymmetric     n=32  rep=0 gauss_jacobian                 W1/sd=4.8788 mass=0.313 (exact 0.750) 22.8s
+  asymmetric     n=32  rep=0 gauss_jacobian_mixture_prior   W1/sd=1.8580 mass=0.024 (exact 0.750) 22.9s
+  asymmetric     n=32  rep=0 marginal_product               W1/sd=3.4302 mass=0.000 (exact 0.750) 210.8s
+  asymmetric     n=32  rep=1 gauss_jacobian                 W1/sd=4.6085 mass=0.446 (exact 0.750) 22.8s
+  asymmetric     n=32  rep=1 gauss_jacobian_mixture_prior   W1/sd=1.6208 mass=0.029 (exact 0.750) 22.9s
+  asymmetric     n=32  rep=1 marginal_product               W1/sd=2.2230 mass=0.207 (exact 0.750) 210.0s
+
+24 rows in 28.0 minutes -> /export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts/scaling/diagnostic_n32

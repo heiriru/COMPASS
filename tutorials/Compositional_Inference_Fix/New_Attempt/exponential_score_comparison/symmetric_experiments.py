@@ -71,6 +71,7 @@ import torch  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import compare  # noqa: E402
+import hierarchy  # noqa: E402
 import hierarchy_gauss  # noqa: E402
 import hierarchy_laplace  # noqa: E402
 import stochastic_predictor_experiments as churn  # noqa: E402
@@ -90,6 +91,16 @@ PROBLEMS = {
         "label": "Laplace noise (symmetric, non-Gaussian: rules approximate)",
         "row_score": row_scores.LaplaceRowScoreNetwork,
     },
+    "exponential": {
+        "module": hierarchy,
+        "label": "Exponential noise (skewed, hard wall: the original)",
+        "row_score": row_scores.ExponentialRowScoreNetwork,
+        # l_j <= x_j here, so the local grid must stop at the wall exactly as
+        # compare.build_problem does. Running past it would put grid mass on
+        # zero-density support and bias every local W1 -- the mirror image of
+        # the reason the twins must NOT stop there.
+        "clip_local_grid_at_wall": True,
+    },
 }
 
 NAVY, BLUE, TEAL, CORAL, GOLD = (
@@ -102,6 +113,11 @@ JACOBIAN_KWARGS = {
     "corrector_steps": 0, "final_corrector_steps": 0,
     "terminal_corrector_steps": 0,
 }
+BP_JACOBIAN_KWARGS = {
+    "method": "dpm", "order": 2, "correction": "bp_jac", "jacobian_block_size": 2,
+    "corrector_steps": 0, "final_corrector_steps": 0,
+    "terminal_corrector_steps": 0,
+}
 HIERARCHICAL_KWARGS = {
     "method": "dpm", "order": 2, "correction": "gauss_hierarchical",
     "precision_est_samples": compare.PRECISION_EST_SAMPLES,
@@ -110,7 +126,21 @@ HIERARCHICAL_KWARGS = {
     "terminal_corrector_steps": 0,
 }
 
+# The original Gloeckler et al. 2024 rule: one scalar precision per shared
+# coordinate, no covariance, and therefore no local cross-correction at all.
+DIAGONAL_KWARGS = {
+    "method": "dpm", "order": 2, "correction": "gauss",
+    "precision_est_samples": compare.PRECISION_EST_SAMPLES,
+    "precision_est_timesteps": compare.TIMESTEPS,
+    "corrector_steps": 0, "final_corrector_steps": 0,
+    "terminal_corrector_steps": 0,
+}
+
 VARIANTS = {
+    "G_eta0": {"label": "gauss (diagonal), eta 0 (probability-flow ODE)",
+               "eta": 0.0, "kwargs": DIAGONAL_KWARGS, "colour": "#9C6B1F"},
+    "G_eta2": {"label": "gauss (diagonal), eta 2 (churned, corrector-free)",
+               "eta": 2.0, "kwargs": DIAGONAL_KWARGS, "colour": GOLD},
     # gauss_hierarchical with its constant pilot Lambda_j replaced by the
     # state-dependent kernel estimate of the same object (kernel_curvature.py).
     # Same rule, same pilot, no extra network evaluations.
@@ -133,6 +163,22 @@ VARIANTS = {
                "eta": 0.0, "kwargs": JACOBIAN_KWARGS, "colour": MUTED},
     "J_eta4": {"label": "gauss_jacobian, eta 4 (churned, corrector-free)",
                "eta": 4.0, "kwargs": JACOBIAN_KWARGS, "colour": TEAL},
+    "BP_eta0": {"label": "BP-JAC (K=2), eta 0 (probability-flow ODE)",
+                "eta": 0.0, "kwargs": BP_JACOBIAN_KWARGS, "colour": "#6A4C93"},
+    "BP_eta4": {"label": "BP-JAC (K=2), eta 4 (churned, corrector-free)",
+                "eta": 4.0, "kwargs": BP_JACOBIAN_KWARGS, "colour": "#8338EC"},
+    "BP_K1": {"label": "BP-JAC (K=1), churn eta 4", "eta": 4.0,
+              "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=1), "colour": "#264653"},
+    "BP_K2": {"label": "BP-JAC (K=2), churn eta 4", "eta": 4.0,
+              "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=2), "colour": "#8338EC"},
+    "BP_K5": {"label": "BP-JAC (K=5), churn eta 4", "eta": 4.0,
+              "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=5), "colour": "#F4A261"},
+    "BP_K10": {"label": "BP-JAC (K=10), churn eta 4", "eta": 4.0,
+               "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=10), "colour": "#E76F51"},
+    "BP_KN": {"label": "BP-JAC (K=N=30), churn eta 4", "eta": 4.0,
+              "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=30), "colour": "#D62828"},
+    "BP_K5_adaptive": {"label": "BP-JAC adaptive score-sorted blocks (K=5), churn eta 4", "eta": 4.0,
+                       "kwargs": dict(BP_JACOBIAN_KWARGS, jacobian_block_size=5, jacobian_pooling="score_sorted"), "colour": "#118AB2"},
     "H_eta0": {"label": "gauss_hierarchical, eta 0 (probability-flow ODE)",
                "eta": 0.0, "kwargs": HIERARCHICAL_KWARGS, "colour": "#B0453A"},
     "H_eta4": {"label": "gauss_hierarchical, eta 4 (churned, corrector-free)",
@@ -161,7 +207,9 @@ def patched_problem_module(module):
         compare.hierarchy = original
 
 
-def build_problem(module, model, observations, seed, device):
+def build_problem(module, model, observations, seed, device,
+                  clip_local_grid_at_wall=False, reference_grid_points=40001,
+                  local_grid_points=20001):
     """``compare.build_problem`` for a symmetric twin.
 
     Reimplemented rather than reused for one reason: ``compare.build_problem``
@@ -171,12 +219,15 @@ def build_problem(module, model, observations, seed, device):
     Clipping it would silently bias every local W1.
     """
     global_truth, local_truth, x = module.observations(observations, seed)
-    grid, density, weights, mean, std = module.shared_reference(x)
+    grid, density, weights, mean, std = module.shared_reference(x, points=reference_grid_points)
     local_mean, local_std = module.local_reference(x, grid, weights)
     # Cover every local marginal to +-8 of its own sd, on both sides.
-    low = float((local_mean - 8.0 * local_std).min())
-    high = float((local_mean + 8.0 * local_std).max())
-    local_grid = np.linspace(min(low, float(grid[0])), high, 20001)
+    if clip_local_grid_at_wall:
+        local_grid = np.linspace(grid[0], float(np.max(x)), local_grid_points)
+    else:
+        low = float((local_mean - 8.0 * local_std).min())
+        high = float((local_mean + 8.0 * local_std).max())
+        local_grid = np.linspace(min(low, float(grid[0])), high, local_grid_points)
     local_weights = np.stack([
         module.local_marginal(value, grid, weights, local_grid) for value in x
     ])
@@ -441,6 +492,12 @@ def main():
     parser.add_argument("--num-samples", type=int, default=compare.NUM_SAMPLES)
     parser.add_argument("--timesteps", type=int, default=compare.TIMESTEPS)
     parser.add_argument("--quadrature-nodes", type=int, default=769)
+    parser.add_argument("--reference-grid-points", type=int, default=40001,
+                        help="shared-posterior reference grid resolution")
+    parser.add_argument("--local-grid-points", type=int, default=20001,
+                        help="local-marginal reference grid resolution; reduce "
+                             "for fast sweeps (the high-resolution defaults are "
+                             "retained for final figures)")
     parser.add_argument("--kernel-pilot-draws", type=int, default=512,
                         help="pilot draws retained for the kernel curvature "
                              "estimate; its cost is linear in this count and "
@@ -480,8 +537,15 @@ def main():
         )
 
         with patched_problem_module(module):
-            problem = build_problem(module, model, arguments.observations,
-                                    arguments.seed, arguments.device)
+            problem = build_problem(
+                module, model, arguments.observations, arguments.seed,
+                arguments.device,
+                clip_local_grid_at_wall=specification.get(
+                    "clip_local_grid_at_wall", False
+                ),
+                reference_grid_points=arguments.reference_grid_points,
+                local_grid_points=arguments.local_grid_points,
+            )
             print(f"\n########## {problem_name}: {specification['label']}")
             print(f"true g = {problem['global_truth']:.5f}   exact posterior "
                   f"mean {problem['global_mean']:.5f}, sd "

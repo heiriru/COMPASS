@@ -1,0 +1,98 @@
+20:35:27 scheduler on GPUs ['8', '9']: 42 jobs, skipping ['nocurv_gm_none', 'nocurv_ik_absx1', 'nocurv_ik_absx1_R', 'nocurv_ik_flat_fixed', 'nocurv_ik_flat_global', 'nocurv_ik_reach_shift', 'nocurv_ik_reach_shift_bernoulli', 'nocurv_ik_reach_sym', 'nocurv_toy_abs_oracle_hierarchical_nocurv', 'nocurv_toy_abs_oracle_joint_nocurv', 'nocurv_toy_square_hierarchical_nocurv', 'nocurv_pp_hierarchical', 'nocurv_gm_oracle', 'nocurv_toy_square_none_nocurv', 'nocurv_toy_lean_none_nocurv', 'nocurv_pp_hierarchical_Rg', 'nocurv_gm_hierarchical', 'nocurv_toy_abs_hierarchical_nocurv']
+20:42:29 start nocurv_ik_reach_sym_bernoulli on GPU 8 cores 24-26 (free 5630 MB, needs 1600 MB); 41 queued, 1 running
+20:42:39 OOM   nocurv_ik_reach_sym_bernoulli after 0 min (peak 0 MB); requeued needing 2560 MB
+20:43:52 start nocurv_ik_reach_sym_bernoulli on GPU 8 cores 24-26 (free 5630 MB, needs 2560 MB); 41 queued, 1 running
+20:44:03 OOM   nocurv_ik_reach_sym_bernoulli after 0 min (peak 0 MB); requeued needing 4096 MB
+20:45:16 start nocurv_toy_abs_none_nocurv on GPU 8 cores 24-26 (free 4970 MB, needs 1500 MB); 41 queued, 1 running
+20:45:26 OOM   nocurv_toy_abs_none_nocurv after 0 min (peak 0 MB); requeued needing 2400 MB
+20:46:39 start nocurv_toy_lean_hierarchical_nocurv on GPU 8 cores 24-26 (free 4970 MB, needs 1500 MB); 41 queued, 1 running
+20:56:08 start nocurv_toy_abs_none_nocurv on GPU 9 cores 3-5 (free 5234 MB, needs 2400 MB); 40 queued, 2 running
+20:56:18 OOM   nocurv_toy_abs_none_nocurv after 0 min (peak 0 MB); requeued needing 3840 MB
+20:57:30 start nocurv_toy_lean_oracle_joint_nocurv on GPU 9 cores 3-5 (free 5236 MB, needs 1500 MB); 40 queued, 2 running
+20:59:14 start nocurv_toy_lean_oracle_hierarchical_nocurv on GPU 8 cores 27-29 (free 4910 MB, needs 1500 MB); 39 queued, 3 running
+21:02:12 OOM   nocurv_toy_lean_hierarchical_nocurv after 16 min (peak 2038 MB); requeued needing 2400 MB
+21:02:12 start nocurv_toy_lean_hierarchical_nocurv on GPU 8 cores 24-26 (free 5632 MB, needs 2400 MB); 39 queued, 3 running
+21:02:22 OOM   nocurv_toy_lean_hierarchical_nocurv after 0 min (peak 0 MB); requeued needing 3840 MB
+21:03:35 start nocurv_toy_lean_hierarchical_R_nocurv on GPU 8 cores 24-26 (free 5608 MB, needs 1500 MB); 39 queued, 3 running
+21:05:31 start nocurv_toy_lean_hierarchical_T_nocurv on GPU 9 cores 6-8 (free 4960 MB, needs 1500 MB); 38 queued, 4 running
+21:09:31 start nocurv_toy_lean_hierarchical_TF_nocurv on GPU 9 cores 45-47 (free 4120 MB, needs 1500 MB); 37 queued, 5 running
+21:09:52 done  nocurv_toy_lean_oracle_joint_nocurv exit 0 in 12 min, peak 1376 MB
+21:10:54 start nocurv_toy_lean_hierarchical_TFR_nocurv on GPU 9 cores 3-5 (free 4428 MB, needs 1500 MB); 36 queued, 5 running
+21:12:47 done  nocurv_toy_lean_oracle_hierarchical_nocurv exit 0 in 14 min, peak 1380 MB
+21:12:47 start nocurv_toy_lean_hierarchical_T_e4_nocurv on GPU 8 cores 27-29 (free 5630 MB, needs 1500 MB); 35 queued, 5 running
+21:29:18 done  nocurv_toy_lean_hierarchical_R_nocurv exit 0 in 26 min, peak 1998 MB
+21:29:18 start nocurv_toy_curved_hierarchical_nocurv on GPU 8 cores 24-26 (free 4950 MB, needs 1500 MB); 34 queued, 5 running
+21:41:07 done  nocurv_toy_lean_hierarchical_T_e4_nocurv exit 0 in 28 min, peak 1998 MB
+21:41:07 start nocurv_toy_curved_hierarchical_R_nocurv on GPU 8 cores 27-29 (free 5630 MB, needs 1500 MB); 33 queued, 5 running
+21:42:19 done  nocurv_toy_lean_hierarchical_T_nocurv exit 0 in 37 min, peak 1998 MB
+21:42:19 start noboth_ik_absx1 on GPU 9 cores 6-8 (free 4286 MB, needs 1600 MB); 32 queued, 5 running
+21:47:42 done  nocurv_toy_lean_hierarchical_TF_nocurv exit 0 in 38 min, peak 1998 MB
+21:47:42 start noboth_ik_absx1_R on GPU 9 cores 45-47 (free 4942 MB, needs 1600 MB); 31 queued, 5 running
+21:49:36 done  nocurv_toy_lean_hierarchical_TFR_nocurv exit 0 in 39 min, peak 1998 MB
+21:49:36 start noboth_ik_flat_fixed on GPU 9 cores 3-5 (free 5622 MB, needs 1600 MB); 30 queued, 5 running
+21:57:46 done  nocurv_toy_curved_hierarchical_nocurv exit 0 in 28 min, peak 1998 MB
+21:57:46 start noboth_ik_flat_global on GPU 8 cores 24-26 (free 4950 MB, needs 1600 MB); 29 queued, 5 running
+22:02:06 start noboth_ik_reach_sym on GPU 8 cores 30-32 (free 4942 MB, needs 1600 MB); 28 queued, 6 running
+22:10:36 done  nocurv_toy_curved_hierarchical_R_nocurv exit 0 in 29 min, peak 1998 MB
+22:10:36 start noboth_ik_reach_shift on GPU 8 cores 27-29 (free 5622 MB, needs 1600 MB); 27 queued, 6 running
+22:20:19 done  noboth_ik_absx1 exit 0 in 38 min, peak 1344 MB
+22:20:20 start noboth_ik_reach_sym_bernoulli on GPU 9 cores 6-8 (free 5616 MB, needs 1600 MB); 26 queued, 6 running
+22:22:24 done  noboth_ik_flat_fixed exit 0 in 33 min, peak 1320 MB
+22:22:24 start noboth_ik_reach_shift_bernoulli on GPU 9 cores 3-5 (free 5620 MB, needs 1600 MB); 25 queued, 6 running
+22:24:49 done  noboth_ik_absx1_R exit 0 in 37 min, peak 1346 MB
+22:24:49 start noboth_gm_hierarchical on GPU 9 cores 45-47 (free 5650 MB, needs 2000 MB); 24 queued, 6 running
+22:32:06 done  noboth_ik_reach_sym exit 0 in 30 min, peak 1318 MB
+22:32:06 start noboth_gm_none on GPU 8 cores 30-32 (free 5622 MB, needs 2000 MB); 23 queued, 6 running
+22:33:08 done  noboth_ik_flat_global exit 0 in 35 min, peak 1344 MB
+22:33:29 start noboth_gm_oracle on GPU 8 cores 24-26 (free 5674 MB, needs 2000 MB); 22 queued, 6 running
+22:35:44 start nocurv_toy_lean_hierarchical_nocurv on GPU 8 cores 33-35 (free 7362 MB, needs 3840 MB); 21 queued, 7 running
+22:35:54 done  nocurv_toy_lean_hierarchical_nocurv exit 0 in 0 min, peak 0 MB
+22:37:06 start nocurv_toy_abs_none_nocurv on GPU 8 cores 33-35 (free 7328 MB, needs 3840 MB); 20 queued, 7 running
+22:37:17 done  noboth_ik_reach_shift exit 0 in 27 min, peak 1318 MB
+22:37:17 done  nocurv_toy_abs_none_nocurv exit 0 in 0 min, peak 0 MB
+22:38:29 start nocurv_ik_reach_sym_bernoulli on GPU 8 cores 27-29 (free 8606 MB, needs 4096 MB); 19 queued, 6 running
+22:38:39 done  nocurv_ik_reach_sym_bernoulli exit 0 in 0 min, peak 0 MB
+22:39:51 start noboth_pp_hierarchical on GPU 8 cores 27-29 (free 8606 MB, needs 4500 MB); 18 queued, 6 running
+22:41:14 start noboth_toy_abs_hierarchical_noboth on GPU 8 cores 33-35 (free 5628 MB, needs 1500 MB); 17 queued, 7 running
+22:46:12 done  noboth_gm_oracle exit 0 in 13 min, peak 1334 MB
+22:46:13 start noboth_toy_abs_none_noboth on GPU 8 cores 24-26 (free 5644 MB, needs 1500 MB); 16 queued, 7 running
+22:50:20 done  noboth_ik_reach_sym_bernoulli exit 0 in 30 min, peak 1318 MB
+22:50:20 start noboth_toy_abs_oracle_joint_noboth on GPU 9 cores 6-8 (free 5644 MB, needs 1500 MB); 15 queued, 7 running
+22:52:02 done  noboth_ik_reach_shift_bernoulli exit 0 in 30 min, peak 1318 MB
+22:52:02 start noboth_toy_abs_oracle_hierarchical_noboth on GPU 9 cores 3-5 (free 5660 MB, needs 1500 MB); 14 queued, 7 running
+23:00:26 done  noboth_gm_none exit 0 in 28 min, peak 1320 MB
+23:00:26 start noboth_toy_square_hierarchical_noboth on GPU 8 cores 30-32 (free 4966 MB, needs 1500 MB); 13 queued, 7 running
+23:02:09 done  noboth_gm_hierarchical exit 0 in 37 min, peak 1320 MB
+23:02:09 start noboth_toy_square_none_noboth on GPU 9 cores 45-47 (free 5526 MB, needs 1500 MB); 12 queued, 7 running
+23:03:20 done  noboth_toy_abs_oracle_joint_noboth exit 0 in 13 min, peak 1376 MB
+23:03:30 start noboth_toy_lean_hierarchical_noboth on GPU 9 cores 6-8 (free 5624 MB, needs 1500 MB); 11 queued, 7 running
+23:07:57 done  noboth_toy_abs_oracle_hierarchical_noboth exit 0 in 16 min, peak 1380 MB
+23:07:57 start noboth_toy_lean_none_noboth on GPU 9 cores 3-5 (free 5646 MB, needs 1500 MB); 10 queued, 7 running
+23:14:38 done  noboth_toy_abs_hierarchical_noboth exit 0 in 33 min, peak 1998 MB
+23:14:38 start noboth_toy_lean_oracle_joint_noboth on GPU 8 cores 33-35 (free 4986 MB, needs 1500 MB); 9 queued, 7 running
+23:20:07 done  noboth_toy_abs_none_noboth exit 0 in 34 min, peak 1978 MB
+23:20:07 start noboth_toy_lean_oracle_hierarchical_noboth on GPU 8 cores 24-26 (free 4948 MB, needs 1500 MB); 8 queued, 7 running
+23:28:52 done  noboth_toy_lean_oracle_joint_noboth exit 0 in 14 min, peak 1376 MB
+23:28:52 start noboth_toy_lean_hierarchical_R_noboth on GPU 8 cores 33-35 (free 4944 MB, needs 1500 MB); 7 queued, 7 running
+23:29:54 done  noboth_toy_square_hierarchical_noboth exit 0 in 29 min, peak 1998 MB
+23:30:15 start noboth_toy_lean_hierarchical_T_noboth on GPU 8 cores 30-32 (free 5624 MB, needs 1500 MB); 6 queued, 7 running
+23:35:44 start noboth_toy_lean_hierarchical_TF_noboth on GPU 9 cores 48-50 (free 5306 MB, needs 1500 MB); 5 queued, 8 running
+23:36:35 done  noboth_toy_lean_oracle_hierarchical_noboth exit 0 in 16 min, peak 1380 MB
+23:36:35 start noboth_toy_lean_hierarchical_TFR_noboth on GPU 8 cores 24-26 (free 5646 MB, needs 1500 MB); 4 queued, 8 running
+23:37:16 done  noboth_toy_square_none_noboth exit 0 in 35 min, peak 1978 MB
+23:37:16 start noboth_toy_lean_hierarchical_T_e4_noboth on GPU 9 cores 45-47 (free 6006 MB, needs 1500 MB); 3 queued, 8 running
+23:39:28 done  noboth_toy_lean_hierarchical_noboth exit 0 in 36 min, peak 1998 MB
+23:39:28 start noboth_toy_curved_hierarchical_noboth on GPU 9 cores 6-8 (free 6726 MB, needs 1500 MB); 2 queued, 8 running
+23:43:52 done  noboth_toy_lean_none_noboth exit 0 in 36 min, peak 1978 MB
+23:43:53 start noboth_pp_hierarchical_Rg on GPU 9 cores 3-5 (free 7346 MB, needs 4500 MB); 1 queued, 8 running
+00:02:10 done  noboth_toy_lean_hierarchical_R_noboth exit 0 in 33 min, peak 1998 MB
+00:04:04 done  noboth_toy_lean_hierarchical_T_noboth exit 0 in 34 min, peak 1998 MB
+00:04:05 start noboth_toy_curved_hierarchical_R_noboth on GPU 8 cores 30-32 (free 6284 MB, needs 1500 MB); 0 queued, 7 running
+00:10:00 done  noboth_toy_lean_hierarchical_TFR_noboth exit 0 in 33 min, peak 1998 MB
+00:12:32 done  noboth_toy_lean_hierarchical_TF_noboth exit 0 in 37 min, peak 1998 MB
+00:14:04 done  noboth_toy_lean_hierarchical_T_e4_noboth exit 0 in 37 min, peak 1998 MB
+00:15:35 done  noboth_toy_curved_hierarchical_noboth exit 0 in 36 min, peak 1998 MB
+00:25:14 done  noboth_toy_curved_hierarchical_R_noboth exit 0 in 21 min, peak 1998 MB
+01:15:22 done  noboth_pp_hierarchical exit 0 in 156 min, peak 2978 MB
+01:33:50 done  noboth_pp_hierarchical_Rg exit 0 in 110 min, peak 2978 MB
+01:34:00 all done

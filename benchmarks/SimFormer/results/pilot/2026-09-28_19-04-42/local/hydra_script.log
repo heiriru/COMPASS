@@ -1,0 +1,56 @@
+[2026-09-28 19:04:42,856][scoresbibm.scripts.hydra_script][INFO] - name: pilot
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_euler500
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 5000
+    sampler: euler
+    order: 2
+    churn_eta: 2.0
+    timesteps: 500
+    eps: 0.001
+    load_from: results/pilot/2026-09-28_16-53-11/local/compass_model
+task:
+  name: two_moons
+  num_simulations: 10000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-28 19:04:42,856][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-28 19:04:42,856][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_19-04-42/local
+[2026-09-28 19:04:42,856][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot
+[2026-09-28 19:04:42,858][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-28 19:04:42,859][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-28 19:04:42,860][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-28 19:04:42,907][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-28 19:04:42,908][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-09-28 19:04:42,968][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_euler500

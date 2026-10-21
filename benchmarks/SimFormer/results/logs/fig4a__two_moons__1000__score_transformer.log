@@ -1,0 +1,121 @@
+[2026-09-28 20:13:55,142][scoresbibm.scripts.hydra_script][INFO] - name: fig4a
+seed: 0
+model_id: null
+save_model: true
+save_summary: true
+method:
+  model:
+    token_dim: 40
+    condition_token_dim: 10
+    condition_token_init_scale: 0.1
+    condition_token_init_mean: 0.0
+    condition_mode: concat
+    time_embedding_dim: 128
+    num_heads: 4
+    num_layers: 6
+    attn_size: 10
+    widening_factor: 3
+    num_hidden_layers: 1
+    skip_connection_attn: true
+    skip_connection_mlp: true
+    layer_norm: true
+  train:
+    condition_mask_fn:
+      name: structured_random
+      p_joint: 0.2
+      p_posterior: 0.2
+      p_likelihood: 0.2
+      p_rnd1: 0.2
+      p_rnd2: 0.2
+      rnd1_prob: 0.3
+      rnd2_prob: 0.7
+    edge_mask_fn:
+      name: none
+    max_number_steps: 100000
+    min_number_steps: 5000
+    total_number_steps_scaling: 3
+    training_batch_size: 1000
+    learning_rate: 0.001
+    min_learning_rate: 1.0e-06
+    clip_max_norm: 10.0
+    validation_fraction: 0.05
+    val_repeat: 5
+    val_every: 50
+    stop_early_count: 5
+    rebalance_loss: false
+    z_score_data: false
+  sde:
+    name: vesde
+    sigma_max: 15.0
+    sigma_min: 0.0001
+    T_max: 1.0
+    T_min: 1.0e-05
+    scale_min: 0.001
+  posterior:
+    sampling_method: sde
+    num_steps: 500
+    method: euler_maruyama
+  name: score_transformer
+  backend: jax
+  device: gpu
+task:
+  name: two_moons
+  num_simulations: 1000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-28 20:13:55,142][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-28 20:13:55,143][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-13-55/local
+[2026-09-28 20:13:55,143][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a
+[2026-09-28 20:13:55,143][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-28 20:13:55,143][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-28 20:13:55,143][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-28 20:13:55,184][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-28 20:13:55,185][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-09-28 20:13:55,220][scoresbibm.scripts.hydra_script][INFO] - Running method: score_transformer
+Train loss:  72.7535
+Train loss:  39.681824
+Validation loss:  36.144344 0
+Train loss:  37.662086
+Validation loss:  47.3159 1
+Train loss:  38.99398
+Validation loss:  37.808205 0
+Train loss:  39.10643
+Validation loss:  42.243877 0
+Train loss:  37.887268
+Validation loss:  28.865429 0
+Train loss:  36.25504
+Validation loss:  40.42954 1
+Train loss:  34.08954
+Validation loss:  30.863642 0
+Train loss:  36.746735
+Validation loss:  41.49115 1
+Train loss:  33.184097
+Validation loss:  33.0743 0
+[2026-09-28 20:16:23,579][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: score_transformer
+[2026-09-28 20:16:23,580][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+Metric value:  0.5582500100135803
+Metric value:  0.590749979019165
+Metric value:  0.5521500110626221
+Metric value:  0.6029499769210815
+Metric value:  0.7074000239372253
+Metric value:  0.6322000026702881
+Metric value:  0.6215999722480774
+Metric value:  0.6157000064849854
+Metric value:  0.5714499950408936
+Metric value:  0.6369500160217285
+[2026-09-28 20:19:45,733][scoresbibm.scripts.hydra_script][INFO] - Saving model
+[2026-09-28 20:19:45,747][scoresbibm.scripts.hydra_script][INFO] - Model saved with id: 4
+[2026-09-28 20:19:45,747][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-28 20:19:45,765][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 4

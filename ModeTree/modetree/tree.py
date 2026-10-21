@@ -34,7 +34,10 @@ import time
 
 import torch
 
-from .composition import ArrowBlocks, CleanComposer, _rows_state
+from .composition import (
+    ArrowBlocks, CleanComposer, _rows_state, arrow_blocks_batched,
+)
+from .diffusion import admissible_row_hessian
 from .refine import (
     mahalanobis, mahalanobis_residual, refine_batch, refine_mode,
 )
@@ -54,7 +57,7 @@ class TimeComposer(CleanComposer):
     precision-weighted ones, and the two coincide as ``lambda -> 0``.
     """
 
-    def __init__(self, field, t):
+    def __init__(self, field, t, curvature_projection=False, lower_floor=0.0):
         self.field = field
         self.t = float(t)
         self.lam = field.oracle.schedule.lam(t)
@@ -62,6 +65,25 @@ class TimeComposer(CleanComposer):
         self.source = None
         self.score_evaluations = 0
         self.hessian_evaluations = 0
+        # Off by default: with an exact score the row Jacobian *is* a Hessian
+        # and projecting it is a no-op, so the default keeps the composition
+        # exactly as derived.  Switched on, the arrowhead blocks are built from
+        # the Tweedie-admissible projection of the row Jacobian -- the same band
+        # ``row_jacobian_factor`` already clamps into for the precision
+        # weighting, now applied to the curvature the Newton step and the
+        # Laplace determinant consume.
+        self.curvature_projection = bool(curvature_projection)
+        self.lower_floor = float(lower_floor)
+        self.projection_diagnostics = {}
+
+    def _project(self, H):
+        if not self.curvature_projection:
+            return H
+        H, diagnostics = admissible_row_hessian(
+            H, self.lam, self.field.curvature_floor, self.lower_floor
+        )
+        self.projection_diagnostics = diagnostics
+        return H
 
     def score(self, state):
         self.score_evaluations += self.n
@@ -71,20 +93,30 @@ class TimeComposer(CleanComposer):
         """Batched global curvature block for all-global states."""
         assert not self.d_l
         states = torch.as_tensor(states, dtype=torch.float64)
-        H = self.field.oracle.row_jacobians(_rows_state(self, states), self.lam)
+        H = self._project(
+            self.field.oracle.row_jacobians(_rows_state(self, states), self.lam))
         self.hessian_evaluations += self.n
-        prior_cov_t = self.field.oracle.prior_covariance_t(self.lam)
-        H_prior = -torch.cholesky_inverse(torch.linalg.cholesky(prior_cov_t))
-        A = H_prior + (H - H_prior).sum(-3)
+        H_prior = self.field.oracle.prior_hessian(states, self.lam)
+        A = H_prior + (H - H_prior.unsqueeze(-3)).sum(-3)
         return 0.5 * (A + A.mT)
+
+    def blocks_batched(self, states):
+        """Arrowhead blocks for a batch of full states ``(..., dim)``."""
+        states = torch.as_tensor(states, dtype=torch.float64)
+        H = self._project(
+            self.field.oracle.row_jacobians(_rows_state(self, states), self.lam))
+        self.hessian_evaluations += self.n
+        H_prior = self.field.oracle.prior_hessian(
+            states[..., : self.d_g], self.lam
+        )
+        return arrow_blocks_batched(H, H_prior, self.d_g)
 
     def blocks(self, state):
         state = torch.as_tensor(state, dtype=torch.float64).reshape(-1)
         rows_state = _rows_state(self, state)
-        H = self.field.oracle.row_jacobians(rows_state, self.lam)
+        H = self._project(self.field.oracle.row_jacobians(rows_state, self.lam))
         self.hessian_evaluations += self.n
-        prior_cov_t = self.field.oracle.prior_covariance_t(self.lam)
-        H_prior = -torch.cholesky_inverse(torch.linalg.cholesky(prior_cov_t))
+        H_prior = self.field.oracle.prior_hessian(state[: self.d_g], self.lam)
         A = H_prior + (H[:, : self.d_g, : self.d_g] - H_prior).sum(0)
         A = 0.5 * (A + A.mT)
         if not self.d_l:
@@ -149,6 +181,11 @@ class ModeTreeConfig:
     lambda_max: float | None = None
     corrector_iterations: int = 12
     probe_iterations: int = 60
+    # Budget for the final refinement on the clean composition.  With an
+    # oracle score this can be generous; with a network the field is not
+    # exactly conservative and the iteration stalls long before it, so a
+    # large value buys nothing but wall clock.
+    clean_refine_iterations: int = 200
     # Probe acceptance, in local posterior standard deviations.  The probe
     # stage only has to identify a basin: whatever it accepts is polished to
     # ||S|| < 1e-11 by the clean-composition stage (Milestone N).  Demanding
@@ -171,6 +208,13 @@ class ModeTreeConfig:
     evidence_auditor: bool = True
     auditor_sigma_factor: float = 3.0
     jacobian_stride: int = 1
+    # Build the arrowhead blocks from the Tweedie-admissible projection of the
+    # row Jacobian (see ``diffusion.admissible_row_hessian``).  A no-op for an
+    # exact score, so the default is off and the derived composition stands;
+    # switched on, it is the only thing that lets a learned Jacobian whose
+    # spectrum leaves the admissible band be used as a curvature at all.
+    curvature_projection: bool = False
+    curvature_lower_floor: float = 0.0
     return_diagnostics: bool = False
     verbose: bool = False
 
@@ -379,7 +423,9 @@ class ModeTree:
 
         # root branch: the mode of the heavily smoothed field is unique and sits
         # essentially at the prior mean
-        composer = TimeComposer(self.field, levels[0][0])
+        composer = TimeComposer(self.field, levels[0][0],
+                                cfg.curvature_projection,
+                                cfg.curvature_lower_floor)
         root_state = template.clone()
         result = self._refine(composer, root_state, cfg.corrector_iterations * 3)
         root = self._new_branch(result.theta, levels[0][0], None, "root")
@@ -394,7 +440,9 @@ class ModeTree:
                            for k in range(cfg.sentinel_checkpoints)}
 
         for index, (t, lam) in enumerate(levels):
-            composer = TimeComposer(self.field, t)
+            composer = TimeComposer(self.field, t,
+                                    cfg.curvature_projection,
+                                    cfg.curvature_lower_floor)
             previous = {b.branch_id: b.global_state.clone() for b in branches}
             # ---- predictor + corrector
             for branch in branches:
@@ -485,7 +533,8 @@ class ModeTree:
         final = []
         for branch in branches:
             state = self._full_state(branch, template)
-            result = refine_mode(self.clean, state, tol=1e-11, max_iter=200)
+            result = refine_mode(self.clean, state, tol=1e-11,
+                                 max_iter=cfg.clean_refine_iterations)
             self.counters["newton_iterations"] += result.iterations
             if not result.diagnostics["is_local_maximum"]:
                 self.counters["prunes"] += 1
@@ -529,7 +578,7 @@ class ModeTree:
         if not self.d_l:
             seeds = torch.stack([p.reshape(-1) for p, _, _ in candidates])
             radius = max(1.0, float(seeds.abs().max()) / 4.0)
-            theta, norms, curvature, residual = refine_batch(
+            theta, norms, precision, residual = refine_batch(
                 composer, seeds, tol=1e-10, max_iter=cfg.probe_iterations,
                 radius=radius, step_tol=cfg.probe_residual_tolerance,
             )
@@ -537,7 +586,13 @@ class ModeTree:
             for k, (_, parent, origin) in enumerate(candidates):
                 if float(residual[k]) > cfg.probe_residual_tolerance:
                     continue
-                P = -curvature[k]
+                # ``refine_batch`` already returns the Schur-complemented
+                # *precision* P_g, positive definite exactly at a mode -- it is
+                # not the curvature block, and negating it here inverted the
+                # acceptance test: every genuine mode was rejected and every
+                # saddle admitted.  The hierarchical path below reads
+                # ``blocks.global_precision()`` directly, with the same sign.
+                P = precision[k]
                 P = 0.5 * (P + P.mT)
                 if not bool((torch.linalg.eigvalsh(P) > 0).all()):
                     continue
@@ -593,7 +648,8 @@ class ModeTree:
             )
             candidate.score_norm = norm
             candidate.diagnostics["clean_result"] = refine_mode(
-                self.clean, theta, tol=1e-11, max_iter=200
+                self.clean, theta, tol=1e-11,
+                max_iter=self.config.clean_refine_iterations,
             )
             if not candidate.diagnostics["clean_result"].diagnostics[
                     "is_local_maximum"]:

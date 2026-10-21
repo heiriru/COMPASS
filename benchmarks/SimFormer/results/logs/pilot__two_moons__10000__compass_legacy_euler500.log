@@ -1,0 +1,73 @@
+[2026-09-28 19:05:53,033][scoresbibm.scripts.hydra_script][INFO] - name: pilot
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_euler500
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 5000
+    sampler: euler
+    order: 2
+    churn_eta: 2.0
+    timesteps: 500
+    eps: 0.001
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_16-53-11/local/compass_model
+task:
+  name: two_moons
+  num_simulations: 10000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-28 19:05:53,033][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-28 19:05:53,035][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_19-05-52/local
+[2026-09-28 19:05:53,038][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot
+[2026-09-28 19:05:53,040][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-28 19:05:53,041][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-28 19:05:53,042][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-28 19:05:53,083][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-28 19:05:53,085][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-09-28 19:05:53,130][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_euler500
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 7
+[compass-worker] loaded /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_16-53-11/local/compass_model
+[compass] train info: {'loaded_from': '/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_16-53-11/local/compass_model'}
+[2026-09-28 19:05:59,474][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_euler500
+[2026-09-28 19:05:59,475][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+Metric value:  0.6819499731063843
+Metric value:  0.6791999936103821
+Metric value:  0.6747999787330627
+Metric value:  0.6789000034332275
+Metric value:  0.7589499950408936
+Metric value:  0.6802999973297119
+Metric value:  0.6913999915122986
+Metric value:  0.6725500226020813
+Metric value:  0.6695500016212463
+Metric value:  0.7289999723434448
+[2026-09-28 19:10:44,734][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-28 19:10:44,752][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 3

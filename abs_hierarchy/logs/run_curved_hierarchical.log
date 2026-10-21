@@ -1,0 +1,13 @@
+mcmc n=4: P(g>0)=0.619  E|g|=1.207
+mcmc n=16: P(g>0)=0.627  E|g|=1.232
+mcmc n=64: P(g>0)=0.616  E|g|=1.169
+mcmc n=128: P(g>0)=0.619  E|g|=1.140
+sampling eps 0.001
+hierarchical  gauss_jacobian_FD    n=4   P(g>0)=0.655 E|g|=1.194 sd=1.203  12s
+hierarchical  arruda_direct        n=4   P(g>0)=0.669 E|g|=1.196 sd=1.197  10s
+hierarchical  gauss_jacobian_FD    n=16  P(g>0)=0.713 E|g|=1.193 sd=1.158  40s
+hierarchical  arruda_direct        n=16  P(g>0)=0.803 E|g|=1.154 sd=1.014  38s
+hierarchical  gauss_jacobian_FD    n=64  P(g>0)=0.647 E|g|=1.135 sd=1.140  153s
+hierarchical  arruda_direct        n=64  P(g>0)=0.551 E|g|=1.166 sd=1.179  149s
+hierarchical  gauss_jacobian_FD    n=128 P(g>0)=0.631 E|g|=1.107 sd=1.117  304s
+hierarchical  arruda_direct        n=128 P(g>0)=0.365 E|g|=1.198 sd=1.105  466s

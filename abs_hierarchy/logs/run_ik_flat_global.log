@@ -1,0 +1,6 @@
+global gauss_jacobian_FD  n=8   P(a1>0) 0.576 E|a1| 0.641  26s
+global arruda_direct      n=8   P(a1>0) 0.651 E|a1| 0.656  20s
+global gauss_jacobian_FD  n=32  P(a1>0) 0.586 E|a1| 0.691  98s
+global arruda_direct      n=32  P(a1>0) 0.835 E|a1| 0.665  79s
+global gauss_jacobian_FD  n=128 P(a1>0) 0.585 E|a1| 0.927  395s
+global arruda_direct      n=128 P(a1>0) 0.883 E|a1| 0.566  314s

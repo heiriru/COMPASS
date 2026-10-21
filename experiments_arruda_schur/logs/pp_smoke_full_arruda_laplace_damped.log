@@ -1,0 +1,49 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+  arruda_laplace_damped: sampling 10 draws in 1 batches (draw batch=10, subjects=100, composing 100 subjects)
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 242, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 238, in main
+    return infer(arguments)
+           ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 201, in infer
+    posterior, stats, runtime = ipp._sample_dataset(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/infer_partial_pooling.py", line 656, in _sample_dataset
+    chunk = model.sample(
+            ^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ScoreBasedInferenceModel.py", line 552, in sample
+    samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 123, in sample
+    samples = super().sample(world_size, data, condition_mask=condition_mask, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 819, in sample
+    samples = self._sample_loop(rank, data, condition_mask, num_samples)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1892, in _sample_loop
+    samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4245, in _dpm_sampler
+    data = self._dpm_solver_2_step(data, t_start, t_next, condition_mask, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4158, in _dpm_solver_2_step
+    score_next = self._get_score(data_half, t_next, condition_mask, idx, self.cfg_alpha)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3443, in _get_score
+    score = self._compositional_score(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 159, in _compositional_score
+    marginal, precision = self._marginal_scores(scores, x, t, condition_mask, variance)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 269, in _marginal_scores
+    eig_l, vec_l = self._clamped_eigh(-jacobian[..., H:, H:], variance, lower)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 236, in _clamped_eigh
+    eigenvalues, eigenvectors = self._batched_eigh(curvature)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2279, in _batched_eigh
+    eigenvalues, eigenvectors = torch.linalg.eigh(flat)
+                                ^^^^^^^^^^^^^^^^^^^^^^^
+torch._C._LinAlgError: linalg.eigh: (Batch element 2): The algorithm failed to converge because the input matrix is ill-conditioned or has too many repeated eigenvalues (error code: 1).

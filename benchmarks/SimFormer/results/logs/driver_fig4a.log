@@ -1,0 +1,468 @@
+[driver] 24 jobs in phase fig4a
+[driver] 19:30:03 waiting for a free GPU (autocvd)
+[driver] 19:30:25 START fig4a gaussian_linear n=1000 score_transformer on physical GPU 7  (log: results/logs/fig4a__gaussian_linear__1000__score_transformer.log)
+[driver] 19:43:07 END   fig4a gaussian_linear n=1000 score_transformer rc=0 (12.7 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 |  |
+
+[driver] 19:43:09 waiting for a free GPU (autocvd)
+[driver] 19:47:20 START fig4a gaussian_linear n=1000 compass_legacy_full on physical GPU 6  (log: results/logs/fig4a__gaussian_linear__1000__compass_legacy_full.log)
+[driver] 19:57:27 END   fig4a gaussian_linear n=1000 compass_legacy_full rc=0 (10.1 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+
+[driver] 19:57:29 waiting for a free GPU (autocvd)
+[driver] 20:02:08 START fig4a gaussian_mixture n=1000 score_transformer on physical GPU 8  (log: results/logs/fig4a__gaussian_mixture__1000__score_transformer.log)
+[driver] 20:08:16 END   fig4a gaussian_mixture n=1000 score_transformer rc=0 (6.1 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | — | — |
+
+[driver] 20:08:18 waiting for a free GPU (autocvd)
+[driver] 20:08:22 START fig4a gaussian_mixture n=1000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__gaussian_mixture__1000__compass_legacy_full.log)
+[driver] 20:13:31 END   fig4a gaussian_mixture n=1000 compass_legacy_full rc=0 (5.2 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+
+[driver] 20:13:33 waiting for a free GPU (autocvd)
+[driver] 20:13:37 START fig4a two_moons n=1000 score_transformer on physical GPU 8  (log: results/logs/fig4a__two_moons__1000__score_transformer.log)
+[driver] 20:19:47 END   fig4a two_moons n=1000 score_transformer rc=0 (6.2 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | — | — |
+
+[driver] 20:19:50 waiting for a free GPU (autocvd)
+[driver] 20:19:53 START fig4a two_moons n=1000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__two_moons__1000__compass_legacy_full.log)
+[driver] 20:25:09 END   fig4a two_moons n=1000 compass_legacy_full rc=0 (5.3 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+
+[driver] 20:25:12 waiting for a free GPU (autocvd)
+[driver] 20:25:15 START fig4a slcp n=1000 score_transformer on physical GPU 8  (log: results/logs/fig4a__slcp__1000__score_transformer.log)
+[driver] 20:34:02 END   fig4a slcp n=1000 score_transformer rc=0 (8.8 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | — | — |
+
+[driver] 20:34:05 waiting for a free GPU (autocvd)
+[driver] 20:34:08 START fig4a slcp n=1000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__slcp__1000__compass_legacy_full.log)
+[driver] 20:40:45 END   fig4a slcp n=1000 compass_legacy_full rc=0 (6.6 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 20:40:47 waiting for a free GPU (autocvd)
+[driver] 20:44:16 START fig4a gaussian_linear n=10000 score_transformer on physical GPU 4  (log: results/logs/fig4a__gaussian_linear__10000__score_transformer.log)
+[driver] 21:11:33 END   fig4a gaussian_linear n=10000 score_transformer rc=0 (27.3 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | — | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 21:11:35 waiting for a free GPU (autocvd)
+[driver] 21:11:39 START fig4a gaussian_linear n=10000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__gaussian_linear__10000__compass_legacy_full.log)
+[driver] 21:40:28 END   fig4a gaussian_linear n=10000 compass_legacy_full rc=0 (28.8 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 21:40:31 waiting for a free GPU (autocvd)
+[driver] 21:40:35 START fig4a gaussian_mixture n=10000 score_transformer on physical GPU 8  (log: results/logs/fig4a__gaussian_mixture__10000__score_transformer.log)
+[driver] 21:57:01 END   fig4a gaussian_mixture n=10000 score_transformer rc=0 (16.4 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 21:57:03 waiting for a free GPU (autocvd)
+[driver] 21:57:07 START fig4a gaussian_mixture n=10000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__gaussian_mixture__10000__compass_legacy_full.log)
+[driver] 22:10:26 END   fig4a gaussian_mixture n=10000 compass_legacy_full rc=0 (13.3 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 22:10:28 waiting for a free GPU (autocvd)
+[driver] 22:10:32 START fig4a two_moons n=10000 score_transformer on physical GPU 8  (log: results/logs/fig4a__two_moons__10000__score_transformer.log)
+[driver] 22:26:27 END   fig4a two_moons n=10000 score_transformer rc=0 (15.9 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 22:26:29 waiting for a free GPU (autocvd)
+[driver] 22:26:33 START fig4a two_moons n=10000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__two_moons__10000__compass_legacy_full.log)
+[driver] 22:40:13 END   fig4a two_moons n=10000 compass_legacy_full rc=0 (13.7 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+
+[driver] 22:40:16 waiting for a free GPU (autocvd)
+[driver] 22:40:20 START fig4a slcp n=10000 score_transformer on physical GPU 8  (log: results/logs/fig4a__slcp__10000__score_transformer.log)
+[driver] 23:01:02 END   fig4a slcp n=10000 score_transformer rc=0 (20.7 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | — | — |
+
+[driver] 23:01:04 waiting for a free GPU (autocvd)
+[driver] 23:01:08 START fig4a slcp n=10000 compass_legacy_full on physical GPU 8  (log: results/logs/fig4a__slcp__10000__compass_legacy_full.log)
+[driver] 23:21:44 END   fig4a slcp n=10000 compass_legacy_full rc=0 (20.6 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 23:21:47 waiting for a free GPU (autocvd)
+[driver] 23:21:51 START fig4a gaussian_linear n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__100000__score_transformer.log)
+[driver] 00:28:05 END   fig4a gaussian_linear n=100000 score_transformer rc=0 (66.2 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | — | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 00:28:08 waiting for a free GPU (autocvd)
+[driver] 00:28:12 START fig4a gaussian_linear n=100000 compass_legacy_full on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__100000__compass_legacy_full.log)
+[driver] 01:47:16 END   fig4a gaussian_linear n=100000 compass_legacy_full rc=0 (79.1 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 01:47:19 waiting for a free GPU (autocvd)
+[driver] 01:47:23 START fig4a gaussian_mixture n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__100000__score_transformer.log)
+[driver] 02:29:20 END   fig4a gaussian_mixture n=100000 score_transformer rc=0 (42.0 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 02:29:23 waiting for a free GPU (autocvd)
+[driver] 02:29:26 START fig4a gaussian_mixture n=100000 compass_legacy_full on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__100000__compass_legacy_full.log)
+[driver] 03:07:29 END   fig4a gaussian_mixture n=100000 compass_legacy_full rc=0 (38.0 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | **+0.105 ± 0.003** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 03:07:32 waiting for a free GPU (autocvd)
+[driver] 03:07:36 START fig4a two_moons n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4a__two_moons__100000__score_transformer.log)
+[driver] 03:49:52 END   fig4a two_moons n=100000 score_transformer rc=0 (42.3 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | **+0.105 ± 0.003** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 03:49:54 waiting for a free GPU (autocvd)
+[driver] 03:49:58 START fig4a two_moons n=100000 compass_legacy_full on physical GPU 9  (log: results/logs/fig4a__two_moons__100000__compass_legacy_full.log)
+[driver] 04:28:28 END   fig4a two_moons n=100000 compass_legacy_full rc=0 (38.5 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | **+0.105 ± 0.003** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | **+0.137 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+
+[driver] 04:28:30 waiting for a free GPU (autocvd)
+[driver] 04:28:34 START fig4a slcp n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4a__slcp__100000__score_transformer.log)
+[driver] 05:21:33 END   fig4a slcp n=100000 score_transformer rc=0 (53.0 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | **+0.105 ± 0.003** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | **+0.137 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+| SLCP | 100,000 | 0.687 ± 0.013 | — | — |
+
+[driver] 05:21:36 waiting for a free GPU (autocvd)
+[driver] 05:21:40 START fig4a slcp n=100000 compass_legacy_full on physical GPU 9  (log: results/logs/fig4a__slcp__100000__compass_legacy_full.log)
+[driver] 06:20:42 END   fig4a slcp n=100000 compass_legacy_full rc=0 (59.0 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | **-0.077 ± 0.017** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | **-0.130 ± 0.023** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | -0.000 ± 0.001 |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | **+0.101 ± 0.009** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | **+0.109 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | **+0.105 ± 0.003** |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | **+0.120 ± 0.010** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | **+0.127 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | **+0.137 ± 0.002** |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | **+0.045 ± 0.007** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | -0.045 ± 0.032 |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | +0.002 ± 0.025 |
+
+[driver] 2 jobs in phase fig4a
+[driver] 06:21:05 waiting for a free GPU (autocvd)
+[driver] 06:21:09 START fig4a two_moons n=10000 compass_legacy_full_eps5 on physical GPU 9  (log: results/logs/fig4a__two_moons__10000__compass_legacy_full_eps5.log)
+[driver] 06:35:35 END   fig4a two_moons n=10000 compass_legacy_full_eps5 rc=0 (14.4 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | **-0.077 ± 0.017** | — |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | **-0.130 ± 0.023** | — |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | -0.000 ± 0.001 | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | **+0.101 ± 0.009** | — |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | — | **+0.109 ± 0.005** | — |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | **+0.105 ± 0.003** | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | **+0.120 ± 0.010** | — |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | **+0.127 ± 0.002** | **+0.118 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | **+0.137 ± 0.002** | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | **+0.045 ± 0.007** | — |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | -0.045 ± 0.032 | — |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | +0.002 ± 0.025 | — |
+
+[driver] 06:35:37 waiting for a free GPU (autocvd)
+[driver] 06:35:41 START fig4a gaussian_mixture n=10000 compass_legacy_full_eps5 on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__10000__compass_legacy_full_eps5.log)
+[driver] 06:49:45 END   fig4a gaussian_mixture n=10000 compass_legacy_full_eps5 rc=0 (14.1 min)
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | **-0.077 ± 0.017** | — |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | **-0.130 ± 0.023** | — |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | -0.000 ± 0.001 | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | **+0.101 ± 0.009** | — |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | **+0.109 ± 0.005** | **+0.090 ± 0.005** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | **+0.105 ± 0.003** | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | **+0.120 ± 0.010** | — |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | **+0.127 ± 0.002** | **+0.118 ± 0.002** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | **+0.137 ± 0.002** | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | **+0.045 ± 0.007** | — |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | -0.045 ± 0.032 | — |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | +0.002 ± 0.025 | — |
+

@@ -1,0 +1,49 @@
+{
+  "arch": "tokenized",
+  "artifacts": "/export/home/rheinric/COMPASS/experiments_arruda_schur/artifacts/gm/hierarchical",
+  "bag": 64,
+  "branch_mass": 0.75,
+  "checkpoint": "/export/home/rheinric/COMPASS/experiments_arruda_schur/artifacts/gm/hierarchical/models/tokenized_h32d3wide_n200000_six_weighted_log_sigma/Model_checkpoint.pt",
+  "churn_eta": 4.0,
+  "config": "h32d3wide",
+  "denoise_clamp": 5.0,
+  "device": "cuda",
+  "draws": 2000,
+  "evidence_clip": 8.0,
+  "grid_points": 1601,
+  "jacobian_refresh": 5,
+  "kde_bandwidth": null,
+  "local_draws": 0,
+  "mask_menu": "six_weighted",
+  "methods": [
+    "gauss_jacobian_FD",
+    "arruda_direct",
+    "arruda_gauss_direct",
+    "arruda_laplace",
+    "arruda_gauss_laplace"
+  ],
+  "observations": [
+    8,
+    32,
+    128
+  ],
+  "oracle": false,
+  "parameters": 268545,
+  "pilot_draws": 1000,
+  "regimes": [
+    "asymmetric",
+    "symmetric"
+  ],
+  "replicates": 2,
+  "score_source": "network",
+  "seed": 2026,
+  "simulations": 200000,
+  "single_draws": 20000,
+  "spread": 1.0,
+  "stage1_chunk": 16,
+  "stage1_churn": null,
+  "support_quantile": 0.001,
+  "tag": "net",
+  "time_sampling": "log_sigma",
+  "timesteps": 100
+}

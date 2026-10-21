@@ -1,0 +1,5 @@
+sampling eps 0.0001
+hierarchical_T_e4_langevin gauss_jacobian_FD    n=4   P(g>0)=0.759 E|g|=1.667 sd=1.571  77s
+hierarchical_T_e4_langevin gauss_jacobian_FD    n=16  P(g>0)=0.886 E|g|=1.557 sd=1.138  208s
+hierarchical_T_e4_langevin gauss_jacobian_FD    n=64  P(g>0)=0.803 E|g|=1.335 sd=1.166  706s
+hierarchical_T_e4_langevin gauss_jacobian_FD    n=128 P(g>0)=0.775 E|g|=1.260 sd=1.131  1355s

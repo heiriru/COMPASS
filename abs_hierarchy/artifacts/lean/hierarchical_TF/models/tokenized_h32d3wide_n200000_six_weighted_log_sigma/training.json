@@ -1,0 +1,23 @@
+{
+  "config": "h32d3wide",
+  "arch": "tokenized",
+  "simulations": 200000,
+  "mask_menu": "six_weighted",
+  "time_sampling": "log_sigma",
+  "mode": "hierarchical",
+  "tag": "TF",
+  "precondition": {
+    "time": true,
+    "eps": 0.0001,
+    "residual": false
+  },
+  "model_name": "lean",
+  "parameters": 268545,
+  "train_seconds": 756.8968512150459,
+  "seed": 7,
+  "model": {
+    "sigma_g": 1.0,
+    "sigma_l": 0.5,
+    "sigma_x": 0.5
+  }
+}

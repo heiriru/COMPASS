@@ -1,0 +1,1579 @@
+[driver] 24 jobs in phase extra4a
+[driver] 15:08:49 waiting for a free GPU (autocvd)
+[driver] 15:08:52 START extra4a gaussian_linear n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__1000__score_transformer.log)
+[driver] 00:18:52 END   extra4a gaussian_linear n=1000 score_transformer rc=0 (550.0 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 |  |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 |  |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_19-47-37/local/compass_model
+[driver] 00:18:56 waiting for a free GPU (autocvd)
+[driver] 00:18:59 START extra4a gaussian_linear n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__1000__compass_legacy_full_fixeps.log)
+[driver] 00:36:52 END   extra4a gaussian_linear n=1000 compass_legacy_full_fixeps rc=1 (17.9 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 |  |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 |  |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] 00:36:55 waiting for a free GPU (autocvd)
+[driver] 00:36:58 START extra4a gaussian_mixture n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__1000__score_transformer.log)
+[driver] 01:20:34 END   extra4a gaussian_mixture n=1000 score_transformer rc=0 (43.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 |  |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 |  |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 |  |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 |  |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs |
+|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-08-39/local/compass_model
+[driver] 01:20:39 waiting for a free GPU (autocvd)
+[driver] 01:20:42 START extra4a gaussian_mixture n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__1000__compass_legacy_full_fixeps.log)
+[driver] 02:38:11 END   extra4a gaussian_mixture n=1000 compass_legacy_full_fixeps rc=0 (77.5 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+
+[driver] 02:38:14 waiting for a free GPU (autocvd)
+[driver] 02:38:18 START extra4a two_moons n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4a__two_moons__1000__score_transformer.log)
+[driver] 03:18:25 END   extra4a two_moons n=1000 score_transformer rc=0 (40.1 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | — | — |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | — | — |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Two Moons | 1,000 | +0.064 / 0.064 | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Two Moons | 1,000 | +0.061 / 0.061 | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-20-10/local/compass_model
+[driver] 03:18:31 waiting for a free GPU (autocvd)
+[driver] 03:18:34 START extra4a two_moons n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__two_moons__1000__compass_legacy_full_fixeps.log)
+[driver] 04:35:56 END   extra4a two_moons n=1000 compass_legacy_full_fixeps rc=0 (77.4 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+
+[driver] 04:36:00 waiting for a free GPU (autocvd)
+[driver] 04:36:03 START extra4a slcp n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4a__slcp__1000__score_transformer.log)
+[driver] 08:12:09 END   extra4a slcp n=1000 score_transformer rc=0 (216.1 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | — | — |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | — | — |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| SLCP | 1,000 | +0.162 / 0.162 | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| SLCP | 1,000 | +0.020 / 0.020 | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-34-26/local/compass_model
+[driver] 08:12:14 waiting for a free GPU (autocvd)
+[driver] 08:12:18 START extra4a slcp n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__slcp__1000__compass_legacy_full_fixeps.log)
+[driver] 13:05:20 END   extra4a slcp n=1000 compass_legacy_full_fixeps rc=0 (293.0 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+
+[driver] 13:05:25 waiting for a free GPU (autocvd)
+[driver] 13:05:29 START extra4a gaussian_linear n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__10000__score_transformer.log)
+[driver] 22:14:06 END   extra4a gaussian_linear n=10000 score_transformer rc=0 (548.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | — | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | — | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_21-11-56/local/compass_model
+[driver] 22:14:13 waiting for a free GPU (autocvd)
+[driver] 22:14:17 START extra4a gaussian_linear n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__10000__compass_legacy_full_fixeps.log)
+[driver] 22:32:07 END   extra4a gaussian_linear n=10000 compass_legacy_full_fixeps rc=1 (17.8 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | — | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | — | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] 22:32:11 waiting for a free GPU (autocvd)
+[driver] 22:32:15 START extra4a gaussian_mixture n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__10000__score_transformer.log)
+[driver] 23:15:36 END   extra4a gaussian_mixture n=10000 score_transformer rc=0 (43.4 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | — | — |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | — | — |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_21-57-25/local/compass_model
+[driver] 23:15:43 waiting for a free GPU (autocvd)
+[driver] 23:15:47 START extra4a gaussian_mixture n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__10000__compass_legacy_full_fixeps.log)
+[driver] 00:32:20 END   extra4a gaussian_mixture n=10000 compass_legacy_full_fixeps rc=0 (76.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] 00:32:25 waiting for a free GPU (autocvd)
+[driver] 00:32:29 START extra4a two_moons n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4a__two_moons__10000__score_transformer.log)
+[driver] 01:16:33 END   extra4a two_moons n=10000 score_transformer rc=0 (44.1 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | — | — |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | — | — |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_22-26-50/local/compass_model
+[driver] 01:16:41 waiting for a free GPU (autocvd)
+[driver] 01:16:44 START extra4a two_moons n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__two_moons__10000__compass_legacy_full_fixeps.log)
+[driver] 02:34:46 END   extra4a two_moons n=10000 compass_legacy_full_fixeps rc=0 (78.0 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | — | — |
+
+[driver] 02:34:52 waiting for a free GPU (autocvd)
+[driver] 02:34:56 START extra4a slcp n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4a__slcp__10000__score_transformer.log)
+[driver] 06:11:06 END   extra4a slcp n=10000 score_transformer rc=0 (216.2 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | — | — |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | — | — |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_23-01-26/local/compass_model
+[driver] 06:11:12 waiting for a free GPU (autocvd)
+[driver] 06:11:16 START extra4a slcp n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__slcp__10000__compass_legacy_full_fixeps.log)
+[driver] 11:02:52 END   extra4a slcp n=10000 compass_legacy_full_fixeps rc=0 (291.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+
+[driver] 11:02:58 waiting for a free GPU (autocvd)
+[driver] 11:03:02 START extra4a gaussian_linear n=100000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__100000__score_transformer.log)
+[driver] 24 jobs in phase extra4a
+[driver] skip (done) gaussian_linear n=1000 score_transformer
+[driver] resampling checkpoint results/fig4a/2026-09-28_19-47-37/local/compass_model
+[driver] 07:40:30 waiting for a free GPU (autocvd)
+[driver] 07:40:34 START extra4a gaussian_linear n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__1000__compass_legacy_full_fixeps.log)
+[driver] 07:58:27 END   extra4a gaussian_linear n=1000 compass_legacy_full_fixeps rc=1 (17.9 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] skip (done) gaussian_mixture n=1000 score_transformer
+[driver] skip (done) gaussian_mixture n=1000 compass_legacy_full_fixeps
+[driver] skip (done) two_moons n=1000 score_transformer
+[driver] skip (done) two_moons n=1000 compass_legacy_full_fixeps
+[driver] skip (done) slcp n=1000 score_transformer
+[driver] skip (done) slcp n=1000 compass_legacy_full_fixeps
+[driver] skip (done) gaussian_linear n=10000 score_transformer
+[driver] resampling checkpoint results/fig4a/2026-09-28_21-11-56/local/compass_model
+[driver] 07:58:35 waiting for a free GPU (autocvd)
+[driver] 07:58:38 START extra4a gaussian_linear n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__10000__compass_legacy_full_fixeps.log)
+[driver] 08:16:34 END   extra4a gaussian_linear n=10000 compass_legacy_full_fixeps rc=1 (17.9 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] skip (done) gaussian_mixture n=10000 score_transformer
+[driver] skip (done) gaussian_mixture n=10000 compass_legacy_full_fixeps
+[driver] skip (done) two_moons n=10000 score_transformer
+[driver] skip (done) two_moons n=10000 compass_legacy_full_fixeps
+[driver] skip (done) slcp n=10000 score_transformer
+[driver] skip (done) slcp n=10000 compass_legacy_full_fixeps
+[driver] 08:16:40 waiting for a free GPU (autocvd)
+[driver] 08:16:44 START extra4a gaussian_linear n=100000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__100000__score_transformer.log)
+[driver] 16:11:27 END   extra4a gaussian_linear n=100000 score_transformer rc=0 (474.7 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | — | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | — | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-29_00-28-28/local/compass_model
+[driver] 16:11:35 waiting for a free GPU (autocvd)
+[driver] 16:11:39 START extra4a gaussian_linear n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_linear__100000__compass_legacy_full_fixeps.log)
+[driver] 16:29:38 END   extra4a gaussian_linear n=100000 compass_legacy_full_fixeps rc=1 (18.0 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | — | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | — | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] 16:29:45 waiting for a free GPU (autocvd)
+[driver] 16:29:48 START extra4a gaussian_mixture n=100000 score_transformer on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__100000__score_transformer.log)
+[driver] 17:10:25 END   extra4a gaussian_mixture n=100000 score_transformer rc=0 (40.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | — | — |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | — | — |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | — |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | — |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-29_02-29-43/local/compass_model
+[driver] 17:10:34 waiting for a free GPU (autocvd)
+[driver] 17:10:37 START extra4a gaussian_mixture n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__gaussian_mixture__100000__compass_legacy_full_fixeps.log)
+[driver] 18:29:03 END   extra4a gaussian_mixture n=100000 compass_legacy_full_fixeps rc=0 (78.4 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | 1.173 ± 0.037 | -0.008 ± 0.050 |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | 1.184 ± 0.038 | **-0.124 ± 0.051** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | +0.032 / 0.032 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | +0.036 / 0.036 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | — | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] 18:29:11 waiting for a free GPU (autocvd)
+[driver] 18:29:14 START extra4a two_moons n=100000 score_transformer on physical GPU 9  (log: results/logs/extra4a__two_moons__100000__score_transformer.log)
+[driver] 19:13:36 END   extra4a two_moons n=100000 score_transformer rc=0 (44.4 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | 1.173 ± 0.037 | -0.008 ± 0.050 |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| Two Moons | 100,000 | -3.752 ± 0.012 | — | — |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | 1.184 ± 0.038 | **-0.124 ± 0.051** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| Two Moons | 100,000 | -4.321 ± 0.010 | — | — |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | +0.032 / 0.032 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | -0.005 / 0.006 | — |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | +0.036 / 0.036 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | +0.001 / 0.004 | — |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-29_03-50-15/local/compass_model
+[driver] 19:13:45 waiting for a free GPU (autocvd)
+[driver] 19:13:48 START extra4a two_moons n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__two_moons__100000__compass_legacy_full_fixeps.log)
+[driver] 20:32:24 END   extra4a two_moons n=100000 compass_legacy_full_fixeps rc=0 (78.6 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | 1.173 ± 0.037 | -0.008 ± 0.050 |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| Two Moons | 100,000 | -3.752 ± 0.012 | -3.738 ± 0.012 | +0.014 ± 0.017 |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | 1.184 ± 0.038 | **-0.124 ± 0.051** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| Two Moons | 100,000 | -4.321 ± 0.010 | -4.282 ± 0.012 | **+0.039 ± 0.016** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | +0.032 / 0.032 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | -0.005 / 0.006 | +0.041 / 0.041 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | — | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | +0.036 / 0.036 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | +0.001 / 0.004 | +0.060 / 0.060 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | — | — |
+
+[driver] 20:32:32 waiting for a free GPU (autocvd)
+[driver] 20:32:35 START extra4a slcp n=100000 score_transformer on physical GPU 9  (log: results/logs/extra4a__slcp__100000__score_transformer.log)
+[driver] 00:12:04 END   extra4a slcp n=100000 score_transformer rc=0 (219.5 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | 1.173 ± 0.037 | -0.008 ± 0.050 |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| Two Moons | 100,000 | -3.752 ± 0.012 | -3.738 ± 0.012 | +0.014 ± 0.017 |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+| SLCP | 100,000 | 2.346 ± 0.052 | — | — |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | 1.184 ± 0.038 | **-0.124 ± 0.051** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| Two Moons | 100,000 | -4.321 ± 0.010 | -4.282 ± 0.012 | **+0.039 ± 0.016** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+| SLCP | 100,000 | 11.229 ± 0.155 | — | — |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | +0.032 / 0.032 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | -0.005 / 0.006 | +0.041 / 0.041 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | -0.010 / 0.010 | — |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | +0.036 / 0.036 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | +0.001 / 0.004 | +0.060 / 0.060 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | +0.002 / 0.003 | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-29_05-21-57/local/compass_model
+[driver] 00:12:13 waiting for a free GPU (autocvd)
+[driver] 00:12:17 START extra4a slcp n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4a__slcp__100000__compass_legacy_full_fixeps.log)
+[driver] 05:05:56 END   extra4a slcp n=100000 compass_legacy_full_fixeps rc=0 (293.7 min)
+[report] extra4a_nll_posterior: results/tables/extra4a_nll_posterior.md
+# extra4a_nll_posterior: NLL of the true θ under the posterior (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.492 ± 0.047 | — | — |
+| Gaussian Linear | 10,000 | -0.200 ± 0.042 | — | — |
+| Gaussian Linear | 100,000 | -0.746 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.505 ± 0.035 | 1.663 ± 0.040 | **+0.159 ± 0.053** |
+| Gaussian Mixture | 10,000 | 1.245 ± 0.034 | 1.146 ± 0.034 | **-0.098 ± 0.048** |
+| Gaussian Mixture | 100,000 | 1.181 ± 0.033 | 1.173 ± 0.037 | -0.008 ± 0.050 |
+| Two Moons | 1,000 | -2.968 ± 0.022 | -3.076 ± 0.016 | **-0.108 ± 0.027** |
+| Two Moons | 10,000 | -3.652 ± 0.014 | -3.691 ± 0.010 | **-0.040 ± 0.018** |
+| Two Moons | 100,000 | -3.752 ± 0.012 | -3.738 ± 0.012 | +0.014 ± 0.017 |
+| SLCP | 1,000 | 5.896 ± 0.051 | 9.803 ± 0.069 | **+3.906 ± 0.085** |
+| SLCP | 10,000 | 3.056 ± 0.052 | 3.084 ± 0.047 | +0.028 ± 0.069 |
+| SLCP | 100,000 | 2.346 ± 0.052 | 2.405 ± 0.045 | +0.059 ± 0.069 |
+
+[report] extra4a_nll_likelihood: results/tables/extra4a_nll_likelihood.md
+# extra4a_nll_likelihood: NLL of the true x under the likelihood (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 3.664 ± 0.043 | — | — |
+| Gaussian Linear | 10,000 | 3.033 ± 0.039 | — | — |
+| Gaussian Linear | 100,000 | 2.713 ± 0.032 | — | — |
+| Gaussian Mixture | 1,000 | 1.578 ± 0.036 | 1.732 ± 0.041 | **+0.154 ± 0.054** |
+| Gaussian Mixture | 10,000 | 1.335 ± 0.035 | 1.215 ± 0.035 | **-0.120 ± 0.049** |
+| Gaussian Mixture | 100,000 | 1.308 ± 0.035 | 1.184 ± 0.038 | **-0.124 ± 0.051** |
+| Two Moons | 1,000 | -3.566 ± 0.021 | -3.725 ± 0.018 | **-0.159 ± 0.028** |
+| Two Moons | 10,000 | -4.234 ± 0.013 | -4.279 ± 0.011 | **-0.045 ± 0.017** |
+| Two Moons | 100,000 | -4.321 ± 0.010 | -4.282 ± 0.012 | **+0.039 ± 0.016** |
+| SLCP | 1,000 | 14.430 ± 0.134 | 16.699 ± 0.108 | **+2.268 ± 0.175** |
+| SLCP | 10,000 | 11.942 ± 0.152 | 11.551 ± 0.122 | **-0.390 ± 0.193** |
+| SLCP | 100,000 | 11.229 ± 0.155 | 10.663 ± 0.127 | **-0.565 ± 0.202** |
+
+[report] extra4a_cov_posterior: results/tables/extra4a_cov_posterior.md
+# extra4a: cov_posterior — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.161 / 0.161 | — |
+| Gaussian Linear | 10,000 | +0.096 / 0.096 | — |
+| Gaussian Linear | 100,000 | +0.004 / 0.005 | — |
+| Gaussian Mixture | 1,000 | +0.040 / 0.040 | +0.080 / 0.080 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.011 / 0.045 |
+| Gaussian Mixture | 100,000 | -0.005 / 0.006 | +0.032 / 0.032 |
+| Two Moons | 1,000 | +0.064 / 0.064 | +0.074 / 0.074 |
+| Two Moons | 10,000 | +0.016 / 0.016 | +0.026 / 0.026 |
+| Two Moons | 100,000 | -0.005 / 0.006 | +0.041 / 0.041 |
+| SLCP | 1,000 | +0.162 / 0.162 | +0.428 / 0.428 |
+| SLCP | 10,000 | +0.034 / 0.034 | +0.067 / 0.067 |
+| SLCP | 100,000 | -0.010 / 0.010 | -0.005 / 0.010 |
+
+[report] extra4a_cov_likelihood: results/tables/extra4a_cov_likelihood.md
+# extra4a: cov_likelihood — mean(coverage − level); > 0 conservative, < 0 overconfident; |.| = mean absolute calibration error
+
+| task | sims | Simformer (official) signed / abs | COMPASS (eps bug fixed) signed / abs |
+|---|---|---|---|
+| Gaussian Linear | 1,000 | +0.108 / 0.108 | — |
+| Gaussian Linear | 10,000 | +0.052 / 0.052 | — |
+| Gaussian Linear | 100,000 | -0.005 / 0.006 | — |
+| Gaussian Mixture | 1,000 | +0.043 / 0.043 | +0.065 / 0.068 |
+| Gaussian Mixture | 10,000 | -0.002 / 0.005 | +0.022 / 0.050 |
+| Gaussian Mixture | 100,000 | -0.009 / 0.009 | +0.036 / 0.036 |
+| Two Moons | 1,000 | +0.061 / 0.061 | +0.094 / 0.094 |
+| Two Moons | 10,000 | +0.022 / 0.022 | +0.047 / 0.047 |
+| Two Moons | 100,000 | +0.001 / 0.004 | +0.060 / 0.060 |
+| SLCP | 1,000 | +0.020 / 0.020 | +0.179 / 0.179 |
+| SLCP | 10,000 | +0.009 / 0.010 | +0.005 / 0.017 |
+| SLCP | 100,000 | +0.002 / 0.003 | -0.003 / 0.012 |
+

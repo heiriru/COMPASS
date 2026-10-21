@@ -1,0 +1,198 @@
+\section{Implementation}\label{sec:impl}
+
+\Cref{sec:methods} gives the rules for exact inputs.
+This section describes how the rules are evaluated with a trained network.
+It covers the quantities that are estimated, the safeguards that keep the linear algebra well posed, and the amortisation that keeps \quiver{} affordable.
+Every safeguard is inactive when its inputs satisfy the conditions of \cref{sec:methods}; we report how often each one fires.
+All rules are implemented in a single sampler class of our library; option names are given in typewriter font.
+
+\subsection{State layout and integration into a sampler}\label{sec:impl-layout}
+
+The sampler keeps an array of shape $n\times M\times D$ (observations $\times$ posterior draws $\times$ latent block).
+The global coordinates are synchronised across the observation axis, so row $j$ holds $\yj=(\g_t,\ell_{j,t})$.
+One batched network call evaluates all $nM$ rows.
+The rows do not interact inside the network, so row $j$'s output is $s_j(\yj)$ alone.
+The composition returns $\ug$ on the global coordinates of every row and $\ulj$ on row $j$'s local coordinates, and the predictor (we use second-order DPM-Solver \citep{lu2022dpmsolver} with stochastic churn) uses this array as its score.
+All scores are converted to the variance-exploding coordinates $y=\theta_t/\alpha_t$ of \cref{sec:bg-diffusion} before composition.
+The composition linear algebra runs in float64.
+
+\subsection{Pilot covariances for \arrowm}\label{sec:impl-pilot}
+
+Before inference, \arrowm{} draws $P$ samples (default $P=500$) from every single-observation posterior with the same network, in one batched reverse-diffusion run over all $n$ observations.
+For each observation it forms the empirical covariance $\tilde\Sigma_{0,j}$ over the joint block $\thj$ and regularises it:
+\begin{equation}\label{eq:shrinkage}
+  \hat\Sigma_{0,j}=(1-\rho)\,\tilde\Sigma_{0,j}+\rho\operatorname{diag}(\tilde\Sigma_{0,j})+\epsilon\max\!\big(1,\tfrac1D\operatorname{tr}\tilde\Sigma_{0,j}\big)\I,
+\end{equation}
+with shrinkage $\rho=10^{-2}$ and nugget $\epsilon=10^{-6}$.
+The pilot means are discarded, and the API rejects any externally supplied posterior mean (\cref{sec:arrow}).
+Because $P_j^{\supH}$ depends only on $\lam$, the factors $(S_j,R_j)$ are cached per pair $(\lam,n)$.
+
+\subsection{Evaluating the Jacobian for \quiver}\label{sec:impl-jacobian}
+
+\quiver{} needs the $D\times D$ block $J_j=\nabla_{\yj}s_j$ for every row and draw.
+Rows do not interact, so a tangent that perturbs coordinate $k$ in \emph{every} row returns column $k$ of \emph{every} row's Jacobian.
+The full block therefore costs $D$ directional derivatives, independent of $n$ and of the data dimension.
+Perturbing a global coordinate in all rows at once is legitimate because each row reacts only to its own copy.
+
+\paragraph{Forward mode.}
+\texttt{gauss\_jacobian} computes the $D$ columns by forward-mode Jacobian-vector products.
+Fused scaled-dot-product attention kernels have no forward-mode rule, so the tangent passes, and only those, run attention through the reference (math) backend.
+
+\paragraph{Finite differences.}
+\texttt{gauss\_jacobian\_FD} uses forward differences, $J_j e_k\approx[s_j(\yj+h e_k)-s_j(\yj)]/h$, with a step proportional to the noise level, $h=\kappa\lam$ ($\kappa=10^{-2}$).
+A $\lam$-smoothed score varies on the length scale $\lam$, which is why the step scales with it.
+The base state and the $D$ perturbed copies are stacked along the draw axis and evaluated in a single no-grad network call, chunked to at most $16{,}384$ rows.
+This keeps the fused attention kernel.
+In our measurements it is about $4\times$ cheaper than $D$ JVPs, with a relative Jacobian error of about $10^{-3}$ (up to $2\cdot10^{-2}$ at $\lam\approx3\cdot10^{-3}$), and the resulting posteriors agree with the JVP version to within Monte-Carlo noise.
+\todo{Move these numbers into the experiments as an ablation.}
+
+\paragraph{Architecture-specific shortcut.}
+When the score network embeds every scalar parameter as its own token, never lets latent tokens attend to each other, and normalises per token, $J_j$ is exactly diagonal.
+In that case a single all-ones tangent (or one finite-difference copy) gives the whole Jacobian.
+This does not hold for architectures whose latents attend to each other; we check it numerically before using it.
+
+\subsection{Symmetrisation and spectral clipping}\label{sec:impl-clip}
+
+The Jacobian of a trained network is not exactly symmetric.
+It is also not guaranteed to satisfy $J_j\succeq-\lam^{-2}\I$, the bound that $\Cov\succeq0$ imposes on a true score Jacobian (\cref{sec:quiver}).
+We therefore form the symmetrised curvature $H_j=-\tfrac12(J_j+J_j^\T)$, eigendecompose it as $H_j=V\operatorname{diag}(h_k)V^\T$, and clip its eigenvalues:
+\begin{equation}\label{eq:curvature-clip}
+\begin{aligned}
+  \tilde h_k&=\min\!\Big(\max(h_k,\,0),\;\frac{1-f}{\lam^2}\Big),\\
+  P_j&=V\operatorname{diag}\!\Big(\frac{1}{\lam^2(1-\lam^2\tilde h_k)}\Big)V^\T,
+\end{aligned}
+\end{equation}
+with floor $f=10^{-3}$.
+This is \cref{eq:quiver-cov} applied to the clipped spectrum, and it confines the precision to
+\[
+  \lam^{-2}\I\;\preceq\;P_j\;\preceq\;(f\lam^2)^{-1}\I .
+\]
+The two clips have different status:
+\begin{itemize}
+  \item The \emph{upper} clip enforces a property of every true score Jacobian, $\Cov_{\pi_t}\succeq0$, plus a margin $f$. It stops a locally degenerate Jacobian from claiming a point mass.
+  \item The \emph{lower} clip ($h_k\ge0$, i.e.\ $\Cov_{\pi_t}\preceq\lam^2\I$) is a modelling choice, not an identity. A backward kernel can be wider than the forward noise; this happens near the saddle between two posterior modes. The clip treats such directions as carrying no information beyond the noise.
+\end{itemize}
+In our experiments the lower clip is almost never active (0--2\% of eigenvalues on trained networks, $<0.1\%$ with exact scores), and disabling it alone changes no result.
+\todo{Cite the ablation table.}
+
+\subsection{Amortising the Jacobian: refresh and caching}\label{sec:impl-refresh}
+
+The curvature changes more slowly along the trajectory than the score does, so \quiver{} recomputes $J_j$ only every $k$ composed-score evaluations.
+What is cached between refreshes matters.
+$P_j$ itself must not be reused at a later time.
+It contains an exact $\lam^{-2}\I$ term, while the composed precision subtracts $(n-1)$ copies of $\Pz(t)=\Sigma_\mathrm{pr}^{-1}+\lam_t^{-2}\I$ built at the \emph{current} time.
+With a stale $P_j$ from $\lam_\mathrm{old}>\lam_t$, the noise terms of $\Lambda_S$ sum to $n\lam_\mathrm{old}^{-2}-(n-1)\lam_t^{-2}$, which becomes negative as $\lam_t$ shrinks, so the solve breaks down partway along the schedule.
+We therefore cache the $\lam$-free information
+\begin{equation}\label{eq:lambda-free}
+  K_j:=P_j-\lam_\mathrm{ref}^{-2}\I\;\succeq0
+\end{equation}
+($K_j\succeq0$ by the lower bound of \cref{sec:impl-clip}) and rebuild $P_j=K_j+\lam_t^{-2}\I$ exactly at every evaluation.
+A lagged refresh then lags only the network's estimate of the clean information $\Sigma_{0,j}^{-1}$, which is the quantity \arrowm{} holds fixed for the whole trajectory.
+On a Gaussian problem $K_j=\Sigma_{0,j}^{-1}$ at every $\lam$ (\cref{eq:quiver-reduces}), so every refresh period gives the same result.
+
+The refresh period depends on the noise level, through the options \texttt{jacobian\_refresh} (period at high noise), \texttt{jacobian\_refresh\_low\_noise} (period at low noise) and \texttt{jacobian\_refresh\_lambda} (the threshold $\lam^\star$).
+Lag is costly only at high noise.
+Our default refreshes at every evaluation above $\lam^\star=0.3$ and every $10$ evaluations below it.
+This matched the JVP version at uniform refresh 20 to within 1--2\% in posterior error at $0.62\times$ its wall-clock time.
+\todo{Move to the ablation.}
+
+\subsection{Elimination numerics}\label{sec:impl-elimination}
+
+For each observation (and, for \quiver, each draw) we Cholesky-factorise $P_j$, form $\Sigma_{t,j}=P_j^{-1}$ by Cholesky solves, and read off
+$S_j=([\Sigma_{t,j}]_{\g\g})^{-1}$ and $R_j=[\Sigma_{t,j}]_{\ell\g}S_j$, as in \cref{eq:S-R}.
+For \quiver{} we could instead use the closed forms \cref{eq:quiver-S-R} on the unclipped Jacobian.
+We do not, because the clipping of \cref{sec:impl-clip} acts on the full $D\times D$ spectrum, so the blocks are read from the clipped $P_j$.
+Large batched eigendecompositions (e.g.\ $n=30$ observations $\times$ $3000$ draws $=90{,}000$ matrices) are chunked, because the batched GPU \texttt{eigh} workspace grows with the batch size.
+
+\subsection{Information projection}\label{sec:impl-projection}
+
+By \cref{eq:information}, $\Lambda_S=\Pz+\sum_jI_j$ with $I_j=S_j-\Pz$, so $\Lambda_S\succ0$ is guaranteed whenever each $I_j\succeq0$.
+For flat Gaussians, $I_j=\Sigma_{0,j}^{-1}-\Sigma_\mathrm{pr}^{-1}\succeq0$ exactly when the single-observation posterior is no wider than the prior in any direction.
+By the law of total covariance this holds on average over $x_j$, but it can fail for individual observations, for example under prior--data conflict or with bimodal likelihoods.
+Estimation noise in $S_j$ adds further violations.
+We project each $I_j$ onto the positive semi-definite cone, which is its nearest point in Frobenius norm:
+\begin{equation}\label{eq:projection}
+\begin{aligned}
+  I_j&=\tfrac12\big(I_j+I_j^\T\big)=U\operatorname{diag}(\iota_k)U^\T,\\
+  \Delta_j&=U\operatorname{diag}\big(\max(-\iota_k,0)\big)U^\T,
+\end{aligned}
+\end{equation}
+and add $\Delta_j$ to the global block $A_j$ of $P_j$.
+Because $S_j=A_j-B_jC_j^{-1}B_j^\T$ is affine in $A_j$ with unit slope, this raises $S_j$ by exactly $\Delta_j$, making $I_j\mapsto I_j^+$.
+It leaves $R_j=-C_j^{-1}B_j^\T$ unchanged, so the local regression is not disturbed.
+After projection, $\Lambda_S\succeq\Pz$: the composed global precision is never weaker than the prior, and the correction does not grow with $n$.
+The projection is a no-op when every $I_j\succeq0$.
+It is, however, often active.
+On a folded $|g|$ toy with exact scores it fires for 78--100\% of information eigenvalues with \arrowm{} and about 18\% with \quiver.
+Disabling it worsens the distance to the reference posterior in 42 of 148 experiment settings and improves it in 3.
+We keep it on by default (option \texttt{information\_projection}) and report it as part of the method.
+\todo{Ablation table.}
+
+\subsection{Composed-level repair}\label{sec:impl-repair}
+
+As a last resort against residual floating-point error, the composed matrix is checked before the solve.
+Let $\tau=\max(\epsilon_\mathrm{pd},10^{-3})\cdot\max(1,\overline{|\mathrm{eig}(\Lambda_S)|})$.
+If $\Lambda_S$ fails a Cholesky factorisation or has an eigenvalue below $\tau$, the deficient eigenvalues are lifted to $\tau$ by a correction $\Delta$, and we solve
+\[
+  (\Lambda_S+\Delta)\,\ug=\textstyle\sum_jS_j\sgj+(1-n)\Pz s_0+\Delta\,\bar s^\g,
+\]
+where $\bar s^\g=\tfrac1n\sum_j\sgj$.
+In the repaired directions this shrinks the composed score towards the average row score instead of amplifying it by $1/\tau$.
+With the information projection on, $\Lambda_S\succeq\Pz$ and the repair should not fire; every activation is logged.
+With the projection off, it fires in 45--68\% of evaluations, so turning off the projection does not remove all safeguards.
+
+\subsection{Denoised-prediction clamps}\label{sec:impl-clamps}
+
+Far in the tails of the training distribution the network extrapolates, and composition amplifies a single bad row score $n$-fold.
+Following common practice, we bound denoised predictions $\hat\theta_0=y+\lam^2s$ to a box of $\pm k$ prior standard deviations ($k=5$, option \texttt{denoise\_clamp}) and convert back to a score with $s\leftarrow(\operatorname{clip}(\hat\theta_0)-y)/\lam^2$.
+One composed-score evaluation proceeds as follows:
+\begin{enumerate}
+  \item clamp every row's global prediction $\g_t+\lam^2\sgj$, and, if a marginal local prior is given, every row's local prediction;
+  \item build $P_j$ (\cref{sec:impl-pilot} or \cref{sec:impl-jacobian,sec:impl-clip,sec:impl-refresh}), apply the information projection (\cref{sec:impl-projection}), and form $S_j,R_j$;
+  \item solve for $\ug$ (\cref{eq:rule-global}, with the repair of \cref{sec:impl-repair});
+  \item clamp the composed global prediction $\g_t+\lam^2\ug$;
+  \item apply the local rule \cref{eq:rule-local} using the \emph{clamped} $\ug$, then clamp the local predictions again.
+\end{enumerate}
+Step 5 uses the clamped $\ug$.
+Otherwise a poorly conditioned composition could reach the locals through $R_j(\ug-\sgj)$ without passing through the only bound that the global coordinates have.
+The clamps are inactive in the bulk of the posterior.
+Where active, they make the composed field non-conservative, which matters for Langevin correctors \todo{curl diagnostic}.
+
+\subsection{Proposal priors}\label{sec:impl-proposal}
+
+If the network was trained under a global prior $\tilde p(\g)$ different from the target prior $p(\g)$, then each factor is $\tilde p(\thj\mid x_j)$, and \cref{eq:hier-tall} becomes $p(\theta\mid\X)\propto p(\g)\prod_j\tilde p(\thj\mid x_j)/\tilde p(\g)$.
+This holds because the likelihood does not depend on the prior.
+Repeating \cref{sec:methods} with $\tilde\pi^0_t$ in place of $\pi^0_t$ for the divided-out priors changes only the prior terms:
+\[
+\begin{aligned}
+  \Lambda_S&=\textstyle\sum_jS_j-n\tilde P_0+\Pz,\\
+  \Lambda_S\ug&=\textstyle\sum_jS_j\sgj-n\tilde P_0\tilde s_0+\Pz s_0,
+\end{aligned}
+\]
+and the information of \cref{sec:impl-projection} is taken relative to $\tilde P_0$ (option \texttt{set\_training\_prior}).
+
+\subsection{Cost}\label{sec:impl-cost}
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Requirements and cost per composed-score evaluation, beyond the $nM$ network row evaluations that every compositional sampler pays. $D=d_\g+d_\ell$.}
+\label{tab:cost}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Rule & Pilot run & Extra per evaluation\\
+\midrule
+Sum / \fnpse & none & --- \\
+Flat \gauss{} on $\g$ & $P$ draws per obs. & $\mathcal{O}(nd_\g^3)$ \\
+\arrowm & $P$ draws per obs. & $\mathcal{O}(nD^3)$, cached in $\lam$ \\
+\quiver{} (JVP) & none & $D$ JVPs per refresh $+\,\mathcal{O}(nMD^3)$ \\
+\quiver{} (FD) & none & $D$ row copies per refresh $+\,\mathcal{O}(nMD^3)$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\Cref{tab:cost} summarises the cost.
+\arrowm{} costs essentially the base trajectory plus the pilot.
+\quiver{} adds the Jacobian on top of the same trajectory, so it can approach the cost of \arrowm{} but cannot fall below it at equal step counts.
+On the partial-pooling benchmark, \quiver{} (FD, refresh 1/10) took $7{,}499$\,s, against $4{,}976$\,s for \arrowm{} and $10{,}018$\,s for \fnpse{} with Langevin dynamics.
+\todo{Move to experiments.}

@@ -1,0 +1,735 @@
+%% Multi-level and graph-structured generalisation of the hierarchical
+%% composition rule (gauss_hierarchical / gauss_jacobian).
+%% Derivation only -- nothing here is implemented in src/compass.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{microtype,booktabs,xcolor}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{Assumption}{Assumptions}
+\newtheorem{example}{Example}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\I}{\mathbf{I}}
+\newcommand{\T}{\top}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\lam}{\lambda}
+\newcommand{\X}{\mathbf{x}}
+\newcommand{\An}{\operatorname{An}}
+\newcommand{\pa}{\operatorname{pa}}
+\newcommand{\ch}{\operatorname{ch}}
+\newcommand{\sub}{\operatorname{sub}}
+\newcommand{\Rset}{\mathcal{R}}
+\newcommand{\Fset}{\mathcal{F}}
+\newcommand{\arrowm}{\texttt{gauss\_hierarchical}}
+\newcommand{\quiver}{\texttt{gauss\_jacobian}}
+
+\title{Composing scores beyond two levels:\\
+three-level, $L$-level and graph-structured hierarchies}
+\author{COMPASS working note (derivation only, no code changes)}
+\date{12 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The hierarchical composition rule behind \arrowm{} and \quiver{} composes a
+single-observation score network over a two-level model (shared $g$, one local
+$\ell_j$ per observation). We show that the rule generalises without new
+approximations. The same single Gaussian-backward-kernel approximation gives
+(i)~an explicit three-level rule, (ii)~an $L$-level rule for any rooted tree,
+obtained by applying the two-level rule recursively (``a group is a big
+observation''), and (iii)~a rule for any hierarchical model whose latent
+structure is a directed acyclic graph (DAG) and whose observations are sinks. In
+all three cases the tall-data backward kernel factorises \emph{exactly} into
+single-observation kernels and prior-marginal kernels, weighted by integer
+\emph{counting numbers}. The Gaussian step then reduces the composed score to a
+sparse linear system $\Lambda u=r$ assembled only from the network's own
+(conditional) scores and precisions. On trees, block elimination from the leaves
+up solves the system in time linear in the number of nodes, with no fill-in.
+On general DAGs the system is still exact, but its cost is set by the treewidth
+of a derived graph. The rule needs one new ingredient from three levels on: the
+diffused prior score and backward precision on every intermediate
+\emph{path} (e.g.\ $p_t(g,h_k)$), not only on $g$. A NumPy check on
+linear-Gaussian trees (3 and 5 levels), a crossed-effects design and a non-tree
+DAG reproduces the exact diffused tall-data score to machine precision
+($\le 7\times10^{-15}$ relative error) at every noise level. Dropping the
+intermediate prior corrections gives 1--67\% error.
+\end{abstract}
+
+\tableofcontents
+
+%=====================================================================
+\section{Recap: the two-level rule}\label{sec:recap}
+%=====================================================================
+
+The current model is
+$p(g,\ell_{1:n},\X_{1:n})=p(g)\prod_{j}p(\ell_j\mid g)\,p(x_j\mid g,\ell_j)$.
+The network provides, for each observation, the joint score
+$s_j=(s_j^g,s_j^\ell)$ of $p_t(\vartheta_j\mid x_j)$ at the noisy
+$y_j=(g_t,\ell_{j,t})$, with $\vartheta_j=(g,\ell_j)$. Let $\varphi_\lam$ be the
+isotropic Gaussian kernel at noise scale $\lam=\lam_t$ (VE convention, as in the
+paper). The derivation (paper, \S3) has four steps:
+\begin{enumerate}
+\item \textbf{Exact factorisation:}
+ $p(\theta\mid\X)\propto p(g)^{1-n}\prod_jp(\vartheta_j\mid x_j)$. Because the
+ forward kernel factorises over coordinates, the same holds for the backward
+ kernels:
+ $\pi_t(\theta_0\mid y,\X)\propto\pi_t^0(g_0\mid g_t)^{1-n}\prod_j\pi_t(\vartheta_{j,0}\mid y_j,x_j)$.
+\item \textbf{Tweedie:} the composed score is $u=(\E[\theta_0\mid y,\X]-y)/\lam^2$.
+\item \textbf{Gaussian factors:} replacing each factor by a Gaussian with the
+ correct (Tweedie) mean and precision $P_j$ (resp.\ $P_0$) gives $\Lambda u=r$
+ with
+ $\Lambda=(1-n)E_g^\T P_0E_g+\sum_jE_j^\T P_jE_j$ and
+ $r=(1-n)E_g^\T P_0s_0+\sum_jE_j^\T P_js_j$. $\Lambda$ is an arrowhead matrix.
+\item \textbf{Elimination:} with $P_j=\begin{psmallmatrix}A_j&B_j\\B_j^\T&C_j\end{psmallmatrix}$,
+ $S_j=A_j-B_jC_j^{-1}B_j^\T$ and $R_j=-C_j^{-1}B_j^\T$,
+ \begin{equation}\label{eq:two-level}
+ u^g=\Big[\sum_jS_j+(1-n)P_0\Big]^{-1}\Big[\sum_jS_js_j^g+(1-n)P_0s_0\Big],\qquad
+ u^{\ell_j}=s_j^\ell+R_j(u^g-s_j^g).
+ \end{equation}
+\end{enumerate}
+The rest of this note reuses steps 2 and 3 unchanged. All the work goes into
+(a)~finding the right exact factorisation (step~1) for deeper or graph-structured
+models, and (b)~solving the resulting larger sparse system (step~4).
+
+\paragraph{Two observations that make everything below work.}
+First, steps 2--3 never used the arrowhead structure. They hold for \emph{any}
+finite product of Gaussian factors with real (possibly negative) exponents,
+provided every coordinate of $y$ receives total noise exponent one (\cref{prop:linear-system}).
+Second, step~4 is a single instance of a generic operation, the elimination of a
+block that only one (merged) factor touches (\cref{lem:marginalise}). Applying it
+repeatedly gives the multi-level rules.
+
+%=====================================================================
+\section{General setting and the exact factorisation}\label{sec:general}
+%=====================================================================
+
+\subsection{Model class}
+
+\begin{assumption}[Hierarchical model on a DAG]\label{ass:dag}
+The latent variables are blocks $\theta_v\in\R^{d_v}$ indexed by the nodes
+$v\in V$ of a DAG $G$ with parent sets $\pa(v)$, and
+\[
+p(\theta,\X)=\prod_{v\in V}p(\theta_v\mid\theta_{\pa(v)})\;\prod_{o\in O}p(x_o\mid\theta_{\pa(o)}),
+\]
+where every observation $o\in O$ is a sink: $\pa(o)\subseteq V$, and no latent
+or other observation has $o$ as a parent. Every latent node has at least one
+observed descendant (latent nodes without one are barren; integrate them out
+first, which leaves the model in the same class).
+\end{assumption}
+The two-level model is the DAG $g\to\ell_j\to x_j$ (with also $g\to x_j$). The
+three-level model is $g\to h_k\to\ell_{kj}\to x_{kj}$. Crossed random effects
+$g\to a_i$, $g\to b_j$, $(a_i,b_j)\to x_{ij}$ are a DAG that is not a tree.
+
+\begin{definition}[Observation regions]
+For $o\in O$, let $R_o:=\An(\pa(o))$ be the ancestral closure of its parents:
+all latent nodes from which there is a directed path into $o$, including
+$\pa(o)$. Write $\theta_R=(\theta_v)_{v\in R}$ and $d_R=\sum_{v\in R}d_v$.
+\end{definition}
+
+\begin{lemma}[Ancestral marginals are products of CPDs]\label{lem:ancestral}
+For any ancestral set $R\subseteq V$ (closed under taking parents),
+$p(\theta_R)=\prod_{v\in R}p(\theta_v\mid\theta_{\pa(v)})$.
+\end{lemma}
+\begin{proof}
+Integrate out the nodes of $V\setminus R$ in reverse topological order. Each one
+integrated out is a sink of the current graph, since its children are outside
+$R$ (otherwise $R$ would not be ancestral) and have already been removed. Its
+CPD therefore integrates to one, and no remaining factor depends on it.
+\end{proof}
+
+The training unit of the network is consequently \emph{one observation together
+with its ancestral region}: draw $\theta_{R_o}$ by ancestral sampling, then
+$x_o$. The network learns $p(\theta_{R_o}\mid x_o)$ under the correct prior
+marginal $p(\theta_{R_o})$, and no simulation ever involves more than one
+observation. In the two-level model $R_j=\{g,\ell_j\}$, which is the current
+single-group training unit. In the three-level model $R_{kj}=\{g,h_k,\ell_{kj}\}$,
+the root-to-leaf path.
+
+\subsection{Counting numbers}
+
+\begin{definition}[Region family and counting numbers]\label{def:counting}
+Let $\Rset$ be the closure of $\{R_o:o\in O\}$ under non-empty intersection.
+Intersections of ancestral sets are ancestral, so every $R\in\Rset$ is ancestral.
+Define the (Möbius) counting numbers top-down,
+\begin{equation}\label{eq:moebius}
+c(R):=1-\sum_{R'\in\Rset,\;R'\supsetneq R}c(R'),
+\end{equation}
+let $m(R):=|\{o:R_o=R\}|$ be the number of observations whose region is $R$, and
+define the \emph{prior exponent} $\kappa(R):=c(R)-m(R)$.
+\end{definition}
+
+\begin{lemma}[Every node is covered exactly once]\label{lem:cover}
+For every latent node $v$,
+\begin{equation}\label{eq:cover}
+\underbrace{|\{o\in O:v\in R_o\}|}_{\text{observation factors}}+\sum_{R\in\Rset,\,R\ni v}\kappa(R)=\sum_{R\in\Rset,\,R\ni v}c(R)=1.
+\end{equation}
+\end{lemma}
+\begin{proof}
+The first equality is the definition of $\kappa$. For the second, let
+$S_v:=\bigcap\{R\in\Rset:v\in R\}$. The set is non-empty by
+\cref{ass:dag}, and the intersection contains $v$, so $S_v\in\Rset$. A region
+contains $v$ if and only if it contains $S_v$. Hence
+$\sum_{R\ni v}c(R)=c(S_v)+\sum_{R\supsetneq S_v}c(R)=1$ by \eqref{eq:moebius}.
+\end{proof}
+
+\begin{theorem}[Exact tall-data factorisation on a DAG]\label{thm:factorisation}
+Under \cref{ass:dag},
+\begin{equation}\label{eq:factorisation}
+p(\theta\mid\X)\;\propto\;\prod_{o\in O}p(\theta_{R_o}\mid x_o)\;\prod_{R\in\Rset}p(\theta_R)^{\kappa(R)},
+\end{equation}
+and for every $t$ the backward kernel of the diffused tall posterior factorises
+exactly as
+\begin{equation}\label{eq:backward-factorisation}
+\pi_t(\theta_0\mid y,\X)\;\propto\;\prod_{o\in O}\pi_t(\theta_{R_o,0}\mid y_{R_o},x_o)\;\prod_{R\in\Rset}\pi^0_t(\theta_{R,0}\mid y_R)^{\kappa(R)},
+\end{equation}
+where $\pi^0_t(\theta_{R,0}\mid y_R)\propto\varphi_\lam(y_R-\theta_{R,0})\,p(\theta_{R,0})$
+is the backward kernel of the prior marginal on $R$.
+\end{theorem}
+\begin{proof}
+\emph{Clean posterior.} By Bayes and \cref{lem:ancestral},
+$p(\theta_{R_o}\mid x_o)\propto p(x_o\mid\theta_{\pa(o)})\prod_{v\in R_o}p(\theta_v\mid\theta_{\pa(v)})$,
+and $p(\theta_R)=\prod_{v\in R}p(\theta_v\mid\theta_{\pa(v)})$. In the right-hand side of
+\eqref{eq:factorisation} each likelihood appears once. The CPD of node $v$
+appears with total exponent equal to the left-hand side of \eqref{eq:cover},
+which is $1$. The right-hand side is therefore proportional to the joint
+$p(\theta,\X)$, hence to $p(\theta\mid\X)$.
+
+\emph{Backward kernel.} Since $\varphi_\lam(y-\theta_0)=\prod_v\varphi_\lam(y_v-\theta_{v,0})$
+and, by \eqref{eq:cover}, the exponents of the copies handed to the factors sum
+to one for each $v$,
+\[
+\varphi_\lam(y-\theta_0)=\prod_{o}\varphi_\lam(y_{R_o}-\theta_{R_o,0})\prod_{R}\varphi_\lam(y_R-\theta_{R,0})^{\kappa(R)}.
+\]
+Multiply this by \eqref{eq:factorisation} and pair each noise factor with its
+density factor. Each pair is a backward kernel times a normaliser
+($p_t(y_{R_o}\mid x_o)$ or $p_t(y_R)^{\kappa(R)}$) that depends on $y$ but not
+on $\theta_0$.
+\end{proof}
+
+\begin{remark}
+The counting condition \eqref{eq:cover} has the same form as the counting-number
+condition of region-based (Kikuchi) approximations in graphical models
+(Yedidia, Freeman \& Weiss, 2005). Here, however, it is \emph{exact}, because the
+regions are ancestral (\cref{lem:ancestral}). The Möbius choice
+\eqref{eq:moebius} is canonical but not unique. Any integer $\kappa$ satisfying
+\eqref{eq:cover} gives an exact factorisation; different solutions can differ in
+numerical conditioning once the factors are approximated.
+\end{remark}
+
+\subsection{From the factorisation to a linear system}
+
+\begin{proposition}[Composed score as a sparse linear system]\label{prop:linear-system}
+Index all factors in \eqref{eq:backward-factorisation} by $f\in\Fset$. Each has
+weight $w_f$ ($1$ for an observation factor, $\kappa(R)$ for a prior factor),
+scope $R_f$ with selector $E_f$ ($E_f\theta=\theta_{R_f}$), score
+$s_f=\nabla\log p_t(y_{R_f}\mid\cdot)$ and a Gaussian surrogate backward
+precision $P_f\succ0$. If
+\begin{equation}\label{eq:Lambda}
+\Lambda:=\sum_{f\in\Fset}w_f\,E_f^\T P_fE_f\;\succ0,\qquad r:=\sum_{f\in\Fset}w_f\,E_f^\T P_fs_f,
+\end{equation}
+then the Gaussian surrogate of \eqref{eq:backward-factorisation} gives the
+composed score $u=\nabla_y\log p_t(y\mid\X)\approx\Lambda^{-1}r$. Given exact
+factor scores and precisions, this is exact whenever all factors are Gaussian, in
+particular for every linear-Gaussian DAG.
+\end{proposition}
+\begin{proof}
+Verbatim the paper's Step~3 with $(1-n)$ and $1$ replaced by $w_f$. With
+$m_f=y_{R_f}+\lam^2s_f$ (Tweedie), the log surrogate is
+$-\tfrac12\theta_0^\T\Lambda\theta_0+\theta_0^\T b$ with
+$b=\sum_fw_fE_f^\T P_fm_f$. Its mean is $\Lambda^{-1}b$, and
+$u=(\Lambda^{-1}b-y)/\lam^2=\Lambda^{-1}(b-\Lambda y)/\lam^2$. Since
+$E_fy=y_{R_f}$, $b-\Lambda y=\sum_fw_fE_f^\T P_f(m_f-y_{R_f})=\lam^2r$.
+\end{proof}
+
+The \emph{sparsity graph} of $\Lambda$ connects $v$ and $v'$ only if they share a
+region. It is therefore the union of the cliques $\{R_o\}$, which we call the
+\emph{ancestral observation graph}. All structural results below concern how to
+solve $\Lambda u=r$ efficiently on this graph. The \emph{values} of $u$ do not
+depend on how it is solved.
+
+\subsection{The elimination lemma}
+
+\begin{lemma}[Merge and marginalise]\label{lem:marginalise}
+\textbf{(Merge.)} Factors with the same scope can be summed. Weighted factors
+$(w_i,P_i,s_i)$ on one scope are equivalent in $\Lambda,r$ to one factor
+$(Q,q)$ with $Q=\sum_iw_iP_i$ and $q=\sum_iw_iP_is_i$. If $Q\succ0$, write
+$q=Q\sigma$ with the \emph{merged score} $\sigma:=Q^{-1}q$.
+
+\textbf{(Marginalise.)} Let a block $c$ of the unknowns appear in exactly one
+(merged) factor $(Q,Q\sigma)$, with scope $(a,c)$ and
+$Q=\begin{psmallmatrix}Q_{aa}&Q_{ac}\\Q_{ca}&Q_{cc}\end{psmallmatrix}$,
+$Q_{cc}\succ0$. Replacing this factor by the factor $(S,\,S\sigma^a)$ on scope
+$a$ alone, with
+\begin{equation}\label{eq:schur}
+S=Q_{aa}-Q_{ac}Q_{cc}^{-1}Q_{ca}=\big([Q^{-1}]_{aa}\big)^{-1},
+\end{equation}
+and back-substituting
+\begin{equation}\label{eq:backsub}
+u^c=\sigma^c+K\,(u^a-\sigma^a),\qquad K:=-Q_{cc}^{-1}Q_{ca},
+\end{equation}
+leaves the solution $u$ of $\Lambda u=r$ unchanged.
+\end{lemma}
+\begin{proof}
+Merging holds because $\Lambda$ and $r$ are sums over factors. For
+marginalising, the $c$-rows of $\Lambda u=r$ read
+$Q_{ca}u^a+Q_{cc}u^c=Q_{ca}\sigma^a+Q_{cc}\sigma^c$, which gives
+\eqref{eq:backsub}. The factor's contribution to the $a$-rows is
+$Q_{aa}u^a+Q_{ac}u^c$ on the left and $Q_{aa}\sigma^a+Q_{ac}\sigma^c$ on the
+right. Substituting $u^c$ cancels every $\sigma^c$ term and leaves
+$Su^a=S\sigma^a$. Nothing else in the system involves $c$.
+\end{proof}
+
+This is exactly the paper's Step~4. In the two-level rule, $c=\ell_j$,
+$a=g$, the factor is $(P_j,s_j)$, and the merged score is the network score
+$s_j$ itself, so $S=S_j$, $K=R_j$ and the message is $(S_j,s_j^g)$. The
+``cancellation of the local scores'' is the statement that the message keeps
+$\sigma^a$, the \emph{conditional} score of the factor at the current $c$. The
+marginal score of the scope $a$ is never required. The lemma shows this
+cancellation happens at \emph{every} elimination, at any depth and in any
+graph.
+
+%=====================================================================
+\section{Three levels}\label{sec:three}
+%=====================================================================
+
+\subsection{Model and exact factorisation}
+
+\[
+p(\theta,\X)=p(g)\prod_{k=1}^{K}\Big[p(h_k\mid g)\prod_{j=1}^{n_k}p(\ell_{kj}\mid g,h_k)\,p(x_{kj}\mid g,h_k,\ell_{kj})\Big],
+\]
+with $g\in\R^{d_g}$ (global), $h_k\in\R^{d_h}$ (group), $\ell_{kj}\in\R^{d_\ell}$
+(local) and $N=\sum_kn_k$ observations. Example: a population mean $g$, school
+effects $h_k$, pupil effects $\ell_{kj}$, and pupil data $x_{kj}$. The network is
+trained on paths $\vartheta_{kj}=(g,h_k,\ell_{kj})\in\R^{D}$, $D=d_g+d_h+d_\ell$,
+and returns $s_{kj}=(s^g_{kj},s^h_{kj},s^\ell_{kj})$ at
+$y_{kj}=(g_t,h_{k,t},\ell_{kj,t})$.
+
+The regions are $R_{kj}=\{g,h_k,\ell_{kj}\}$. Their intersections are $\{g,h_k\}$
+(within a group) and $\{g\}$ (across groups). \Cref{def:counting} gives
+$c(R_{kj})=1$, $c(\{g,h_k\})=1-n_k$ and $c(\{g\})=1-\sum_k[n_k+(1-n_k)]=1-K$.
+Hence
+\begin{equation}\label{eq:three-factorisation}
+p(\theta\mid\X)\propto p(g)^{1-K}\prod_{k=1}^{K}p(g,h_k)^{1-n_k}\prod_{k,j}p(\vartheta_{kj}\mid x_{kj}).
+\end{equation}
+A direct check: $p(g)$ appears with exponent $(1-K)+\sum_k(1-n_k)+\sum_kn_k=1$,
+$p(h_k\mid g)$ with exponent $(1-n_k)+n_k=1$, and $p(\ell_{kj}\mid g,h_k)$
+once. The same exponents distribute the noise kernel, so by
+\cref{thm:factorisation}
+\[
+\pi_t(\theta_0\mid y,\X)\propto\pi_t^0(g_0\mid g_t)^{1-K}\prod_k\pi_t^0(g_0,h_{k,0}\mid g_t,h_{k,t})^{1-n_k}\prod_{k,j}\pi_t(\vartheta_{kj,0}\mid y_{kj},x_{kj}).
+\]
+
+\paragraph{What is new compared with two levels.} The middle factor
+$p(g,h_k)^{1-n_k}$ is a correction on the \emph{joint} prior marginal of the
+group path. Its diffused score $s_{0,k}=\nabla\log p_t(g_t,h_{k,t})$ and backward
+precision $P_{0,k}\in\R^{(d_g+d_h)^2}$ are needed. The conditional prior
+$p(h_k\mid g)$ alone is not enough, because diffusion acts on $(g,h_k)$ jointly
+and $p_t(g,h_k)\neq p_t(g)\,p_t(h_k\mid g)$ for any useful sense of the latter.
+With two levels, the corresponding factor $p(g,\ell_j)^{1-1}$ has exponent zero,
+which is why it never showed up.
+
+\subsection{Linear system}
+
+Denote the top prior factor by $(P_0,s_0)$ on $g$, the group prior factors by
+$(P_{0,k},s_{0,k})$ on $a_k:=(g,h_k)$, and the observation factors by
+$(P_{kj},s_{kj})$ on $\vartheta_{kj}$. Then \eqref{eq:Lambda} reads
+\[
+\Lambda=(1-K)E_g^\T P_0E_g+\sum_k(1-n_k)E_{a_k}^\T P_{0,k}E_{a_k}+\sum_{k,j}E_{kj}^\T P_{kj}E_{kj},
+\]
+and $r$ is the same with each $P$ replaced by $Ps$. Ordered as
+$(g;\,h_1,\ell_{1\cdot};\,\dots;\,h_K,\ell_{K\cdot})$, $\Lambda$ is a
+\emph{nested arrowhead}. The $g$-row couples to everything. Each $h_k$ couples
+to $g$ and to its own $\ell_{k\cdot}$. Each $\ell_{kj}$ couples only to $g$ and
+$h_k$.
+
+\subsection{Elimination in three passes}
+
+Split each observation precision with respect to $(a_k,\ell_{kj})$ as
+$P_{kj}=\begin{psmallmatrix}A_{kj}&B_{kj}\\B_{kj}^\T&C_{kj}\end{psmallmatrix}$, with
+$A_{kj}\in\R^{(d_g+d_h)^2}$.
+
+\paragraph{Pass 1: locals.} $\ell_{kj}$ appears only in factor $kj$.
+\Cref{lem:marginalise} with $c=\ell_{kj}$, $a=a_k$ gives
+\begin{equation}\label{eq:pass1}
+S_{kj}=A_{kj}-B_{kj}C_{kj}^{-1}B_{kj}^\T=\big([\Sigma_{t,kj}]_{a a}\big)^{-1},\quad
+K_{kj}=-C_{kj}^{-1}B_{kj}^\T,\quad
+u^{\ell_{kj}}=s^\ell_{kj}+K_{kj}\big(u^{a_k}-s^{a}_{kj}\big),
+\end{equation}
+where $s^a_{kj}=(s^g_{kj},s^h_{kj})$. Factor $kj$ becomes the message
+$(S_{kj},s^a_{kj})$ on $a_k=(g,h_k)$.
+
+\paragraph{Pass 2: groups.} All remaining factors involving $h_k$ now have scope
+$a_k$: the $n_k$ messages and the group prior. Merge them:
+\begin{equation}\label{eq:pass2-merge}
+Q_k=\sum_{j=1}^{n_k}S_{kj}+(1-n_k)P_{0,k},\qquad
+q_k=\sum_{j=1}^{n_k}S_{kj}s^a_{kj}+(1-n_k)P_{0,k}s_{0,k},\qquad
+\sigma_k=Q_k^{-1}q_k.
+\end{equation}
+$\sigma_k$ is exactly the two-level rule \eqref{eq:two-level} applied to group $k$
+alone, with ``global'' $a_k=(g,h_k)$, locals $\ell_{k\cdot}$ and prior $p(g,h_k)$.
+It is the composed score of group $k$'s tall posterior
+$p(g,h_k,\ell_{k\cdot}\mid x_{k\cdot})$ on its $(g,h_k)$ block. Now split
+$Q_k=\begin{psmallmatrix}Q_k^{gg}&Q_k^{gh}\\Q_k^{hg}&Q_k^{hh}\end{psmallmatrix}$ and eliminate $h_k$:
+\begin{equation}\label{eq:pass2}
+T_k=Q_k^{gg}-Q_k^{gh}(Q_k^{hh})^{-1}Q_k^{hg}=\big([Q_k^{-1}]_{gg}\big)^{-1},\quad
+G_k=-(Q_k^{hh})^{-1}Q_k^{hg},\quad
+u^{h_k}=\sigma^h_k+G_k\big(u^g-\sigma^g_k\big).
+\end{equation}
+Group $k$ becomes the message $(T_k,\sigma_k^g)$ on $g$.
+
+\paragraph{Pass 3: global.}
+\begin{equation}\label{eq:pass3}
+u^g=\Big[\sum_{k=1}^{K}T_k+(1-K)P_0\Big]^{-1}\Big[\sum_{k=1}^{K}T_k\,\sigma^g_k+(1-K)P_0\,s_0(g_t)\Big].
+\end{equation}
+
+\paragraph{The three-level rule.} Compute $S_{kj},K_{kj}$ (pass 1), then
+$Q_k,\sigma_k,T_k,G_k$ (pass 2), then $u^g$ \eqref{eq:pass3}. Back-substitute
+$u^{h_k}$ by \eqref{eq:pass2} and $u^{\ell_{kj}}$ by \eqref{eq:pass1}, using
+$u^{a_k}=(u^g,u^{h_k})$.
+
+Read top-down, the global row \eqref{eq:pass3} is the two-level rule with the
+\emph{groups} as observations. Each group enters with its composed score
+$\sigma^g_k$ and its effective precision $T_k$. Each group score is in turn the
+two-level rule over its own observations. The three-level rule is therefore the
+two-level rule nested in itself. The cost is $N$ inversions of $d_\ell\times d_\ell$
+blocks, $K$ of $(d_g+d_h)\times(d_g+d_h)$ blocks, and one $d_g\times d_g$ solve:
+linear in $N$.
+
+\begin{remark}[Numerically preferred form]
+The merged score $\sigma_k$ needs $Q_k$ to be invertible. To eliminate $h_k$,
+only $Q^{hh}_k\succ0$ is needed. Without forming $\sigma_k$, the message
+right-hand side is $\tau_k=q_k^g-Q_k^{gh}(Q_k^{hh})^{-1}q_k^h$ (which equals
+$T_k\sigma_k^g$ when $Q_k$ is invertible), and the back-substitution is
+$u^{h_k}=(Q_k^{hh})^{-1}(q_k^h-Q_k^{hg}u^g)$. Implementations should use this
+information form.
+\end{remark}
+
+\subsection{Consistency checks}
+
+Each check follows because the rule returns $\Lambda^{-1}r$ and $(\Lambda,r)$
+coincide with the reference.
+\begin{enumerate}
+\item \textbf{One observation per group} ($n_k=1$): the group priors have
+ exponent $0$, $Q_k=S_{k1}$ and $\sigma_k=s^a_{k1}$. The rule is the two-level
+ rule with global $g$ and local block $(h_k,\ell_{k1})$.
+\item \textbf{One group} ($K=1$): the top prior has exponent $0$ and
+ $u^g=\sigma^g_1$. The rule is the two-level rule with global $(g,h_1)$ and prior
+ $p(g,h_1)$.
+\item \textbf{No group parameters} ($d_h=0$): $P_{0,k}=P_0$ and $T_k=Q_k$, so
+ \eqref{eq:pass3} becomes
+ $\big[\sum_{kj}S_{kj}+(1-N)P_0\big]^{-1}\big[\sum_{kj}S_{kj}s^g_{kj}+(1-N)P_0s_0\big]$,
+ which is the two-level rule over all $N$ observations.
+\item \textbf{$N=1$:} every prior exponent vanishes, and the rule returns the network score.
+\item \textbf{Linear-Gaussian model:} exact at every $t$ (\cref{prop:linear-system}); verified in \cref{sec:numerics}.
+\end{enumerate}
+
+%=====================================================================
+\section{$L$ levels and arbitrary trees}\label{sec:tree}
+%=====================================================================
+
+\subsection{Setting}
+Let the latent DAG be a rooted tree: every $v$ has at most one parent, and the
+root $\rho$ has none. Observations may attach to any node, provided all parents
+of an observation lie on one root path. Write $O(v)$ for the
+observations whose deepest parent is $v$ (so $R_o=\pi(v)$), $\ch(v)$ for the
+children of $v$ and $\sub(v)$ for the subtree rooted at $v$. Let $\pi(v)$ be the
+path from $\rho$ to $v$ (inclusive) and $\alpha(v):=\pi(v)\setminus\{v\}$ the
+strict ancestors, so that $\alpha(w)=\pi(v)$ for every $w\in\ch(v)$. This covers
+$L$-level nested designs, ragged trees, and observations on intermediate levels.
+
+\begin{proposition}[Counting numbers on a tree]\label{prop:tree-counting}
+On a tree, $\Rset=\{\pi(v)\}$, and the prior exponent of $\pi(v)$ is
+\begin{equation}\label{eq:tree-kappa}
+\kappa(v):=1-|\ch(v)|-|O(v)|.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Intersections of root paths are root paths. Given \eqref{eq:tree-kappa}, check
+\eqref{eq:cover} by induction from the leaves: let
+$N(v):=\sum_{u\in\sub(v)}|O(u)|$ be the number of observations below $v$. Then
+\begin{equation}\label{eq:subtree-sum}
+N(v)+\sum_{u\in\sub(v)}\kappa(u)=|O(v)|+\kappa(v)+\sum_{w\in\ch(v)}\Big[N(w)+\sum_{u\in\sub(w)}\kappa(u)\Big]=|O(v)|+\kappa(v)+|\ch(v)|=1.
+\end{equation}
+The left-hand side of \eqref{eq:subtree-sum} is exactly the coverage of $v$, and
+also of every ancestor of $v$, contributed by $\sub(v)$. Applied at the root,
+it shows every node is covered once. The Möbius numbers satisfy the same
+recursion, so they coincide with \eqref{eq:tree-kappa}. Nodes with
+$\kappa(v)=0$ (e.g.\ a single child and no observations) do not need a prior
+factor.
+\end{proof}
+
+For two levels, $\kappa(g)=1-n$ and $\kappa(\ell_j)=0$. For three levels,
+$\kappa(g)=1-K$, $\kappa(h_k)=1-n_k$ and $\kappa(\ell_{kj})=0$.
+
+\subsection{The recursive rule}
+
+\begin{theorem}[$L$-level / tree composition rule]\label{thm:tree-rule}
+Process the nodes in post-order (children before parents). For each $v$, all
+quantities live on the path $\pi(v)$:
+\begin{align}
+Q_v&=\sum_{o\in O(v)}P_o+\kappa(v)\,P_{0,v}+\sum_{w\in\ch(v)}S_w,\label{eq:tree-Q}\\
+\sigma_v&=Q_v^{-1}\Big[\sum_{o\in O(v)}P_os_o+\kappa(v)\,P_{0,v}s_{0,v}+\sum_{w\in\ch(v)}S_w\,\sigma_w^{\alpha(w)}\Big],\label{eq:tree-sigma}\\
+S_v&=[Q_v]_{\alpha\alpha}-[Q_v]_{\alpha v}[Q_v]_{vv}^{-1}[Q_v]_{v\alpha},\qquad
+K_v=-[Q_v]_{vv}^{-1}[Q_v]_{v\alpha}\qquad(\alpha=\alpha(v)),\label{eq:tree-S}
+\end{align}
+where $(P_o,s_o)$ are the network's precision and score for observation $o$ on
+$\pi(v)$, and $(P_{0,v},s_{0,v})$ are the prior backward precision and diffused
+prior score on $\pi(v)$. Then process the nodes top-down:
+\begin{equation}\label{eq:tree-down}
+u^\rho=\sigma_\rho,\qquad u^v=\sigma_v^v+K_v\big(u^{\alpha(v)}-\sigma_v^{\alpha(v)}\big).
+\end{equation}
+If every $[Q_v]_{vv}\succ0$ and $Q_\rho\succ0$, this $u$ is the unique solution of
+$\Lambda u=r$ with the counting numbers \eqref{eq:tree-kappa}. In particular, it
+is the exact diffused tall-data score of every linear-Gaussian tree.
+\end{theorem}
+\begin{proof}
+By induction over the post-order, with the invariant: \emph{when $v$ is
+processed, all of $\sub(v)\setminus\{v\}$ has been eliminated, and the factors of
+the reduced system that involve block $v$ are exactly the terms in
+\eqref{eq:tree-Q}, all with scope $\pi(v)$.} Any original factor that contains
+$v$ has scope $\pi(u)$ with $u\in\sub(v)$. Those with $u\neq v$ have been
+absorbed by the induction hypothesis into the messages $(S_w,\sigma_w^{\alpha(w)})$
+of the children $w$, whose scope is $\alpha(w)=\pi(v)$. Those with $u=v$ are the
+observation factors $O(v)$ and the prior factor of $v$. Merging them
+(\cref{lem:marginalise}) gives $(Q_v,Q_v\sigma_v)$, the only factor containing
+$v$. Marginalising $v$ (\cref{lem:marginalise}, $c=v$, $a=\alpha(v)$) produces the
+message $(S_v,\sigma_v^{\alpha(v)})$ on $\pi(\pa(v))$ and the back-substitution
+\eqref{eq:tree-down} (an instance of \eqref{eq:backsub}), which maintains the invariant for $\pa(v)$. At the root,
+$Q_\rho u^\rho=Q_\rho\sigma_\rho$. Uniqueness: the elimination is a block
+$LDL^\T$ factorisation of $\Lambda$ with pivots $[Q_v]_{vv}$ and $Q_\rho$, so
+$\Lambda\succ0$ if and only if all pivots are positive definite.
+\end{proof}
+
+\paragraph{Interpretation: a subtree is a big observation.}
+By \eqref{eq:subtree-sum}, the factors inside $\sub(w)$ cover $\pi(\pa(w))$
+exactly once as well. They therefore form the exact tall posterior of the
+\emph{sub-model} consisting of the path to $w$, the subtree $\sub(w)$, and its
+observations. The message $(S_w,\sigma_w^{\alpha(w)})$ is the Gaussian summary of
+that sub-model's composed backward kernel on the parent path: $S_w$ is its
+marginal precision on $\pi(\pa(w))$, and $\sigma_w^{\alpha(w)}$ is its composed,
+conditional score there. The parent combines its children exactly as the
+two-level rule combines observations. This is Gaussian belief propagation, in
+precision--score parameterisation, on the tree, run upwards once. The downward
+pass is back-substitution, not a second message pass, because only the mean
+(Tweedie) is needed.
+
+\paragraph{Cost.} $\sum_v\big(|O(v)|+|\ch(v)|\big)\,d_{\pi(v)}^2+d_{\pi(v)}^3$:
+linear in the number of nodes and observations, and cubic in the path dimension
+$d_{\pi(v)}\le\sum_{\text{levels}}d_\text{level}$. $\Lambda$ has zero fill-in
+because its sparsity graph (the union of root-path cliques) is chordal, and the
+leaves-first order is a perfect elimination ordering.
+
+\subsection{Positive definiteness and the information form}
+Using $\kappa(v)=1-|O(v)|-|\ch(v)|$,
+\begin{equation}\label{eq:tree-info}
+Q_v=P_{0,v}+\sum_{o\in O(v)}\big(P_o-P_{0,v}\big)+\sum_{w\in\ch(v)}\big(S_w-P_{0,v}\big)
+=:P_{0,v}+\sum_{o}I_o+\sum_wI_w .
+\end{equation}
+This is the paper's information form, $\Lambda_S=P_0+\sum_jI_j$, at every
+level. If every increment is positive semidefinite, then $Q_v\succeq P_{0,v}\succ0$,
+all pivots are positive definite, and the rule is well posed. The increments are
+PSD in the exact linear-Gaussian case. $I_o$ is PSD because $P_o$ is the precision
+of $p(\theta_{\pi(v),0}\mid y_{\pi(v)},x_o)$ and $P_{0,v}$ that of
+$p(\theta_{\pi(v),0}\mid y_{\pi(v)})$. $I_w$ is PSD because $S_w$ is the
+$\pi(v)$-marginal precision of the sub-model kernel, which additionally
+conditions on $y_{\sub(w)}$ and $x_{\sub(w)}$. Gaussian conditioning never
+increases covariance. The current PSD projection of $I_j$ therefore extends
+directly: project every $I_o$ and $I_w$ at every level.
+
+\subsection{What each method has to supply}
+\begin{itemize}
+\item \textbf{Observation factors.} The network must output the joint score on
+ the whole path $\pi(v)$ for observation $o$. \arrowm{} needs a pilot covariance
+ $\Sigma_{0,o}$ of $p(\theta_{\pi(v)}\mid x_o)$ (from the network's own draws), and
+ sets $P_o=\Sigma_{0,o}^{-1}+\lam^{-2}\I$. \quiver{} takes
+ $P_o=\big[\lam^2(\I+\lam^2\nabla s_o)\big]^{-1}$ from $d_{\pi(v)}$ JVPs or
+ finite-difference copies. Both are unchanged; only the dimension grows.
+\item \textbf{Prior factors.} For every node with $\kappa(v)\neq0$, the diffused
+ prior score $s_{0,v}$ and backward precision $P_{0,v}$ on the \emph{whole path}
+ $\pi(v)$ are needed. With two levels, only $\pi(\rho)=\{g\}$ is needed, and
+ a Gaussian $p(g)$ makes it closed-form. From three levels on, $p(g,h_k)$
+ appears. In partial-pooling models $g$ contains the scale of $h_k$, so this
+ prior is a funnel, not a Gaussian, and has no closed-form diffused score. The
+ options are: (a) a prior-score network trained on root-path prior draws
+ (cheap: no simulator calls), or the same network evaluated with all data
+ masked if its training masks include the ``no data'' pattern; (b) its Tweedie
+ Jacobian for $P_{0,v}$, as in \quiver; (c) a Gaussian moment surrogate from
+ prior samples. Option (c) introduces an error that the two-level rule does not
+ have when $p(g)$ is Gaussian. The prior factors carry weights $1-n_k$, so their
+ errors are amplified by the group size, exactly as the top-level prior error
+ is amplified by $n-1$ today.
+\end{itemize}
+
+%=====================================================================
+\section{General DAG hierarchies}\label{sec:dag}
+%=====================================================================
+
+\Cref{thm:factorisation,prop:linear-system} already cover every model satisfying
+\cref{ass:dag}. Exactness of the factorisation therefore holds for every DAG
+hierarchy, with no running-intersection or tree assumption, because the regions
+are ancestral. What changes is the cost of solving $\Lambda u=r$.
+
+\begin{example}[Crossed random effects]\label{ex:crossed}
+$g\to a_i$ ($i\le I$), $g\to b_j$ ($j\le J$), $x_{ij}\mid g,a_i,b_j$, one
+observation per cell. The regions are $\{g,a_i,b_j\}$, with intersections
+$\{g,a_i\}$, $\{g,b_j\}$ and $\{g\}$. The Möbius numbers are
+$c(\{g,a_i,b_j\})=1$, $c(\{g,a_i\})=1-J$, $c(\{g,b_j\})=1-I$, and
+\[
+c(\{g\})=1-\big[IJ+I(1-J)+J(1-I)\big]=(I-1)(J-1)\;\ge0,
+\]
+so
+\[
+p(\theta\mid\X)\propto p(g)^{(I-1)(J-1)}\prod_ip(g,a_i)^{1-J}\prod_jp(g,b_j)^{1-I}\prod_{i,j}p(g,a_i,b_j\mid x_{ij}).
+\]
+The global prior exponent is \emph{positive}: the row and column corrections
+remove $p(g)$ too often, and it has to be multiplied back.
+\end{example}
+
+\begin{example}[Shared child]\label{ex:diamond}
+$g\to h_1,h_2$; $z_1\mid h_1,h_2$; $z_2\mid h_2$; observations
+$x_a,x_b\mid z_1$, $x_c\mid z_2$, $x_d\mid h_1$. The regions are
+$\{g,h_1,h_2,z_1\}$ (twice), $\{g,h_2,z_2\}$ and $\{g,h_1\}$. The prior factors
+are $p(g,h_1,h_2,z_1)^{-1}$, $p(g,h_1)^{-1}$ and $p(g,h_2)^{-1}$, and
+$\kappa(\{g\})=0$.
+\end{example}
+
+\subsection{Solving the system}
+
+\begin{enumerate}
+\item \textbf{Junction-tree case.} If the maximal regions can be arranged in a
+ tree with the running-intersection property, i.e.\ the ancestral observation
+ graph is chordal with this clique tree, \cref{thm:tree-rule} carries over with
+ nodes replaced by cliques and blocks by clique-minus-separator sets. Each clique
+ merges its factors, eliminates its private variables by
+ \cref{lem:marginalise}, and passes a Schur message on the separator. The cost is
+ linear in the number of cliques and cubic in the clique dimension. Rooted trees
+ are the special case where the cliques are root paths.
+\item \textbf{General case.} Pick an elimination order (e.g.\ minimum degree)
+ and run sparse block Cholesky. Every elimination step is still
+ \cref{lem:marginalise}, so only network conditional scores ever enter, but fill-in
+ appears. The cost is governed by the treewidth of the ancestral observation
+ graph. In \cref{ex:crossed}, after eliminating the $a_i$, the $b_j$ form a dense
+ $J\times J$ block: $O(IJ^2+J^3)$, fine for hundreds of levels.
+\item \textbf{Large loopy designs.} Under the information-form condition
+ $\Lambda\succ0$, conjugate gradients needs only products
+ $\Lambda v=\sum_fw_fE_f^\T P_f(E_fv)$, at cost $O(\sum_fd_{R_f}^2)$ per
+ iteration. Alternatively, Gaussian BP on $\Lambda$ returns the \emph{exact} mean
+ whenever it converges (Weiss \& Freeman, 2001), which is all Tweedie needs.
+ Convergence is guaranteed for walk-summable $\Lambda$.
+\end{enumerate}
+
+\subsection{Limits of the graph generalisation}\label{sec:dag-limits}
+
+\begin{enumerate}
+\item \textbf{Bounded ancestral regions.} The training unit is $(\theta_{R_o},x_o)$.
+ If $|R_o|$ grows with the data, as in a latent Markov chain
+ $z_1\to z_2\to\cdots$ with $x_t\mid z_t$ where $R_t=\{z_1,\dots,z_t\}$, a
+ single-observation network cannot be trained. Two exact alternatives exist:
+ \begin{itemize}
+ \item[(a)] \emph{Decomposable prior over non-ancestral regions.} If
+  $p(\theta)=\prod_Cp(\theta_C)/\prod_Sp(\theta_S)$ over a junction tree
+  (e.g.\ $C_t=\{z_{t-1},z_t\}$, $S_t=\{z_t\}$), and the network for $x_o$ is
+  trained on $(\theta_{C(o)},x_o)$ with $\theta_{C(o)}$ drawn from the
+  \emph{true prior marginal} $p(\theta_{C(o)})$ (e.g.\ cropped windows of long
+  simulations), the proof of \cref{thm:factorisation} goes through with these
+  regions. The counting condition is the junction-tree identity.
+ \item[(b)] \emph{Training-prior ratio form.} For any regions $R_o\supseteq\pa(o)$
+  and any training prior $\tilde p_o(\theta_{R_o})$,
+  $p(\theta\mid\X)\propto p(\theta)\prod_o\tilde p_o(\theta_{R_o}\mid x_o)/\tilde p_o(\theta_{R_o})$.
+  Each coordinate is covered $1+\sum_o(1-1)=1$ times, so
+  \cref{thm:factorisation,prop:linear-system} hold with
+  $\Lambda=P_0^{\text{full}}+\sum_oE_o^\T(P_o-\tilde P_{0,o})E_o$. This needs the
+  diffused prior score and precision on all of $\theta$, which are tractable for
+  Gaussian Markov priors (sparse $P_0^{\text{full}}$) but not in general.
+ \end{itemize}
+\item \textbf{Observations must be sinks.} Models in which data feed back into
+ latents or other data (autoregressive observations) are outside
+ \cref{ass:dag}.
+\item \textbf{The single approximation is unchanged, but it is applied in
+ higher dimension.} Each observation factor is a Gaussian surrogate on
+ $d_{R_o}$ dimensions instead of $d_g+d_\ell$. The multimodality and
+ heavy-tail failure modes documented for the two-level rule (e.g.\ the IK branch
+ bias summed $n$ times) apply per factor. Prior factors appear at every
+ intermediate level with weights $1-|O(v)|-|\ch(v)|$, so prior-score and
+ Gaussian-surrogate errors are amplified at each level, not only at the root.
+\end{enumerate}
+
+%=====================================================================
+\section{Numerical verification}\label{sec:numerics}
+%=====================================================================
+
+A standalone NumPy script (CPU only, 3 threads; not part of the package) builds
+random linear-Gaussian DAGs, samples data, and computes the exact Gaussian
+posterior of every factor under the true prior marginal of its region, together
+with the exact diffused tall-data score $-(C+\lam^2\I)^{-1}(y-m)$. It then
+compares (i) the dense solve $\Lambda^{-1}r$ with Möbius counting numbers,
+(ii) the recursive tree rule of \cref{thm:tree-rule} (trees only), and (iii) an
+ablation that keeps only the root prior correction and drops all intermediate
+prior factors. It also asserts \eqref{eq:cover} for every node. The table
+reports relative error $\|u-u_\text{exact}\|/\|u_\text{exact}\|$, maximised over
+$\lam\in\{0.01,0.3,1,5\}$ with a fresh random $y$ per $\lam$.
+
+\begin{center}\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{3.9cm}rrccc p{2.9cm}@{}}
+\toprule
+model & dim & obs & dense & tree rule & drop mid priors & non-zero $\kappa$\\
+\midrule
+3-level tree ($K=3$, $n_k=2,3,4$, obs on $h_0$, 2 trials on $\ell_{21}$) & 23 & 11 & $2.2\times10^{-15}$ & $2.3\times10^{-15}$ & 4.8\% -- 48\% & $g{:}{-}2$, $h_k{:}{-}2,{-}2,{-}3$, $\ell_{21}{:}{-}1$\\
+5-level random tree & 46 & 13 & $6.7\times10^{-15}$ & $6.7\times10^{-15}$ & 3.3\% -- 21\% & 11 path priors\\
+crossed $3\times4$ (\cref{ex:crossed}) & 9 & 12 & $2.4\times10^{-15}$ & -- & 8.6\% -- 67\% & $g{:}{+}6$, $a_i{:}{-}3$, $b_j{:}{-}2$\\
+shared child (\cref{ex:diamond}) & 5 & 4 & $4.7\times10^{-16}$ & -- & 0.8\% -- 12\% & three ${-}1$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The derived counting numbers are therefore exact on all four structures, and the
+recursive tree rule agrees with the dense solve to round-off. The ablation error
+is largest at small $\lam$: the intermediate prior corrections are not optional,
+and are not a high-noise effect. The crossed design also confirms the positive
+global exponent $\kappa(g)=+6=(3-1)(4-1)$.
+
+%=====================================================================
+\section{Summary}\label{sec:summary}
+%=====================================================================
+
+\begin{enumerate}
+\item \textbf{Three levels: yes.} \Cref{eq:pass1,eq:pass2-merge,eq:pass2,eq:pass3}.
+ The new required inputs are the network's path score and precision on
+ $(g,h_k,\ell_{kj})$, and the diffused prior score and precision on $(g,h_k)$,
+ which enter with weight $1-n_k$.
+\item \textbf{$L$ levels / any rooted tree: yes.} \Cref{thm:tree-rule} is the
+ two-level rule applied recursively, with subtrees acting as observations. It has
+ one post-order pass and one back-substitution, cost linear in the number of
+ nodes, and an information form with a per-level PSD safeguard. It is exact on
+ linear-Gaussian trees.
+\item \textbf{Any DAG hierarchy with sink observations: yes for exactness, with
+ structure-dependent cost.} The counting-number factorisation
+ (\cref{thm:factorisation}) is exact for every DAG because the regions are
+ ancestral. The composed score is always $\Lambda^{-1}r$ built from network
+ conditional scores. Junction-tree structures keep a closed-form message rule;
+ loopy designs need a sparse or iterative solve.
+\item \textbf{Main practical obstacles:} (i) diffused prior scores on intermediate
+ paths (non-Gaussian funnels in partial pooling); (ii) the network input
+ dimension grows with depth; (iii) unbounded ancestral sets (state-space models)
+ need the non-ancestral or ratio variants of \cref{sec:dag-limits}.
+\end{enumerate}
+
+\end{document}

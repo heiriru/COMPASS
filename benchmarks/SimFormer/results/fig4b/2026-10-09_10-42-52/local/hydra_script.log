@@ -1,0 +1,57 @@
+[2026-10-09 10:42:52,531][scoresbibm.scripts.hydra_script][INFO] - name: fig4b
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_upstream_v11
+  backend: jax
+  device: gpu
+  compass:
+    compass_src: compass_upstream_v11/src
+    hidden_size: 128
+    depth: 6
+    num_heads: 16
+    mlp_ratio: 4
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    time_sampling: mixture
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    timesteps: 50
+    eps: 0.001
+task:
+  name: two_moons_all_cond
+  num_simulations: 100000
+eval:
+  metric:
+    c2st:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: structured_random
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-10-09_10-42-52/local
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-09 10:42:52,532][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-09 10:42:52,574][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-09 10:42:52,575][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons_all_cond
+[2026-10-09 10:42:56,014][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_upstream_v11
+[2026-10-09 12:11:35,453][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_upstream_v11
+[2026-10-09 12:11:35,453][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st
+[2026-10-09 12:18:15,654][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-09 12:18:15,708][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 179

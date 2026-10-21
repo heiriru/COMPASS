@@ -1,0 +1,42 @@
+oracle   n=   8 modetree                       W1=0.1124 TV=0.0417   54.12s
+oracle   n=   8 gauss_jacobian                 W1=1.0820 TV=0.0395   34.56s
+oracle   n=   8 gauss_jacobian_mixture_prior   W1=0.7852 TV=0.0155   34.46s
+oracle   n=   8 langevin_fnpse                 W1=1.6447 TV=0.3135   38.64s
+oracle   n=  16 modetree                       W1=0.1661 TV=0.0882   54.02s
+oracle   n=  16 gauss_jacobian                 W1=1.5634 TV=0.1570   61.76s
+oracle   n=  16 gauss_jacobian_mixture_prior   W1=1.1613 TV=0.1405   59.28s
+oracle   n=  16 langevin_fnpse                 W1=1.7963 TV=0.2890   79.20s
+oracle   n=  32 modetree                       W1=0.1878 TV=0.1493   96.94s
+oracle   n=  32 gauss_jacobian                 W1=1.7885 TV=0.1675  117.07s
+oracle   n=  32 gauss_jacobian_mixture_prior   W1=1.2822 TV=0.1545  118.00s
+oracle   n=  32 langevin_fnpse                 W1=1.8758 TV=0.1890  158.84s
+oracle   n=  64 modetree                       W1=0.1788 TV=0.2100  135.68s
+oracle   n=  64 gauss_jacobian                 W1=1.9523 TV=0.1965  229.92s
+oracle   n=  64 gauss_jacobian_mixture_prior   W1=1.3762 TV=0.1710  231.22s
+oracle   n=  64 langevin_fnpse                 W1=1.9931 TV=0.1030  309.96s
+oracle   n= 128 modetree                       W1=0.1455 TV=0.2400  192.05s
+oracle   n= 128 gauss_jacobian                 W1=2.0445 TV=0.1980  456.80s
+oracle   n= 128 gauss_jacobian_mixture_prior   W1=1.4537 TV=0.1880  455.55s
+oracle   n= 128 langevin_fnpse                 W1=2.1171 TV=0.1755  622.88s
+learned  n=   8 modetree                       FAILED no branches found
+learned  n=   8 gauss_jacobian                 W1=1.2029 TV=0.1015  209.06s
+learned  n=   8 gauss_jacobian_mixture_prior   W1=0.7249 TV=0.1025  190.85s
+learned  n=   8 langevin_fnpse                 W1=1.7824 TV=0.3755  139.31s
+learned  n=  16 modetree                       FAILED no branches found
+learned  n=  16 gauss_jacobian                 W1=1.5031 TV=0.0665  476.32s
+learned  n=  16 gauss_jacobian_mixture_prior   W1=0.8630 TV=0.2300  477.13s
+learned  n=  16 langevin_fnpse                 W1=1.8899 TV=0.3530  284.48s
+learned  n=  32 modetree                       FAILED no branches found
+learned  n=  32 gauss_jacobian                 W1=2.0734 TV=0.4915 1014.39s
+learned  n=  32 gauss_jacobian_mixture_prior   W1=0.8363 TV=0.5635 1001.17s
+learned  n=  32 langevin_fnpse                 W1=2.0142 TV=0.3560  552.46s
+learned  n=  64 modetree                       FAILED no branches found
+learned  n=  64 gauss_jacobian                 W1=2.0139 TV=0.2730 2506.91s
+learned  n=  64 gauss_jacobian_mixture_prior   W1=0.8382 TV=0.5660 2502.49s
+learned  n=  64 langevin_fnpse                 W1=2.0809 TV=0.3215 1112.27s
+learned  n= 128 modetree                       FAILED no branches found
+learned  n= 128 gauss_jacobian                 W1=2.1311 TV=0.4325 5181.86s
+learned  n= 128 gauss_jacobian_mixture_prior   W1=0.7396 TV=0.5895 5193.23s
+learned  n= 128 langevin_fnpse                 W1=2.1251 TV=0.0300 2153.76s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/gaussian_mixture_modetree.json

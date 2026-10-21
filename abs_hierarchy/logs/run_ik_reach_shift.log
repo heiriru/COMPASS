@@ -1,0 +1,6 @@
+shift gauss_jacobian_FD  n=8   P(a1>0) 0.676  19s
+shift arruda_direct      n=8   P(a1>0) 0.714  19s
+shift gauss_jacobian_FD  n=32  P(a1>0) 0.675  69s
+shift arruda_direct      n=32  P(a1>0) 0.834  76s
+shift gauss_jacobian_FD  n=128 P(a1>0) 0.586  323s
+shift arruda_direct      n=128 P(a1>0) 0.906  525s

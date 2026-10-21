@@ -1,0 +1,16 @@
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+32/32 - 1s - 25ms/step - loss: 17.2485
+trained BayesFlow global in 1s
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+32/32 - 1s - 25ms/step - loss: 18.9795
+trained BayesFlow local in 1s

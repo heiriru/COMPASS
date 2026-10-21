@@ -1,0 +1,135 @@
+[2026-10-04 06:11:34,502][scoresbibm.scripts.hydra_script][INFO] - name: extra4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_23-01-26/local/compass_model
+task:
+  name: slcp
+  num_simulations: 10000
+eval:
+  metric:
+    nll_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      num_steps: 200
+      batch_size: 500
+    cov_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+    nll_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 500
+    cov_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-04 06:11:34,502][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-04 06:11:34,502][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a/2026-10-04_06-11-34/local
+[2026-10-04 06:11:34,502][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a
+[2026-10-04 06:11:34,503][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-04 06:11:34,503][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-04 06:11:34,503][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-04 06:11:34,545][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-04 06:11:34,546][scoresbibm.scripts.hydra_script][INFO] - Task: slcp
+[2026-10-04 06:11:34,649][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_full_fixeps
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 9 compass /export/home/rheinric/COMPASS/src/compass/__init__.py 
+[compass-worker] loaded /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_23-01-26/local/compass_model
+[compass] train info: {'loaded_from': '/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_23-01-26/local/compass_model'}
+[2026-10-04 06:11:41,896][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_full_fixeps
+[2026-10-04 06:11:41,896][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_likelihood
+[2026-10-04 06:15:36,805][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_likelihood
+[compass-worker] forwarding eps 1e-05 to Sampler.sample
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished sampling for batch  2
+Finished sampling for batch  3
+Finished sampling for batch  4
+Finished sampling for batch  5
+Finished sampling for batch  6
+Finished sampling for batch  7
+Finished sampling for batch  8
+Finished sampling for batch  9
+Finished computing true log probs
+Finished computing sample log probs for batch  0
+Finished computing sample log probs for batch  1
+Finished computing sample log probs for batch  2
+Finished computing sample log probs for batch  3
+Finished computing sample log probs for batch  4
+Finished computing sample log probs for batch  5
+Finished computing sample log probs for batch  6
+Finished computing sample log probs for batch  7
+Finished computing sample log probs for batch  8
+Finished computing sample log probs for batch  9
+Coverage:  ([0.0, 0.02, 0.03959183673469388, 0.05918367346938776, 0.07877551020408163, 0.09836734693877551, 0.11795918367346939, 0.13755102040816325, 0.1571428571428571, 0.176734693877551, 0.1963265306122449, 0.21591836734693876, 0.23551020408163262, 0.25510204081632654, 0.2746938775510204, 0.29428571428571426, 0.31387755102040815, 0.33346938775510204, 0.35306122448979593, 0.3726530612244898, 0.39224489795918366, 0.41183673469387755, 0.43142857142857144, 0.4510204081632653, 0.47061224489795916, 0.49020408163265305, 0.509795918367347, 0.5293877551020408, 0.5489795918367347, 0.5685714285714285, 0.5881632653061224, 0.6077551020408163, 0.6273469387755102, 0.6469387755102041, 0.666530612244898, 0.6861224489795918, 0.7057142857142857, 0.7253061224489796, 0.7448979591836734, 0.7644897959183673, 0.7840816326530612, 0.8036734693877551, 0.823265306122449, 0.8428571428571429, 0.8624489795918368, 0.8820408163265305, 0.9016326530612244, 0.9212244897959183, 0.9408163265306122, 0.9604081632653061, 0.98, 1.0], [0.0, 0.0151, 0.033828, 0.049916, 0.067816, 0.082312, 0.09968, 0.116692, 0.1335, 0.150876, 0.168364, 0.189804, 0.21086, 0.231232, 0.2553, 0.274528, 0.297672, 0.322988, 0.352916, 0.377928, 0.405208, 0.42758, 0.451856, 0.476772, 0.494716, 0.517044, 0.537788, 0.558736, 0.574888, 0.5943, 0.61234, 0.630588, 0.6484, 0.673568, 0.690036, 0.707616, 0.725488, 0.743464, 0.761084, 0.778304, 0.80142, 0.822044, 0.836696, 0.857992, 0.874692, 0.895956, 0.914452, 0.928432, 0.948032, 0.968936, 0.986172, 1.0])
+[2026-10-04 09:05:45,414][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_posterior
+[2026-10-04 09:08:26,274][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_posterior
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished sampling for batch  2
+Finished sampling for batch  3
+Finished sampling for batch  4
+Finished sampling for batch  5
+Finished sampling for batch  6
+Finished sampling for batch  7
+Finished sampling for batch  8
+Finished sampling for batch  9
+Finished computing true log probs
+Finished computing sample log probs for batch  0
+Finished computing sample log probs for batch  1
+Finished computing sample log probs for batch  2
+Finished computing sample log probs for batch  3
+Finished computing sample log probs for batch  4
+Finished computing sample log probs for batch  5
+Finished computing sample log probs for batch  6
+Finished computing sample log probs for batch  7
+Finished computing sample log probs for batch  8
+Finished computing sample log probs for batch  9
+Coverage:  ([0.0, 0.02, 0.03959183673469388, 0.05918367346938776, 0.07877551020408163, 0.09836734693877551, 0.11795918367346939, 0.13755102040816325, 0.1571428571428571, 0.176734693877551, 0.1963265306122449, 0.21591836734693876, 0.23551020408163262, 0.25510204081632654, 0.2746938775510204, 0.29428571428571426, 0.31387755102040815, 0.33346938775510204, 0.35306122448979593, 0.3726530612244898, 0.39224489795918366, 0.41183673469387755, 0.43142857142857144, 0.4510204081632653, 0.47061224489795916, 0.49020408163265305, 0.509795918367347, 0.5293877551020408, 0.5489795918367347, 0.5685714285714285, 0.5881632653061224, 0.6077551020408163, 0.6273469387755102, 0.6469387755102041, 0.666530612244898, 0.6861224489795918, 0.7057142857142857, 0.7253061224489796, 0.7448979591836734, 0.7644897959183673, 0.7840816326530612, 0.8036734693877551, 0.823265306122449, 0.8428571428571429, 0.8624489795918368, 0.8820408163265305, 0.9016326530612244, 0.9212244897959183, 0.9408163265306122, 0.9604081632653061, 0.98, 1.0], [0.0, 0.024504, 0.051096, 0.070464, 0.096776, 0.119892, 0.141552, 0.16626, 0.1913, 0.213948, 0.237192, 0.26368, 0.289256, 0.31588, 0.341516, 0.363396, 0.38536, 0.408816, 0.435112, 0.4553, 0.476692, 0.500484, 0.522964, 0.5442, 0.564848, 0.589512, 0.60998, 0.629056, 0.65106, 0.668628, 0.6924, 0.710568, 0.729416, 0.749644, 0.766328, 0.785696, 0.804096, 0.822964, 0.840688, 0.858344, 0.876764, 0.892744, 0.908524, 0.921552, 0.935024, 0.949908, 0.95976, 0.970036, 0.979916, 0.98886, 0.996388, 1.0])
+[2026-10-04 11:02:50,270][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-04 11:02:50,748][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 28

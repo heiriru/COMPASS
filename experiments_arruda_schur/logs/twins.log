@@ -1,0 +1,43 @@
+
+########## gauss: Gaussian noise (symmetric, Gaussian: rules exact)
+    true g = -0.14680   exact posterior mean -0.02152 sd 0.25000   mode -0.02152
+    method                    secs   W1/sig   MAPerr  truthErr  p(g*)/pk   width
+    gauss_jacobian            18.3   0.0774   0.0148    0.1105     0.887   1.072
+    gauss_jacobian_FD         12.4   0.0774   0.0148    0.1105     0.887   1.072
+    arruda_direct              0.7   0.0615   0.0541    0.0712     0.945   0.994
+    arruda_schur               2.4   0.0658   0.0222    0.1031     0.908   0.932
+    arruda_laplace             3.9   0.0658   0.0222    0.1031     0.908   0.932
+    arruda_gauss_direct        3.1   0.0866   0.0235    0.1018     0.917   1.089
+    arruda_gauss_laplace       5.0   0.0675   0.0649    0.0604     0.952   1.069
+
+########## laplace: Laplace noise (symmetric, non-Gaussian)
+    true g = -0.14680   exact posterior mean +0.02435 sd 0.21748   mode +0.02797
+    method                    secs   W1/sig   MAPerr  truthErr  p(g*)/pk   width
+    gauss_jacobian          2069.4   0.0970   0.0642    0.1106     0.867   1.090
+    gauss_jacobian_FD       1585.3   0.0969   0.0642    0.1106     0.866   1.090
+    arruda_direct            426.6   0.0630   0.0436    0.1312     0.797   1.035
+    arruda_schur            1997.7   0.2390   0.0027    0.1774     0.528   0.704
+    arruda_laplace          5136.4  13.7849   3.2581    3.4328     0.000   2.134
+    arruda_gauss_direct     1642.5   0.1100   0.0369    0.1378     0.814   1.107
+    arruda_gauss_laplace    2622.4  14.1460   3.2779    3.4526     0.000   1.976
+
+########## exponential: Exponential noise (skewed, hard wall)
+    true g = -0.14680   exact posterior mean -0.14571 sd 0.13587   mode -0.09546
+    method                    secs   W1/sig   MAPerr  truthErr  p(g*)/pk   width
+    gauss_jacobian          4271.8   0.2428   0.0784    0.0271     0.981   1.117
+    gauss_jacobian_FD       1809.8   0.2435   0.0786    0.0273     0.981   1.117
+    arruda_direct            445.3   0.5595   0.1020    0.0507     0.915   1.252
+    arruda_schur            1853.3   1.7675   0.2236    0.2749     0.000   0.261
+    arruda_laplace          2655.4   2.9058   0.1560    0.1047     0.926   3.041
+    arruda_gauss_direct     1872.7   0.3929   0.0754    0.0241     0.986   1.256
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/twins.py", line 53, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/twins.py", line 49, in main
+    return bench.main(argv)
+           ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/tilt_noise_comparison.py", line 331, in main
+    rows.append({"problem": name, "method": method,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not a mapping

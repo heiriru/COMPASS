@@ -1,0 +1,781 @@
+[driver] 24 jobs in phase extra4b
+[driver] 06:47:07 waiting for a free GPU (autocvd)
+[driver] 06:47:10 START extra4b tree_all_cond n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4b__tree_all_cond__1000__score_transformer.log)
+[driver] 07:07:24 END   extra4b tree_all_cond n=1000 score_transformer rc=0 (20.2 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 |  |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 |  |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-00-38/local/compass_model
+[driver] 07:07:28 waiting for a free GPU (autocvd)
+[driver] 07:07:31 START extra4b tree_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__tree_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 07:22:19 END   extra4b tree_all_cond n=1000 compass_legacy_full_fixeps rc=0 (14.8 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+
+[driver] 07:22:22 waiting for a free GPU (autocvd)
+[driver] 07:22:25 START extra4b marcov_chain_all_cond n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4b__marcov_chain_all_cond__1000__score_transformer.log)
+[driver] 07:56:46 END   extra4b marcov_chain_all_cond n=1000 score_transformer rc=0 (34.4 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | — | — |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | — | — |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-23-46/local/compass_model
+[driver] 07:56:50 waiting for a free GPU (autocvd)
+[driver] 07:56:53 START extra4b marcov_chain_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__marcov_chain_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 08:18:30 END   extra4b marcov_chain_all_cond n=1000 compass_legacy_full_fixeps rc=0 (21.6 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+
+[driver] 08:18:33 waiting for a free GPU (autocvd)
+[driver] 08:18:36 START extra4b two_moons_all_cond n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4b__two_moons_all_cond__1000__score_transformer.log)
+[driver] 08:36:42 END   extra4b two_moons_all_cond n=1000 score_transformer rc=0 (18.1 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | — | — |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | — | — |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-45-08/local/compass_model
+[driver] 08:36:46 waiting for a free GPU (autocvd)
+[driver] 08:36:50 START extra4b two_moons_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__two_moons_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 08:50:16 END   extra4b two_moons_all_cond n=1000 compass_legacy_full_fixeps rc=0 (13.4 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+
+[driver] 08:50:19 waiting for a free GPU (autocvd)
+[driver] 08:50:22 START extra4b slcp_all_cond n=1000 score_transformer on physical GPU 9  (log: results/logs/extra4b__slcp_all_cond__1000__score_transformer.log)
+[driver] 09:17:51 END   extra4b slcp_all_cond n=1000 score_transformer rc=0 (27.5 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | — | — |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | — | — |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_08-07-06/local/compass_model
+[driver] 09:17:55 waiting for a free GPU (autocvd)
+[driver] 09:17:59 START extra4b slcp_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__slcp_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 09:38:55 END   extra4b slcp_all_cond n=1000 compass_legacy_full_fixeps rc=0 (20.9 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] 09:38:58 waiting for a free GPU (autocvd)
+[driver] 09:39:02 START extra4b tree_all_cond n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4b__tree_all_cond__10000__score_transformer.log)
+[driver] 09:58:11 END   extra4b tree_all_cond n=10000 score_transformer rc=0 (19.2 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | — | — |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | — | — |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_08-39-40/local/compass_model
+[driver] 09:58:16 waiting for a free GPU (autocvd)
+[driver] 09:58:19 START extra4b tree_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__tree_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 10:13:22 END   extra4b tree_all_cond n=10000 compass_legacy_full_fixeps rc=0 (15.1 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] 10:13:26 waiting for a free GPU (autocvd)
+[driver] 10:13:29 START extra4b marcov_chain_all_cond n=10000 score_transformer on physical GPU 9  (log: results/logs/extra4b__marcov_chain_all_cond__10000__score_transformer.log)
+[driver] 10:50:16 END   extra4b marcov_chain_all_cond n=10000 score_transformer rc=0 (36.8 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | — | — |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | — | — |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_09-26-42/local/compass_model
+[driver] 10:50:20 waiting for a free GPU (autocvd)
+[driver] 10:50:23 START extra4b marcov_chain_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__marcov_chain_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 11:16:27 END   extra4b marcov_chain_all_cond n=10000 compass_legacy_full_fixeps rc=0 (26.1 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] 11:16:31 waiting for a free GPU (autocvd)
+[driver] 11:24:27 START extra4b two_moons_all_cond n=10000 score_transformer on physical GPU 8  (log: results/logs/extra4b__two_moons_all_cond__10000__score_transformer.log)
+[driver] 12:02:16 END   extra4b two_moons_all_cond n=10000 score_transformer rc=0 (37.8 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | — | — |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | — | — |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-29_10-18-46/local/compass_model
+[driver] 12:02:21 waiting for a free GPU (autocvd)
+[driver] 12:02:24 START extra4b two_moons_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 8  (log: results/logs/extra4b__two_moons_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 12:16:33 END   extra4b two_moons_all_cond n=10000 compass_legacy_full_fixeps rc=0 (14.1 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+
+[driver] 12:16:37 waiting for a free GPU (autocvd)
+[driver] 12:16:40 START extra4b slcp_all_cond n=10000 score_transformer on physical GPU 8  (log: results/logs/extra4b__slcp_all_cond__10000__score_transformer.log)
+[driver] 12:45:10 END   extra4b slcp_all_cond n=10000 score_transformer rc=0 (28.5 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | — | — |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | — | — |
+
+[driver] resampling checkpoint results/fig4b/2026-09-30_06-32-17/local/compass_model
+[driver] 12:45:14 waiting for a free GPU (autocvd)
+[driver] 12:45:17 START extra4b slcp_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 8  (log: results/logs/extra4b__slcp_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 13:07:03 END   extra4b slcp_all_cond n=10000 compass_legacy_full_fixeps rc=0 (21.8 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] 13:07:07 waiting for a free GPU (autocvd)
+[driver] 13:07:10 START extra4b tree_all_cond n=100000 score_transformer on physical GPU 8  (log: results/logs/extra4b__tree_all_cond__100000__score_transformer.log)
+[driver] 13:27:43 END   extra4b tree_all_cond n=100000 score_transformer rc=0 (20.6 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | — | — |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | — | — |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-30_07-51-24/local/compass_model
+[driver] 13:27:47 waiting for a free GPU (autocvd)
+[driver] 13:27:51 START extra4b tree_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 8  (log: results/logs/extra4b__tree_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 13:43:45 END   extra4b tree_all_cond n=100000 compass_legacy_full_fixeps rc=0 (15.9 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] 13:43:49 waiting for a free GPU (autocvd)
+[driver] 13:43:52 START extra4b marcov_chain_all_cond n=100000 score_transformer on physical GPU 8  (log: results/logs/extra4b__marcov_chain_all_cond__100000__score_transformer.log)
+[driver] 14:15:34 END   extra4b marcov_chain_all_cond n=100000 score_transformer rc=0 (31.7 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | — | — |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | — | — |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-30_09-48-37/local/compass_model
+[driver] 14:15:38 waiting for a free GPU (autocvd)
+[driver] 14:15:42 START extra4b marcov_chain_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 8  (log: results/logs/extra4b__marcov_chain_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 14:39:59 END   extra4b marcov_chain_all_cond n=100000 compass_legacy_full_fixeps rc=0 (24.3 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | 0.514 ± 0.002 | **+0.009 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | 0.505 ± 0.001 | **+0.004 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] 14:40:03 waiting for a free GPU (autocvd)
+[driver] 14:40:06 START extra4b two_moons_all_cond n=100000 score_transformer on physical GPU 8  (log: results/logs/extra4b__two_moons_all_cond__100000__score_transformer.log)
+[driver] 14:58:33 END   extra4b two_moons_all_cond n=100000 score_transformer rc=0 (18.4 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | 0.514 ± 0.002 | **+0.009 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| Two Moons (all cond.) | 100,000 | 0.506 ± 0.001 | — | — |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | 0.505 ± 0.001 | **+0.004 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| Two Moons (all cond.) | 100,000 | 0.501 ± 0.001 | — | — |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] resampling checkpoint results/fig4b/2026-09-30_12-01-29/local/compass_model
+[driver] 14:58:37 waiting for a free GPU (autocvd)
+[driver] 14:58:40 START extra4b two_moons_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 8  (log: results/logs/extra4b__two_moons_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 15:13:18 END   extra4b two_moons_all_cond n=100000 compass_legacy_full_fixeps rc=0 (14.6 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | 0.514 ± 0.002 | **+0.009 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| Two Moons (all cond.) | 100,000 | 0.506 ± 0.001 | 0.521 ± 0.002 | **+0.014 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | 0.505 ± 0.001 | **+0.004 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| Two Moons (all cond.) | 100,000 | 0.501 ± 0.001 | 0.504 ± 0.001 | +0.003 ± 0.002 |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+
+[driver] 15:13:22 waiting for a free GPU (autocvd)
+[driver] 15:13:25 START extra4b slcp_all_cond n=100000 score_transformer on physical GPU 8  (log: results/logs/extra4b__slcp_all_cond__100000__score_transformer.log)
+[driver] 15:53:16 END   extra4b slcp_all_cond n=100000 score_transformer rc=0 (39.9 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | 0.514 ± 0.002 | **+0.009 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| Two Moons (all cond.) | 100,000 | 0.506 ± 0.001 | 0.521 ± 0.002 | **+0.014 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+| SLCP (all cond.) | 100,000 | 0.802 ± 0.017 | — | — |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | 0.505 ± 0.001 | **+0.004 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| Two Moons (all cond.) | 100,000 | 0.501 ± 0.001 | 0.504 ± 0.001 | +0.003 ± 0.002 |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+| SLCP (all cond.) | 100,000 | 0.539 ± 0.001 | — | — |
+
+[driver] resampling checkpoint results/fig4b/2026-09-30_13-48-36/local/compass_model
+[driver] 15:53:21 waiting for a free GPU (autocvd)
+[driver] 15:53:24 START extra4b slcp_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/extra4b__slcp_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 16:15:39 END   extra4b slcp_all_cond n=100000 compass_legacy_full_fixeps rc=0 (22.2 min)
+[report] extra4b_c2st_likelihood: results/tables/extra4b_c2st_likelihood.md
+# extra4b_c2st_likelihood: C2ST of the likelihood p(x | θ) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.673 ± 0.006 | 0.709 ± 0.010 | **+0.036 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.551 ± 0.003 | 0.526 ± 0.003 | **-0.025 ± 0.003** |
+| Tree (all cond.) | 100,000 | 0.502 ± 0.002 | 0.501 ± 0.001 | -0.000 ± 0.002 |
+| HMM (all cond.) | 1,000 | 0.660 ± 0.013 | 0.857 ± 0.010 | **+0.196 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.556 ± 0.007 | 0.581 ± 0.008 | **+0.025 ± 0.004** |
+| HMM (all cond.) | 100,000 | 0.504 ± 0.002 | 0.514 ± 0.002 | **+0.009 ± 0.002** |
+| Two Moons (all cond.) | 1,000 | 0.613 ± 0.007 | 0.644 ± 0.007 | **+0.031 ± 0.007** |
+| Two Moons (all cond.) | 10,000 | 0.518 ± 0.002 | 0.537 ± 0.002 | **+0.019 ± 0.002** |
+| Two Moons (all cond.) | 100,000 | 0.506 ± 0.001 | 0.521 ± 0.002 | **+0.014 ± 0.002** |
+| SLCP (all cond.) | 1,000 | 0.873 ± 0.017 | 0.901 ± 0.011 | **+0.028 ± 0.010** |
+| SLCP (all cond.) | 10,000 | 0.817 ± 0.018 | 0.664 ± 0.019 | **-0.153 ± 0.020** |
+| SLCP (all cond.) | 100,000 | 0.802 ± 0.017 | 0.625 ± 0.020 | **-0.177 ± 0.021** |
+
+[report] extra4b_c2st_joint: results/tables/extra4b_c2st_joint.md
+# extra4b_c2st_joint: C2ST of the joint p(θ, x) (lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (eps bug fixed) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.577 ± 0.001 | 0.583 ± 0.001 | **+0.006 ± 0.001** |
+| Tree (all cond.) | 10,000 | 0.510 ± 0.001 | 0.512 ± 0.001 | +0.001 ± 0.001 |
+| Tree (all cond.) | 100,000 | 0.501 ± 0.001 | 0.502 ± 0.001 | +0.001 ± 0.001 |
+| HMM (all cond.) | 1,000 | 0.551 ± 0.001 | 0.722 ± 0.001 | **+0.171 ± 0.001** |
+| HMM (all cond.) | 10,000 | 0.508 ± 0.001 | 0.525 ± 0.001 | **+0.017 ± 0.002** |
+| HMM (all cond.) | 100,000 | 0.502 ± 0.001 | 0.505 ± 0.001 | **+0.004 ± 0.001** |
+| Two Moons (all cond.) | 1,000 | 0.529 ± 0.001 | 0.549 ± 0.001 | **+0.020 ± 0.001** |
+| Two Moons (all cond.) | 10,000 | 0.504 ± 0.001 | 0.507 ± 0.001 | **+0.003 ± 0.001** |
+| Two Moons (all cond.) | 100,000 | 0.501 ± 0.001 | 0.504 ± 0.001 | +0.003 ± 0.002 |
+| SLCP (all cond.) | 1,000 | 0.603 ± 0.001 | 0.712 ± 0.001 | **+0.108 ± 0.001** |
+| SLCP (all cond.) | 10,000 | 0.546 ± 0.001 | 0.527 ± 0.001 | **-0.019 ± 0.001** |
+| SLCP (all cond.) | 100,000 | 0.539 ± 0.001 | 0.509 ± 0.001 | **-0.030 ± 0.001** |
+

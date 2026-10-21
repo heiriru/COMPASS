@@ -1,0 +1,29 @@
+{
+  "model": "lean",
+  "mode": "oracle_joint",
+  "methods": [
+    "gauss_hierarchical",
+    "gauss_jacobian_FD"
+  ],
+  "observations": [
+    4,
+    16,
+    64,
+    128
+  ],
+  "draws": 2000,
+  "mcmc_draws": 20000,
+  "mcmc_only": false,
+  "pilot_draws": 1000,
+  "jacobian_refresh": 5,
+  "churn_eta": 4.0,
+  "denoise_clamp": 5.0,
+  "single_draws": 20000,
+  "suffix": "_noproj",
+  "sample_eps": null,
+  "grid_points": 4001,
+  "k_max": 5,
+  "seed": 2026,
+  "device": "cuda",
+  "force": false
+}

@@ -1,0 +1,408 @@
+\section{Methods}\label{sec:methods}
+
+We derive one composition rule for the hierarchical model \cref{eq:hier-model} and then obtain two methods from it.
+The derivation has four steps.
+First, the tall-data backward kernel factorises \emph{exactly} into the single-observation backward kernels (\cref{sec:factorisation}).
+Second, Tweedie's formula turns the composed score into the mean of that kernel (\cref{sec:composed-tweedie}).
+Third, a single approximation replaces each factor by a Gaussian, which turns the composed score into the solution of an arrowhead linear system (\cref{sec:arrowhead}).
+Fourth, the local blocks of that system are eliminated in closed form (\cref{sec:elimination}).
+The two methods differ only in where the per-observation covariances come from.
+\arrowm{} estimates them once from a pilot run (\cref{sec:arrow}); \quiver{} reads them from the network's Jacobian at the current state (\cref{sec:quiver}).
+
+\paragraph{Notation.}
+Fix a time $t$ and write $\lam=\lam_t$.
+The full noisy state is $y=(\g_t,\ell_{1,t},\dots,\ell_{n,t})$, and observation $j$ sees the sub-vector $\yj=(\g_t,\ell_{j,t})\in\R^D$.
+Clean quantities carry a subscript $0$: $\theta_0=(\g_0,\ell_{1,0},\dots,\ell_{n,0})$ and $\vartheta_{j,0}=(\g_0,\ell_{j,0})$.
+$E_j$ is the selection matrix with $E_j\theta=\vartheta_j$, and $E_\g$ is the one with $E_\g\theta=\g$.
+$\varphi_\lam(z)=\N(z;0,\lam^2\I)$ is the isotropic Gaussian density in whatever dimension $z$ has.
+Since $\varphi_\lam$ factorises over coordinates,
+\begin{equation}\label{eq:forward-factorises}
+  \varphi_\lam(y-\theta_0)=\varphi_\lam(\g_t-\g_0)\prod_{j=1}^{n}\varphi_\lam(\ell_{j,t}-\ell_{j,0}).
+\end{equation}
+
+\subsection{Step 1: The backward kernel factorises exactly}\label{sec:factorisation}
+
+We first need the hierarchical version of the tall-data factorisation \cref{eq:tall}.
+Bayes' rule for a single group gives $p(\thj\mid x_j)=p(\g)\,p(\lj\mid\g)\,p(x_j\mid\g,\lj)/p(x_j)$.
+Taking the product over all groups,
+\[
+  \prod_{j=1}^n p(\thj\mid x_j)=\frac{p(\g)^n}{\prod_j p(x_j)}\prod_{j=1}^n p(\lj\mid\g)\,p(x_j\mid\g,\lj).
+\]
+Multiplying by $p(\g)^{1-n}$ leaves $p(\g)\prod_j p(\lj\mid\g)p(x_j\mid\g,\lj)$, which is the joint \cref{eq:hier-model} and therefore proportional in $\theta$ to the posterior:
+\begin{equation}\label{eq:hier-tall}
+  p(\theta\mid\X)\;\propto\;p(\g)^{1-n}\prod_{j=1}^{n}p(\thj\mid x_j).
+\end{equation}
+Each local prior $p(\lj\mid\g)$ appears in exactly one factor, so only the global prior is over-counted and only it needs the correction $p(\g)^{1-n}$.
+
+The tall-data posterior is diffused exactly like \cref{eq:ve-kernel}, $p_t(y\mid\X)=\int\varphi_\lam(y-\theta_0)\,p(\theta_0\mid\X)\dd\theta_0$, and its backward kernel is
+\begin{equation}\label{eq:tall-backward}
+  \pi_t(\theta_0\mid y,\X)=\frac{\varphi_\lam(y-\theta_0)\,p(\theta_0\mid\X)}{p_t(y\mid\X)}.
+\end{equation}
+The single-observation backward kernels are $\pi_t(\vartheta_{j,0}\mid\yj,x_j)\propto\varphi_\lam(\yj-\vartheta_{j,0})\,p(\vartheta_{j,0}\mid x_j)$, and the backward kernel of the global prior is $\pi^0_t(\g_0\mid\g_t)\propto\varphi_\lam(\g_t-\g_0)\,p(\g_0)$.
+
+To relate the tall kernel to these, keep $y$ and $\X$ fixed and read all proportionalities in $\theta_0$.
+Inserting \cref{eq:hier-tall} into \cref{eq:tall-backward} and factorising the forward kernel with \cref{eq:forward-factorises} gives
+\begin{multline*}
+  \pi_t(\theta_0\mid y,\X)\propto p(\g_0)^{1-n}\,\varphi_\lam(\g_t-\g_0)\\
+  \times\prod_{j=1}^n\Big[p(\vartheta_{j,0}\mid x_j)\,\varphi_\lam(\ell_{j,t}-\ell_{j,0})\Big].
+\end{multline*}
+The global noise factor appears only once, but each of the $n$ single-observation kernels needs a copy of it.
+We therefore split it as $\varphi_\lam(\g_t-\g_0)=\varphi_\lam(\g_t-\g_0)^{1-n}\cdot\varphi_\lam(\g_t-\g_0)^{n}$ and hand one copy of the second power to each $j$:
+\begin{multline*}
+  \pi_t(\theta_0\mid y,\X)\propto\Big[p(\g_0)\varphi_\lam(\g_t-\g_0)\Big]^{1-n}\\
+  \times\prod_{j=1}^n\Big[p(\vartheta_{j,0}\mid x_j)\,\varphi_\lam(\g_t-\g_0)\,\varphi_\lam(\ell_{j,t}-\ell_{j,0})\Big].
+\end{multline*}
+By \cref{eq:forward-factorises} applied to the $D$-dimensional block, the $j$-th bracket equals $p(\vartheta_{j,0}\mid x_j)\,\varphi_\lam(\yj-\vartheta_{j,0})=\pi_t(\vartheta_{j,0}\mid\yj,x_j)\,p_t(\yj\mid x_j)$.
+The first bracket equals $\pi_t^0(\g_0\mid\g_t)\,p_t(\g_t)$.
+The factors $p_t(\yj\mid x_j)$ and $p_t(\g_t)^{1-n}$ do not depend on $\theta_0$ and go into the normaliser $Z_t(y)$, which leaves
+\begin{equation}\label{eq:backward-factorisation}
+  \pi_t(\theta_0\mid y,\X)=\frac{\pi^0_t(\g_0\mid\g_t)^{1-n}}{Z_t(y)}\prod_{j=1}^{n}\pi_t(\vartheta_{j,0}\mid\yj,x_j).
+\end{equation}
+\Cref{eq:backward-factorisation} involves no approximation.
+The tall-data backward kernel is a product of exactly the single-observation backward kernels that the trained network describes, together with a power of the prior kernel.
+This is why composition can work at all: \cref{eq:tall} fails after diffusion at the level of marginal densities (\cref{eq:tall-fails}), but it survives at the level of backward kernels.
+
+\subsection{Step 2: The composed score is a backward-kernel mean}\label{sec:composed-tweedie}
+
+Tweedie's formula \cref{eq:tweedie1} holds for any distribution $p$ with a finite first moment.
+To see this, let $p_t(y)=\int\varphi_\lam(y-\theta_0)\,p(\theta_0)\dd\theta_0$ and $\pi_t(\theta_0\mid y)\propto\varphi_\lam(y-\theta_0)p(\theta_0)$.
+Since $\nabla_y\varphi_\lam(y-\theta_0)=\varphi_\lam(y-\theta_0)\,(\theta_0-y)/\lam^2$, differentiating under the integral sign gives
+$\nabla_y p_t(y)=\int\varphi_\lam(y-\theta_0)\,\tfrac{\theta_0-y}{\lam^2}\,p(\theta_0)\dd\theta_0$.
+Differentiation under the integral is allowed because the Gaussian kernel and its derivative are bounded (dominated convergence).
+Dividing by $p_t(y)$ turns the integral into an expectation under $\pi_t(\cdot\mid y)$:
+\begin{equation}\label{eq:tweedie1-general}
+  \nabla_y\log p_t(y)=\frac{\E_{\pi_t}[\theta_0\mid y]-y}{\lam^2}.
+\end{equation}
+
+Applying \cref{eq:tweedie1-general} to the tall-data posterior on the full latent vector $\theta$, the composed score $u(y):=\nabla_y\log p_t(y\mid\X)$, which has a global block and one local block per observation, is
+\begin{equation}\label{eq:composed-tweedie}
+  u(y)=\frac{\mu(y)-y}{\lam^2},\qquad\mu(y):=\E_{\pi_t}[\theta_0\mid y,\X].
+\end{equation}
+\Cref{eq:composed-tweedie} is exact.
+Computing the composed score at $y$ is therefore the same task as computing the mean of the composed backward kernel \cref{eq:backward-factorisation} at that $y$.
+Nothing in this reduction differentiates the backward kernel with respect to $y$.
+
+Applied to each single-observation posterior and to the global prior, \cref{eq:tweedie1-general} also gives the means of their backward kernels in terms of scores:
+\begin{equation}\label{eq:factor-means}
+\begin{aligned}
+  m_j&:=\E\big[\vartheta_{j,0}\mid\yj,x_j\big]=\yj+\lam^2 s_j(\yj),\\
+  m_0&:=\E\big[\g_0\mid\g_t\big]=\g_t+\lam^2 s_0(\g_t),
+\end{aligned}
+\end{equation}
+where $s_j=(\sgj,\slj)$ is the joint row score \cref{eq:row-score} and $s_0(\g_t)=\nabla_{\g_t}\log p_t(\g_t)$ is the diffused global prior score.
+
+\subsection{Step 3: Gaussian factors give an arrowhead system}\label{sec:arrowhead}
+
+The method makes exactly one approximation.
+At the current $(t,y)$, we replace every factor in \cref{eq:backward-factorisation} by a Gaussian with the correct mean \cref{eq:factor-means}:
+\begin{equation}\label{eq:gaussian-approx}
+\begin{aligned}
+  \pi_t(\vartheta_{j,0}\mid\yj,x_j)&\approx\N\big(\vartheta_{j,0};\,m_j,\,\Sigma_{t,j}\big),\\
+  \pi^0_t(\g_0\mid\g_t)&\approx\N\big(\g_0;\,m_0,\,\Sigma_{t,0}\big),
+\end{aligned}
+\end{equation}
+with symmetric positive-definite covariances $\Sigma_{t,j}\in\R^{D\times D}$ and $\Sigma_{t,0}\in\R^{d_\g\times d_\g}$.
+We write $P_j:=\Sigma_{t,j}^{-1}$ and $\Pz:=\Sigma_{t,0}^{-1}$.
+The covariances may depend on $y$: everything below happens at one fixed $y$ and never differentiates them.
+For a Gaussian prior $p(\g)=\N(\mu_\mathrm{pr},\Sigma_\mathrm{pr})$, the prior factor is exactly Gaussian, with $\Pz=\Sigma_\mathrm{pr}^{-1}+\lam^{-2}\I$ (\cref{eq:gaussian-backward-precision} below).
+We split each per-observation precision into global and local blocks,
+\begin{equation}\label{eq:blocks}
+  P_j=\begin{pmatrix}A_j&B_j\\B_j^\T&C_j\end{pmatrix},
+\end{equation}
+with $A_j\in\R^{d_\g\times d_\g}$, $B_j\in\R^{d_\g\times d_\ell}$ and $C_j\in\R^{d_\ell\times d_\ell}$.
+
+\paragraph{Product of the Gaussians.}
+With \cref{eq:gaussian-approx} in place, the logarithm of the surrogate composed kernel is, up to a constant,
+\begin{multline*}
+  -\tfrac{1-n}{2}(E_\g\theta_0-m_0)^\T\Pz(E_\g\theta_0-m_0)\\
+  -\tfrac12\textstyle\sum_{j}(E_j\theta_0-m_j)^\T P_j(E_j\theta_0-m_j).
+\end{multline*}
+For $n\ge2$ the factor $1-n$ is negative, so the first term is a quadratic with a negative-definite ``precision''.
+This does no harm: the whole expression is still a quadratic form in $\theta_0$, and expanding it gives $-\tfrac12\theta_0^\T\Lambda\theta_0+\theta_0^\T b+\text{const}$ with
+\begin{align}
+  \Lambda&:=(1-n)\,E_\g^\T\Pz E_\g+\textstyle\sum_{j=1}^{n}E_j^\T P_jE_j,\label{eq:Lambda}\\
+  b&:=(1-n)E_\g^\T\Pz m_0+\textstyle\sum_jE_j^\T P_jm_j.\notag
+\end{align}
+As long as $\Lambda\succ0$, completing the square shows that the surrogate is the Gaussian $\N(\theta_0;\Lambda^{-1}b,\Lambda^{-1})$, with mean $\mu=\Lambda^{-1}b$.
+
+\paragraph{From means back to scores.}
+Inserting this mean into \cref{eq:composed-tweedie} gives $u=(\Lambda^{-1}b-y)/\lam^2=\Lambda^{-1}(b-\Lambda y)/\lam^2$.
+Because $E_\g y=\g_t$ and $E_jy=\yj$,
+\[
+  \Lambda y=(1-n)E_\g^\T\Pz\g_t+\textstyle\sum_jE_j^\T P_j\yj .
+\]
+Subtracting this from $b$ and using \cref{eq:factor-means}, i.e.\ $m_0-\g_t=\lam^2s_0$ and $m_j-\yj=\lam^2s_j$,
+\[
+\begin{aligned}
+  b-\Lambda y&=(1-n)E_\g^\T\Pz(m_0-\g_t)+\textstyle\sum_jE_j^\T P_j(m_j-\yj)\\
+  &=\lam^2\,r ,
+\end{aligned}
+\]
+where
+\begin{equation}\label{eq:rhs}
+  r:=(1-n)\,E_\g^\T\Pz\,s_0(\g_t)+\textstyle\sum_{j=1}^{n}E_j^\T P_j\,s_j(\yj).
+\end{equation}
+The factors of $\lam^2$ cancel, and the composed score solves
+\begin{equation}\label{eq:linear-system}
+  \Lambda\,u=r .
+\end{equation}
+The noisy state $y$ has dropped out exactly, because each mean and each state carries the same precision in $b$ and $\Lambda y$.
+
+\paragraph{Arrowhead structure.}
+$E_j^\T P_jE_j$ places $A_j$ in the $(\g,\g)$ block, $B_j$ in $(\g,\ell_j)$, $B_j^\T$ in $(\ell_j,\g)$, $C_j$ in $(\ell_j,\ell_j)$, and zeros elsewhere.
+$E_\g^\T\Pz E_\g$ touches only $(\g,\g)$.
+No term couples $\ell_j$ with $\ell_k$ for $j\neq k$, so $\Lambda$ is an \emph{arrowhead} matrix,
+\begin{equation}\label{eq:arrowhead}
+  \Lambda=\begin{pmatrix}
+    M & B_1 & \cdots & B_n\\
+    B_1^\T & C_1 & & 0\\
+    \vdots & & \ddots & \\
+    B_n^\T & 0 & & C_n
+  \end{pmatrix},\quad M:=(1-n)\Pz+\sum_jA_j,
+\end{equation}
+and, with the same placement applied to $P_js_j=(A_j\sgj+B_j\slj,\;B_j^\T\sgj+C_j\slj)$, the right-hand side has the blocks
+\begin{equation}\label{eq:rhs-blocks}
+\begin{aligned}
+  r^\g&=(1-n)\Pz s_0+\textstyle\sum_{j}\big(A_j\sgj+B_j\slj\big),\\
+  r^{\ell_j}&=B_j^\T\sgj+C_j\slj .
+\end{aligned}
+\end{equation}
+\Cref{eq:linear-system} has dimension $d_\g+nd_\ell$.
+Its arrowhead structure lets us solve it in closed form at a cost linear in $n$.
+
+\subsection{Step 4: Eliminating the local blocks}\label{sec:elimination}
+
+\paragraph{Two block-inverse identities.}
+We need two facts about a positive-definite $P=\begin{psmallmatrix}A&B\\B^\T&C\end{psmallmatrix}$ with inverse $\Sigma=P^{-1}=\begin{psmallmatrix}\Sigma_{\g\g}&\Sigma_{\g\ell}\\\Sigma_{\ell\g}&\Sigma_{\ell\ell}\end{psmallmatrix}$.
+$C$ is a principal sub-matrix of $P$ and hence positive definite.
+The Schur complement $S:=A-BC^{-1}B^\T$ is positive definite too: for $v\neq0$, setting $w=(v,-C^{-1}B^\T v)$ gives $w^\T Pw=v^\T Sv>0$.
+The first block column of $\Sigma$ is $(S^{-1},\,-C^{-1}B^\T S^{-1})$, as a direct multiplication shows:
+\[
+  P\begin{pmatrix}S^{-1}\\-C^{-1}B^\T S^{-1}\end{pmatrix}
+  =\begin{pmatrix}(A-BC^{-1}B^\T)S^{-1}\\B^\T S^{-1}-B^\T S^{-1}\end{pmatrix}
+  =\begin{pmatrix}\I\\0\end{pmatrix}.
+\]
+Hence $\Sigma_{\g\g}=S^{-1}$ and $\Sigma_{\ell\g}=-C^{-1}B^\T S^{-1}$.
+Right-multiplying the second identity by $\Sigma_{\g\g}^{-1}=S$ gives
+\begin{equation}\label{eq:block-identities}
+  S=\Sigma_{\g\g}^{-1},\qquad -C^{-1}B^\T=\Sigma_{\ell\g}\,\Sigma_{\g\g}^{-1}.
+\end{equation}
+For every observation we accordingly define the \emph{effective global precision} and the \emph{local regression matrix}
+\begin{equation}\label{eq:S-R}
+\begin{aligned}
+  S_j&:=A_j-B_jC_j^{-1}B_j^\T=\big([\Sigma_{t,j}]_{\g\g}\big)^{-1},\\
+  R_j&:=-C_j^{-1}B_j^\T=[\Sigma_{t,j}]_{\ell\g}\,[\Sigma_{t,j}]_{\g\g}^{-1}.
+\end{aligned}
+\end{equation}
+$S_j$ is the precision of the $\g$-marginal of observation $j$'s Gaussian backward kernel.
+$R_j$ is the coefficient of the linear regression of $\ell_{j,0}$ on $\g_0$ under that kernel.
+
+\paragraph{Local rows.}
+By \cref{eq:arrowhead,eq:rhs-blocks}, the row block of $\ell_j$ in $\Lambda u=r$ reads
+\[
+  B_j^\T\ug+C_j\ulj=B_j^\T\sgj+C_j\slj .
+\]
+$C_j$ is invertible, so
+\begin{equation}\label{eq:proof-local}
+\begin{aligned}
+  \ulj&=\slj+C_j^{-1}B_j^\T\big(\sgj-\ug\big)\\
+      &=\slj-C_j^{-1}B_j^\T\big(\ug-\sgj\big).
+\end{aligned}
+\end{equation}
+
+\paragraph{Global row.}
+The row block of $\g$ reads
+\[
+\begin{aligned}
+  &\Big[(1-n)\Pz+\textstyle\sum_jA_j\Big]\ug+\textstyle\sum_jB_j\ulj\\
+  &\qquad=(1-n)\Pz s_0+\textstyle\sum_j\big(A_j\sgj+B_j\slj\big).
+\end{aligned}
+\]
+Substituting \cref{eq:proof-local} for the locals gives
+\[
+  \sum_jB_j\ulj=\sum_jB_j\slj+\sum_jB_jC_j^{-1}B_j^\T\big(\sgj-\ug\big).
+\]
+The term $\sum_jB_j\slj$ now appears on both sides and cancels.
+Collecting the terms in $\ug$ on the left and those in $\sgj$ on the right,
+\[
+\begin{aligned}
+  &\Big[(1-n)\Pz+\textstyle\sum_j\big(A_j-B_jC_j^{-1}B_j^\T\big)\Big]\ug\\
+  &\qquad=(1-n)\Pz s_0+\textstyle\sum_j\big(A_j-B_jC_j^{-1}B_j^\T\big)\sgj,
+\end{aligned}
+\]
+that is, $\Lambda_S\,\ug=(1-n)\Pz s_0+\sum_jS_j\sgj$ with the \emph{composed global precision}
+\begin{equation}\label{eq:composed-global-precision}
+  \Lambda_S:=\sum_{j=1}^{n}S_j+(1-n)\Pz .
+\end{equation}
+
+\paragraph{When the system is solvable.}
+Write $\Lambda=\begin{psmallmatrix}M&\mathbf{B}\\\mathbf{B}^\T&\mathbf{C}\end{psmallmatrix}$ with $\mathbf{B}=(B_1,\dots,B_n)$ and $\mathbf{C}=\operatorname{diag}(C_1,\dots,C_n)\succ0$.
+By the same argument as for $S$ above, a symmetric block matrix with $\mathbf{C}\succ0$ is positive definite if and only if its Schur complement $M-\mathbf{B}\mathbf{C}^{-1}\mathbf{B}^\T$ is.
+Because $\mathbf{C}$ is block diagonal, $\mathbf{B}\mathbf{C}^{-1}\mathbf{B}^\T=\sum_jB_jC_j^{-1}B_j^\T$, so this Schur complement is exactly $\Lambda_S$.
+Hence $\Lambda\succ0$ if and only if $\Lambda_S\succ0$, and in that case the solution is unique.
+
+\paragraph{The hierarchical composition rule.}
+Putting the two rows together, the composed score is
+\begin{align}
+  \ug&=\Lambda_S^{-1}\Big[\textstyle\sum_{j=1}^{n}S_j\,\sgj+(1-n)\,\Pz\,s_0(\g_t)\Big],\label{eq:rule-global}\\
+  \ulj&=\slj+R_j\big(\ug-\sgj\big),\quad j=1,\dots,n.\label{eq:rule-local}
+\end{align}
+Three features of this rule matter in practice.
+First, the global rule \cref{eq:rule-global} uses only the network's \emph{conditional} global scores $\sgj$.
+The local scores $\slj$ cancelled exactly, so the unavailable marginal score \cref{eq:marginal-vs-conditional} is never needed.
+The correct weight for a conditional score is the effective precision $S_j$, and the locals pay for it through \cref{eq:rule-local}.
+Second, the local rule has a direct reading in terms of denoised estimates.
+Multiplying \cref{eq:rule-local} by $\lam^2$ and using \cref{eq:factor-means}, the composed denoised local estimate departs from observation $j$'s own estimate by $R_j$ times the departure of the composed global estimate.
+This is the Gaussian conditional-mean update of $\ell_{j,0}$ given a revised $\g_0$.
+Third, the cost is linear in $n$: $n$ inversions of $d_\ell\times d_\ell$ blocks and one $d_\g\times d_\g$ solve.
+
+\subsection{Properties of the rule}\label{sec:properties}
+
+\paragraph{Consistency checks.}
+For one observation ($n=1$) the prior term has coefficient $1-n=0$, so $\ug=S_1^{-1}S_1s_1^\g=s_1^\g$ and $u^{\ell_1}=s_1^\ell$: the rule returns the network score unchanged.
+Without locals ($d_\ell=0$), $B_j$ and $C_j$ are empty, $S_j=P_j$, and \cref{eq:rule-global} is the flat rule \cref{eq:gauss-flat}.
+Without coupling ($[\Sigma_{t,j}]_{\ell\g}=0$, which forces $B_j=0$), \cref{eq:S-R} gives $R_j=0$ and $S_j=A_j$: the locals keep their network scores and $\g$ is composed with the conditional precision.
+
+\paragraph{Information form.}
+Define the information that observation $j$ carries about $\g$ as $I_j:=S_j-\Pz$.
+Since $\sum_jS_j+(1-n)\Pz=\sum_j(S_j-\Pz)+n\Pz+(1-n)\Pz$,
+\begin{equation}\label{eq:information}
+  \Lambda_S=\Pz+\sum_{j=1}^nI_j .
+\end{equation}
+In particular, $\Lambda_S\succeq\Pz\succ0$ whenever every $I_j\succeq0$.
+This is the basis of the safeguard in \cref{sec:impl-projection}.
+
+\paragraph{Exactness for linear-Gaussian hierarchies.}
+If $p(\g)$ and every single-observation posterior $p(\thj\mid x_j)$ are Gaussian (as in a linear-Gaussian hierarchical model), every backward kernel is proportional to a Gaussian density times the Gaussian forward kernel, and is therefore Gaussian.
+\Cref{eq:gaussian-approx} then holds with equality, and everything else in Steps 3 and 4 is exact algebra.
+So, given exact single-observation scores and covariances, \cref{eq:rule-global,eq:rule-local} give the exact tall-data score at every $t$.
+
+\paragraph{Relation to the derivation of \citet{linhart2024diffusion}.}
+\citet{linhart2024diffusion} obtain \cref{eq:gauss-flat} by differentiating the logarithm of the normaliser in \cref{eq:linhart-identity}.
+That route produces a residual term, which vanishes when the covariances do not depend on the state.
+Going through the mean of the composed backward kernel (\cref{eq:composed-tweedie}) instead, the same rule follows from \cref{eq:gaussian-approx} alone, at one fixed $y$.
+The rule is exact whenever the product of the Gaussian surrogates has the same mean as the product of the true factors, and the covariances may vary with $y$.
+This is what licenses the state-dependent covariances of \quiver.
+
+\subsection{\arrowm: pilot covariances}\label{sec:arrow}
+
+\arrowm{} supplies the covariances in \cref{eq:gaussian-approx} under the same model as \gauss: each single-observation posterior over the \emph{joint} block $\thj$ is taken to be Gaussian, $p(\thj\mid x_j)\approx\N(\mu_j,\Sigma_{0,j})$.
+For a Gaussian $p(\vartheta_0)=\N(\mu,\Sigma_0)$, the log backward kernel is
+$\log\pi_t(\vartheta_0\mid y)=-\tfrac12(\vartheta_0-\mu)^\T\Sigma_0^{-1}(\vartheta_0-\mu)-\tfrac1{2\lam^2}\|y-\vartheta_0\|^2+\text{const}$.
+The coefficient of its quadratic term in $\vartheta_0$ is $-\tfrac12(\Sigma_0^{-1}+\lam^{-2}\I)$, so the kernel is $\N\big(\cdot;\,m,\,(\Sigma_0^{-1}+\lam^{-2}\I)^{-1}\big)$ for some mean $m$.
+The diffused marginal $p_t=\N(\mu,\Sigma_0+\lam^2\I)$ is the convolution of two Gaussians, with score $\nabla_y\log p_t(y)=-(\Sigma_0+\lam^2\I)^{-1}(y-\mu)$.
+Applying this to each observation and to a Gaussian global prior gives
+\begin{equation}\label{eq:gaussian-backward-precision}
+\begin{aligned}
+  P_j^{\supH}&=\Sigma_{0,j}^{-1}+\lam^{-2}\I_D,\\
+  \Pz&=\Sigma_\mathrm{pr}^{-1}+\lam^{-2}\I_{d_\g},\\
+  s_0(\g_t)&=-(\Sigma_\mathrm{pr}+\lam^2\I)^{-1}(\g_t-\mu_\mathrm{pr}).
+\end{aligned}
+\end{equation}
+$\Sigma_{0,j}$ is estimated once, before inference, as the empirical covariance of single-observation posterior draws from the same network (\cref{sec:impl-pilot}).
+Only the \emph{covariance} is taken from the pilot.
+The means $m_j$ in \cref{eq:gaussian-approx} still come from the network scores via \cref{eq:factor-means}, so the pilot mean $\mu_j$ never enters the rule.
+Substituting \cref{eq:gaussian-backward-precision} into \cref{eq:S-R} and then into \cref{eq:rule-global,eq:rule-local} defines \arrowm.
+
+\paragraph{\arrowm{} moves from marginal to conditional precision.}
+Write $Q=\Sigma_{0,j}^{-1}$ with blocks $Q_{\g\g},Q_{\g\ell},Q_{\ell\ell}$.
+Then
+\[
+  S_j=Q_{\g\g}+\lam^{-2}\I-Q_{\g\ell}\big(Q_{\ell\ell}+\lam^{-2}\I\big)^{-1}Q_{\ell\g}.
+\]
+As $\lam\to0$, the last term is $\mathcal{O}(\lam^2)$, so $S_j\simeq Q_{\g\g}+\lam^{-2}\I$: the \emph{conditional} precision of $\g$ given $\ell_j$, plus the noise precision.
+As $\lam\to\infty$, $\lam^{-2}\I\to0$ and $S_j\to Q_{\g\g}-Q_{\g\ell}Q_{\ell\ell}^{-1}Q_{\ell\g}=([\Sigma_{0,j}]_{\g\g})^{-1}$, the \emph{marginal} precision.
+Plain \gauss{} on $\g$ alone (\cref{sec:bg-hier-competitors}) uses $([\Sigma_{0,j}]_{\g\g})^{-1}+\lam^{-2}\I$ at every noise level.
+It therefore agrees with \arrowm{} at high noise, uses the wrong weight at low noise, and never applies the local correction \cref{eq:rule-local}.
+
+\subsection{\quiver: covariances from the network Jacobian}\label{sec:quiver}
+
+The Gaussian-posterior model behind \arrowm{} is a second approximation on top of \cref{eq:gaussian-approx}.
+If $p(\thj\mid x_j)$ is skewed or multimodal, $\Sigma_{0,j}^{-1}+\lam^{-2}\I$ is not the backward precision at any $t$, and composition multiplies the resulting weighting error by $n$.
+\quiver{} removes this second approximation by using the exact covariance of each backward kernel, which the second-order Tweedie identity \cref{eq:tweedie2-bg} reads off the score Jacobian.
+
+\paragraph{Second-order Tweedie.}
+Take the setting of \cref{eq:tweedie1-general} and assume additionally that $p$ has a finite second moment.
+Write $\varphi=\varphi_\lam(y-\theta_0)$ and $\delta=\theta_0-y$.
+Differentiating $\nabla_y\varphi=\varphi\,\delta/\lam^2$ once more, with $\nabla_y\delta^\T=-\I$, gives
+\[
+  \nabla_y^2\varphi=\varphi\Big(\frac{\delta\delta^\T}{\lam^4}-\frac{\I}{\lam^2}\Big).
+\]
+Differentiating under the integral sign (allowed as before, now using the second moment) and dividing by $p_t$,
+\[
+  \frac{\nabla_y^2p_t(y)}{p_t(y)}=\frac{\E_{\pi_t}[\delta\delta^\T]}{\lam^4}-\frac{\I}{\lam^2}.
+\]
+Combining this with $\nabla^2\log p_t=\nabla^2p_t/p_t-(\nabla\log p_t)(\nabla\log p_t)^\T$ and with \cref{eq:tweedie1-general} in the form $\nabla\log p_t=\E_{\pi_t}[\delta]/\lam^2$,
+\[
+\begin{aligned}
+  \nabla_y^2\log p_t(y)&=\frac{\E_{\pi_t}[\delta\delta^\T]-\E_{\pi_t}[\delta]\E_{\pi_t}[\delta]^\T}{\lam^4}-\frac{\I}{\lam^2}\\
+  &=\frac{\Cov_{\pi_t}[\delta]}{\lam^4}-\frac{\I}{\lam^2}.
+\end{aligned}
+\]
+Since $\delta$ and $\theta_0$ differ only by the constant $y$, $\Cov_{\pi_t}[\delta]=\Cov_{\pi_t}[\theta_0\mid y]$, and therefore
+\begin{equation}\label{eq:tweedie2}
+  \nabla_y^2\log p_t(y)=\frac{\Cov_{\pi_t}[\theta_0\mid y]-\lam^2\I}{\lam^4}.
+\end{equation}
+
+\paragraph{Covariances from the Jacobian.}
+Let $J_j(\yj):=\nabla_{\yj}s_j(\yj)\in\R^{D\times D}$ be the Jacobian of observation $j$'s joint score with respect to its own block.
+Rearranging \cref{eq:tweedie2} gives the \emph{exact} covariance of observation $j$'s backward kernel and its inverse:
+\begin{equation}\label{eq:quiver-cov}
+\begin{aligned}
+  \Sigma_{t,j}^{\supJ}(\yj)&=\lam^2\I+\lam^4J_j(\yj),\\
+  P_j^{\supJ}(\yj)&=\lam^{-2}\big(\I+\lam^2J_j(\yj)\big)^{-1}.
+\end{aligned}
+\end{equation}
+In the flat case this is the covariance of \jac.
+For an exact score, $J_j$ is a Hessian, hence symmetric, and $\Cov\succeq0$ implies $J_j\succeq-\lam^{-2}\I$.
+With \cref{eq:quiver-cov}, the Gaussians in \cref{eq:gaussian-approx} are the moment-matched ones: they have the exact first moments (\cref{eq:factor-means}) and the exact second moments of the true factors.
+The blocks of \cref{eq:quiver-cov} are explicit, $[\Sigma_{t,j}]_{\g\g}=\lam^2\I+\lam^4J_j^{\g\g}$ and $[\Sigma_{t,j}]_{\ell\g}=\lam^4J_j^{\ell\g}$, and \cref{eq:S-R} only uses these blocks.
+So no $D\times D$ inversion is needed:
+\begin{equation}\label{eq:quiver-S-R}
+\begin{aligned}
+  S_j^{\supJ}&=\lam^{-2}\big(\I+\lam^2J_j^{\g\g}\big)^{-1},\\
+  R_j^{\supJ}&=J_j^{\ell\g}\big(\lam^{-2}\I+J_j^{\g\g}\big)^{-1}.
+\end{aligned}
+\end{equation}
+Substituting \cref{eq:quiver-S-R} into \cref{eq:rule-global,eq:rule-local} defines \quiver.
+
+\paragraph{\quiver{} contains \arrowm{} as a special case.}
+If $p(\thj\mid x_j)=\N(\mu_j,\Sigma_{0,j})$ and the score is exact, then $J_j=-(\Sigma_{0,j}+\lam^2\I)^{-1}$, which does not depend on $y$.
+Since $\Sigma_{0,j}$ commutes with $(\Sigma_{0,j}+\lam^2\I)^{-1}$,
+\[
+\begin{aligned}
+  \Sigma_{t,j}^{\supJ}&=\lam^2\I-\lam^4(\Sigma_{0,j}+\lam^2\I)^{-1}\\
+  &=\lam^2(\Sigma_{0,j}+\lam^2\I)^{-1}\big[(\Sigma_{0,j}+\lam^2\I)-\lam^2\I\big]\\
+  &=\lam^2(\Sigma_{0,j}+\lam^2\I)^{-1}\Sigma_{0,j},
+\end{aligned}
+\]
+and inverting gives
+\begin{equation}\label{eq:quiver-reduces}
+\begin{aligned}
+  P_j^{\supJ}&=\lam^{-2}\Sigma_{0,j}^{-1}(\Sigma_{0,j}+\lam^2\I)\\
+  &=\Sigma_{0,j}^{-1}+\lam^{-2}\I=P_j^{\supH}
+\end{aligned}
+\end{equation}
+for every $y$.
+\quiver{} thus keeps \cref{eq:gaussian-approx} and drops the Gaussian-posterior model.
+On a Gaussian problem it matches \arrowm{} with the exact pilot covariance by construction, so a Gaussian benchmark cannot separate the two methods.
+They differ only when the single-observation posteriors are non-Gaussian.
+The approximation that remains is that the mean of a product of moment-matched Gaussians stands in for the mean of the product of the true factors.
+This is exact when the factors are Gaussian.
+It is least accurate where the single-observation backward kernels are strongly non-Gaussian (e.g.\ multimodal) at intermediate noise levels.
+
+\subsection{Summary: the two composition rules}\label{sec:summary}
+
+\begin{tcolorbox}[colback=gray!4,colframe=gray!50,boxrule=0.4pt,left=3pt,right=3pt,top=2pt,bottom=2pt]
+\small
+\textbf{Input at $(t,y)$:} network row scores $s_j=(\sgj,\slj)$; prior score $s_0$ and precision $\Pz=\Sigma_\mathrm{pr}^{-1}+\lam^{-2}\I$.\\[2pt]
+\textbf{Per-observation precision $P_j$:}\\
+\quad\arrowm: $P_j=\hat\Sigma_{0,j}^{-1}+\lam^{-2}\I$ \hfill (pilot)\\
+\quad\quiver: $P_j=\lam^{-2}(\I+\lam^2J_j(\yj))^{-1}$ \hfill (Jacobian at $y$)\\[2pt]
+\textbf{Elimination:} $S_j=([P_j^{-1}]_{\g\g})^{-1}$, \ $R_j=[P_j^{-1}]_{\ell\g}[P_j^{-1}]_{\g\g}^{-1}$.\\[2pt]
+\textbf{Composed score:}
+\begin{align*}
+  \ug&=\Big[\textstyle\sum_jS_j+(1-n)\Pz\Big]^{-1}\Big[\textstyle\sum_jS_j\sgj+(1-n)\Pz s_0\Big],\\
+  \ulj&=\slj+R_j(\ug-\sgj).
+\end{align*}
+\end{tcolorbox}

@@ -1,0 +1,6 @@
+- name=smoke
+- method=compass_legacy
+- task=two_moons
+- task.num_simulations=1000
+- ++method.compass.max_steps=200
+- save_model=false

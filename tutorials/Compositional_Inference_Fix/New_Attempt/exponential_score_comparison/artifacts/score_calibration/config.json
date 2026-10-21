@@ -1,0 +1,28 @@
+{
+  "models": [
+    "h128d6_n200000",
+    "h32d3_n200000",
+    "h16d2_n200000",
+    "h16d2_n200000_log_sigma",
+    "h8d1_n200000",
+    "h8d1_n200000_log_sigma",
+    "h4d1_n200000"
+  ],
+  "observations": 8,
+  "seed": 0,
+  "states": 4096,
+  "lambdas": [
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.2,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "device": "cpu",
+  "output": "/export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/New_Attempt/exponential_score_comparison/artifacts/score_calibration",
+  "replot": false
+}

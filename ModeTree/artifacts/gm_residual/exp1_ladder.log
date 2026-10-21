@@ -1,0 +1,91 @@
+checkpoint tokenized_h32d3wide_n200000_six_weighted_log_sigma, 268,545 parameters
+
+== Part I.3: the n ladder ==
+  n=   1 lam=   0.5  |S*|=     4.58  net_err=     0.88  rule_err=     0.00  rel= 0.193  W1/sd=  0.150  (rule  0.143)  modes=2    1.0s
+  n=   1 lam=   0.2  |S*|=    10.22  net_err=     4.40  rule_err=     0.00  rel= 0.431  W1/sd=  1.127  (rule  0.035)  modes=2    0.0s
+  n=   1 lam=   0.1  |S*|=    12.54  net_err=     4.71  rule_err=     0.00  rel= 0.376  W1/sd=  1.576  (rule  0.010)  modes=2    0.0s
+  n=   1 lam=  0.05  |S*|=    13.30  net_err=     3.80  rule_err=     0.00  rel= 0.285  W1/sd=  1.699  (rule  0.002)  modes=2    0.0s
+  n=   1 lam=0.0317  |S*|=    13.46  net_err=    10.19  rule_err=     0.00  rel= 0.757  W1/sd=  1.708  (rule  0.001)  modes=2    0.0s
+  n=   1 lam=  0.02  |S*|=    13.53  net_err=    22.58  rule_err=     0.00  rel= 1.669  W1/sd=  1.712  (rule  0.000)  modes=2    0.0s
+  n=   1 lam=  0.01  |S*|=    13.57  net_err=    57.38  rule_err=     0.00  rel= 4.229  W1/sd=  1.719  (rule  0.000)  modes=2    0.0s
+  n=   2 lam=   0.5  |S*|=     4.91  net_err=     1.93  rule_err=     0.94  rel= 0.394  W1/sd=  0.278  (rule  0.154)  modes=3    0.0s
+  n=   2 lam=   0.2  |S*|=    11.69  net_err=     8.84  rule_err=     0.33  rel= 0.756  W1/sd=  1.345  (rule  0.037)  modes=3    0.0s
+  n=   2 lam=   0.1  |S*|=    14.78  net_err=     9.90  rule_err=     0.10  rel= 0.670  W1/sd=  1.497  (rule  0.010)  modes=3    0.0s
+  n=   2 lam=  0.05  |S*|=    15.82  net_err=     6.44  rule_err=     0.03  rel= 0.407  W1/sd=  1.675  (rule  0.003)  modes=3    0.0s
+  n=   2 lam=0.0317  |S*|=    16.05  net_err=    17.58  rule_err=     0.01  rel= 1.095  W1/sd=  1.728  (rule  0.001)  modes=2    0.0s
+  n=   2 lam=  0.02  |S*|=    16.14  net_err=    40.77  rule_err=     0.00  rel= 2.525  W1/sd=  1.759  (rule  0.000)  modes=2    0.0s
+  n=   2 lam=  0.01  |S*|=    16.19  net_err=   106.10  rule_err=     0.00  rel= 6.553  W1/sd=  1.784  (rule  0.000)  modes=2    0.0s
+  n=   4 lam=   0.5  |S*|=     5.92  net_err=     3.60  rule_err=     0.91  rel= 0.609  W1/sd=  0.457  (rule  0.261)  modes=3    0.1s
+  n=   4 lam=   0.2  |S*|=    15.04  net_err=    17.79  rule_err=     1.16  rel= 1.183  W1/sd=  1.101  (rule  0.087)  modes=2    0.1s
+  n=   4 lam=   0.1  |S*|=    19.61  net_err=    19.17  rule_err=     0.57  rel= 0.978  W1/sd=  1.114  (rule  0.025)  modes=2    0.1s
+  n=   4 lam=  0.05  |S*|=    21.22  net_err=    15.11  rule_err=     0.17  rel= 0.712  W1/sd=  1.923  (rule  0.006)  modes=3    0.1s
+  n=   4 lam=0.0317  |S*|=    21.57  net_err=    39.97  rule_err=     0.07  rel= 1.853  W1/sd=  2.026  (rule  0.003)  modes=3    0.1s
+  n=   4 lam=  0.02  |S*|=    21.71  net_err=    88.91  rule_err=     0.03  rel= 4.095  W1/sd=  2.073  (rule  0.001)  modes=3    0.1s
+  n=   4 lam=  0.01  |S*|=    21.79  net_err=   226.54  rule_err=     0.01  rel=10.398  W1/sd=  2.105  (rule  0.000)  modes=2    0.1s
+  n=   8 lam=   0.5  |S*|=     8.41  net_err=     7.26  rule_err=     3.20  rel= 0.863  W1/sd=  1.068  (rule  0.795)  modes=1    0.1s
+  n=   8 lam=   0.2  |S*|=    22.30  net_err=    35.84  rule_err=     4.54  rel= 1.607  W1/sd=  1.107  (rule  0.312)  modes=1    0.1s
+  n=   8 lam=   0.1  |S*|=    29.85  net_err=    38.92  rule_err=     2.47  rel= 1.304  W1/sd=  1.114  (rule  0.086)  modes=1    0.1s
+  n=   8 lam=  0.05  |S*|=    32.57  net_err=    29.85  rule_err=     0.80  rel= 0.916  W1/sd=  2.231  (rule  0.022)  modes=2    0.1s
+  n=   8 lam=0.0317  |S*|=    33.17  net_err=    78.31  rule_err=     0.34  rel= 2.361  W1/sd=  2.458  (rule  0.009)  modes=3    0.1s
+  n=   8 lam=  0.02  |S*|=    33.42  net_err=   175.06  rule_err=     0.14  rel= 5.238  W1/sd=  2.549  (rule  0.004)  modes=3    0.1s
+  n=   8 lam=  0.01  |S*|=    33.55  net_err=   447.44  rule_err=     0.03  rel=13.338  W1/sd=  2.607  (rule  0.001)  modes=2    0.1s
+  n=  16 lam=   0.5  |S*|=    14.57  net_err=    14.62  rule_err=     9.19  rel= 1.003  W1/sd=  1.066  (rule  1.051)  modes=1    0.2s
+  n=  16 lam=   0.2  |S*|=    37.63  net_err=    70.96  rule_err=    14.67  rel= 1.886  W1/sd=  1.098  (rule  0.792)  modes=1    0.2s
+  n=  16 lam=   0.1  |S*|=    51.02  net_err=    77.47  rule_err=     9.37  rel= 1.518  W1/sd=  1.104  (rule  0.239)  modes=1    0.2s
+  n=  16 lam=  0.05  |S*|=    55.93  net_err=    57.39  rule_err=     3.30  rel= 1.026  W1/sd=  2.899  (rule  0.061)  modes=2    0.2s
+  n=  16 lam=0.0317  |S*|=    57.02  net_err=   153.61  rule_err=     1.43  rel= 2.694  W1/sd=  3.338  (rule  0.024)  modes=3    0.2s
+  n=  16 lam=  0.02  |S*|=    57.47  net_err=   346.05  rule_err=     0.59  rel= 6.021  W1/sd=  3.507  (rule  0.010)  modes=3    0.2s
+  n=  16 lam=  0.01  |S*|=    57.69  net_err=   887.50  rule_err=     0.15  rel=15.383  W1/sd=  3.609  (rule  0.002)  modes=2    0.2s
+  n=  32 lam=   0.5  |S*|=    27.73  net_err=    28.86  rule_err=    22.03  rel= 1.041  W1/sd=  1.033  (rule  1.025)  modes=1    0.4s
+  n=  32 lam=   0.2  |S*|=    68.99  net_err=   142.45  rule_err=    40.60  rel= 2.065  W1/sd=  1.077  (rule  1.003)  modes=1    0.4s
+  n=  32 lam=   0.1  |S*|=    93.92  net_err=   155.11  rule_err=    31.45  rel= 1.652  W1/sd=  1.083  (rule  0.514)  modes=1    0.4s
+  n=  32 lam=  0.05  |S*|=   103.17  net_err=   115.45  rule_err=    12.69  rel= 1.119  W1/sd=  4.246  (rule  0.140)  modes=2    0.4s
+  n=  32 lam=0.0317  |S*|=   105.23  net_err=   308.60  rule_err=     5.73  rel= 2.933  W1/sd=  5.033  (rule  0.057)  modes=3    0.4s
+  n=  32 lam=  0.02  |S*|=   106.08  net_err=   694.29  rule_err=     2.40  rel= 6.545  W1/sd=  5.333  (rule  0.023)  modes=3    0.4s
+  n=  32 lam=  0.01  |S*|=   106.51  net_err=  1779.36  rule_err=     0.62  rel=16.707  W1/sd=  5.512  (rule  0.006)  modes=2    0.4s
+  n=  64 lam=   0.5  |S*|=    54.22  net_err=    57.37  rule_err=    48.23  rel= 1.058  W1/sd=  0.978  (rule  0.981)  modes=1    0.8s
+  n=  64 lam=   0.2  |S*|=   132.18  net_err=   284.90  rule_err=    99.31  rel= 2.155  W1/sd=  1.047  (rule  0.990)  modes=1    0.8s
+  n=  64 lam=   0.1  |S*|=   180.09  net_err=   309.05  rule_err=    92.88  rel= 1.716  W1/sd=  1.055  (rule  0.747)  modes=1    0.8s
+  n=  64 lam=  0.05  |S*|=   198.00  net_err=   233.99  rule_err=    45.31  rel= 1.182  W1/sd=  6.589  (rule  0.262)  modes=2    0.8s
+  n=  64 lam=0.0317  |S*|=   201.99  net_err=   624.95  rule_err=    21.93  rel= 3.094  W1/sd=  8.155  (rule  0.110)  modes=3    0.8s
+  n=  64 lam=  0.02  |S*|=   203.64  net_err=  1400.99  rule_err=     9.52  rel= 6.880  W1/sd=  8.687  (rule  0.045)  modes=3    0.8s
+  n=  64 lam=  0.01  |S*|=   204.47  net_err=  3583.34  rule_err=     2.49  rel=17.525  W1/sd=  9.002  (rule  0.011)  modes=2    0.8s
+  n= 128 lam=   0.5  |S*|=   108.39  net_err=   115.94  rule_err=   102.28  rel= 1.070  W1/sd=  0.922  (rule  0.937)  modes=1    1.9s
+  n= 128 lam=   0.2  |S*|=   258.80  net_err=   568.05  rule_err=   222.90  rel= 2.195  W1/sd=  1.025  (rule  0.957)  modes=1    2.0s
+  n= 128 lam=   0.1  |S*|=   352.65  net_err=   620.28  rule_err=   242.13  rel= 1.759  W1/sd=  1.031  (rule  0.814)  modes=1    1.9s
+  n= 128 lam=  0.05  |S*|=   387.86  net_err=   453.44  rule_err=   147.05  rel= 1.169  W1/sd=  1.053  (rule  0.388)  modes=2    1.9s
+  n= 128 lam=0.0317  |S*|=   395.70  net_err=  1221.01  rule_err=    79.31  rel= 3.086  W1/sd= 13.574  (rule  0.177)  modes=3    1.9s
+  n= 128 lam=  0.02  |S*|=   398.95  net_err=  2757.72  rule_err=    36.57  rel= 6.912  W1/sd= 14.511  (rule  0.074)  modes=3    1.9s
+  n= 128 lam=  0.01  |S*|=   400.58  net_err=  7080.67  rule_err=     9.90  rel=17.676  W1/sd= 15.060  (rule  0.019)  modes=2    1.9s
+
+  ||e_n|| ~ n^alpha
+    rms_network_error            lam=  0.01  alpha=+0.999  r2=1.000
+    rms_network_error            lam=  0.02  alpha=+0.999  r2=1.000
+    rms_network_error            lam=0.03167  alpha=+0.999  r2=0.999
+    rms_network_error            lam=  0.05  alpha=+1.000  r2=0.999
+    rms_network_error            lam=   0.1  alpha=+1.002  r2=1.000
+    rms_network_error            lam=   0.2  alpha=+1.001  r2=1.000
+    rms_network_error            lam=   0.5  alpha=+0.997  r2=1.000
+    rms_network_error_weighted   lam=  0.01  alpha=+0.993  r2=0.952
+    rms_network_error_weighted   lam=  0.02  alpha=+1.116  r2=0.987
+    rms_network_error_weighted   lam=0.03167  alpha=+1.312  r2=0.994
+    rms_network_error_weighted   lam=  0.05  alpha=+1.602  r2=0.986
+    rms_network_error_weighted   lam=   0.1  alpha=+1.687  r2=0.989
+    rms_network_error_weighted   lam=   0.2  alpha=+1.645  r2=0.989
+    rms_network_error_weighted   lam=   0.5  alpha=+1.365  r2=0.989
+    rms_rule_error               lam=  0.01  alpha=+2.852  r2=0.887
+    rms_rule_error               lam=  0.02  alpha=+3.004  r2=0.851
+    rms_rule_error               lam=0.03167  alpha=+3.091  r2=0.826
+    rms_rule_error               lam=  0.05  alpha=+3.143  r2=0.799
+    rms_rule_error               lam=   0.1  alpha=+3.152  r2=0.747
+    rms_rule_error               lam=   0.2  alpha=+3.052  r2=0.681
+    rms_rule_error               lam=   0.5  alpha=+2.897  r2=0.602
+    rms_composed_signal          lam=  0.01  alpha=+0.716  r2=0.970
+    rms_composed_signal          lam=  0.02  alpha=+0.716  r2=0.970
+    rms_composed_signal          lam=0.03167  alpha=+0.715  r2=0.970
+    rms_composed_signal          lam=  0.05  alpha=+0.713  r2=0.969
+    rms_composed_signal          lam=   0.1  alpha=+0.706  r2=0.967
+    rms_composed_signal          lam=   0.2  alpha=+0.684  r2=0.960
+    rms_composed_signal          lam=   0.5  alpha=+0.676  r2=0.941
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/gm_residual

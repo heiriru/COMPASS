@@ -1,0 +1,61 @@
+[2026-09-29 12:12:14,085][scoresbibm.scripts.hydra_script][INFO] - name: fig4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-08-39/local/compass_model
+task:
+  name: gaussian_mixture
+  num_simulations: 1000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-29 12:12:14,085][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-29 12:12:14,085][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-29_12-12-14/local
+[2026-09-29 12:12:14,085][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a
+[2026-09-29 12:12:14,086][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-29 12:12:14,086][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-29 12:12:14,086][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-29 12:12:14,124][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-29 12:12:14,126][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_mixture
+[2026-09-29 12:12:14,156][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_full_fixeps
+[2026-09-29 12:12:20,370][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_full_fixeps
+[2026-09-29 12:12:20,370][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+[2026-09-29 12:15:41,567][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-29 12:15:41,590][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 27

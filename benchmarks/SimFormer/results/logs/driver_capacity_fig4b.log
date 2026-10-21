@@ -1,0 +1,153 @@
+[driver] 8 jobs in phase fig4b
+[driver] 15:48:33 waiting for a free GPU (autocvd)
+[driver] 15:48:36 START fig4b tree_all_cond n=1000 compass_shared_t256 on physical GPU 8  (log: results/logs/fig4b__tree_all_cond__1000__compass_shared_t256.log)
+[driver] 15:56:58 END   fig4b tree_all_cond n=1000 compass_shared_t256 rc=0 (8.4 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) |
+|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | **-0.015 ± 0.003** | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | — | **+0.153 ± 0.008** | **+0.164 ± 0.009** | — |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | +0.003 ± 0.003 | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | — | **+0.046 ± 0.007** | **+0.024 ± 0.007** | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | **+0.069 ± 0.007** | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | **+0.045 ± 0.010** | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — |
+
+[driver] 15:57:00 waiting for a free GPU (autocvd)
+[driver] 15:57:03 START fig4b tree_all_cond n=1000 compass_shared_t64 on physical GPU 8  (log: results/logs/fig4b__tree_all_cond__1000__compass_shared_t64.log)
+[driver] 16:05:22 END   fig4b tree_all_cond n=1000 compass_shared_t64 rc=0 (8.3 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | — | — | **+0.153 ± 0.008** | **+0.164 ± 0.009** | — | — |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | — | — | **+0.046 ± 0.007** | **+0.024 ± 0.007** | — | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | — | **+0.045 ± 0.010** | — | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:05:24 waiting for a free GPU (autocvd)
+[driver] 16:05:27 START fig4b marcov_chain_all_cond n=1000 compass_shared_t256 on physical GPU 8  (log: results/logs/fig4b__marcov_chain_all_cond__1000__compass_shared_t256.log)
+[driver] 16:17:59 END   fig4b marcov_chain_all_cond n=1000 compass_shared_t256 rc=0 (12.5 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | — | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | — |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | — | — | **+0.046 ± 0.007** | **+0.024 ± 0.007** | — | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | — | **+0.045 ± 0.010** | — | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:18:01 waiting for a free GPU (autocvd)
+[driver] 16:18:05 START fig4b marcov_chain_all_cond n=1000 compass_shared_t64 on physical GPU 8  (log: results/logs/fig4b__marcov_chain_all_cond__1000__compass_shared_t64.log)
+[driver] 16:30:24 END   fig4b marcov_chain_all_cond n=1000 compass_shared_t64 rc=0 (12.3 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | — | — | **+0.046 ± 0.007** | **+0.024 ± 0.007** | — | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | — | **+0.045 ± 0.010** | — | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:30:27 waiting for a free GPU (autocvd)
+[driver] 16:30:30 START fig4b two_moons_all_cond n=1000 compass_shared_t256 on physical GPU 8  (log: results/logs/fig4b__two_moons_all_cond__1000__compass_shared_t256.log)
+[driver] 16:38:29 END   fig4b two_moons_all_cond n=1000 compass_shared_t256 rc=0 (8.0 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | — | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | — | **+0.045 ± 0.010** | — | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:38:32 waiting for a free GPU (autocvd)
+[driver] 16:38:35 START fig4b two_moons_all_cond n=1000 compass_shared_t64 on physical GPU 8  (log: results/logs/fig4b__two_moons_all_cond__1000__compass_shared_t64.log)
+[driver] 16:46:29 END   fig4b two_moons_all_cond n=1000 compass_shared_t64 rc=0 (7.9 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | — | — | **+0.045 ± 0.010** | — | — | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:46:32 waiting for a free GPU (autocvd)
+[driver] 16:46:35 START fig4b slcp_all_cond n=1000 compass_shared_t256 on physical GPU 8  (log: results/logs/fig4b__slcp_all_cond__1000__compass_shared_t256.log)
+[driver] 16:58:23 END   fig4b slcp_all_cond n=1000 compass_shared_t256 rc=0 (11.8 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | 0.874 ± 0.017 | — | **+0.045 ± 0.010** | — | **+0.069 ± 0.008** | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+
+[driver] 16:58:25 waiting for a free GPU (autocvd)
+[driver] 16:58:29 START fig4b slcp_all_cond n=1000 compass_shared_t64 on physical GPU 8  (log: results/logs/fig4b__slcp_all_cond__1000__compass_shared_t64.log)
+[driver] 17:10:08 END   fig4b slcp_all_cond n=1000 compass_shared_t64 rc=0 (11.7 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | **-0.015 ± 0.003** | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | +0.003 ± 0.003 | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | **+0.069 ± 0.007** | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | 0.874 ± 0.017 | 0.884 ± 0.016 | **+0.045 ± 0.010** | — | **+0.069 ± 0.008** | **+0.079 ± 0.009** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | — | — | — | — |
+

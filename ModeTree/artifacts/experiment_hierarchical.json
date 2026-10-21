@@ -1,7 +1,7 @@
 [
  {
   "method": "oracle_known",
-  "seconds": 0.04782834509387612,
+  "seconds": 0.04792110761627555,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -24,7 +24,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 1.5878730821423233,
+  "seconds": 1.571488258894533,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -47,7 +47,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 0.6605375232174993,
+  "seconds": 0.6538005080074072,
   "score_evaluations": 150,
   "w1": 0.15902014607318207,
   "d_g": 1,
@@ -56,7 +56,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 0.7460982920601964,
+  "seconds": 0.7264912500977516,
   "score_evaluations": 750,
   "w1": 0.1632065641564636,
   "d_g": 1,
@@ -65,7 +65,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.034655698109418154,
+  "seconds": 0.03416135022416711,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -88,32 +88,48 @@
  },
  {
   "method": "oracle_tree",
-  "error": "RuntimeError('log-determinant requested for a non-SPD matrix')",
+  "seconds": 6.141379060223699,
+  "n_branches": 2,
+  "n_true_modes": 2,
+  "mode_recall": 1.0,
+  "weights": [
+   0.48948659209266604,
+   0.510513407907334
+  ],
+  "map": [
+   -2.11933689761328
+  ],
+  "map_is_mass_branch": true,
+  "spawn_probes": 12,
+  "sentinel_probes": 72,
+  "score_evaluations": 1264,
+  "w1": 0.08735889385518955,
+  "w1_analytic": 0.0022095385197661277,
   "d_g": 1,
   "d_l": 1,
   "n": 4
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 1.9537335690110922,
+  "seconds": 1.9329034551046789,
   "score_evaluations": 150,
-  "w1": 0.06358180364293645,
+  "w1": 0.16540018799607617,
   "d_g": 1,
   "d_l": 1,
   "n": 4
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 1.7297079488635063,
+  "seconds": 1.7083406243473291,
   "score_evaluations": 750,
-  "w1": 0.13931007284064648,
+  "w1": 0.15807730003787618,
   "d_g": 1,
   "d_l": 1,
   "n": 4
  },
  {
   "method": "oracle_known",
-  "seconds": 0.03339550597593188,
+  "seconds": 0.03386868629604578,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -128,7 +144,7 @@
   "spawn_probes": 0,
   "sentinel_probes": 0,
   "score_evaluations": 752,
-  "w1": 0.038180580232970905,
+  "w1": 0.09952367465090439,
   "w1_analytic": 0.0005974848259893394,
   "d_g": 1,
   "d_l": 1,
@@ -136,32 +152,48 @@
  },
  {
   "method": "oracle_tree",
-  "error": "RuntimeError('log-determinant requested for a non-SPD matrix')",
+  "seconds": 9.69215055089444,
+  "n_branches": 2,
+  "n_true_modes": 2,
+  "mode_recall": 1.0,
+  "weights": [
+   0.5399142107389086,
+   0.4600857892610914
+  ],
+  "map": [
+   1.9535192010900568
+  ],
+  "map_is_mass_branch": true,
+  "spawn_probes": 14,
+  "sentinel_probes": 74,
+  "score_evaluations": 752,
+  "w1": 0.07877429326599121,
+  "w1_analytic": 0.0005974848260877646,
   "d_g": 1,
   "d_l": 1,
   "n": 16
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 5.955332547891885,
+  "seconds": 5.978116401936859,
   "score_evaluations": 150,
-  "w1": 0.216871020211985,
+  "w1": 0.07856840354511395,
   "d_g": 1,
   "d_l": 1,
   "n": 16
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 4.3736590831540525,
+  "seconds": 4.247755938209593,
   "score_evaluations": 750,
-  "w1": 0.2604498249955591,
+  "w1": 0.2679462835085901,
   "d_g": 1,
   "d_l": 1,
   "n": 16
  },
  {
   "method": "oracle_known",
-  "seconds": 0.059525912161916494,
+  "seconds": 0.05900654708966613,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -176,7 +208,7 @@
   "spawn_probes": 0,
   "sentinel_probes": 0,
   "score_evaluations": 1008,
-  "w1": 0.008103638464881926,
+  "w1": 0.0596620981638599,
   "w1_analytic": 0.00044996184263478733,
   "d_g": 1,
   "d_l": 1,
@@ -184,32 +216,48 @@
  },
  {
   "method": "oracle_tree",
-  "error": "RuntimeError('log-determinant requested for a non-SPD matrix')",
+  "seconds": 13.470522128045559,
+  "n_branches": 2,
+  "n_true_modes": 2,
+  "mode_recall": 1.0,
+  "weights": [
+   0.47112043772403006,
+   0.52887956227597
+  ],
+  "map": [
+   -1.9943966206740638
+  ],
+  "map_is_mass_branch": true,
+  "spawn_probes": 14,
+  "sentinel_probes": 74,
+  "score_evaluations": 1008,
+  "w1": 0.007107340772403374,
+  "w1_analytic": 0.0004499618426033149,
   "d_g": 1,
   "d_l": 1,
   "n": 64
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 22.32503083208576,
+  "seconds": 21.923166821245104,
   "score_evaluations": 150,
-  "w1": 0.07057009812796429,
+  "w1": 0.23471812897135508,
   "d_g": 1,
   "d_l": 1,
   "n": 64
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 15.400681345257908,
+  "seconds": 16.893957518972456,
   "score_evaluations": 750,
-  "w1": 0.479327357501369,
+  "w1": 0.4556929711976764,
   "d_g": 1,
   "d_l": 1,
   "n": 64
  },
  {
   "method": "oracle_known",
-  "seconds": 0.07796795386821032,
+  "seconds": 0.07809102581813931,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -224,7 +272,7 @@
   "spawn_probes": 0,
   "sentinel_probes": 0,
   "score_evaluations": 1072,
-  "w1": 0.01024159145989893,
+  "w1": 0.03715848519516513,
   "w1_analytic": 0.00039387995615105246,
   "d_g": 1,
   "d_l": 1,
@@ -232,7 +280,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 19.41097855893895,
+  "seconds": 19.115347576793283,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -247,7 +295,7 @@
   "spawn_probes": 14,
   "sentinel_probes": 88,
   "score_evaluations": 1072,
-  "w1": 0.08675159793538448,
+  "w1": 0.04591557673084902,
   "w1_analytic": 0.0003938799561360719,
   "d_g": 1,
   "d_l": 1,
@@ -255,25 +303,25 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 34.444758663885295,
+  "seconds": 34.09662261372432,
   "score_evaluations": 150,
-  "w1": 0.04305397866001148,
+  "w1": 0.0761398257590856,
   "d_g": 1,
   "d_l": 1,
   "n": 100
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 25.31045960634947,
+  "seconds": 23.13789682323113,
   "score_evaluations": 750,
-  "w1": 0.46992182594029347,
+  "w1": 0.4956279958906692,
   "d_g": 1,
   "d_l": 1,
   "n": 100
  },
  {
   "method": "oracle_known",
-  "seconds": 0.03355127200484276,
+  "seconds": 0.031508895102888346,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -295,7 +343,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 2.242244007065892,
+  "seconds": 2.1575831761583686,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -317,7 +365,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 1.0365881090983748,
+  "seconds": 1.012327536009252,
   "score_evaluations": 150,
   "d_g": 2,
   "d_l": 1,
@@ -325,7 +373,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 0.8374934671446681,
+  "seconds": 0.8274589930661023,
   "score_evaluations": 750,
   "d_g": 2,
   "d_l": 1,
@@ -333,7 +381,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.03634281409904361,
+  "seconds": 0.03615229111164808,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -355,14 +403,29 @@
  },
  {
   "method": "oracle_tree",
-  "error": "RuntimeError('log-determinant requested for a non-SPD matrix')",
+  "seconds": 19.074888634029776,
+  "n_branches": 2,
+  "n_true_modes": 2,
+  "mode_recall": 1.0,
+  "weights": [
+   0.445626392228904,
+   0.554373607771096
+  ],
+  "map": [
+   -1.8899957499456361,
+   -1.9936580436441442
+  ],
+  "map_is_mass_branch": true,
+  "spawn_probes": 24,
+  "sentinel_probes": 154,
+  "score_evaluations": 1392,
   "d_g": 2,
   "d_l": 1,
   "n": 4
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 3.0102418959140778,
+  "seconds": 2.9715788341127336,
   "score_evaluations": 150,
   "d_g": 2,
   "d_l": 1,
@@ -370,7 +433,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 2.153413053136319,
+  "seconds": 2.1212900020182133,
   "score_evaluations": 750,
   "d_g": 2,
   "d_l": 1,
@@ -378,7 +441,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.04704307485371828,
+  "seconds": 0.04616016382351518,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -400,7 +463,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 20.319392123259604,
+  "seconds": 19.662263562902808,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -422,7 +485,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 10.19038400799036,
+  "seconds": 9.930132202804089,
   "score_evaluations": 150,
   "d_g": 2,
   "d_l": 1,
@@ -430,7 +493,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 5.268458642996848,
+  "seconds": 5.200456481892616,
   "score_evaluations": 750,
   "d_g": 2,
   "d_l": 1,
@@ -438,7 +501,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.07973962603136897,
+  "seconds": 0.07840124424546957,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -460,7 +523,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 35.85085150785744,
+  "seconds": 34.77113863034174,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -482,7 +545,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 39.485482196323574,
+  "seconds": 39.17298404406756,
   "score_evaluations": 150,
   "d_g": 2,
   "d_l": 1,
@@ -490,7 +553,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 20.224148333072662,
+  "seconds": 18.77817503688857,
   "score_evaluations": 750,
   "d_g": 2,
   "d_l": 1,
@@ -498,7 +561,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.09829070512205362,
+  "seconds": 0.09658342693001032,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -520,7 +583,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 36.93001729482785,
+  "seconds": 36.581764299888164,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -542,7 +605,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 61.518753425683826,
+  "seconds": 60.64546437887475,
   "score_evaluations": 150,
   "d_g": 2,
   "d_l": 1,
@@ -550,7 +613,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 30.88986744126305,
+  "seconds": 28.743077201303095,
   "score_evaluations": 750,
   "d_g": 2,
   "d_l": 1,
@@ -558,7 +621,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.042688441928476095,
+  "seconds": 0.042585739865899086,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -585,7 +648,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 2.5419458877295256,
+  "seconds": 2.5103992698714137,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -612,7 +675,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 2.5320017337799072,
+  "seconds": 2.532323216088116,
   "score_evaluations": 150,
   "d_g": 7,
   "d_l": 3,
@@ -620,7 +683,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 1.2934385873377323,
+  "seconds": 1.2874761209823191,
   "score_evaluations": 750,
   "d_g": 7,
   "d_l": 3,
@@ -628,7 +691,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.06268194876611233,
+  "seconds": 0.06232386827468872,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -655,7 +718,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 25.35914864996448,
+  "seconds": 24.986779590602964,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -682,7 +745,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 8.888041743077338,
+  "seconds": 8.898124373983592,
   "score_evaluations": 150,
   "d_g": 7,
   "d_l": 3,
@@ -690,7 +753,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 3.0923872622661293,
+  "seconds": 3.121570257935673,
   "score_evaluations": 750,
   "d_g": 7,
   "d_l": 3,
@@ -698,7 +761,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.11517623392865062,
+  "seconds": 0.11529677174985409,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -725,7 +788,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 30.514300751965493,
+  "seconds": 29.992220047861338,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -752,7 +815,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 36.67188504897058,
+  "seconds": 35.62534769112244,
   "score_evaluations": 150,
   "d_g": 7,
   "d_l": 3,
@@ -760,7 +823,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 11.05397590296343,
+  "seconds": 10.796732030343264,
   "score_evaluations": 750,
   "d_g": 7,
   "d_l": 3,
@@ -768,7 +831,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.3413522969931364,
+  "seconds": 0.3344271522946656,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -795,7 +858,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 51.86664426093921,
+  "seconds": 51.58858284680173,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -822,7 +885,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 168.01023268001154,
+  "seconds": 167.1067880000919,
   "score_evaluations": 150,
   "d_g": 7,
   "d_l": 3,
@@ -830,7 +893,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 57.75257363775745,
+  "seconds": 57.63418567087501,
   "score_evaluations": 750,
   "d_g": 7,
   "d_l": 3,
@@ -838,7 +901,7 @@
  },
  {
   "method": "oracle_known",
-  "seconds": 0.5748024093918502,
+  "seconds": 0.5721106790006161,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -865,7 +928,7 @@
  },
  {
   "method": "oracle_tree",
-  "seconds": 67.65318392962217,
+  "seconds": 67.16641872981563,
   "n_branches": 2,
   "n_true_modes": 2,
   "mode_recall": 1.0,
@@ -892,7 +955,7 @@
  },
  {
   "method": "gauss_jacobian_sampler",
-  "seconds": 273.61986003024504,
+  "seconds": 271.79227901110426,
   "score_evaluations": 150,
   "d_g": 7,
   "d_l": 3,
@@ -900,7 +963,7 @@
  },
  {
   "method": "fnpe_sampler",
-  "seconds": 93.82659993087873,
+  "seconds": 94.35392297478393,
   "score_evaluations": 750,
   "d_g": 7,
   "d_l": 3,

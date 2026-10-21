@@ -117,6 +117,7 @@ class ScoreBasedInferenceModel(nn.Module):
             depth_within=None,  # Grouped trunk: blocks inside one repeat
             depth_across=None,  # Grouped trunk: blocks over globals + repeats
             depth_readout=None, # Grouped trunk: blocks after the broadcast back
+            time_embedding="raw",  # "raw" t or "log_lambda" (see _install_time_map)
             ):
 
         super(ScoreBasedInferenceModel, self).__init__()
@@ -190,7 +191,8 @@ class ScoreBasedInferenceModel(nn.Module):
                 per_position_head=self.per_position_head,
             )
         self.model.to(device)
-        
+        self._install_time_map(time_embedding)
+
         # Init Trainer
         self.trainer = Trainer(self)
 
@@ -239,7 +241,10 @@ class ScoreBasedInferenceModel(nn.Module):
                 time_sampling="mixture", mask_loss_weights=None,
                 mask_sampler=None, mask_menu="bernoulli",
                 mask_roles=None, mask_weights=None,
-                mask_bernoulli_fraction=0.0, mask_bernoulli_probability=0.33):
+                mask_bernoulli_fraction=0.0, mask_bernoulli_probability=0.33,
+                global_target_fn=None, global_target_indices=None, tsm_lambda_c=1.0,
+                tsm_variance_fn=None,
+                time_loss_weight=None, sigma_data=1.0):
         """
         Train the model on the provided data
 
@@ -267,6 +272,9 @@ class ScoreBasedInferenceModel(nn.Module):
                     menu of conditionals (see ``compass.SIX_CONDITIONALS``).
                     Supplying this overrides ``mask_menu``.
             mask_menu: Which condition-mask distribution to train under.
+                    "inference" (needs mask_roles=<number of theta dims>): 1/3
+                    posterior mask, 1/3 likelihood mask, 1/3 Bernoulli -- the
+                    directions model comparison uses; see _resolve_mask_sampler.
 
                     ``"bernoulli"`` (default) draws every node's conditioning
                     flag independently at ``mask_bernoulli_probability``, which
@@ -296,6 +304,14 @@ class ScoreBasedInferenceModel(nn.Module):
                     to the Bernoulli sampler, so the general conditional
                     capability is not lost. ``0.0`` (default) is menu-only.
             mask_bernoulli_probability: Rate for the Bernoulli draws.
+            time_loss_weight: None (default) or "edm": weight the epsilon loss by
+                    (1 + sigma^2 / sigma_data^2), which puts training signal on high
+                    noise levels (see Trainer.train).
+            sigma_data: Data scale for time_loss_weight="edm".
+            global_target_fn, global_target_indices, tsm_lambda_c: optional target
+                    score matching on the globals of a hierarchical model; see
+                    Trainer.train. ``global_target_fn`` maps clean node vectors to
+                    grad_g [log p(g) + log p(l | g)] in network coordinates.
         """
         mask_sampler = self._resolve_mask_sampler(
             mask_sampler, mask_menu, mask_roles, mask_weights,
@@ -319,7 +335,11 @@ class ScoreBasedInferenceModel(nn.Module):
                             path=path, name=name, device=device, verbose=verbose,
                             time_sampling=time_sampling,
                             mask_loss_weights=mask_loss_weights,
-                            mask_sampler=mask_sampler)
+                            mask_sampler=mask_sampler,
+                            global_target_fn=global_target_fn,
+                            global_target_indices=global_target_indices,
+                            tsm_lambda_c=tsm_lambda_c, tsm_variance_fn=tsm_variance_fn,
+                            time_loss_weight=time_loss_weight, sigma_data=sigma_data)
 
 
     def _resolve_mask_sampler(self, mask_sampler, mask_menu, mask_roles,
@@ -336,10 +356,33 @@ class ScoreBasedInferenceModel(nn.Module):
         if mask_menu in (None, "bernoulli"):
             # None means "the Trainer's own default", which is the Bernoulli draw.
             return None
+        if mask_menu == "inference":
+            # The two directions model comparison uses: the posterior p(theta | x)
+            # and the likelihood p(x | theta), 1/3 each, plus 1/3 Bernoulli draws so
+            # general conditioning is kept. Under Bernoulli(0.33) alone these exact
+            # masks are drawn only a few percent of the time. With time_loss_weight=
+            # "edm" this cut the PF-ODE log-likelihood error by 32-37% on non-Gaussian
+            # likelihoods without hurting the posterior
+            # (validation/likelihood_improvement).
+            if mask_roles is None or isinstance(mask_roles, (tuple, list, dict)):
+                raise ValueError(
+                    "mask_menu='inference' needs mask_roles=<number of theta dims>: "
+                    "the leading nodes are the parameters, the rest the observations."
+                )
+            theta_size = int(mask_roles)
+            if not 0 < theta_size < self.nodes_size:
+                raise ValueError(f"mask_roles={theta_size} must be in (0, {self.nodes_size}).")
+            frac = 1 / 3 if bernoulli_fraction in (None, 0.0) else bernoulli_fraction
+            return ConditionalMenu(
+                self.schema,
+                {"t": list(range(theta_size)), "x": list(range(theta_size, self.nodes_size))},
+                [("p(theta|x)", "x"), ("p(x|theta)", "t")], weights=mask_weights,
+                bernoulli_fraction=frac, bernoulli_probability=bernoulli_probability,
+            )
         if mask_menu != "six":
             raise ValueError(
-                f"Unknown mask_menu {mask_menu!r}; choose 'bernoulli' or 'six', "
-                "or pass an explicit mask_sampler."
+                f"Unknown mask_menu {mask_menu!r}; choose 'bernoulli', 'six' or "
+                "'inference', or pass an explicit mask_sampler."
             )
         if mask_roles is None:
             raise ValueError(
@@ -386,7 +429,9 @@ class ScoreBasedInferenceModel(nn.Module):
                precision_est_batch_size=128,
                covariance_shrinkage=0.01, covariance_nugget=1e-6,
                pd_epsilon=1e-8, pd_floor=1e-3,
-               jacobian_refresh=1, jacobian_curvature_floor=1e-3):
+               jacobian_refresh=1, jacobian_curvature_floor=1e-3,
+               jacobian_fd_step=1e-2, jacobian_refresh_low_noise=None,
+               jacobian_refresh_lambda=0.3):
         """
         Sample from the model using the specified method
 
@@ -416,11 +461,20 @@ class ScoreBasedInferenceModel(nn.Module):
                     no precision-estimation run, makes no Gaussian assumption
                     on the single-observation posteriors, and reduces exactly to
                     the pilot form when they happen to be Gaussian.
+                    "gauss_jacobian_FD" is the same rule with the Jacobian taken
+                    by one batched finite-difference network call instead of
+                    forward-mode AD (~4x cheaper, same posterior within
+                    Monte-Carlo noise).
             jacobian_refresh: Composed-score evaluations between Jacobian
                     refreshes for correction="gauss_jacobian" (curvature varies
                     slowly in t, so 5-20 is cheap and accurate).
             jacobian_curvature_floor: Lower bound on the eigenvalues of
                     I - lambda^2 H_j for correction="gauss_jacobian".
+            jacobian_fd_step, jacobian_refresh_low_noise,
+            jacobian_refresh_lambda: Finite-difference step (relative to
+                    lambda_t) for "gauss_jacobian_FD", and an optional separate
+                    refresh period below noise level jacobian_refresh_lambda
+                    for both Jacobian corrections; see MultiObsSampler.sample.
             posterior_precision: Optional precision estimate of the single-observation
                     posteriors on the hierarchy dimensions (for correction="gauss");
                     estimated automatically if not provided
@@ -562,6 +616,9 @@ class ScoreBasedInferenceModel(nn.Module):
                                       pd_floor=pd_floor,
                                       jacobian_refresh=jacobian_refresh,
                                       jacobian_curvature_floor=jacobian_curvature_floor,
+                                      jacobian_fd_step=jacobian_fd_step,
+                                      jacobian_refresh_low_noise=jacobian_refresh_low_noise,
+                                      jacobian_refresh_lambda=jacobian_refresh_lambda,
                                       adaptive_abs_tol=adaptive_abs_tol,
                                       adaptive_rel_tol=adaptive_rel_tol,
                                       adaptive_safety=adaptive_safety,
@@ -581,7 +638,8 @@ class ScoreBasedInferenceModel(nn.Module):
 
     def log_prob(self, data, condition_mask, timesteps=100, eps=1e-3,
                  divergence="exact", hutchinson_samples=32,
-                 device="cpu", batch_size=4096, verbose=False):
+                 device="cpu", batch_size=4096, verbose=False, differentiable=False,
+                 endpoint="isotropic"):
         """
         Evaluate the log-probability of the latent dimensions of `data` given its
         conditioned dimensions with the probability-flow ODE (no KDE involved).
@@ -603,14 +661,21 @@ class ScoreBasedInferenceModel(nn.Module):
             device:         Device to run on.
             batch_size:     Points per integration batch.
             verbose:        Show a progress bar.
+            differentiable: Keep the autograd graph so the result can be
+                            differentiated w.r.t. ``data`` (used for likelihood
+                            maximization, see compass.likelihood_maximization).
+            endpoint:       "isotropic" (default), "gaussian" or "fixed" density at
+                            t = 1; see PFODE.log_prob.
 
         Returns:
-            Tensor (num_points,) of log-probabilities on CPU.
+            Tensor (num_points,) of log-probabilities on CPU (on ``device``
+            and attached to the graph if ``differentiable``).
         """
         return self.pfode.log_prob(data=data, condition_mask=condition_mask,
                                    timesteps=timesteps, eps=eps,
                                    divergence=divergence, hutchinson_samples=hutchinson_samples,
-                                   device=device, batch_size=batch_size, verbose=verbose)
+                                   device=device, batch_size=batch_size, verbose=verbose,
+                                   differentiable=differentiable, endpoint=endpoint)
 
     def map_estimate(self, data, condition_mask, **kwargs):
         """
@@ -737,6 +802,75 @@ class ScoreBasedInferenceModel(nn.Module):
             payload["depth_readout"] = self.depth_readout
         return payload
 
+    #############################################
+    # ----- Diffusion-time input map -----
+    #############################################
+
+    TIME_EMBEDDINGS = ("raw", "log_lambda")
+
+    def _install_time_map(self, time_embedding):
+        """Optionally feed the network log-lambda instead of the raw diffusion time.
+
+        The sinusoidal ``TimestepEmbedder`` (DiT-style) has frequencies <= 1 and was
+        designed for integer timesteps up to ~1000. COMPASS passes ``t`` in
+        (eps, 1], so every embedding argument is below 1: the whole low-noise band
+        lambda < 0.2 sits in t < 0.036 and the top band lambda 5..9.8 in
+        t 0.79..1 (VESDE, sigma = 25). ``"log_lambda"`` feeds
+
+            tau = 1000 * (log lambda(t) - log lambda(1e-3)) / (log lambda(1) - log lambda(1e-3))
+
+        so noise levels are spread evenly over the embedder's design range. It is a
+        forward pre-hook on the network: no parameters, no state-dict keys and no
+        call sites change, and the mapping is stored in the checkpoint
+        (validation/likelihood_improvement).
+        """
+        if time_embedding not in self.TIME_EMBEDDINGS:
+            raise ValueError(f"time_embedding must be one of {self.TIME_EMBEDDINGS}, "
+                             f"got {time_embedding!r}")
+        self.time_embedding = time_embedding
+        handle = getattr(self, "_time_map_handle", None)
+        if handle is not None:
+            handle.remove()
+            self._time_map_handle = None
+        if time_embedding == "raw":
+            return
+        sde = self.sde
+        one = torch.ones(1)
+        log_lo = float(torch.log(sde.lambda_t(1e-3 * one)))
+        log_hi = float(torch.log(sde.lambda_t(one)))
+
+        def to_tau(t):
+            t = torch.as_tensor(t)
+            lam = sde.lambda_t(t.clamp_min(1e-6))
+            return 1000.0 * (torch.log(lam) - log_lo) / (log_hi - log_lo)
+
+        def hook(module, args, kwargs):
+            if "t" in kwargs:
+                kwargs = dict(kwargs)
+                kwargs["t"] = to_tau(kwargs["t"]).to(kwargs["t"].dtype)
+            elif len(args) >= 2:
+                args = list(args)
+                args[1] = to_tau(args[1]).to(args[1].dtype)
+                args = tuple(args)
+            return args, kwargs
+
+        self._time_map_handle = self.model.register_forward_pre_hook(hook, with_kwargs=True)
+
+    def time_payload(self):
+        """Optional checkpoint keys (time map, PF-ODE base moments); empty for the
+        defaults, so old checkpoints stay byte-identical."""
+        out = {} if getattr(self, "time_embedding", "raw") == "raw" else {
+            "time_embedding": self.time_embedding}
+        if getattr(self, "base_moments", None) is not None:
+            out["base_moments"] = [m.detach().cpu() for m in self.base_moments]
+        return out
+
+    def set_base_moments(self, data):
+        """Per-node mean and variance of training data (num, nodes_size) for the
+        PF-ODE ``endpoint="fixed"`` base density; stored in the checkpoint."""
+        data = torch.as_tensor(data, dtype=torch.float32)
+        self.base_moments = (data.mean(0), data.var(0))
+
     def save(self, path, name="Model"):
         state_dict = {
                 'model_state_dict' : self.model.state_dict(),
@@ -750,6 +884,7 @@ class ScoreBasedInferenceModel(nn.Module):
                 'num_heads': self.num_heads,
                 'mlp_ratio': self.mlp_ratio,
                 **self.architecture_payload(),
+                **self.time_payload(),
             }
 
         torch.save(state_dict, f"{path}/{name}.pt")
@@ -816,8 +951,11 @@ class ScoreBasedInferenceModel(nn.Module):
             depth=checkpoint['depth'],
             num_heads=checkpoint['num_heads'],
             mlp_ratio=checkpoint['mlp_ratio'],
+            time_embedding=checkpoint.get('time_embedding', 'raw'),
         )
 
+        if 'base_moments' in checkpoint:
+            model.base_moments = tuple(torch.as_tensor(m) for m in checkpoint['base_moments'])
         incompatible = model.model.load_state_dict(
             checkpoint['model_state_dict'], strict=False
         )

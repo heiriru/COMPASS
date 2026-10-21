@@ -1,0 +1,40 @@
+18:33:18 scheduler on GPUs ['8', '9']: 60 jobs, skipping []
+18:33:19 start nocurv_pp_hierarchical on GPU 8 cores 54-56 (free 11263 MB, needs 4500 MB); 59 queued, 1 running
+18:33:19 start nocurv_pp_hierarchical_Rg on GPU 9 cores 39-41 (free 8208 MB, needs 4500 MB); 58 queued, 2 running
+18:34:40 start nocurv_ik_absx1 on GPU 8 cores 60-62 (free 8282 MB, needs 1600 MB); 57 queued, 3 running
+18:34:40 start nocurv_ik_absx1_R on GPU 9 cores 27-29 (free 5230 MB, needs 1600 MB); 56 queued, 4 running
+18:36:02 start nocurv_ik_flat_fixed on GPU 8 cores 63-65 (free 6940 MB, needs 1600 MB); 55 queued, 5 running
+18:36:02 start nocurv_ik_flat_global on GPU 9 cores 3-5 (free 3914 MB, needs 1600 MB); 54 queued, 6 running
+18:37:23 start nocurv_ik_reach_sym on GPU 8 cores 15-17 (free 5646 MB, needs 1600 MB); 53 queued, 7 running
+18:38:25 start nocurv_ik_reach_shift on GPU 9 cores 66-68 (free 4140 MB, needs 1600 MB); 52 queued, 8 running
+19:03:44 start nocurv_ik_reach_sym_bernoulli on GPU 9 cores 18-20 (free 3576 MB, needs 1600 MB); 51 queued, 9 running
+19:04:04 OOM   nocurv_ik_reach_sym_bernoulli after 0 min (peak 226 MB); requeued needing 2560 MB
+19:05:36 done  nocurv_ik_flat_fixed exit 0 in 30 min, peak 1320 MB
+19:05:36 start nocurv_ik_reach_sym_bernoulli on GPU 8 cores 63-65 (free 5620 MB, needs 2560 MB); 51 queued, 8 running
+19:07:19 done  nocurv_ik_absx1 exit 0 in 33 min, peak 1344 MB
+19:07:19 start nocurv_ik_reach_shift_bernoulli on GPU 8 cores 60-62 (free 5674 MB, needs 1600 MB); 50 queued, 8 running
+19:26:18 done  nocurv_ik_reach_shift exit 0 in 48 min, peak 1318 MB
+19:26:59 start nocurv_gm_hierarchical on GPU 9 cores 66-68 (free 3652 MB, needs 2000 MB); 49 queued, 8 running
+19:28:30 start nocurv_toy_abs_hierarchical_nocurv on GPU 9 cores 18-20 (free 2832 MB, needs 1500 MB); 48 queued, 9 running
+19:29:21 done  nocurv_ik_absx1_R exit 0 in 55 min, peak 1346 MB
+19:30:53 start nocurv_toy_abs_none_nocurv on GPU 9 cores 27-29 (free 2710 MB, needs 1500 MB); 47 queued, 9 running
+19:31:14 done  nocurv_ik_flat_global exit 0 in 55 min, peak 1344 MB
+19:31:14 OOM   nocurv_toy_abs_none_nocurv after 0 min (peak 824 MB); requeued needing 2400 MB
+19:31:44 OOM   nocurv_ik_reach_sym_bernoulli after 26 min (peak 1318 MB); requeued needing 4096 MB
+19:31:44 start nocurv_toy_abs_none_nocurv on GPU 8 cores 63-65 (free 6432 MB, needs 2400 MB); 48 queued, 7 running
+19:33:16 done  nocurv_ik_reach_shift_bernoulli exit 0 in 26 min, peak 1318 MB
+19:33:16 start nocurv_gm_none on GPU 8 cores 60-62 (free 6472 MB, needs 2000 MB); 47 queued, 7 running
+19:40:17 done  nocurv_ik_reach_sym exit 0 in 63 min, peak 1318 MB
+19:40:17 start nocurv_gm_oracle on GPU 8 cores 15-17 (free 5664 MB, needs 2000 MB); 46 queued, 7 running
+19:45:14 start nocurv_toy_abs_oracle_joint_nocurv on GPU 9 cores 27-29 (free 4192 MB, needs 1500 MB); 45 queued, 8 running
+19:59:55 OOM   nocurv_toy_abs_none_nocurv after 28 min (peak 1978 MB); requeued needing 3840 MB
+19:59:55 start nocurv_toy_abs_oracle_hierarchical_nocurv on GPU 8 cores 63-65 (free 5648 MB, needs 1500 MB); 45 queued, 8 running
+20:03:20 done  nocurv_toy_abs_oracle_joint_nocurv exit 0 in 18 min, peak 1376 MB
+20:06:15 done  nocurv_gm_none exit 0 in 33 min, peak 1320 MB
+20:06:15 start nocurv_toy_square_hierarchical_nocurv on GPU 8 cores 60-62 (free 5628 MB, needs 1500 MB); 44 queued, 7 running
+20:14:17 done  nocurv_toy_abs_oracle_hierarchical_nocurv exit 0 in 14 min, peak 1380 MB
+20:14:17 start nocurv_toy_square_none_nocurv on GPU 8 cores 63-65 (free 5630 MB, needs 1500 MB); 43 queued, 7 running
+20:17:12 start nocurv_toy_lean_hierarchical_nocurv on GPU 9 cores 27-29 (free 3492 MB, needs 1500 MB); 42 queued, 8 running
+20:32:35 done  nocurv_toy_square_hierarchical_nocurv exit 0 in 26 min, peak 1998 MB
+20:32:36 start nocurv_toy_lean_none_nocurv on GPU 8 cores 60-62 (free 4970 MB, needs 1500 MB); 41 queued, 8 running
+20:34:18 OOM   nocurv_toy_lean_hierarchical_nocurv after 17 min (peak 1318 MB); requeued needing 2400 MB

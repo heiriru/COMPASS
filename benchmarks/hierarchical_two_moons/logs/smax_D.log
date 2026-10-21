@@ -1,0 +1,1158 @@
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.48s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.15s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.15s/batch]
+10:48:34 bayesflow_arruda N=1 [0] local_c2st=0.503 branch=0.032 mu_w1=0.05 sigma_w1=0.03 dep=0.027 t=10.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.74s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.42s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.42s/batch]
+10:48:46 bayesflow_arruda N=1 [1] local_c2st=0.523 branch=0.040 mu_w1=0.05 sigma_w1=0.09 dep=0.045 t=11.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.99s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.17s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.17s/batch]
+10:48:58 bayesflow_arruda N=1 [2] local_c2st=0.478 branch=0.003 mu_w1=0.05 sigma_w1=0.06 dep=0.022 t=11.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.30s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.26s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.26s/batch]
+10:49:10 bayesflow_arruda N=1 [3] local_c2st=0.473 branch=0.008 mu_w1=0.07 sigma_w1=0.06 dep=0.055 t=10.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.31s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.95s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.96s/batch]
+10:49:21 bayesflow_arruda N=1 [4] local_c2st=0.597 branch=0.001 mu_w1=0.07 sigma_w1=0.07 dep=0.043 t=10.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.20s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.30s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.30s/batch]
+10:49:31 bayesflow_arruda N=1 [5] local_c2st=0.556 branch=0.024 mu_w1=0.10 sigma_w1=0.05 dep=0.043 t=9.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.21s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.43s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.43s/batch]
+10:49:43 bayesflow_arruda N=1 [6] local_c2st=0.500 branch=0.043 mu_w1=0.08 sigma_w1=0.06 dep=0.061 t=10.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.93s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.71s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.71s/batch]
+10:49:56 bayesflow_arruda N=1 [7] local_c2st=0.491 branch=0.003 mu_w1=0.06 sigma_w1=0.05 dep=0.046 t=12.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.14s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.81s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.81s/batch]
+10:50:08 bayesflow_arruda N=1 [8] local_c2st=0.470 branch=0.014 mu_w1=0.05 sigma_w1=0.07 dep=0.031 t=11.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.70s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.79s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.79s/batch]
+10:50:18 bayesflow_arruda N=1 [9] local_c2st=0.538 branch=0.013 mu_w1=0.06 sigma_w1=0.03 dep=0.035 t=9.5s
+10:50:18 {"datasets": 10, "failed": 0, "local_c2st": 0.5015, "local_w1": 0.066, "branch_err": 0.0133, "crescent_dev": 0.7353, "off_support": 0.014, "local_mean_err": 0.038, "local_width": 1.0026, "local_rmse_truth": 0.6421, "mu_mean_err": 0.045, "mu_width": 1.0067, "mu_w1": 0.0589, "mu_cover90": 0.95, "mu_rmse_truth": 0.7485, "sigma_mean_err": 0.0424, "sigma_width": 0.9938, "sigma_w1": 0.0588, "sigma_cover90": 0.65, "sigma_rmse_truth": 1.5052, "global_c2st": 0.503, "sym_u_w1": 0.0704, "sym_v_w1": 0.0621, "sym_w_w1": 0.0672, "sym_s_w1": 0.0608, "sym_inv_w1": 0.0609, "mode_balance": 0.513, "mode_balance_err": 0.0238, "dep_corr_err": 0.0433, "dep_corr_ref": 0.089, "joint_c2st": 0.5025, "joint_c2st_indep": 0.549, "nonfinite": 0.0, "seconds": 10.6769, "method": "bayesflow_arruda", "N": 1, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": null}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.46s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.46s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.25s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.25s/batch]
+10:50:27 bayesflow_arruda_diffprior N=1 [0] local_c2st=0.509 branch=0.000 mu_w1=0.10 sigma_w1=0.06 dep=0.053 t=7.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.78s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.45s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.45s/batch]
+10:50:43 bayesflow_arruda_diffprior N=1 [1] local_c2st=0.508 branch=0.058 mu_w1=0.04 sigma_w1=0.05 dep=0.039 t=14.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.70s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.72s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.72s/batch]
+10:50:56 bayesflow_arruda_diffprior N=1 [2] local_c2st=0.518 branch=0.029 mu_w1=0.05 sigma_w1=0.05 dep=0.047 t=12.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.73s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.73s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.72s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.72s/batch]
+10:51:09 bayesflow_arruda_diffprior N=1 [3] local_c2st=0.495 branch=0.040 mu_w1=0.03 sigma_w1=0.05 dep=0.054 t=11.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.26s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.26s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.86s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.86s/batch]
+10:51:22 bayesflow_arruda_diffprior N=1 [4] local_c2st=0.580 branch=0.029 mu_w1=0.06 sigma_w1=0.04 dep=0.047 t=12.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.04s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.04s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.54s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.54s/batch]
+10:51:34 bayesflow_arruda_diffprior N=1 [5] local_c2st=0.593 branch=0.004 mu_w1=0.08 sigma_w1=0.07 dep=0.043 t=11.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.22s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.59s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.59s/batch]
+10:51:48 bayesflow_arruda_diffprior N=1 [6] local_c2st=0.494 branch=0.043 mu_w1=0.04 sigma_w1=0.05 dep=0.051 t=12.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.03s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.03s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.04s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.04s/batch]
+10:52:00 bayesflow_arruda_diffprior N=1 [7] local_c2st=0.507 branch=0.016 mu_w1=0.04 sigma_w1=0.07 dep=0.048 t=11.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.22s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.53s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.53s/batch]
+10:52:14 bayesflow_arruda_diffprior N=1 [8] local_c2st=0.484 branch=0.005 mu_w1=0.05 sigma_w1=0.07 dep=0.019 t=12.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.84s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.85s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.85s/batch]
+10:52:26 bayesflow_arruda_diffprior N=1 [9] local_c2st=0.556 branch=0.015 mu_w1=0.05 sigma_w1=0.04 dep=0.043 t=10.7s
+10:52:26 {"datasets": 10, "failed": 0, "local_c2st": 0.5085, "local_w1": 0.0654, "branch_err": 0.0227, "crescent_dev": 0.7995, "off_support": 0.016, "local_mean_err": 0.0521, "local_width": 1.0036, "local_rmse_truth": 0.641, "mu_mean_err": 0.0274, "mu_width": 1.0107, "mu_w1": 0.0479, "mu_cover90": 0.95, "mu_rmse_truth": 0.763, "sigma_mean_err": 0.0393, "sigma_width": 1.0066, "sigma_w1": 0.0522, "sigma_cover90": 0.7, "sigma_rmse_truth": 1.5115, "global_c2st": 0.49, "sym_u_w1": 0.0547, "sym_v_w1": 0.0511, "sym_w_w1": 0.0668, "sym_s_w1": 0.0374, "sym_inv_w1": 0.0575, "mode_balance": 0.506, "mode_balance_err": 0.0153, "dep_corr_err": 0.047, "dep_corr_ref": 0.089, "joint_c2st": 0.498, "joint_c2st_indep": 0.527, "nonfinite": 0.0, "seconds": 11.8591, "method": "bayesflow_arruda_diffprior", "N": 1, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": null}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.31s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Terminated
+10:53:25 skip bayesflow_arruda_N1.json (exists)
+10:53:25 skip bayesflow_arruda_diffprior_N1.json (exists)
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.08s/batch]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.25s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.44s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.56s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.88s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.88s/batch]
+  tune bayesflow_arruda N=5 d1=1 s=0 crit=1.2973
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 33.00s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.97s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.90s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.21s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.94s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.94s/batch]
+  tune bayesflow_arruda N=5 d1=1 s=2 crit=1.2896
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.37s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.33s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.79s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.43s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.44s/batch]
+  tune bayesflow_arruda N=5 d1=1 s=5 crit=1.2287
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.14s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.58s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.06s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.01s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.39s/batch]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.39s/batch]
+  tune bayesflow_arruda N=5 d1=0.1 s=0 crit=1.2805
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.44s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.44s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.50s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.57s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.57s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.73s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.73s/batch]
+  tune bayesflow_arruda N=5 d1=0.1 s=2 crit=1.4442
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.98s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.83s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.14s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.80s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.17s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.17s/batch]
+  tune bayesflow_arruda N=5 d1=0.1 s=5 crit=1.4684
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.26s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.26s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.78s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.24s/batch]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.39s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.93s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.93s/batch]
+  tune bayesflow_arruda N=5 d1=0.01 s=0 crit=1.6200
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.25s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.56s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.70s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.67s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.67s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.83s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.83s/batch]
+  tune bayesflow_arruda N=5 d1=0.01 s=2 crit=1.8705
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.50s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.91s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.18s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.10s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.10s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.14s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.14s/batch]
+  tune bayesflow_arruda N=5 d1=0.01 s=5 crit=1.8677
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.16s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.44s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.23s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.23s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.95s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.30s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.30s/batch]
+  tune bayesflow_arruda N=5 d1=0.001 s=0 crit=1.8260
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.02s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.03s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.51s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.52s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.71s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.69s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.17s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.18s/batch]
+  tune bayesflow_arruda N=5 d1=0.001 s=2 crit=1.9369
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.64s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.64s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.49s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.05s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.35s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.71s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.71s/batch]
+  tune bayesflow_arruda N=5 d1=0.001 s=5 crit=1.9183
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.62s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.89s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.89s/batch]
+11:13:05 bayesflow_arruda N=5 [0] local_c2st=0.522 branch=0.017 mu_w1=1.18 sigma_w1=1.16 dep=0.214 t=32.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.40s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.51s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.51s/batch]
+11:13:39 bayesflow_arruda N=5 [1] local_c2st=0.520 branch=0.023 mu_w1=1.23 sigma_w1=1.05 dep=0.298 t=33.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.47s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.47s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.59s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.59s/batch]
+11:14:13 bayesflow_arruda N=5 [2] local_c2st=0.527 branch=0.012 mu_w1=1.42 sigma_w1=1.27 dep=0.173 t=31.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.95s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.96s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.37s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.37s/batch]
+11:14:49 bayesflow_arruda N=5 [3] local_c2st=0.511 branch=0.027 mu_w1=0.47 sigma_w1=0.52 dep=0.084 t=32.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.07s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.70s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.70s/batch]
+11:15:16 bayesflow_arruda N=5 [4] local_c2st=0.517 branch=0.024 mu_w1=1.09 sigma_w1=0.99 dep=0.168 t=24.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.02s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.61s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.62s/batch]
+11:15:48 bayesflow_arruda N=5 [5] local_c2st=0.499 branch=0.024 mu_w1=0.72 sigma_w1=1.09 dep=0.307 t=29.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.84s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.56s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.56s/batch]
+11:16:18 bayesflow_arruda N=5 [6] local_c2st=0.516 branch=0.029 mu_w1=0.52 sigma_w1=0.84 dep=0.286 t=26.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.01s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.95s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.96s/batch]
+11:16:51 bayesflow_arruda N=5 [7] local_c2st=0.511 branch=0.027 mu_w1=0.47 sigma_w1=0.51 dep=0.092 t=30.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.34s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.91s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.91s/batch]
+11:17:22 bayesflow_arruda N=5 [8] local_c2st=0.516 branch=0.037 mu_w1=0.68 sigma_w1=0.95 dep=0.538 t=29.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.32s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.32s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.76s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.76s/batch]
+11:17:54 bayesflow_arruda N=5 [9] local_c2st=0.513 branch=0.026 mu_w1=0.64 sigma_w1=0.76 dep=0.464 t=29.1s
+11:17:54 {"datasets": 10, "failed": 0, "local_c2st": 0.516, "local_w1": 0.0652, "branch_err": 0.0251, "crescent_dev": 0.7185, "off_support": 0.02, "local_mean_err": 0.0447, "local_width": 1.0006, "local_rmse_truth": 0.5536, "mu_mean_err": 0.4179, "mu_width": 0.5351, "mu_w1": 0.701, "mu_cover90": 0.4, "mu_rmse_truth": 0.6006, "sigma_mean_err": 0.8439, "sigma_width": 0.4657, "sigma_w1": 0.9684, "sigma_cover90": 0.0, "sigma_rmse_truth": 1.2325, "global_c2st": 0.9395, "sym_u_w1": 0.4448, "sym_v_w1": 0.8689, "sym_w_w1": 0.4047, "sym_s_w1": 1.2492, "sym_inv_w1": 0.953, "mode_balance": 0.507, "mode_balance_err": 0.0103, "dep_corr_err": 0.2503, "dep_corr_ref": 0.2544, "joint_c2st": 0.9257, "joint_c2st_indep": 0.9253, "nonfinite": 0.0, "seconds": 29.8568, "method": "bayesflow_arruda", "N": 5, "tuned": {"d1": 1.0, "shift": 5.0, "criterion": 1.228691072355045}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.07s/batch]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.63s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.42s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.27s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.15s/batch]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.15s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=1 s=0 crit=1.1913
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.20s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.85s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.81s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.57s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.47s/batch]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.48s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=1 s=2 crit=1.2051
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.03s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.03s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.68s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.47s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.47s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.92s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.54s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.54s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=1 s=5 crit=1.2054
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.54s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.84s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.69s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.90s/batch]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.47s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.47s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.1 s=0 crit=1.6783
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.54s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.58s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.33s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.27s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.27s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.21s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.21s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.1 s=2 crit=1.7755
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.94s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.31s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.69s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.45s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.72s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.72s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.1 s=5 crit=1.7801
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.49s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.12s/batch]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.35s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.08s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.08s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.01 s=0 crit=1.7789
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.27s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.15s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.51s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.51s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.63s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.85s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.85s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.01 s=2 crit=1.9368
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.51s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.51s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.42s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.43s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.93s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.52s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.09s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.10s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.01 s=5 crit=1.9287
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.31s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.32s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.17s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.05s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.48s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.84s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.001 s=0 crit=1.8621
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.94s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.36s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.35s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.97s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.34s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.35s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.001 s=2 crit=1.9575
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.58s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.53s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.59s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.59s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.65s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.66s/batch]
+  tune bayesflow_arruda_diffprior N=5 d1=0.001 s=5 crit=1.9101
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.53s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.35s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.35s/batch]
+11:44:40 bayesflow_arruda_diffprior N=5 [0] local_c2st=0.515 branch=0.040 mu_w1=0.14 sigma_w1=0.48 dep=0.068 t=62.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.97s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.49s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.49s/batch]
+11:45:33 bayesflow_arruda_diffprior N=5 [1] local_c2st=0.507 branch=0.019 mu_w1=0.16 sigma_w1=0.44 dep=0.071 t=50.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.97s/batch]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.42s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.42s/batch]
+11:46:39 bayesflow_arruda_diffprior N=5 [2] local_c2st=0.512 branch=0.011 mu_w1=0.27 sigma_w1=0.56 dep=0.075 t=62.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:19<00:00, 79.60s/batch]Sampling: 100%|██████████| 1/1 [01:19<00:00, 79.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.15s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.15s/batch]
+11:48:16 bayesflow_arruda_diffprior N=5 [3] local_c2st=0.498 branch=0.023 mu_w1=0.04 sigma_w1=0.06 dep=0.040 t=93.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.31s/batch]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]
+11:49:25 bayesflow_arruda_diffprior N=5 [4] local_c2st=0.519 branch=0.023 mu_w1=0.15 sigma_w1=0.39 dep=0.060 t=65.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.35s/batch]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.16s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.16s/batch]
+11:50:38 bayesflow_arruda_diffprior N=5 [5] local_c2st=0.509 branch=0.035 mu_w1=0.22 sigma_w1=0.69 dep=0.189 t=69.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.73s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.73s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.75s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.75s/batch]
+11:51:38 bayesflow_arruda_diffprior N=5 [6] local_c2st=0.526 branch=0.025 mu_w1=0.10 sigma_w1=0.59 dep=0.159 t=56.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.36s/batch]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.45s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.45s/batch]
+11:53:40 bayesflow_arruda_diffprior N=5 [7] local_c2st=0.516 branch=0.012 mu_w1=0.10 sigma_w1=0.04 dep=0.042 t=118.9s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.18s/batch]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.19s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.25s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.25s/batch]
+11:54:54 bayesflow_arruda_diffprior N=5 [8] local_c2st=0.535 branch=0.029 mu_w1=0.17 sigma_w1=0.67 dep=0.253 t=65.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.62s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.19s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.19s/batch]
+11:56:47 bayesflow_arruda_diffprior N=5 [9] local_c2st=0.513 branch=0.028 mu_w1=0.10 sigma_w1=0.40 dep=0.223 t=107.9s
+11:56:47 {"datasets": 10, "failed": 0, "local_c2st": 0.5138, "local_w1": 0.0625, "branch_err": 0.024, "crescent_dev": 0.7549, "off_support": 0.0202, "local_mean_err": 0.0507, "local_width": 1.0027, "local_rmse_truth": 0.5516, "mu_mean_err": 0.0621, "mu_width": 1.0978, "mu_w1": 0.143, "mu_cover90": 0.95, "mu_rmse_truth": 0.5528, "sigma_mean_err": 0.4582, "sigma_width": 1.0846, "sigma_w1": 0.461, "sigma_cover90": 0.85, "sigma_rmse_truth": 1.3365, "global_c2st": 0.6495, "sym_u_w1": 0.1543, "sym_v_w1": 0.2497, "sym_w_w1": 0.1698, "sym_s_w1": 0.7375, "sym_inv_w1": 0.3455, "mode_balance": 0.479, "mode_balance_err": 0.02, "dep_corr_err": 0.0729, "dep_corr_ref": 0.2544, "joint_c2st": 0.6306, "joint_c2st_indep": 0.6758, "nonfinite": 0.0, "seconds": 65.6431, "method": "bayesflow_arruda_diffprior", "N": 5, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 1.1912589683117958}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.16s/batch]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.34s/batch]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.31s/batch]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.55s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.62s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.63s/batch]
+  tune bayesflow_arruda N=10 d1=1 s=0 crit=1.0371
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.86s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.86s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.96s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.90s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:50<00:00, 50.97s/batch]Sampling: 100%|██████████| 1/1 [00:50<00:00, 50.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.74s/batch]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.75s/batch]
+  tune bayesflow_arruda N=10 d1=1 s=2 crit=1.1113
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.40s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 25.00s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.84s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.43s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.50s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.50s/batch]
+  tune bayesflow_arruda N=10 d1=1 s=5 crit=1.1643
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.05s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.35s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.34s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.11s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.26s/batch]Sampling: 100%|██████████| 1/1 [00:36<00:00, 36.26s/batch]
+  tune bayesflow_arruda N=10 d1=0.1 s=0 crit=1.1244
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.07s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.55s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.43s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.43s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.47s/batch]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.47s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.61s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.61s/batch]
+  tune bayesflow_arruda N=10 d1=0.1 s=2 crit=1.2020
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.02s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.92s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.76s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.03s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.03s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.80s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.80s/batch]
+  tune bayesflow_arruda N=10 d1=0.1 s=5 crit=1.2413
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.06s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.69s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.83s/batch]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.58s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.67s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.67s/batch]
+  tune bayesflow_arruda N=10 d1=0.01 s=0 crit=1.5982
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.51s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.52s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.00s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.57s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.13s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.77s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.78s/batch]
+  tune bayesflow_arruda N=10 d1=0.01 s=2 crit=1.8922
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.48s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.80s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.47s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.91s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.91s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.21s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.21s/batch]
+  tune bayesflow_arruda N=10 d1=0.01 s=5 crit=1.9139
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.58s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.59s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.39s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.28s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.83s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.41s/batch]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.41s/batch]
+  tune bayesflow_arruda N=10 d1=0.001 s=0 crit=1.8199
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.80s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.71s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.34s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.63s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.04s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.05s/batch]
+  tune bayesflow_arruda N=10 d1=0.001 s=2 crit=2.0041
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.02s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.90s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.92s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.54s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.07s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.07s/batch]
+  tune bayesflow_arruda N=10 d1=0.001 s=5 crit=2.0418
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.74s/batch]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.89s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.89s/batch]
+12:31:17 bayesflow_arruda N=10 [0] local_c2st=0.530 branch=0.028 mu_w1=0.67 sigma_w1=6.63 dep=0.690 t=83.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.18s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.18s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.18s/batch]
+12:32:25 bayesflow_arruda N=10 [1] local_c2st=0.549 branch=0.023 mu_w1=0.61 sigma_w1=3.89 dep=0.565 t=62.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.94s/batch]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.74s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.75s/batch]
+12:34:21 bayesflow_arruda N=10 [2] local_c2st=0.533 branch=0.013 mu_w1=0.43 sigma_w1=3.30 dep=0.512 t=108.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:03<00:00, 123.25s/batch]Sampling: 100%|██████████| 1/1 [02:03<00:00, 123.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.12s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.12s/batch]
+12:36:46 bayesflow_arruda N=10 [3] local_c2st=0.522 branch=0.016 mu_w1=0.42 sigma_w1=0.38 dep=0.072 t=138.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.51s/batch]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.52s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.13s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.13s/batch]
+12:38:42 bayesflow_arruda N=10 [4] local_c2st=0.515 branch=0.028 mu_w1=0.53 sigma_w1=1.19 dep=0.120 t=111.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:24<00:00, 84.95s/batch]Sampling: 100%|██████████| 1/1 [01:24<00:00, 84.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.56s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.57s/batch]
+12:40:30 bayesflow_arruda N=10 [5] local_c2st=0.529 branch=0.027 mu_w1=0.44 sigma_w1=0.78 dep=0.547 t=101.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.97s/batch]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.20s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.20s/batch]
+12:42:24 bayesflow_arruda N=10 [6] local_c2st=0.526 branch=0.029 mu_w1=0.26 sigma_w1=0.59 dep=0.255 t=106.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.31s/batch]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.32s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.74s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.74s/batch]
+12:44:21 bayesflow_arruda N=10 [7] local_c2st=0.508 branch=0.024 mu_w1=0.32 sigma_w1=0.60 dep=0.129 t=112.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.93s/batch]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.11s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.11s/batch]
+12:46:22 bayesflow_arruda N=10 [8] local_c2st=0.511 branch=0.020 mu_w1=0.28 sigma_w1=0.87 dep=0.416 t=114.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:40<00:00, 100.92s/batch]Sampling: 100%|██████████| 1/1 [01:40<00:00, 100.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.25s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.25s/batch]
+12:48:18 bayesflow_arruda N=10 [9] local_c2st=0.506 branch=0.023 mu_w1=0.47 sigma_w1=0.57 dep=0.078 t=110.2s
+12:48:18 {"datasets": 10, "failed": 0, "local_c2st": 0.5237, "local_w1": 0.0637, "branch_err": 0.0236, "crescent_dev": 0.7134, "off_support": 0.0187, "local_mean_err": 0.0433, "local_width": 1.0007, "local_rmse_truth": 0.5304, "mu_mean_err": 0.2554, "mu_width": 0.7622, "mu_w1": 0.4354, "mu_cover90": 0.7, "mu_rmse_truth": 0.4436, "sigma_mean_err": 0.7452, "sigma_width": 0.7478, "sigma_w1": 0.8231, "sigma_cover90": 0.25, "sigma_rmse_truth": 1.1431, "global_c2st": 0.927, "sym_u_w1": 0.3001, "sym_v_w1": 0.5778, "sym_w_w1": 0.4306, "sym_s_w1": 1.3293, "sym_inv_w1": 0.7978, "mode_balance": 0.518, "mode_balance_err": 0.0222, "dep_corr_err": 0.3357, "dep_corr_ref": 0.3972, "joint_c2st": 0.9153, "joint_c2st_indep": 0.9204, "nonfinite": 0.0, "seconds": 109.4764, "method": "bayesflow_arruda", "N": 10, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 1.0371185455392922}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.93s/batch]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:34<00:00, 154.21s/batch]Sampling: 100%|██████████| 1/1 [02:34<00:00, 154.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.84s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:06<00:00, 126.30s/batch]Sampling: 100%|██████████| 1/1 [02:06<00:00, 126.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:15<00:00, 135.40s/batch]Sampling: 100%|██████████| 1/1 [02:15<00:00, 135.40s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=1 s=0 crit=1.0161
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.02s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.17s/batch]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.35s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:02<00:00, 122.74s/batch]Sampling: 100%|██████████| 1/1 [02:02<00:00, 122.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:14<00:00, 134.14s/batch]Sampling: 100%|██████████| 1/1 [02:14<00:00, 134.14s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=1 s=2 crit=1.0100
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.09s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.36s/batch]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.17s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.85s/batch]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:50<00:00, 50.22s/batch]Sampling: 100%|██████████| 1/1 [00:50<00:00, 50.22s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=1 s=5 crit=1.0754
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.75s/batch]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.65s/batch]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.65s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.63s/batch]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:41<00:00, 101.31s/batch]Sampling: 100%|██████████| 1/1 [01:41<00:00, 101.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.12s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.12s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.1 s=0 crit=1.7772
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.14s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.59s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.59s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.62s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.26s/batch]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.27s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.42s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.42s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.1 s=2 crit=1.9133
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.95s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.45s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.12s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 23.00s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.12s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.12s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.1 s=5 crit=1.9022
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.41s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:19<00:00, 79.05s/batch]Sampling: 100%|██████████| 1/1 [01:19<00:00, 79.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.40s/batch]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.92s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.61s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.61s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.01 s=0 crit=1.9083
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.33s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.33s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.44s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.99s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.98s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.98s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.01 s=2 crit=1.9621
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.79s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.07s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.83s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.20s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.38s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.38s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.01 s=5 crit=2.0312
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.19s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.19s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.12s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.94s/batch]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.01s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.15s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.16s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.001 s=0 crit=1.9643
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.48s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.35s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.44s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.92s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.47s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.47s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.001 s=2 crit=2.0325
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.44s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.00s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.98s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.41s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.39s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.40s/batch]
+  tune bayesflow_arruda_diffprior N=10 d1=0.001 s=5 crit=2.0372
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.28s/batch]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.94s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.94s/batch]
+13:43:04 bayesflow_arruda_diffprior N=10 [0] local_c2st=0.532 branch=0.023 mu_w1=0.22 sigma_w1=4.56 dep=0.379 t=98.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.12s/batch]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.84s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.84s/batch]
+13:44:37 bayesflow_arruda_diffprior N=10 [1] local_c2st=0.552 branch=0.042 mu_w1=0.54 sigma_w1=2.54 dep=0.527 t=88.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:22<00:00, 142.95s/batch]Sampling: 100%|██████████| 1/1 [02:22<00:00, 142.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.35s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.35s/batch]
+13:47:22 bayesflow_arruda_diffprior N=10 [2] local_c2st=0.529 branch=0.052 mu_w1=0.46 sigma_w1=2.50 dep=0.492 t=159.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.76s/batch]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.52s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.52s/batch]
+13:50:13 bayesflow_arruda_diffprior N=10 [3] local_c2st=0.517 branch=0.032 mu_w1=0.18 sigma_w1=0.11 dep=0.060 t=165.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.49s/batch]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.29s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.29s/batch]
+13:52:14 bayesflow_arruda_diffprior N=10 [4] local_c2st=0.515 branch=0.029 mu_w1=0.42 sigma_w1=0.86 dep=0.060 t=115.9s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.24s/batch]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.17s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.18s/batch]
+13:54:29 bayesflow_arruda_diffprior N=10 [5] local_c2st=0.531 branch=0.019 mu_w1=0.16 sigma_w1=0.62 dep=0.393 t=129.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.43s/batch]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.43s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.25s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.26s/batch]
+13:57:12 bayesflow_arruda_diffprior N=10 [6] local_c2st=0.512 branch=0.010 mu_w1=0.26 sigma_w1=0.39 dep=0.202 t=157.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.62s/batch]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.39s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.39s/batch]
+14:00:06 bayesflow_arruda_diffprior N=10 [7] local_c2st=0.508 branch=0.017 mu_w1=0.23 sigma_w1=0.37 dep=0.070 t=169.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:16<00:00, 136.85s/batch]Sampling: 100%|██████████| 1/1 [02:16<00:00, 136.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.46s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.46s/batch]
+14:02:44 bayesflow_arruda_diffprior N=10 [8] local_c2st=0.524 branch=0.039 mu_w1=0.33 sigma_w1=0.66 dep=0.289 t=152.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:46<00:00, 166.69s/batch]Sampling: 100%|██████████| 1/1 [02:46<00:00, 166.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.50s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.50s/batch]
+14:05:50 bayesflow_arruda_diffprior N=10 [9] local_c2st=0.510 branch=0.027 mu_w1=0.14 sigma_w1=0.30 dep=0.049 t=178.3s
+14:05:50 {"datasets": 10, "failed": 0, "local_c2st": 0.5206, "local_w1": 0.0744, "branch_err": 0.0278, "crescent_dev": 0.7354, "off_support": 0.0215, "local_mean_err": 0.0672, "local_width": 1.0034, "local_rmse_truth": 0.5333, "mu_mean_err": 0.1904, "mu_width": 1.0891, "mu_w1": 0.2441, "mu_cover90": 1.0, "mu_rmse_truth": 0.4648, "sigma_mean_err": 0.637, "sigma_width": 1.1819, "sigma_w1": 0.6384, "sigma_cover90": 0.8, "sigma_rmse_truth": 1.2336, "global_c2st": 0.7485, "sym_u_w1": 0.1339, "sym_v_w1": 0.4332, "sym_w_w1": 0.3333, "sym_s_w1": 1.1296, "sym_inv_w1": 0.598, "mode_balance": 0.503, "mode_balance_err": 0.0225, "dep_corr_err": 0.2453, "dep_corr_ref": 0.3972, "joint_c2st": 0.7389, "joint_c2st_indep": 0.7865, "nonfinite": 0.0, "seconds": 155.0769, "method": "bayesflow_arruda_diffprior", "N": 10, "tuned": {"d1": 1.0, "shift": 2.0, "criterion": 1.0100435428897208}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.77s/batch]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.91s/batch]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.91s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.76s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.34s/batch]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.35s/batch]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.35s/batch]
+  tune bayesflow_arruda N=25 d1=1 s=0 crit=1.4883
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.00s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.27s/batch]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.74s/batch]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.93s/batch]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.72s/batch]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.72s/batch]
+  tune bayesflow_arruda N=25 d1=1 s=2 crit=1.7158
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.40s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.20s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.98s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.13s/batch]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.91s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.91s/batch]
+  tune bayesflow_arruda N=25 d1=1 s=5 crit=1.7691
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.65s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.65s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.18s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.85s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.78s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.94s/batch]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.94s/batch]
+  tune bayesflow_arruda N=25 d1=0.1 s=0 crit=1.4997
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.81s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.16s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.27s/batch]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.27s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.54s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.11s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.11s/batch]
+  tune bayesflow_arruda N=25 d1=0.1 s=2 crit=1.6539
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.37s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.01s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.20s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.55s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.70s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.71s/batch]
+  tune bayesflow_arruda N=25 d1=0.1 s=5 crit=1.7830
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.83s/batch]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.23s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.23s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.56s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.74s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.23s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.24s/batch]
+  tune bayesflow_arruda N=25 d1=0.01 s=0 crit=1.8091
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.97s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.75s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.13s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.88s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.14s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.14s/batch]
+  tune bayesflow_arruda N=25 d1=0.01 s=2 crit=2.7279
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.42s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.12s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.54s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.43s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.43s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.56s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.57s/batch]
+  tune bayesflow_arruda N=25 d1=0.01 s=5 crit=2.8467
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.94s/batch]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.00s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.67s/batch]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.67s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.72s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.40s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.41s/batch]
+  tune bayesflow_arruda N=25 d1=0.001 s=0 crit=2.4749
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.77s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.20s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.06s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.31s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.19s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.19s/batch]
+  tune bayesflow_arruda N=25 d1=0.001 s=2 crit=3.0633
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.42s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.22s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.39s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.56s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.56s/batch]
+  tune bayesflow_arruda N=25 d1=0.001 s=5 crit=3.1569
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.98s/batch]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.64s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.64s/batch]
+14:45:00 bayesflow_arruda N=25 [0] local_c2st=0.524 branch=0.017 mu_w1=0.42 sigma_w1=11.37 dep=0.426 t=115.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:37<00:00, 97.52s/batch]Sampling: 100%|██████████| 1/1 [01:37<00:00, 97.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.91s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.91s/batch]
+14:47:04 bayesflow_arruda N=25 [1] local_c2st=0.518 branch=0.026 mu_w1=0.93 sigma_w1=1.23 dep=0.063 t=117.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.61s/batch]Sampling: 100%|██████████| 1/1 [01:16<00:00, 76.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.28s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.28s/batch]
+14:48:46 bayesflow_arruda N=25 [2] local_c2st=0.529 branch=0.063 mu_w1=0.63 sigma_w1=2.58 dep=0.097 t=91.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.92s/batch]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.35s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.35s/batch]
+14:51:05 bayesflow_arruda N=25 [3] local_c2st=0.551 branch=0.027 mu_w1=0.49 sigma_w1=17.51 dep=0.702 t=130.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.53s/batch]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.81s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.81s/batch]
+14:52:59 bayesflow_arruda N=25 [4] local_c2st=0.529 branch=0.025 mu_w1=0.53 sigma_w1=2.88 dep=0.438 t=107.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.06s/batch]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.12s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.12s/batch]
+14:54:31 bayesflow_arruda N=25 [5] local_c2st=0.540 branch=0.035 mu_w1=0.77 sigma_w1=1.03 dep=0.055 t=86.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.35s/batch]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.38s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.38s/batch]
+14:55:52 bayesflow_arruda N=25 [6] local_c2st=0.524 branch=0.022 mu_w1=0.71 sigma_w1=5.52 dep=0.697 t=71.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.97s/batch]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.78s/batch]Sampling: 100%|██████████| 1/1 [00:13<00:00, 13.78s/batch]
+14:57:35 bayesflow_arruda N=25 [7] local_c2st=0.533 branch=0.065 mu_w1=0.55 sigma_w1=3.76 dep=0.365 t=94.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.06s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.61s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.61s/batch]
+14:59:23 bayesflow_arruda N=25 [8] local_c2st=0.531 branch=0.022 mu_w1=0.70 sigma_w1=13.71 dep=0.547 t=99.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.48s/batch]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.98s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.99s/batch]
+15:01:18 bayesflow_arruda N=25 [9] local_c2st=0.531 branch=0.030 mu_w1=0.51 sigma_w1=2.79 dep=0.582 t=106.5s
+15:01:18 {"datasets": 10, "failed": 0, "local_c2st": 0.53, "local_w1": 0.0829, "branch_err": 0.0268, "crescent_dev": 0.7324, "off_support": 0.0345, "local_mean_err": 0.067, "local_width": 0.9998, "local_rmse_truth": 0.5619, "mu_mean_err": 0.1589, "mu_width": 0.7473, "mu_w1": 0.5903, "mu_cover90": 0.5, "mu_rmse_truth": 0.382, "sigma_mean_err": 3.3359, "sigma_width": 3.1078, "sigma_w1": 3.3226, "sigma_cover90": 0.35, "sigma_rmse_truth": 0.8191, "global_c2st": 0.9595, "sym_u_w1": 0.5371, "sym_v_w1": 1.1367, "sym_w_w1": 1.6212, "sym_s_w1": 5.4572, "sym_inv_w1": 3.0808, "mode_balance": 0.527, "mode_balance_err": 0.0323, "dep_corr_err": 0.4321, "dep_corr_ref": 0.4888, "joint_c2st": 0.9591, "joint_c2st_indep": 0.9643, "nonfinite": 0.0, "seconds": 103.126, "method": "bayesflow_arruda", "N": 25, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 1.4883212883346242}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:19<00:00, 199.45s/batch]Sampling: 100%|██████████| 1/1 [03:19<00:00, 199.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:56<00:00, 236.51s/batch]Sampling: 100%|██████████| 1/1 [03:56<00:00, 236.51s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:24<00:00, 144.07s/batch]Sampling: 100%|██████████| 1/1 [02:24<00:00, 144.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:56<00:00, 176.01s/batch]Sampling: 100%|██████████| 1/1 [02:56<00:00, 176.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:09<00:00, 129.71s/batch]Sampling: 100%|██████████| 1/1 [02:09<00:00, 129.71s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=1 s=0 crit=1.5204
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:17<00:00, 197.20s/batch]Sampling: 100%|██████████| 1/1 [03:17<00:00, 197.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:10<00:00, 190.10s/batch]Sampling: 100%|██████████| 1/1 [03:10<00:00, 190.10s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:29<00:00, 209.62s/batch]Sampling: 100%|██████████| 1/1 [03:29<00:00, 209.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:02<00:00, 182.14s/batch]Sampling: 100%|██████████| 1/1 [03:02<00:00, 182.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.65s/batch]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.65s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=1 s=2 crit=1.4810
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.12s/batch]Sampling: 100%|██████████| 1/1 [01:25<00:00, 85.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.89s/batch]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:55<00:00, 115.96s/batch]Sampling: 100%|██████████| 1/1 [01:55<00:00, 115.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:38<00:00, 98.10s/batch]Sampling: 100%|██████████| 1/1 [01:38<00:00, 98.10s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.74s/batch]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.74s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=1 s=5 crit=1.4859
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:00<00:00, 180.52s/batch]Sampling: 100%|██████████| 1/1 [03:00<00:00, 180.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:36<00:00, 156.20s/batch]Sampling: 100%|██████████| 1/1 [02:36<00:00, 156.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:57<00:00, 177.25s/batch]Sampling: 100%|██████████| 1/1 [02:57<00:00, 177.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:26<00:00, 146.08s/batch]Sampling: 100%|██████████| 1/1 [02:26<00:00, 146.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:34<00:00, 94.90s/batch]Sampling: 100%|██████████| 1/1 [01:34<00:00, 94.90s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.1 s=0 crit=2.6638
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:24<00:00, 84.57s/batch]Sampling: 100%|██████████| 1/1 [01:24<00:00, 84.57s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.82s/batch]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.82s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.07s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.09s/batch]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.26s/batch]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.26s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.1 s=2 crit=2.9433
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.86s/batch]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.86s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.21s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.69s/batch]Sampling: 100%|██████████| 1/1 [00:55<00:00, 55.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.52s/batch]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.52s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.93s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.93s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.1 s=5 crit=2.9347
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.98s/batch]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:49<00:00, 109.30s/batch]Sampling: 100%|██████████| 1/1 [01:49<00:00, 109.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:29<00:00, 149.70s/batch]Sampling: 100%|██████████| 1/1 [02:29<00:00, 149.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.93s/batch]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.93s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:10<00:00, 70.90s/batch]Sampling: 100%|██████████| 1/1 [01:10<00:00, 70.90s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.01 s=0 crit=2.8709
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.01s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.63s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.64s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.54s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.83s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.89s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.89s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.01 s=2 crit=3.1350
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.37s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.62s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.68s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.68s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.13s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.24s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.24s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.01 s=5 crit=3.1456
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.99s/batch]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:48<00:00, 108.13s/batch]Sampling: 100%|██████████| 1/1 [01:48<00:00, 108.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.72s/batch]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.77s/batch]Sampling: 100%|██████████| 1/1 [01:15<00:00, 75.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.35s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.35s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.001 s=0 crit=2.9911
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.30s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.16s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.35s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.53s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.24s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.24s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.001 s=2 crit=3.1496
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.50s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.16s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.78s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.84s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.11s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.11s/batch]
+  tune bayesflow_arruda_diffprior N=25 d1=0.001 s=5 crit=3.2012
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:15<00:00, 195.99s/batch]Sampling: 100%|██████████| 1/1 [03:15<00:00, 195.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.06s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.06s/batch]
+16:27:56 bayesflow_arruda_diffprior N=25 [0] local_c2st=0.544 branch=0.143 mu_w1=0.67 sigma_w1=5.74 dep=0.331 t=217.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:03<00:00, 183.88s/batch]Sampling: 100%|██████████| 1/1 [03:03<00:00, 183.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.64s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.65s/batch]
+16:31:36 bayesflow_arruda_diffprior N=25 [1] local_c2st=0.530 branch=0.033 mu_w1=0.36 sigma_w1=0.59 dep=0.065 t=206.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.59s/batch]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.07s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.07s/batch]
+16:33:55 bayesflow_arruda_diffprior N=25 [2] local_c2st=0.552 branch=0.108 mu_w1=0.54 sigma_w1=1.60 dep=0.088 t=127.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.70s/batch]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.19s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.19s/batch]
+16:36:44 bayesflow_arruda_diffprior N=25 [3] local_c2st=0.570 branch=0.024 mu_w1=0.74 sigma_w1=11.32 dep=0.470 t=156.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:30<00:00, 211.00s/batch]Sampling: 100%|██████████| 1/1 [03:31<00:00, 211.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.50s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.50s/batch]
+16:40:48 bayesflow_arruda_diffprior N=25 [4] local_c2st=0.533 branch=0.035 mu_w1=0.34 sigma_w1=1.37 dep=0.346 t=229.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.62s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.05s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.05s/batch]
+16:42:40 bayesflow_arruda_diffprior N=25 [5] local_c2st=0.573 branch=0.091 mu_w1=0.96 sigma_w1=1.24 dep=0.114 t=99.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:26<00:00, 146.53s/batch]Sampling: 100%|██████████| 1/1 [02:26<00:00, 146.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.44s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.44s/batch]
+16:45:44 bayesflow_arruda_diffprior N=25 [6] local_c2st=0.530 branch=0.038 mu_w1=0.21 sigma_w1=3.90 dep=0.342 t=169.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.31s/batch]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.32s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.17s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.18s/batch]
+16:48:00 bayesflow_arruda_diffprior N=25 [7] local_c2st=0.539 branch=0.077 mu_w1=0.59 sigma_w1=2.34 dep=0.236 t=120.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:49<00:00, 169.76s/batch]Sampling: 100%|██████████| 1/1 [02:49<00:00, 169.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.28s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.28s/batch]
+16:51:26 bayesflow_arruda_diffprior N=25 [8] local_c2st=0.534 branch=0.046 mu_w1=0.19 sigma_w1=7.91 dep=0.192 t=193.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:02<00:00, 182.37s/batch]Sampling: 100%|██████████| 1/1 [03:02<00:00, 182.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.65s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.66s/batch]
+16:55:01 bayesflow_arruda_diffprior N=25 [9] local_c2st=0.543 branch=0.044 mu_w1=0.49 sigma_w1=1.28 dep=0.251 t=200.1s
+16:55:01 {"datasets": 10, "failed": 0, "local_c2st": 0.5412, "local_w1": 0.1094, "branch_err": 0.045, "crescent_dev": 0.7997, "off_support": 0.0393, "local_mean_err": 0.0905, "local_width": 0.9979, "local_rmse_truth": 0.5568, "mu_mean_err": 0.3991, "mu_width": 0.9014, "mu_w1": 0.5166, "mu_cover90": 0.7, "mu_rmse_truth": 0.4177, "sigma_mean_err": 1.5309, "sigma_width": 3.6716, "sigma_w1": 1.9678, "sigma_cover90": 1.0, "sigma_rmse_truth": 0.7525, "global_c2st": 0.864, "sym_u_w1": 0.4427, "sym_v_w1": 1.3619, "sym_w_w1": 1.756, "sym_s_w1": 2.3773, "sym_inv_w1": 2.04, "mode_balance": 0.329, "mode_balance_err": 0.1597, "dep_corr_err": 0.2434, "dep_corr_ref": 0.4888, "joint_c2st": 0.8602, "joint_c2st_indep": 0.888, "nonfinite": 0.0, "seconds": 181.1275, "method": "bayesflow_arruda_diffprior", "N": 25, "tuned": {"d1": 1.0, "shift": 2.0, "criterion": 1.4810371528373287}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:59<00:00, 119.75s/batch]Sampling: 100%|██████████| 1/1 [01:59<00:00, 119.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.12s/batch]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.34s/batch]Sampling: 100%|██████████| 1/1 [01:51<00:00, 111.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:55<00:00, 115.59s/batch]Sampling: 100%|██████████| 1/1 [01:55<00:00, 115.59s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.05s/batch]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.05s/batch]
+  tune bayesflow_arruda N=50 d1=1 s=0 crit=0.9525
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.18s/batch]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.49s/batch]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.84s/batch]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:42<00:00, 102.55s/batch]Sampling: 100%|██████████| 1/1 [01:42<00:00, 102.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.92s/batch]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.92s/batch]
+  tune bayesflow_arruda N=50 d1=1 s=2 crit=1.2966
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.48s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.58s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.36s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.41s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.41s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.43s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.43s/batch]
+  tune bayesflow_arruda N=50 d1=1 s=5 crit=1.3072
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.89s/batch]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.32s/batch]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.32s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.67s/batch]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.67s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.29s/batch]Sampling: 100%|██████████| 1/1 [01:22<00:00, 82.29s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.33s/batch]Sampling: 100%|██████████| 1/1 [01:23<00:00, 83.33s/batch]
+  tune bayesflow_arruda N=50 d1=0.1 s=0 crit=0.9889
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.35s/batch]Sampling: 100%|██████████| 1/1 [01:00<00:00, 60.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.72s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.48s/batch]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.83s/batch]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.62s/batch]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.63s/batch]
+  tune bayesflow_arruda N=50 d1=0.1 s=2 crit=1.2813
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.34s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.34s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.30s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.53s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.35s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.15s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.15s/batch]
+  tune bayesflow_arruda N=50 d1=0.1 s=5 crit=1.2735
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.88s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.19s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.58s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.58s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.04s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.04s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.95s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.95s/batch]
+  tune bayesflow_arruda N=50 d1=0.01 s=0 crit=1.0569
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.84s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:27<00:00, 28.00s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.07s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.67s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.67s/batch]
+  tune bayesflow_arruda N=50 d1=0.01 s=2 crit=1.4264
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.40s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.98s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.47s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.47s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.44s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.44s/batch]
+  tune bayesflow_arruda N=50 d1=0.01 s=5 crit=1.6246
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.63s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.96s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.96s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.68s/batch]Sampling: 100%|██████████| 1/1 [01:20<00:00, 80.68s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.57s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.57s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.62s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.63s/batch]
+  tune bayesflow_arruda N=50 d1=0.001 s=0 crit=1.2744
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.15s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.37s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.40s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.48s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.86s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.86s/batch]
+  tune bayesflow_arruda N=50 d1=0.001 s=2 crit=1.8918
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.20s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.20s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.61s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.48s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.55s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.13s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.13s/batch]
+  tune bayesflow_arruda N=50 d1=0.001 s=5 crit=2.0513
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.79s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.79s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.27s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 15.69s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 16.07s/batch]
+17:48:50 bayesflow_arruda N=50 [0] local_c2st=0.530 branch=0.065 mu_w1=0.65 sigma_w1=0.42 dep=0.171 t=91.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.29s/batch]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.29s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:25<00:25, 25.50s/batch]Sampling: 100%|██████████| 2/2 [00:41<00:00, 19.75s/batch]Sampling: 100%|██████████| 2/2 [00:41<00:00, 20.62s/batch]
+17:51:53 bayesflow_arruda N=50 [1] local_c2st=0.534 branch=0.101 mu_w1=0.37 sigma_w1=0.56 dep=0.253 t=169.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.19s/batch]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.19s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:20<00:20, 20.70s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 19.09s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 19.33s/batch]
+17:54:21 bayesflow_arruda N=50 [2] local_c2st=0.527 branch=0.025 mu_w1=0.68 sigma_w1=16.39 dep=0.778 t=134.9s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:42<00:00, 102.92s/batch]Sampling: 100%|██████████| 1/1 [01:42<00:00, 102.92s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.82s/batch]Sampling: 100%|██████████| 2/2 [00:33<00:00, 16.32s/batch]Sampling: 100%|██████████| 2/2 [00:33<00:00, 16.70s/batch]
+17:56:50 bayesflow_arruda N=50 [3] local_c2st=0.536 branch=0.090 mu_w1=0.81 sigma_w1=1.09 dep=0.076 t=136.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.60s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.60s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.52s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 15.78s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 16.20s/batch]
+17:59:02 bayesflow_arruda N=50 [4] local_c2st=0.538 branch=0.099 mu_w1=0.35 sigma_w1=1.33 dep=0.081 t=120.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:45<00:00, 105.20s/batch]Sampling: 100%|██████████| 1/1 [01:45<00:00, 105.20s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:22<00:22, 22.47s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 18.62s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 19.20s/batch]
+18:01:40 bayesflow_arruda N=50 [5] local_c2st=0.516 branch=0.025 mu_w1=0.51 sigma_w1=1.31 dep=0.292 t=143.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.73s/batch]Sampling: 100%|██████████| 1/1 [01:57<00:00, 117.73s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:25<00:25, 25.45s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 20.33s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 21.10s/batch]
+18:04:34 bayesflow_arruda N=50 [6] local_c2st=0.516 branch=0.036 mu_w1=0.32 sigma_w1=1.06 dep=0.058 t=160.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:49<00:00, 109.11s/batch]Sampling: 100%|██████████| 1/1 [01:49<00:00, 109.11s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:19<00:19, 19.16s/batch]Sampling: 100%|██████████| 2/2 [00:35<00:00, 17.51s/batch]Sampling: 100%|██████████| 2/2 [00:35<00:00, 17.76s/batch]
+18:07:11 bayesflow_arruda N=50 [7] local_c2st=0.522 branch=0.031 mu_w1=0.46 sigma_w1=1.30 dep=0.115 t=144.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.84s/batch]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.84s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:16<00:16, 16.93s/batch]Sampling: 100%|██████████| 2/2 [00:30<00:00, 14.98s/batch]Sampling: 100%|██████████| 2/2 [00:30<00:00, 15.27s/batch]
+18:09:25 bayesflow_arruda N=50 [8] local_c2st=0.592 branch=0.059 mu_w1=0.72 sigma_w1=2.30 dep=0.478 t=122.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.52s/batch]Sampling: 100%|██████████| 1/1 [01:33<00:00, 93.52s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:24<00:24, 24.49s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 20.51s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 21.11s/batch]
+18:11:54 bayesflow_arruda N=50 [9] local_c2st=0.520 branch=0.022 mu_w1=0.69 sigma_w1=20.49 dep=0.481 t=135.8s
+18:11:54 {"datasets": 10, "failed": 0, "local_c2st": 0.5285, "local_w1": 0.1158, "branch_err": 0.0473, "crescent_dev": 0.7276, "off_support": 0.0273, "local_mean_err": 0.0958, "local_width": 0.9956, "local_rmse_truth": 0.5991, "mu_mean_err": 0.2569, "mu_width": 0.5294, "mu_w1": 0.5825, "mu_cover90": 0.4, "mu_rmse_truth": 0.2757, "sigma_mean_err": 1.1522, "sigma_width": 1.6708, "sigma_w1": 1.3092, "sigma_cover90": 0.5, "sigma_rmse_truth": 0.496, "global_c2st": 0.9105, "sym_u_w1": 0.5483, "sym_v_w1": 0.8712, "sym_w_w1": 0.5661, "sym_s_w1": 2.2117, "sym_inv_w1": 1.395, "mode_balance": 0.582, "mode_balance_err": 0.104, "dep_corr_err": 0.2121, "dep_corr_ref": 0.346, "joint_c2st": 0.8963, "joint_c2st_indep": 0.9067, "nonfinite": 0.0, "seconds": 136.0819, "method": "bayesflow_arruda", "N": 50, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 0.952530619912423}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.80s/batch]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:59<00:00, 119.14s/batch]Sampling: 100%|██████████| 1/1 [01:59<00:00, 119.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:43<00:00, 163.74s/batch]Sampling: 100%|██████████| 1/1 [02:43<00:00, 163.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.86s/batch]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.86s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]20:58:27Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/benchmark.py", line 287, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/benchmark.py", line 280, in main
+    run_methods(arguments)
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/benchmark.py", line 220, in run_methods
+    evaluate(method, n, arguments)
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/benchmark.py", line 152, in evaluate
+    log(f"skip {path.name} (exists)")
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/benchmark.py", line 63, in log
+    print(time.strftime("%H:%M:%S"), *parts, flush=True)
+OSError: [Errno 122] Disk quota exceeded
+21:00:19 skip bayesflow_arruda_N1.json (exists)
+21:00:19 skip bayesflow_arruda_diffprior_N1.json (exists)
+21:00:19 skip bayesflow_arruda_N5.json (exists)
+21:00:19 skip bayesflow_arruda_diffprior_N5.json (exists)
+21:00:19 skip bayesflow_arruda_N10.json (exists)
+21:00:19 skip bayesflow_arruda_diffprior_N10.json (exists)
+21:00:19 skip bayesflow_arruda_N25.json (exists)
+21:00:19 skip bayesflow_arruda_diffprior_N25.json (exists)
+21:00:19 skip bayesflow_arruda_N50.json (exists)
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.75s/batch]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.04s/batch]Sampling: 100%|██████████| 1/1 [02:08<00:00, 128.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:37<00:00, 157.23s/batch]Sampling: 100%|██████████| 1/1 [02:37<00:00, 157.23s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:37<00:00, 157.75s/batch]Sampling: 100%|██████████| 1/1 [02:37<00:00, 157.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:38<00:00, 158.44s/batch]Sampling: 100%|██████████| 1/1 [02:38<00:00, 158.44s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=1 s=0 crit=1.0877
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.25s/batch]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:07<00:00, 127.82s/batch]Sampling: 100%|██████████| 1/1 [02:07<00:00, 127.82s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.55s/batch]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:04<00:00, 124.13s/batch]Sampling: 100%|██████████| 1/1 [02:04<00:00, 124.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:33<00:00, 153.79s/batch]Sampling: 100%|██████████| 1/1 [02:33<00:00, 153.79s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=1 s=2 crit=1.0987
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.46s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.46s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.76s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.74s/batch]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.78s/batch]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.67s/batch]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.67s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=1 s=5 crit=1.0946
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.50s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.88s/batch]Sampling: 100%|██████████| 1/1 [01:30<00:00, 90.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:49<00:00, 169.46s/batch]Sampling: 100%|██████████| 1/1 [02:49<00:00, 169.46s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:25<00:00, 145.96s/batch]Sampling: 100%|██████████| 1/1 [02:25<00:00, 145.96s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:09<00:00, 129.06s/batch]Sampling: 100%|██████████| 1/1 [02:09<00:00, 129.06s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.1 s=0 crit=1.6819
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.12s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.69s/batch]Sampling: 100%|██████████| 1/1 [00:35<00:00, 35.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:46<00:00, 106.76s/batch]Sampling: 100%|██████████| 1/1 [01:46<00:00, 106.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.80s/batch]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.70s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.70s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.1 s=2 crit=1.8955
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.89s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.32s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.50s/batch]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.55s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.30s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.30s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.1 s=5 crit=1.8276
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.21s/batch]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.63s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.24s/batch]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.89s/batch]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:58<00:00, 118.20s/batch]Sampling: 100%|██████████| 1/1 [01:58<00:00, 118.20s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.01 s=0 crit=1.9255
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.69s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.36s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.69s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.11s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.47s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.47s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.01 s=2 crit=1.9770
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.95s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.35s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.35s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.41s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.41s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.28s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.81s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.81s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.01 s=5 crit=2.0692
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.80s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.37s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:14<00:00, 134.49s/batch]Sampling: 100%|██████████| 1/1 [02:14<00:00, 134.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:29<00:00, 89.99s/batch]Sampling: 100%|██████████| 1/1 [01:29<00:00, 89.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:41<00:00, 101.63s/batch]Sampling: 100%|██████████| 1/1 [01:41<00:00, 101.63s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.001 s=0 crit=1.9981
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.79s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.87s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.60s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.74s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.24s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.24s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.001 s=2 crit=2.0206
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.85s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.85s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.09s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.28s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.57s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.57s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.95s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.95s/batch]
+  tune bayesflow_arruda_diffprior N=50 d1=0.001 s=5 crit=2.1170
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.76s/batch]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.76s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.87s/batch]Sampling: 100%|██████████| 2/2 [00:33<00:00, 16.41s/batch]Sampling: 100%|██████████| 2/2 [00:33<00:00, 16.78s/batch]
+22:11:30 bayesflow_arruda_diffprior N=50 [0] local_c2st=0.564 branch=0.117 mu_w1=0.81 sigma_w1=1.35 dep=0.199 t=108.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:53<00:00, 173.24s/batch]Sampling: 100%|██████████| 1/1 [02:53<00:00, 173.24s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:23<00:23, 23.90s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 18.65s/batch]Sampling: 100%|██████████| 2/2 [00:38<00:00, 19.44s/batch]
+22:15:06 bayesflow_arruda_diffprior N=50 [1] local_c2st=0.536 branch=0.080 mu_w1=0.87 sigma_w1=0.98 dep=0.085 t=212.2s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:25<00:00, 205.43s/batch]Sampling: 100%|██████████| 1/1 [03:25<00:00, 205.43s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:24<00:24, 24.48s/batch]Sampling: 100%|██████████| 2/2 [00:41<00:00, 20.09s/batch]Sampling: 100%|██████████| 2/2 [00:41<00:00, 20.75s/batch]
+22:19:21 bayesflow_arruda_diffprior N=50 [2] local_c2st=0.554 branch=0.090 mu_w1=0.49 sigma_w1=8.97 dep=0.651 t=247.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:19<00:00, 139.55s/batch]Sampling: 100%|██████████| 1/1 [02:19<00:00, 139.55s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.13s/batch]Sampling: 100%|██████████| 2/2 [00:30<00:00, 14.47s/batch]Sampling: 100%|██████████| 2/2 [00:30<00:00, 15.02s/batch]
+22:22:20 bayesflow_arruda_diffprior N=50 [3] local_c2st=0.539 branch=0.049 mu_w1=0.59 sigma_w1=0.65 dep=0.174 t=169.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.46s/batch]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.46s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:25<00:25, 25.54s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 20.34s/batch]Sampling: 100%|██████████| 2/2 [00:42<00:00, 21.12s/batch]
+22:24:56 bayesflow_arruda_diffprior N=50 [4] local_c2st=0.524 branch=0.059 mu_w1=0.80 sigma_w1=1.00 dep=0.187 t=149.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:17<00:00, 197.76s/batch]Sampling: 100%|██████████| 1/1 [03:17<00:00, 197.76s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:29<00:29, 29.39s/batch]Sampling: 100%|██████████| 2/2 [00:47<00:00, 22.74s/batch]Sampling: 100%|██████████| 2/2 [00:47<00:00, 23.74s/batch]
+22:29:17 bayesflow_arruda_diffprior N=50 [5] local_c2st=0.512 branch=0.031 mu_w1=0.17 sigma_w1=0.54 dep=0.091 t=245.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:50<00:00, 170.80s/batch]Sampling: 100%|██████████| 1/1 [02:50<00:00, 170.80s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:23<00:23, 23.13s/batch]Sampling: 100%|██████████| 2/2 [00:37<00:00, 17.92s/batch]Sampling: 100%|██████████| 2/2 [00:37<00:00, 18.70s/batch]
+22:32:55 bayesflow_arruda_diffprior N=50 [6] local_c2st=0.517 branch=0.030 mu_w1=0.48 sigma_w1=1.39 dep=0.133 t=208.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:07<00:00, 127.96s/batch]Sampling: 100%|██████████| 1/1 [02:07<00:00, 127.96s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:18<00:18, 18.27s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 16.02s/batch]Sampling: 100%|██████████| 2/2 [00:32<00:00, 16.36s/batch]
+22:35:46 bayesflow_arruda_diffprior N=50 [7] local_c2st=0.525 branch=0.041 mu_w1=0.48 sigma_w1=1.61 dep=0.209 t=160.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:27<00:00, 147.40s/batch]Sampling: 100%|██████████| 1/1 [02:27<00:00, 147.40s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:23<00:23, 23.15s/batch]Sampling: 100%|██████████| 2/2 [00:39<00:00, 19.31s/batch]Sampling: 100%|██████████| 2/2 [00:39<00:00, 19.88s/batch]
+22:39:00 bayesflow_arruda_diffprior N=50 [8] local_c2st=0.616 branch=0.081 mu_w1=2.06 sigma_w1=19.86 dep=0.382 t=187.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:19<00:00, 199.27s/batch]Sampling: 100%|██████████| 1/1 [03:19<00:00, 199.28s/batch]
+Sampling:   0%|          | 0/2 [00:00<?, ?batch/s]Sampling:  50%|█████     | 1/2 [00:28<00:28, 28.35s/batch]Sampling: 100%|██████████| 2/2 [00:47<00:00, 23.03s/batch]Sampling: 100%|██████████| 2/2 [00:47<00:00, 23.83s/batch]
+22:43:17 bayesflow_arruda_diffprior N=50 [9] local_c2st=0.512 branch=0.032 mu_w1=0.36 sigma_w1=7.68 dep=0.235 t=247.0s
+22:43:17 {"datasets": 10, "failed": 0, "local_c2st": 0.5305, "local_w1": 0.1166, "branch_err": 0.054, "crescent_dev": 0.7979, "off_support": 0.0279, "local_mean_err": 0.096, "local_width": 1.0002, "local_rmse_truth": 0.5754, "mu_mean_err": 0.5279, "mu_width": 1.0962, "mu_w1": 0.5423, "mu_cover90": 0.8, "mu_rmse_truth": 0.3586, "sigma_mean_err": 1.0134, "sigma_width": 2.6971, "sigma_w1": 1.3746, "sigma_cover90": 0.95, "sigma_rmse_truth": 0.7771, "global_c2st": 0.8855, "sym_u_w1": 0.588, "sym_v_w1": 0.9014, "sym_w_w1": 1.4347, "sym_s_w1": 1.7782, "sym_inv_w1": 1.3581, "mode_balance": 0.34, "mode_balance_err": 0.1587, "dep_corr_err": 0.1927, "dep_corr_ref": 0.346, "joint_c2st": 0.8665, "joint_c2st_indep": 0.8801, "nonfinite": 0.0, "seconds": 197.7778, "method": "bayesflow_arruda_diffprior", "N": 50, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 1.0877224319336127}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:54<00:00, 114.13s/batch]Sampling: 100%|██████████| 1/1 [01:54<00:00, 114.13s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.07s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:10<00:00, 130.60s/batch]Sampling: 100%|██████████| 1/1 [02:10<00:00, 130.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.16s/batch]Sampling: 100%|██████████| 1/1 [01:50<00:00, 110.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:54<00:00, 114.75s/batch]Sampling: 100%|██████████| 1/1 [01:54<00:00, 114.75s/batch]
+  tune bayesflow_arruda N=100 d1=1 s=0 crit=0.5654
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.86s/batch]Sampling: 100%|██████████| 1/1 [01:32<00:00, 92.87s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.53s/batch]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.53s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.45s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.69s/batch]Sampling: 100%|██████████| 1/1 [01:47<00:00, 107.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.58s/batch]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.58s/batch]
+  tune bayesflow_arruda N=100 d1=1 s=2 crit=1.2019
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.30s/batch]Sampling: 100%|██████████| 1/1 [00:40<00:00, 40.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.45s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.30s/batch]Sampling: 100%|██████████| 1/1 [00:43<00:00, 43.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.77s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.69s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.69s/batch]
+  tune bayesflow_arruda N=100 d1=1 s=5 crit=1.3510
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.61s/batch]Sampling: 100%|██████████| 1/1 [01:39<00:00, 99.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.86s/batch]Sampling: 100%|██████████| 1/1 [01:17<00:00, 77.86s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.39s/batch]Sampling: 100%|██████████| 1/1 [01:18<00:00, 78.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.16s/batch]Sampling: 100%|██████████| 1/1 [01:36<00:00, 96.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:34<00:00, 94.88s/batch]Sampling: 100%|██████████| 1/1 [01:34<00:00, 94.88s/batch]
+  tune bayesflow_arruda N=100 d1=0.1 s=0 crit=0.5513
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:10<00:00, 70.83s/batch]Sampling: 100%|██████████| 1/1 [01:10<00:00, 70.83s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.35s/batch]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.28s/batch]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.28s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:08<00:00, 68.08s/batch]Sampling: 100%|██████████| 1/1 [01:08<00:00, 68.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.59s/batch]Sampling: 100%|██████████| 1/1 [01:14<00:00, 74.59s/batch]
+  tune bayesflow_arruda N=100 d1=0.1 s=2 crit=1.2334
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 29.00s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.00s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.99s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.81s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.16s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.00s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.00s/batch]
+  tune bayesflow_arruda N=100 d1=0.1 s=5 crit=1.3615
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.41s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.41s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.39s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.10s/batch]Sampling: 100%|██████████| 1/1 [01:04<00:00, 64.10s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.80s/batch]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.10s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.10s/batch]
+  tune bayesflow_arruda N=100 d1=0.01 s=0 crit=0.5356
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.88s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.09s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.46s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.46s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.90s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.51s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.51s/batch]
+  tune bayesflow_arruda N=100 d1=0.01 s=2 crit=1.2586
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.70s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.99s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.99s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.76s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.76s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.24s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.23s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.23s/batch]
+  tune bayesflow_arruda N=100 d1=0.01 s=5 crit=1.3391
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.60s/batch]Sampling: 100%|██████████| 1/1 [00:30<00:00, 30.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.06s/batch]Sampling: 100%|██████████| 1/1 [00:39<00:00, 39.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.88s/batch]Sampling: 100%|██████████| 1/1 [00:52<00:00, 52.88s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.06s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.70s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.70s/batch]
+  tune bayesflow_arruda N=100 d1=0.001 s=0 crit=0.8361
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.24s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.87s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.87s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.05s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.24s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.13s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.13s/batch]
+  tune bayesflow_arruda N=100 d1=0.001 s=2 crit=1.8999
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.33s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.49s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.64s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.64s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.65s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.65s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.30s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.30s/batch]
+  tune bayesflow_arruda N=100 d1=0.001 s=5 crit=2.1754
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.64s/batch]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.64s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:26<00:53, 26.85s/batch]Sampling:  67%|██████▋   | 2/3 [00:51<00:25, 25.70s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 22.63s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 23.57s/batch]
+23:36:37 bayesflow_arruda N=100 [0] local_c2st=0.518 branch=0.028 mu_w1=0.40 sigma_w1=3.26 dep=0.354 t=132.4s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.26s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.26s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:20<00:41, 20.62s/batch]Sampling:  67%|██████▋   | 2/3 [00:40<00:20, 20.42s/batch]Sampling: 100%|██████████| 3/3 [00:57<00:00, 18.89s/batch]Sampling: 100%|██████████| 3/3 [00:57<00:00, 19.32s/batch]
+23:38:49 bayesflow_arruda N=100 [1] local_c2st=0.530 branch=0.077 mu_w1=0.45 sigma_w1=1.79 dep=0.160 t=124.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.40s/batch]Sampling: 100%|██████████| 1/1 [00:49<00:00, 49.41s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:21<00:43, 21.79s/batch]Sampling:  67%|██████▋   | 2/3 [00:41<00:20, 20.78s/batch]Sampling: 100%|██████████| 3/3 [00:51<00:00, 15.68s/batch]Sampling: 100%|██████████| 3/3 [00:51<00:00, 17.16s/batch]
+23:40:40 bayesflow_arruda N=100 [2] local_c2st=0.578 branch=0.027 mu_w1=0.62 sigma_w1=24.37 dep=0.915 t=100.9s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.00s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.01s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:16<00:32, 16.04s/batch]Sampling:  67%|██████▋   | 2/3 [00:36<00:18, 18.63s/batch]Sampling: 100%|██████████| 3/3 [00:53<00:00, 17.85s/batch]Sampling: 100%|██████████| 3/3 [00:53<00:00, 17.80s/batch]
+23:42:32 bayesflow_arruda N=100 [3] local_c2st=0.558 branch=0.099 mu_w1=0.47 sigma_w1=1.69 dep=0.078 t=106.5s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.15s/batch]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.15s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:24<00:48, 24.09s/batch]Sampling:  67%|██████▋   | 2/3 [00:50<00:25, 25.37s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 22.80s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 23.37s/batch]
+23:44:55 bayesflow_arruda N=100 [4] local_c2st=0.517 branch=0.033 mu_w1=0.95 sigma_w1=1.21 dep=0.070 t=132.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.13s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.13s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:30<01:01, 30.76s/batch]Sampling:  67%|██████▋   | 2/3 [00:59<00:29, 29.79s/batch]Sampling: 100%|██████████| 3/3 [01:23<00:00, 27.11s/batch]Sampling: 100%|██████████| 3/3 [01:23<00:00, 27.93s/batch]
+23:47:12 bayesflow_arruda N=100 [5] local_c2st=0.528 branch=0.026 mu_w1=0.77 sigma_w1=8.99 dep=0.934 t=130.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.71s/batch]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.72s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:21<00:43, 21.82s/batch]Sampling:  67%|██████▋   | 2/3 [00:48<00:24, 24.43s/batch]Sampling: 100%|██████████| 3/3 [01:06<00:00, 21.56s/batch]Sampling: 100%|██████████| 3/3 [01:06<00:00, 22.08s/batch]
+23:49:28 bayesflow_arruda N=100 [6] local_c2st=0.535 branch=0.025 mu_w1=0.42 sigma_w1=0.66 dep=0.220 t=128.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.06s/batch]Sampling: 100%|██████████| 1/1 [01:26<00:00, 86.07s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:28<00:57, 28.68s/batch]Sampling:  67%|██████▋   | 2/3 [00:54<00:26, 26.71s/batch]Sampling: 100%|██████████| 3/3 [01:12<00:00, 22.96s/batch]Sampling: 100%|██████████| 3/3 [01:12<00:00, 24.17s/batch]
+23:52:16 bayesflow_arruda N=100 [7] local_c2st=0.516 branch=0.036 mu_w1=0.42 sigma_w1=5.75 dep=0.391 t=158.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.75s/batch]Sampling: 100%|██████████| 1/1 [00:59<00:00, 59.75s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:21<00:42, 21.26s/batch]Sampling:  67%|██████▋   | 2/3 [00:42<00:21, 21.18s/batch]Sampling: 100%|██████████| 3/3 [01:00<00:00, 19.91s/batch]Sampling: 100%|██████████| 3/3 [01:00<00:00, 20.26s/batch]
+23:54:26 bayesflow_arruda N=100 [8] local_c2st=0.528 branch=0.040 mu_w1=0.80 sigma_w1=0.65 dep=0.079 t=120.6s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.10s/batch]Sampling: 100%|██████████| 1/1 [00:57<00:00, 57.10s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:19<00:38, 19.37s/batch]Sampling:  67%|██████▋   | 2/3 [00:37<00:18, 18.64s/batch]Sampling: 100%|██████████| 3/3 [00:50<00:00, 16.15s/batch]Sampling: 100%|██████████| 3/3 [00:50<00:00, 16.89s/batch]
+23:56:27 bayesflow_arruda N=100 [9] local_c2st=0.584 branch=0.141 mu_w1=1.11 sigma_w1=3.12 dep=0.068 t=107.8s
+23:56:27 {"datasets": 10, "failed": 0, "local_c2st": 0.5293, "local_w1": 0.0942, "branch_err": 0.0344, "crescent_dev": 0.757, "off_support": 0.0399, "local_mean_err": 0.0695, "local_width": 0.9956, "local_rmse_truth": 0.6434, "mu_mean_err": 0.3268, "mu_width": 0.7405, "mu_w1": 0.5478, "mu_cover90": 0.4, "mu_rmse_truth": 0.2949, "sigma_mean_err": 1.8507, "sigma_width": 2.735, "sigma_w1": 2.4544, "sigma_cover90": 0.7, "sigma_rmse_truth": 0.7401, "global_c2st": 0.957, "sym_u_w1": 0.4897, "sym_v_w1": 1.4881, "sym_w_w1": 1.467, "sym_s_w1": 6.1238, "sym_inv_w1": 3.3545, "mode_balance": 0.577, "mode_balance_err": 0.109, "dep_corr_err": 0.1898, "dep_corr_ref": 0.5199, "joint_c2st": 0.9438, "joint_c2st_indep": 0.9479, "nonfinite": 0.0, "seconds": 126.1319, "method": "bayesflow_arruda", "N": 100, "tuned": {"d1": 0.01, "shift": 0.0, "criterion": 0.5355698383230015}}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:11<00:00, 131.23s/batch]Sampling: 100%|██████████| 1/1 [02:11<00:00, 131.23s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:29<00:00, 89.02s/batch]Sampling: 100%|██████████| 1/1 [01:29<00:00, 89.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:35<00:00, 155.95s/batch]Sampling: 100%|██████████| 1/1 [02:35<00:00, 155.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.61s/batch]Sampling: 100%|██████████| 1/1 [01:05<00:00, 65.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.89s/batch]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.89s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=1 s=0 crit=0.6852
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:45<00:00, 105.50s/batch]Sampling: 100%|██████████| 1/1 [01:45<00:00, 105.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.25s/batch]Sampling: 100%|██████████| 1/1 [01:31<00:00, 91.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:53<00:00, 173.69s/batch]Sampling: 100%|██████████| 1/1 [02:53<00:00, 173.69s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.84s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.54s/batch]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.54s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=1 s=2 crit=0.7664
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.05s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.82s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.82s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.56s/batch]Sampling: 100%|██████████| 1/1 [01:21<00:00, 81.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.73s/batch]Sampling: 100%|██████████| 1/1 [01:01<00:00, 61.73s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.92s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.92s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=1 s=5 crit=0.7389
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.81s/batch]Sampling: 100%|██████████| 1/1 [01:12<00:00, 72.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.56s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.64s/batch]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.64s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.33s/batch]Sampling: 100%|██████████| 1/1 [01:06<00:00, 66.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.72s/batch]Sampling: 100%|██████████| 1/1 [01:35<00:00, 95.72s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.1 s=0 crit=1.5053
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.18s/batch]Sampling: 100%|██████████| 1/1 [00:44<00:00, 44.18s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.45s/batch]Sampling: 100%|██████████| 1/1 [00:41<00:00, 41.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.80s/batch]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.48s/batch]Sampling: 100%|██████████| 1/1 [00:27<00:00, 27.48s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.76s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.76s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.1 s=2 crit=1.9088
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.10s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.10s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.50s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.51s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.11s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.40s/batch]Sampling: 100%|██████████| 1/1 [00:33<00:00, 33.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.15s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.15s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.1 s=5 crit=1.9419
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.49s/batch]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.72s/batch]Sampling: 100%|██████████| 1/1 [01:07<00:00, 67.73s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:34<00:00, 154.71s/batch]Sampling: 100%|██████████| 1/1 [02:34<00:00, 154.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.22s/batch]Sampling: 100%|██████████| 1/1 [01:09<00:00, 69.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.65s/batch]Sampling: 100%|██████████| 1/1 [01:27<00:00, 87.66s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.01 s=0 crit=2.0373
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.74s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.56s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.56s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.60s/batch]Sampling: 100%|██████████| 1/1 [00:28<00:00, 28.60s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.71s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.46s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.46s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.01 s=2 crit=2.0935
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.27s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.27s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.84s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.16s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.75s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.41s/batch]Sampling: 100%|██████████| 1/1 [00:21<00:00, 21.41s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.01 s=5 crit=2.1618
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.92s/batch]Sampling: 100%|██████████| 1/1 [01:13<00:00, 73.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.63s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.63s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.04s/batch]Sampling: 100%|██████████| 1/1 [02:18<00:00, 138.04s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.82s/batch]Sampling: 100%|██████████| 1/1 [00:48<00:00, 48.82s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.77s/batch]Sampling: 100%|██████████| 1/1 [01:11<00:00, 71.77s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.001 s=0 crit=2.1381
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.79s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.94s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.91s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.91s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.78s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.51s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.51s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.001 s=2 crit=2.1486
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.39s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.94s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.94s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.05s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.05s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.49s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.49s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.31s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.31s/batch]
+  tune bayesflow_arruda_diffprior N=100 d1=0.001 s=5 crit=2.2368
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:51<00:00, 171.73s/batch]Sampling: 100%|██████████| 1/1 [02:51<00:00, 171.74s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:27<00:55, 27.92s/batch]Sampling:  67%|██████▋   | 2/3 [00:53<00:26, 26.31s/batch]Sampling: 100%|██████████| 3/3 [01:12<00:00, 23.03s/batch]Sampling: 100%|██████████| 3/3 [01:12<00:00, 24.08s/batch]
+01:01:28 bayesflow_arruda_diffprior N=100 [0] local_c2st=0.573 branch=0.185 mu_w1=0.95 sigma_w1=1.01 dep=0.308 t=244.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:40<00:00, 160.31s/batch]Sampling: 100%|██████████| 1/1 [02:40<00:00, 160.31s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:26<00:53, 26.77s/batch]Sampling:  67%|██████▋   | 2/3 [00:51<00:25, 25.50s/batch]Sampling: 100%|██████████| 3/3 [01:09<00:00, 22.21s/batch]Sampling: 100%|██████████| 3/3 [01:09<00:00, 23.23s/batch]
+01:05:27 bayesflow_arruda_diffprior N=100 [1] local_c2st=0.539 branch=0.069 mu_w1=1.42 sigma_w1=1.24 dep=0.320 t=230.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:46<00:00, 106.71s/batch]Sampling: 100%|██████████| 1/1 [01:46<00:00, 106.71s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:13<00:26, 13.05s/batch]Sampling:  67%|██████▋   | 2/3 [00:28<00:14, 14.29s/batch]Sampling: 100%|██████████| 3/3 [00:40<00:00, 13.16s/batch]Sampling: 100%|██████████| 3/3 [00:40<00:00, 13.35s/batch]
+01:08:01 bayesflow_arruda_diffprior N=100 [2] local_c2st=0.587 branch=0.090 mu_w1=0.45 sigma_w1=3.35 dep=0.527 t=146.8s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.31s/batch]Sampling: 100%|██████████| 1/1 [02:30<00:00, 150.31s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:20<00:41, 20.99s/batch]Sampling:  67%|██████▋   | 2/3 [00:42<00:21, 21.33s/batch]Sampling: 100%|██████████| 3/3 [00:59<00:00, 19.40s/batch]Sampling: 100%|██████████| 3/3 [00:59<00:00, 19.89s/batch]
+01:11:41 bayesflow_arruda_diffprior N=100 [3] local_c2st=0.562 branch=0.121 mu_w1=0.66 sigma_w1=0.60 dep=0.286 t=210.1s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:41<00:00, 161.24s/batch]Sampling: 100%|██████████| 1/1 [02:41<00:00, 161.24s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:21<00:43, 21.93s/batch]Sampling:  67%|██████▋   | 2/3 [00:43<00:21, 21.67s/batch]Sampling: 100%|██████████| 3/3 [00:58<00:00, 18.44s/batch]Sampling: 100%|██████████| 3/3 [00:58<00:00, 19.33s/batch]
+01:15:27 bayesflow_arruda_diffprior N=100 [4] local_c2st=0.525 branch=0.059 mu_w1=0.74 sigma_w1=1.44 dep=0.130 t=219.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.17s/batch]Sampling: 100%|██████████| 1/1 [02:20<00:00, 140.17s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:25<00:50, 25.43s/batch]Sampling:  67%|██████▋   | 2/3 [00:51<00:26, 26.06s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 22.74s/batch]Sampling: 100%|██████████| 3/3 [01:10<00:00, 23.57s/batch]
+01:19:08 bayesflow_arruda_diffprior N=100 [5] local_c2st=0.547 branch=0.018 mu_w1=0.47 sigma_w1=3.56 dep=0.489 t=211.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [02:33<00:00, 153.27s/batch]Sampling: 100%|██████████| 1/1 [02:33<00:00, 153.27s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:17<00:34, 17.27s/batch]Sampling:  67%|██████▋   | 2/3 [00:36<00:18, 18.41s/batch]Sampling: 100%|██████████| 3/3 [00:51<00:00, 17.04s/batch]Sampling: 100%|██████████| 3/3 [00:51<00:00, 17.30s/batch]
+01:22:41 bayesflow_arruda_diffprior N=100 [6] local_c2st=0.555 branch=0.082 mu_w1=0.47 sigma_w1=0.56 dep=0.250 t=205.3s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [03:38<00:00, 218.82s/batch]Sampling: 100%|██████████| 1/1 [03:38<00:00, 218.82s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:25<00:51, 25.67s/batch]Sampling:  67%|██████▋   | 2/3 [00:53<00:27, 27.03s/batch]Sampling: 100%|██████████| 3/3 [01:15<00:00, 24.47s/batch]Sampling: 100%|██████████| 3/3 [01:15<00:00, 25.03s/batch]
+01:27:44 bayesflow_arruda_diffprior N=100 [7] local_c2st=0.518 branch=0.032 mu_w1=0.68 sigma_w1=2.41 dep=0.203 t=294.0s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.83s/batch]Sampling: 100%|██████████| 1/1 [01:43<00:00, 103.84s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:19<00:39, 19.57s/batch]Sampling:  67%|██████▋   | 2/3 [00:38<00:19, 19.31s/batch]Sampling: 100%|██████████| 3/3 [00:52<00:00, 16.91s/batch]Sampling: 100%|██████████| 3/3 [00:52<00:00, 17.58s/batch]
+01:30:28 bayesflow_arruda_diffprior N=100 [8] local_c2st=0.538 branch=0.070 mu_w1=1.08 sigma_w1=1.05 dep=0.128 t=156.7s
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.38s/batch]Sampling: 100%|██████████| 1/1 [01:44<00:00, 104.38s/batch]
+Sampling:   0%|          | 0/3 [00:00<?, ?batch/s]Sampling:  33%|███▎      | 1/3 [00:22<00:44, 22.19s/batch]Sampling:  67%|██████▋   | 2/3 [00:43<00:21, 21.74s/batch]Sampling: 100%|██████████| 3/3 [00:59<00:00, 19.29s/batch]Sampling: 100%|██████████| 3/3 [00:59<00:00, 20.00s/batch]
+01:33:18 bayesflow_arruda_diffprior N=100 [9] local_c2st=0.608 branch=0.193 mu_w1=0.97 sigma_w1=2.75 dep=0.123 t=164.5s
+01:33:18 {"datasets": 10, "failed": 0, "local_c2st": 0.551, "local_w1": 0.1645, "branch_err": 0.0759, "crescent_dev": 0.8362, "off_support": 0.0391, "local_mean_err": 0.1462, "local_width": 0.9913, "local_rmse_truth": 0.5968, "mu_mean_err": 0.6783, "mu_width": 0.9315, "mu_w1": 0.7104, "mu_cover90": 0.7, "mu_rmse_truth": 0.4072, "sigma_mean_err": 0.958, "sigma_width": 2.8142, "sigma_w1": 1.3382, "sigma_cover90": 0.85, "sigma_rmse_truth": 0.5496, "global_c2st": 0.9595, "sym_u_w1": 0.6369, "sym_v_w1": 1.9754, "sym_w_w1": 1.3917, "sym_s_w1": 2.4069, "sym_inv_w1": 2.1413, "mode_balance": 0.224, "mode_balance_err": 0.279, "dep_corr_err": 0.268, "dep_corr_ref": 0.5199, "joint_c2st": 0.943, "joint_c2st_indep": 0.9496, "nonfinite": 0.0, "seconds": 210.5296, "method": "bayesflow_arruda_diffprior", "N": 100, "tuned": {"d1": 1.0, "shift": 0.0, "criterion": 0.6851580191398292}}

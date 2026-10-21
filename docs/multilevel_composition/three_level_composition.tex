@@ -1,0 +1,783 @@
+%% Three-level hierarchical composition rule, and its induction to N levels.
+%% Derivation only -- nothing here is implemented in src/compass.
+%% Companion of multilevel_composition.tex (graphs/DAGs), which is left unchanged.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{microtype,booktabs,xcolor}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{Assumption}{Assumptions}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\I}{\mathbf{I}}
+\newcommand{\T}{\top}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\lam}{\lambda}
+\newcommand{\X}{\mathbf{x}}
+\newcommand{\ch}{\operatorname{ch}}
+\newcommand{\arrowm}{\texttt{gauss\_\allowbreak hierarchical}}
+\newcommand{\quiver}{\texttt{gauss\_\allowbreak jacobian}}
+% three-level shorthands
+\newcommand{\hk}{h_k}
+\newcommand{\lkj}{\ell_{kj}}
+\newcommand{\ak}{a_k}          % (g, h_k)
+\newcommand{\vkj}{\vartheta_{kj}} % (g, h_k, l_kj)
+
+\title{A three-level hierarchical composition rule for joint sampling,\\
+and its induction to $N$ levels}
+\author{COMPASS working note (derivation only, no code changes)}
+\date{12 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We derive the composition rule behind \arrowm{} and \quiver{} for a
+three-level hierarchy. The model has a top-level global $g$, mid-level
+(group) parameters $h_k$, and local parameters $\ell_{kj}$, one per
+observation. The rule returns the score of the diffused tall-data posterior
+over the \emph{whole} latent vector $(g,h_{1:K},\ell_{1:K,\cdot})$, i.e.\ a
+composed score for the top-level globals, the mid-level globals and the locals.
+It can therefore drive any reverse-diffusion sampler to draw \emph{joint}
+posterior samples, exactly as \arrowm{} does for $(g,\ell_{1:n})$. It is
+assembled only from the single-observation network's scores on root-to-leaf
+paths $(g,h_k,\ell_{kj})$, Gaussian backward precisions on those paths (from a
+pilot run or from the network Jacobian), and the diffused prior on $g$ and
+on each $(g,h_k)$. The approximation is the same one used by \arrowm{}: every
+backward kernel is replaced by a Gaussian. Everything else is exact algebra. We
+then extend the derivation from three to $N$ levels by induction. The $N$-level
+rule is one upward pass of merge-and-eliminate steps, one per level, followed by
+a downward cascade of Gaussian conditional-mean corrections. It costs time linear
+in the number of nodes and reduces to \arrowm{} for $N=2$. A NumPy check on
+linear-Gaussian hierarchies reproduces the exact composed score to
+$\le4\times10^{-15}$ for $N=2,\dots,5$. A probability-flow sampler driven by the
+three-level composed score recovers the exact joint posterior, including all
+cross-level correlations, to Monte Carlo noise.
+\end{abstract}
+
+\tableofcontents
+
+%=====================================================================
+\section{Setting and notation}\label{sec:setting}
+%=====================================================================
+
+\paragraph{Model.}
+\begin{equation}\label{eq:model}
+p(\theta,\X)=p(g)\prod_{k=1}^{K}\Big[\,p(\hk\mid g)\prod_{j=1}^{n_k}p(\lkj\mid g,\hk)\,p(x_{kj}\mid g,\hk,\lkj)\Big],
+\end{equation}
+with $g\in\R^{d_g}$ (top-level globals), $\hk\in\R^{d_h}$ (mid-level globals of
+group $k$), $\lkj\in\R^{d_\ell}$ (locals of observation $kj$), and $N_\text{obs}=\sum_kn_k$
+observations. All conditional priors may depend on every ancestor. Example:
+$g$ is a population mean and scale, $\hk$ a school effect, $\lkj$ a pupil effect,
+and $x_{kj}$ a pupil's data. Two-level partial pooling is the case $d_h=0$.
+
+\paragraph{Paths and the training unit.}
+The latent vector is $\theta=(g,\,h_1,\dots,h_K,\,\ell_{11},\dots,\ell_{Kn_K})$,
+of dimension $d_g+Kd_h+N_\text{obs}d_\ell$. Observation $kj$ sees the root-to-leaf
+\emph{path} $\vkj=(g,\hk,\lkj)\in\R^{D}$, $D=d_g+d_h+d_\ell$. The group sees
+$\ak=(g,\hk)\in\R^{d_a}$, $d_a=d_g+d_h$. The selection matrices satisfy
+$E_{kj}\theta=\vkj$, $E_{\ak}\theta=\ak$ and $E_g\theta=g$.
+
+The score network is trained exactly as now, on single-observation simulations,
+but now with three latent tiers: draw $g\sim p(g)$, $\hk\sim p(\hk\mid g)$,
+$\lkj\sim p(\lkj\mid g,\hk)$ and $x_{kj}\sim p(x_{kj}\mid\vkj)$. It returns the
+joint path score
+\begin{equation}\label{eq:network}
+s_{kj}(y_{kj})=\nabla_{y_{kj}}\log p_t(y_{kj}\mid x_{kj})=\big(s^g_{kj},\,s^h_{kj},\,s^\ell_{kj}\big),\qquad y_{kj}=(g_t,h_{k,t},\ell_{kj,t}).
+\end{equation}
+We also write $s^a_{kj}=(s^g_{kj},s^h_{kj})$ for its $(g,h)$ part.
+
+\paragraph{Diffusion.}
+Fix $t$ and write $\lam=\lam_t$ (variance-exploding convention, as in the paper;
+VP is identical in $y=x/\alpha_t$ coordinates). The noisy state is
+$y=(g_t,h_{1,t},\dots,\ell_{Kn_K,t})$, and $\varphi_\lam(z)=\N(z;0,\lam^2\I)$
+factorises over coordinates. Backward kernels are written $\pi_t$; the prior
+ones carry a superscript $0$.
+
+\paragraph{Prior quantities.}
+\begin{itemize}
+\item top prior on $g$: diffused score $s_0(g_t)=\nabla\log p_t(g_t)$ and
+ Gaussian backward precision $P_0\in\R^{d_g\times d_g}$;
+\item group prior on $\ak$: the marginal $p(g,\hk)=p(g)\,p(\hk\mid g)$, with
+ diffused score $s_{0,k}(g_t,h_{k,t})=\big(s^g_{0,k},s^h_{0,k}\big)$ and backward
+ precision $P_{0,k}\in\R^{d_a\times d_a}$.
+\end{itemize}
+In the exchangeable case all $p(g,\hk)$ are the same distribution, so one prior
+model evaluated at $K$ different points suffices.
+
+%=====================================================================
+\section{Step 1: the exact three-level factorisation}\label{sec:factorisation}
+%=====================================================================
+
+\begin{proposition}\label{prop:clean}
+\begin{equation}\label{eq:clean}
+p(\theta\mid\X)\;\propto\;p(g)^{1-K}\;\prod_{k=1}^Kp(g,\hk)^{1-n_k}\;\prod_{k=1}^K\prod_{j=1}^{n_k}p(\vkj\mid x_{kj}).
+\end{equation}
+\end{proposition}
+\begin{proof}
+By Bayes' rule, $p(\vkj\mid x_{kj})=p(g)\,p(\hk\mid g)\,p(\lkj\mid g,\hk)\,p(x_{kj}\mid\vkj)/p(x_{kj})$.
+Take the product over all $kj$ and collect the exponent of each prior factor:
+\begin{itemize}
+\item $p(\lkj\mid g,\hk)$ and the likelihood $p(x_{kj}\mid\vkj)$ appear once;
+\item $p(\hk\mid g)$ appears $n_k$ times, and $p(g)$ appears $N_\text{obs}=\sum_kn_k$ times.
+\end{itemize}
+The correction $\prod_kp(g,\hk)^{1-n_k}=\prod_kp(g)^{1-n_k}p(\hk\mid g)^{1-n_k}$
+brings each $p(\hk\mid g)$ to exponent $1$ and $p(g)$ to
+$N_\text{obs}+\sum_k(1-n_k)=K$. The remaining $p(g)^{1-K}$ brings $p(g)$ to $1$.
+What is left is $p(\theta,\X)/\prod p(x_{kj})$, which is proportional in $\theta$
+to the posterior.
+\end{proof}
+
+Compared with two levels, there is \emph{one correction per internal node}:
+$p(g)^{1-K}$ at the root and $p(g,\hk)^{1-n_k}$ at each group. The group
+correction is on the \emph{joint} prior of the group path $(g,\hk)$, not on
+$p(\hk\mid g)$ alone. This matters after diffusion, because the noise acts on
+$g$ and $\hk$ jointly.
+
+\begin{proposition}[Backward-kernel factorisation]\label{prop:backward}
+For every $t$, keeping $y$ and $\X$ fixed and reading proportionality in $\theta_0$,
+\begin{equation}\label{eq:backward}
+\pi_t(\theta_0\mid y,\X)\;\propto\;\pi^0_t(g_0\mid g_t)^{1-K}\prod_{k}\pi^0_t(a_{k,0}\mid a_{k,t})^{1-n_k}\prod_{k,j}\pi_t(\vartheta_{kj,0}\mid y_{kj},x_{kj}).
+\end{equation}
+\end{proposition}
+\begin{proof}
+$\pi_t(\theta_0\mid y,\X)\propto\varphi_\lam(y-\theta_0)\,p(\theta_0\mid\X)$. Factorise
+the forward kernel coordinate-wise and split each coordinate's copy into as many
+powers as there are factors containing it. Each $\lkj$ is contained only in factor
+$kj$, so it gets exponent $1$. Each $\hk$ gets $(1-n_k)+n_k=1$, and $g$ gets
+$(1-K)+\sum_k(1-n_k)+\sum_kn_k=1$. Hence
+\[
+\varphi_\lam(y-\theta_0)=\varphi_\lam(g_t-g_0)^{1-K}\prod_k\varphi_\lam(a_{k,t}-a_{k,0})^{1-n_k}\prod_{k,j}\varphi_\lam(y_{kj}-\vartheta_{kj,0}).
+\]
+Multiply by \eqref{eq:clean} and pair each noise factor with the density factor
+of the same scope. Every pair is a backward kernel times a normaliser
+($p_t(g_t)^{1-K}$, $p_t(a_{k,t})^{1-n_k}$, $p_t(y_{kj}\mid x_{kj})$) that does not
+depend on $\theta_0$.
+\end{proof}
+
+%=====================================================================
+\section{Step 2: the composed score is a backward-kernel mean}
+%=====================================================================
+
+Tweedie's formula holds for any distribution with a finite first moment, so the
+composed score of the full latent vector is
+\begin{equation}\label{eq:tweedie}
+u(y):=\nabla_y\log p_t(y\mid\X)=\frac{\mu(y)-y}{\lam^2},\qquad\mu(y)=\E[\theta_0\mid y,\X].
+\end{equation}
+$u$ has one block per latent: $u^g$, $u^{h_k}$ and $u^{\ell_{kj}}$. Applied to the
+factors, Tweedie gives their means in terms of the available scores:
+\begin{equation}\label{eq:factor-means}
+m_{kj}=y_{kj}+\lam^2s_{kj},\qquad m_{0,k}=a_{k,t}+\lam^2s_{0,k},\qquad m_0=g_t+\lam^2s_0.
+\end{equation}
+
+%=====================================================================
+\section{Step 3: Gaussian factors give a nested arrowhead system}
+%=====================================================================
+
+\paragraph{The single approximation.} Replace every factor in \eqref{eq:backward}
+by a Gaussian with the correct mean \eqref{eq:factor-means}: precision $P_{kj}$ for
+$\pi_t(\vartheta_{kj,0}\mid\cdot)$, $P_{0,k}$ for $\pi_t^0(a_{k,0}\mid\cdot)$ and
+$P_0$ for $\pi^0_t(g_0\mid\cdot)$. The paper's Step~3 then goes through
+verbatim, with weights $1-K$, $1-n_k$ and $1$. The surrogate is
+$\exp(-\tfrac12\theta_0^\T\Lambda\theta_0+\theta_0^\T b)$, and since each mean
+and its state share a precision, $y$ drops out:
+\begin{equation}\label{eq:system}
+\Lambda u=r,\qquad
+\begin{aligned}
+\Lambda&=(1-K)\,E_g^\T P_0E_g+\sum_k(1-n_k)\,E_{\ak}^\T P_{0,k}E_{\ak}+\sum_{k,j}E_{kj}^\T P_{kj}E_{kj},\\
+r&=(1-K)\,E_g^\T P_0s_0+\sum_k(1-n_k)\,E_{\ak}^\T P_{0,k}s_{0,k}+\sum_{k,j}E_{kj}^\T P_{kj}s_{kj}.
+\end{aligned}
+\end{equation}
+
+\paragraph{Blocks.} Partition each path precision and each group-prior precision as
+\[
+P_{kj}=\begin{pmatrix}P^{gg}_{kj}&P^{gh}_{kj}&P^{g\ell}_{kj}\\P^{hg}_{kj}&P^{hh}_{kj}&P^{h\ell}_{kj}\\P^{\ell g}_{kj}&P^{\ell h}_{kj}&P^{\ell\ell}_{kj}\end{pmatrix},\qquad
+P_{0,k}=\begin{pmatrix}P^{gg}_{0,k}&P^{gh}_{0,k}\\P^{hg}_{0,k}&P^{hh}_{0,k}\end{pmatrix}.
+\]
+The non-zero blocks of $\Lambda$ are
+\begin{equation}\label{eq:Lambda-blocks}
+\begin{aligned}
+\Lambda_{gg}&=(1-K)P_0+\sum_k(1-n_k)P^{gg}_{0,k}+\sum_{k,j}P^{gg}_{kj},&
+\Lambda_{g\hk}&=(1-n_k)P^{gh}_{0,k}+\sum_jP^{gh}_{kj},\\
+\Lambda_{\hk\hk}&=(1-n_k)P^{hh}_{0,k}+\sum_jP^{hh}_{kj},&
+\Lambda_{g\lkj}&=P^{g\ell}_{kj},\quad
+\Lambda_{\hk\lkj}=P^{h\ell}_{kj},\quad
+\Lambda_{\lkj\lkj}=P^{\ell\ell}_{kj},
+\end{aligned}
+\end{equation}
+with transposes below the diagonal. All other blocks are zero: $h_k$--$h_{k'}$,
+$\ell$--$\ell$, and $h_k$--$\ell_{k'j}$ for $k'\neq k$. Ordered as
+$(g;\,h_1,\ell_{1\cdot};\,\dots;\,h_K,\ell_{K\cdot})$, $\Lambda$ is a \emph{nested
+arrowhead}: an outer arrowhead whose diagonal blocks are themselves arrowheads,
+\[
+\Lambda=\begin{pmatrix}
+\Lambda_{gg}&\mathcal{B}_1&\cdots&\mathcal{B}_K\\
+\mathcal{B}_1^\T&\mathcal{A}_1&&\\
+\vdots&&\ddots&\\
+\mathcal{B}_K^\T&&&\mathcal{A}_K
+\end{pmatrix},\qquad
+\mathcal{A}_k=\begin{pmatrix}
+\Lambda_{\hk\hk}&P^{h\ell}_{k1}&\cdots&P^{h\ell}_{kn_k}\\
+P^{\ell h}_{k1}&P^{\ell\ell}_{k1}&&\\
+\vdots&&\ddots&\\
+P^{\ell h}_{kn_k}&&&P^{\ell\ell}_{kn_k}
+\end{pmatrix}.
+\]
+The right-hand side blocks are, with $[\cdot]^g$ etc.\ denoting sub-vectors,
+\begin{equation}\label{eq:r-blocks}
+\begin{aligned}
+r^g&=(1-K)P_0s_0+\sum_k(1-n_k)[P_{0,k}s_{0,k}]^g+\sum_{k,j}[P_{kj}s_{kj}]^g,\\
+r^{\hk}&=(1-n_k)[P_{0,k}s_{0,k}]^h+\sum_j[P_{kj}s_{kj}]^h,\qquad
+r^{\lkj}=[P_{kj}s_{kj}]^\ell.
+\end{aligned}
+\end{equation}
+
+%=====================================================================
+\section{Step 4: elimination, level by level}\label{sec:elimination}
+%=====================================================================
+
+We use the two block identities of the paper (\S3.4) for a positive-definite
+$P=\begin{psmallmatrix}A&B\\B^\T&C\end{psmallmatrix}$ with $\Sigma=P^{-1}$:
+$S:=A-BC^{-1}B^\T=(\Sigma_{11})^{-1}$ and $-C^{-1}B^\T=\Sigma_{21}\Sigma_{11}^{-1}$.
+
+\subsection{Pass 1: eliminate the locals}
+
+Split each path precision with respect to $(\ak,\lkj)$:
+\[
+P_{kj}=\begin{pmatrix}A_{kj}&B_{kj}\\B_{kj}^\T&C_{kj}\end{pmatrix},\quad
+A_{kj}=\begin{pmatrix}P^{gg}_{kj}&P^{gh}_{kj}\\P^{hg}_{kj}&P^{hh}_{kj}\end{pmatrix},\;
+B_{kj}=\begin{pmatrix}P^{g\ell}_{kj}\\P^{h\ell}_{kj}\end{pmatrix},\;
+C_{kj}=P^{\ell\ell}_{kj}.
+\]
+\paragraph{Local row.} By \eqref{eq:Lambda-blocks} and \eqref{eq:r-blocks}, the
+$\lkj$ row of $\Lambda u=r$ reads $B_{kj}^\T u^{\ak}+C_{kj}u^{\lkj}=B_{kj}^\T s^a_{kj}+C_{kj}s^\ell_{kj}$, so
+\begin{equation}\label{eq:local}
+u^{\lkj}=s^\ell_{kj}+K_{kj}\big(u^{\ak}-s^a_{kj}\big),\qquad K_{kj}:=-C_{kj}^{-1}B_{kj}^\T=[\Sigma_{t,kj}]_{\ell a}[\Sigma_{t,kj}]_{aa}^{-1}\in\R^{d_\ell\times d_a}.
+\end{equation}
+Splitting $K_{kj}=(K^g_{kj},K^h_{kj})$ by columns, the local correction is
+$K^g_{kj}(u^g-s^g_{kj})+K^h_{kj}(u^{\hk}-s^h_{kj})$. The local moves in
+response to how far the composed top-level \emph{and} mid-level scores have moved
+away from observation $kj$'s own opinion.
+
+\paragraph{Effect on the $(g,\hk)$ rows (first cancellation).} Factor $kj$
+contributes $A_{kj}u^{\ak}+B_{kj}u^{\lkj}$ to the left-hand side of the $\ak$ rows
+and $A_{kj}s^a_{kj}+B_{kj}s^\ell_{kj}$ to the right-hand side. Substituting
+\eqref{eq:local},
+\[
+A_{kj}u^{\ak}+B_{kj}s^\ell_{kj}-B_{kj}C_{kj}^{-1}B_{kj}^\T\big(u^{\ak}-s^a_{kj}\big)
+\;=\;A_{kj}s^a_{kj}+B_{kj}s^\ell_{kj}.
+\]
+$B_{kj}s^\ell_{kj}$ cancels. The local score drops out of every remaining
+equation, and factor $kj$ contributes $S_{kj}u^{\ak}$ on the left and
+$S_{kj}s^a_{kj}$ on the right, with
+\begin{equation}\label{eq:Skj}
+S_{kj}:=A_{kj}-B_{kj}C_{kj}^{-1}B_{kj}^\T=\big([\Sigma_{t,kj}]_{aa}\big)^{-1}\in\R^{d_a\times d_a},
+\end{equation}
+the precision of the $(g,h)$-marginal of observation $kj$'s Gaussian backward
+kernel. After pass 1, observation $kj$ is the \emph{message} $(S_{kj},s^a_{kj})$ on
+$(g,\hk)$. It carries the network's \emph{conditional} $(g,h)$ score at the
+current $\ell_{kj,t}$, weighted by the \emph{marginal} precision. This is the
+two-level mechanism, applied with ``global'' $=(g,\hk)$.
+
+\subsection{Pass 2: merge each group, then eliminate the mid-level globals}
+
+\paragraph{Merge.} After pass 1, the only factors that involve $\hk$ are the
+$n_k$ messages and the group prior, all with scope $\ak$. Their sum is
+\begin{equation}\label{eq:merge}
+\boxed{\;
+Q_k:=\sum_{j=1}^{n_k}S_{kj}+(1-n_k)P_{0,k},\qquad
+q_k:=\sum_{j=1}^{n_k}S_{kj}\,s^a_{kj}+(1-n_k)P_{0,k}\,s_{0,k},\qquad
+\sigma_k:=Q_k^{-1}q_k.\;}
+\end{equation}
+$\sigma_k=(\sigma^g_k,\sigma^h_k)\in\R^{d_a}$ is \emph{literally the two-level
+\arrowm{} rule applied to group $k$ alone}, with global $(g,\hk)$, locals
+$\ell_{k\cdot}$ and prior $p(g,\hk)$. It is the composed score of the
+\emph{group} tall posterior $p(g,\hk,\ell_{k\cdot}\mid x_{k\cdot})$ on its $(g,h)$
+block. $Q_k^{-1}$ is the covariance of that group's composed Gaussian backward
+kernel on $(g,\hk)$, with its locals integrated out. In information form,
+\begin{equation}\label{eq:Qk-info}
+Q_k=P_{0,k}+\sum_{j=1}^{n_k}\big(S_{kj}-P_{0,k}\big)=:P_{0,k}+\sum_jI_{kj},
+\end{equation}
+so $I_{kj}$ is the information observation $kj$ carries about $(g,\hk)$.
+
+\paragraph{Mid-level row.} Split $Q_k=\begin{psmallmatrix}Q^{gg}_k&Q^{gh}_k\\Q^{hg}_k&Q^{hh}_k\end{psmallmatrix}$
+and likewise $q_k=(q^g_k,q^h_k)=Q_k\sigma_k$. After pass 1, the $\hk$ row of the
+system reads $Q^{hg}_ku^g+Q^{hh}_ku^{\hk}=q^h_k=Q^{hg}_k\sigma^g_k+Q^{hh}_k\sigma^h_k$, so
+\begin{equation}\label{eq:mid}
+u^{\hk}=\sigma^h_k+G_k\big(u^g-\sigma^g_k\big),\qquad
+G_k:=-(Q^{hh}_k)^{-1}Q^{hg}_k=[Q_k^{-1}]_{hg}\,[Q_k^{-1}]_{gg}^{-1}\in\R^{d_h\times d_g}.
+\end{equation}
+
+\paragraph{Effect on the $g$ row (second cancellation).} Group $k$ contributes
+$Q^{gg}_ku^g+Q^{gh}_ku^{\hk}$ on the left and $q^g_k=Q^{gg}_k\sigma^g_k+Q^{gh}_k\sigma^h_k$
+on the right. Substituting \eqref{eq:mid}, the $Q^{gh}_k\sigma^h_k$ terms cancel,
+and the group contributes $T_ku^g$ on the left and $T_k\sigma^g_k$ on the right, with
+\begin{equation}\label{eq:Tk}
+T_k:=Q^{gg}_k-Q^{gh}_k(Q^{hh}_k)^{-1}Q^{hg}_k=\big([Q_k^{-1}]_{gg}\big)^{-1}\in\R^{d_g\times d_g}.
+\end{equation}
+After pass 2, group $k$ is the message $(T_k,\sigma^g_k)$ on $g$: \emph{a group
+behaves like a single observation} with score $\sigma^g_k$ and precision $T_k$.
+
+\subsection{Pass 3: the top-level globals}
+
+The remaining $g$ row is
+$\big[\sum_kT_k+(1-K)P_0\big]u^g=\sum_kT_k\sigma^g_k+(1-K)P_0s_0$.
+
+\subsection{The three-level rule}
+
+\begin{tcolorbox}[colback=blue!3,colframe=blue!40!black,title={Three-level composed score (all latents)}]
+Given the network path scores $s_{kj}$, path precisions $P_{kj}$, and prior
+quantities $(s_0,P_0)$ and $(s_{0,k},P_{0,k})$:
+\begin{align}
+&\text{(pass 1)}\quad S_{kj}=A_{kj}-B_{kj}C_{kj}^{-1}B_{kj}^\T,\qquad K_{kj}=-C_{kj}^{-1}B_{kj}^\T,\label{eq:rule-pass1}\\
+&\text{(pass 2)}\quad Q_k=\textstyle\sum_jS_{kj}+(1-n_k)P_{0,k},\quad
+\sigma_k=Q_k^{-1}\big[\textstyle\sum_jS_{kj}s^a_{kj}+(1-n_k)P_{0,k}s_{0,k}\big],\notag\\
+&\hphantom{\text{(pass 2)}}\quad T_k=Q^{gg}_k-Q^{gh}_k(Q^{hh}_k)^{-1}Q^{hg}_k,\qquad G_k=-(Q^{hh}_k)^{-1}Q^{hg}_k,\label{eq:rule-pass2}\\
+&\text{(top)}\qquad u^g=\Big[\textstyle\sum_{k=1}^KT_k+(1-K)P_0\Big]^{-1}\Big[\textstyle\sum_{k=1}^KT_k\,\sigma^g_k+(1-K)P_0\,s_0(g_t)\Big],\label{eq:rule-g}\\
+&\text{(mid)}\qquad u^{\hk}=\sigma^h_k+G_k\big(u^g-\sigma^g_k\big),\label{eq:rule-h}\\
+&\text{(local)}\quad\; u^{\lkj}=s^\ell_{kj}+K^g_{kj}\big(u^g-s^g_{kj}\big)+K^h_{kj}\big(u^{\hk}-s^h_{kj}\big).\label{eq:rule-l}
+\end{align}
+\end{tcolorbox}
+
+The \emph{structure} of the rule is: compose upwards (locals $\to$ groups $\to$
+top), then correct downwards (top $\to$ mid $\to$ locals). Its parts are:
+\begin{itemize}
+\item \eqref{eq:rule-g} is the two-level \arrowm{} global rule, with the
+ \emph{groups} as observations;
+\item each group score $\sigma_k$ is the two-level rule over its own observations;
+\item \eqref{eq:rule-h} and \eqref{eq:rule-l} are two nested copies of the two-level
+ local rule.
+\end{itemize}
+
+\paragraph{Denoiser reading.} Multiply \eqref{eq:rule-h} and \eqref{eq:rule-l} by
+$\lam^2$ and add the state. With the composed denoiser $\hat\theta=y+\lam^2u$,
+the group denoiser $\hat a_k=a_{k,t}+\lam^2\sigma_k$ and the network denoiser
+$\hat\vartheta_{kj}=y_{kj}+\lam^2s_{kj}$:
+\[
+\hat h_k=\hat a^h_k+G_k\big(\hat g-\hat a^g_k\big),\qquad
+\hat\ell_{kj}=\hat\vartheta^\ell_{kj}+K_{kj}\big(\hat a_k^{\text{comp}}-\hat\vartheta^{a}_{kj}\big),\quad\hat a_k^{\text{comp}}=(\hat g,\hat h_k).
+\]
+These are Gaussian conditional-mean updates cascading down the tree. Once all
+data have revised the estimate of $g$, each group's $h$ estimate shifts by the
+regression $G_k$ of $h$ on $g$ under that group's kernel. Each local then shifts
+by the regression $K_{kj}$ of $\ell$ on $(g,h)$ under its own kernel.
+
+\paragraph{Cost.} $N_\text{obs}$ inversions of $d_\ell\times d_\ell$ blocks,
+$K$ inversions of $d_h\times d_h$ blocks (and of $Q_k$, $d_a\times d_a$), and
+one $d_g\times d_g$ solve. This is linear in $N_\text{obs}$ and $K$, with no
+dense $(d_g+Kd_h+N_\text{obs}d_\ell)$-dimensional solve.
+
+\begin{remark}[Numerically preferred form]
+Forming $\sigma_k$ needs $Q_k$ to be invertible; the elimination only needs
+$Q^{hh}_k\succ0$. Equivalently, use the information vector
+$\tau_k=q^g_k-Q^{gh}_k(Q^{hh}_k)^{-1}q^h_k$ ($=T_k\sigma^g_k$) in \eqref{eq:rule-g}
+and $u^{\hk}=(Q^{hh}_k)^{-1}(q^h_k-Q^{hg}_ku^g)$ in place of \eqref{eq:rule-h}.
+\end{remark}
+
+%=====================================================================
+\section{Properties of the three-level rule}\label{sec:properties}
+%=====================================================================
+
+\begin{proposition}[Well-posedness]\label{prop:pd}
+$\Lambda\succ0$ if and only if every pivot of the elimination is positive definite:
+$C_{kj}\succ0$ (automatic, since $P_{kj}\succ0$), $Q^{hh}_k\succ0$, and
+$\Lambda_T:=\sum_kT_k+(1-K)P_0\succ0$. A sufficient condition is that every
+information increment is PSD:
+\begin{equation}\label{eq:info-psd}
+I_{kj}=S_{kj}-P_{0,k}\succeq0\quad\text{and}\quad J_k:=T_k-P_0\succeq0,
+\end{equation}
+since then $Q_k\succeq P_{0,k}\succ0$ and $\Lambda_T=P_0+\sum_kJ_k\succeq P_0\succ0$.
+\end{proposition}
+\begin{proof}
+The three passes form a block $LDL^\T$ factorisation of $\Lambda$ with those
+pivots. The information forms follow from $\sum_jS_{kj}+(1-n_k)P_{0,k}=P_{0,k}+\sum_j(S_{kj}-P_{0,k})$,
+and similarly for $\Lambda_T$.
+\end{proof}
+In the linear-Gaussian case both increments are exactly PSD. $S_{kj}$ is the
+precision of $(g,h)$ given $(y_{kj},x_{kj})$, and $P_{0,k}$ that given
+$a_{k,t}$ alone. $T_k$ is the precision of $g$ given all of group $k$'s states and
+data, and $P_0$ that given $g_t$ alone. Gaussian conditioning on more never
+increases covariance. The existing PSD projection of $I_j$ therefore generalises
+to projecting both $I_{kj}$ and $J_k$.
+
+\paragraph{Exactness.} If $p(g)$, $p(g,\hk)$ and all $p(\vkj\mid x_{kj})$ are
+Gaussian (a linear-Gaussian three-level model), every backward kernel is Gaussian.
+With exact path scores and covariances, the rule gives the exact composed score
+at every $t$.
+
+\paragraph{Consistency checks.} Each follows by comparing $(\Lambda,r)$.
+\begin{enumerate}
+\item $N_\text{obs}=1$: all corrections have exponent $0$, and $u=s_{11}$.
+\item $n_k=1$ for all $k$: the group priors drop out, $Q_k=S_{k1}$ and $\sigma_k=s^a_{k1}$.
+ This is \arrowm{} with global $g$ and local block $(\hk,\ell_{k1})$.
+\item $K=1$: the top prior drops out and $u^g=\sigma^g_1$. This is \arrowm{} with global
+ $(g,h_1)$ and prior $p(g,h_1)$.
+\item $d_h=0$: $P_{0,k}=P_0$ and $T_k=Q_k$. Then \eqref{eq:rule-g} becomes
+ $\big[\sum_{kj}S_{kj}+(1-N_\text{obs})P_0\big]^{-1}\big[\sum_{kj}S_{kj}s^g_{kj}+(1-N_\text{obs})P_0s_0\big]$,
+ which is \arrowm{} over all $N_\text{obs}$ observations.
+\item No coupling of the locals ($B_{kj}=0$): $K_{kj}=0$ and $u^{\lkj}=s^\ell_{kj}$.
+ No coupling of the mid level ($Q^{gh}_k=0$): $G_k=0$ and $T_k=Q^{gg}_k$.
+\end{enumerate}
+
+%=====================================================================
+\section{Joint sampling with the three-level score}\label{sec:sampling}
+%=====================================================================
+
+\paragraph{Yes: the rule gives a score for every latent.} $u(y)$ from
+\eqref{eq:rule-g}--\eqref{eq:rule-l} is (up to the Gaussian-kernel approximation)
+$\nabla_y\log p_t(y\mid\X)$ for the \emph{full} vector
+$y=(g_t,h_{1:K,t},\ell_{\cdot\cdot,t})$. Plugged into any reverse-time sampler
+(Euler/DPM predictor, churn, Langevin correctors or the probability-flow ODE),
+it moves all coordinates together. At $t\to0$ the sampler returns draws from the
+joint posterior $p(g,h_{1:K},\ell_{1:K,\cdot}\mid\X)$, with consistent
+cross-level dependence: $g$--$h$, $h$--$\ell$ and $g$--$\ell$. No Gibbs-style
+alternation between levels is needed. This is the same situation as \arrowm,
+whose $u^g$ and $u^{\ell_j}$ drive one joint sampler.
+
+\paragraph{One sampler step.} At $(t,y)$:
+\begin{enumerate}
+\item For every observation, gather the path state
+ $y_{kj}=(g_t,h_{k,t},\ell_{kj,t})$ and evaluate the network once (batched over
+ all $N_\text{obs}$ paths) to get $s_{kj}$.
+\item Path precisions $P_{kj}$:
+ \begin{itemize}
+ \item[\arrowm:] $P_{kj}=\hat\Sigma_{0,kj}^{-1}+\lam^{-2}\I_D$, with
+  $\hat\Sigma_{0,kj}$ the pilot covariance of the network's single-observation draws
+  of the \emph{whole path} $(g,\hk,\lkj)$ given $x_{kj}$.
+ \item[\quiver:] $P_{kj}=\big[\lam^2(\I_D+\lam^2\nabla s_{kj})\big]^{-1}$, from $D$
+  JVPs or finite-difference copies, refreshed every \texttt{jacobian\_refresh} steps.
+ \end{itemize}
+\item Prior quantities $s_0(g_t),P_0$ and $s_{0,k}(g_t,h_{k,t}),P_{0,k}$
+ (\cref{sec:prior}).
+\item Optional PSD projection of $I_{kj}$ and $J_k$ (\cref{prop:pd}).
+\item Evaluate \eqref{eq:rule-pass1}--\eqref{eq:rule-l} and take the sampler step on all of $y$.
+\end{enumerate}
+In the code's current vocabulary, the \texttt{hierarchy} argument (shared versus
+per-observation latents) would become a three-tier index: top-level dimensions,
+group dimensions with a group id, and local dimensions. Each observation row then
+carries the group id that tells the sampler which $h_k$ block it shares.
+
+\paragraph{Numerical confirmation.} On a linear-Gaussian three-level model
+($K=3$ groups of $4$, $d_g=d_h=2$, $d_\ell=1$, 23 latent dimensions), we drove a
+Heun probability-flow ODE with the composed score $u$ from \eqref{eq:rule-g}--\eqref{eq:rule-l}
+(400 log-spaced steps, $\lam$ from 40 to $10^{-3}$, $2\times10^4$ draws). The
+ODE was started from the exact diffused law, so that only the score is tested.
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+sampler score & max $|\text{mean err}|/\text{sd}$ & sd ratio range & max $|\text{corr err}|$\\
+\midrule
+three-level composed score & 0.018 & $[0.989,\,1.007]$ & 0.021\\
+same, group priors $p(g,\hk)^{1-n_k}$ dropped & 0.591 & $[0.948,\,2.533]$ & 0.176\\
+\midrule
+Monte Carlo floor (per coordinate / pair) & $\approx0.007$ & & $\approx0.007$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The composed-score maxima are taken over 23 means and 253 correlations, so they
+sit at about three times the per-coordinate Monte Carlo floor, as expected for
+maxima. The joint posterior, including cross-level correlations (e.g.\
+$\operatorname{corr}(h_{0},\ell_{00})=-0.298$ vs exact $-0.294$), is recovered.
+Dropping the mid-level prior corrections biases the means by up to $0.6$
+posterior sd and inflates some sds by $2.5\times$.
+
+%=====================================================================
+\section{The prior quantities at the mid level}\label{sec:prior}
+%=====================================================================
+
+This is the only genuinely new input relative to \arrowm, which needs only
+$(s_0,P_0)$ on $g$ (closed form for a Gaussian $p(g)$). The group factor needs
+the diffused \emph{joint} prior score $\nabla\log p_t(g_t,h_{k,t})$ and a backward
+precision on $(g,h)$.
+\begin{itemize}
+\item \textbf{Gaussian $p(g,h)$} (e.g.\ $h\mid g\sim\N(Wg+b,\Sigma_h)$ with fixed
+ $\Sigma_h$): closed form. $P_{0,k}=\Sigma_{\text{pr},a}^{-1}+\lam^{-2}\I$ and
+ $s_{0,k}=-(\Sigma_{\text{pr},a}+\lam^2\I)^{-1}(a_{k,t}-\mu_{\text{pr},a})$.
+\item \textbf{Non-Gaussian $p(g,h)$}, typical when $g$ contains the scale of $h$
+ (funnel): no closed form. The options are (i) a small unconditional score network
+ on $(g,h)$, trained on prior draws only, so it needs no simulator calls; (ii) the
+ same score network with all data masked, if its mask menu includes that pattern;
+ (iii) for \quiver, $P_{0,k}$ from the Tweedie Jacobian of (i)/(ii), exactly like
+ the path precisions. Since all groups share one prior, this is a single model
+ evaluated at $K$ points.
+\item \textbf{Error amplification.} The group prior enters with weight $1-n_k$,
+ so its score error is multiplied by $n_k-1$, just as the top prior's error is
+ multiplied by $K-1$. A poor mid-level prior score therefore hurts most for large
+ groups.
+\end{itemize}
+
+%=====================================================================
+\section{From three to $N$ levels}\label{sec:nlevel}
+%=====================================================================
+
+\subsection{Nested $N$-level model}
+
+Levels are numbered $1$ (top) to $N$ (locals). Nodes at level $m$ are multi-indices
+$\iota=(i_2,\dots,i_m)$. The root is $\iota=()$, and the parent of $\iota$ is
+$\iota^-$, $\iota$ with its last index dropped. Let $\ch(\iota)$ be the children
+of $\iota$ and $n_\iota:=|\ch(\iota)|\ge1$. Node $\iota$ carries
+$\theta_\iota\in\R^{d_m}$, and each leaf (level $N$) has one observation $x_\iota$
+(several observations per leaf: see \cref{rem:ragged}). The path to $\iota$ is
+$\pi(\iota)=\big(\theta_{()},\theta_{(i_2)},\dots,\theta_\iota\big)\in\R^{D_m}$,
+$D_m=d_1+\dots+d_m$, and $\alpha(\iota)=\pi(\iota^-)$ is the path of strict
+ancestors. The model is
+\begin{equation}\label{eq:nmodel}
+p(\theta,\X)=p(\theta_{()})\prod_{m=2}^{N}\prod_{\iota\in\mathcal{I}_m}p\big(\theta_\iota\mid\theta_{\alpha(\iota)}\big)\prod_{\iota\in\mathcal{I}_N}p\big(x_\iota\mid\theta_{\pi(\iota)}\big).
+\end{equation}
+Three levels: $()=g$, $(k)=\hk$, $(k,j)=\lkj$. Two levels: $()=g$, $(j)=\ell_j$.
+The network is trained on full paths $(\theta_{\pi(\iota)},x_\iota)$, $\iota\in\mathcal{I}_N$,
+of dimension $D_N$.
+
+\subsection{Step 1 for $N$ levels}
+
+\begin{lemma}[Counting identity]\label{lem:counting}
+For every node $\nu$ at level $m<N$, let $L_\nu$ be the number of leaves below
+$\nu$ and $\mathcal{T}_\nu$ the internal (non-leaf) nodes of the subtree rooted at
+$\nu$, including $\nu$. Then
+\begin{equation}\label{eq:counting}
+\sum_{\mu\in\mathcal{T}_\nu}(1-n_\mu)=1-L_\nu .
+\end{equation}
+\end{lemma}
+\begin{proof}
+Induction on $N-m$. At $m=N-1$, $\mathcal{T}_\nu=\{\nu\}$ and $L_\nu=n_\nu$.
+For $m<N-1$, $\mathcal{T}_\nu=\{\nu\}\cup\bigcup_{c\in\ch(\nu)}\mathcal{T}_c$, so
+the sum is $(1-n_\nu)+\sum_c(1-L_c)=1-n_\nu+n_\nu-L_\nu=1-L_\nu$.
+\end{proof}
+
+\begin{proposition}[Exact $N$-level factorisation]\label{prop:nfactor}
+\begin{align}
+p(\theta\mid\X)&\propto\prod_{m=1}^{N-1}\prod_{\iota\in\mathcal{I}_m}p\big(\theta_{\pi(\iota)}\big)^{1-n_\iota}\prod_{\iota\in\mathcal{I}_N}p\big(\theta_{\pi(\iota)}\mid x_\iota\big),\label{eq:nclean}\\
+\pi_t(\theta_0\mid y,\X)&\propto\prod_{m=1}^{N-1}\prod_{\iota\in\mathcal{I}_m}\pi^0_t\big(\theta_{\pi(\iota),0}\mid y_{\pi(\iota)}\big)^{1-n_\iota}\prod_{\iota\in\mathcal{I}_N}\pi_t\big(\theta_{\pi(\iota),0}\mid y_{\pi(\iota)},x_\iota\big).\label{eq:nbackward}
+\end{align}
+\end{proposition}
+\begin{proof}
+Every factor is a product of the conditional priors along its path; posterior
+factors also carry their likelihood. The conditional prior of node $\nu$ at level
+$m$ lies on every path through $\nu$. It therefore appears in the $L_\nu$ leaf
+posteriors below $\nu$ and in the internal-node prior factors $\mu\in\mathcal{T}_\nu$
+(for $m=N$, only in its own leaf factor). Its total exponent is
+$L_\nu+\sum_{\mu\in\mathcal{T}_\nu}(1-n_\mu)=1$ by \cref{lem:counting}. Every
+likelihood appears once, which proves \eqref{eq:nclean}. The noise coordinate of
+$\theta_\nu$ is split with the same exponents, which sum to one by the same count,
+and pairing as in \cref{prop:backward} proves \eqref{eq:nbackward}.
+\end{proof}
+
+For $N=2$ this is $p(g)^{1-n}\prod_jp(g,\ell_j\mid x_j)$. For $N=3$ it is
+\eqref{eq:clean}. Each internal node contributes the prior of its whole path with
+exponent $1-(\text{number of children})$.
+
+\subsection{Steps 2--3 for $N$ levels}
+
+Steps 2 and 3 do not use the depth. With Gaussian factors (precision $P_\iota$ and
+network score $s_\iota$ on leaf paths, prior precision $P_{0,\iota}$ and score
+$s_{0,\iota}$ on internal paths),
+\begin{equation}\label{eq:nsystem}
+\Lambda=\sum_{m<N}\sum_{\iota\in\mathcal{I}_m}(1-n_\iota)E_{\pi(\iota)}^\T P_{0,\iota}E_{\pi(\iota)}+\sum_{\iota\in\mathcal{I}_N}E_{\pi(\iota)}^\T P_\iota E_{\pi(\iota)},
+\end{equation}
+and $r$ is the same with each $P$ replaced by $Ps$. Two nodes are coupled in
+$\Lambda$ only if one is an ancestor of the other. $\Lambda$ is a nested arrowhead
+of depth $N$: the arrowhead of level $m$ has, as diagonal blocks, the arrowheads of
+the level-$(m+1)$ subtrees.
+
+\subsection{Step 4 for $N$ levels: induction over the levels}
+
+\begin{definition}[Level recursion]\label{def:recursion}
+\emph{Leaves} ($m=N$): $Q_\iota:=P_\iota$ and $\sigma_\iota:=s_\iota$ (the network).
+
+\emph{Eliminate} (any non-root $\iota$, level $m\ge2$): split $Q_\iota$ into the
+ancestor block $\alpha=\alpha(\iota)$ (dimension $D_{m-1}$) and the own block
+$\iota$ (dimension $d_m$), and set
+\begin{equation}\label{eq:n-elim}
+S_\iota:=[Q_\iota]_{\alpha\alpha}-[Q_\iota]_{\alpha\iota}[Q_\iota]_{\iota\iota}^{-1}[Q_\iota]_{\iota\alpha}=\big([Q_\iota^{-1}]_{\alpha\alpha}\big)^{-1},\qquad
+G_\iota:=-[Q_\iota]_{\iota\iota}^{-1}[Q_\iota]_{\iota\alpha}.
+\end{equation}
+\emph{Merge} (internal $\iota$, level $m<N$): on the path $\pi(\iota)$,
+\begin{equation}\label{eq:n-merge}
+Q_\iota:=\sum_{c\in\ch(\iota)}S_c+(1-n_\iota)P_{0,\iota},\qquad
+\sigma_\iota:=Q_\iota^{-1}\Big[\sum_{c\in\ch(\iota)}S_c\,\sigma_c^{\alpha(c)}+(1-n_\iota)P_{0,\iota}\,s_{0,\iota}\Big],
+\end{equation}
+where $\sigma_c^{\alpha(c)}$ is the restriction of $\sigma_c$ to $\alpha(c)=\pi(\iota)$.
+\end{definition}
+
+\begin{theorem}[$N$-level composition rule]\label{thm:nlevel}
+Compute \cref{def:recursion} for $m=N,N-1,\dots,1$. Then set
+\begin{equation}\label{eq:n-down}
+u^{()}=\sigma_{()},\qquad
+u^{\iota}=\sigma^{\iota}_\iota+G_\iota\big(u^{\alpha(\iota)}-\sigma^{\alpha(\iota)}_\iota\big)\quad(m=2,\dots,N,\text{ top-down}),
+\end{equation}
+where $u^{\alpha(\iota)}$ is the already computed composed score on the ancestors.
+If all pivots $[Q_\iota]_{\iota\iota}$ ($m\ge2$) and $Q_{()}$ are positive definite,
+$u$ is the unique solution of $\Lambda u=r$ with \eqref{eq:nsystem}, i.e.\ the
+composed score of \emph{all} latents at all levels.
+\end{theorem}
+\begin{proof}
+We prove, by downward induction on $m=N,\dots,1$:
+
+\emph{Claim$(m)$.} After all nodes at levels $>m$ have been eliminated,
+the reduced system is the system \eqref{eq:nsystem} of the \emph{truncated
+$m$-level model}, in which each level-$m$ node $\iota$ carries the single merged
+factor $(Q_\iota,Q_\iota\sigma_\iota)$ on $\pi(\iota)$ in place of its subtree,
+together with the prior factors of the levels $<m$.
+
+\emph{Base} $m=N$: nothing has been eliminated, and the leaf factors are
+$(P_\iota,P_\iota s_\iota)=(Q_\iota,Q_\iota\sigma_\iota)$.
+
+\emph{Step} $m\to m-1$, with $m\ge2$. Fix $\iota\in\mathcal{I}_m$. By Claim$(m)$, block
+$\theta_\iota$ appears only in its merged factor: all other remaining factors live
+on paths of other level-$m$ nodes or of levels $<m$, and none contains
+$\theta_\iota$. Its row reads
+$[Q_\iota]_{\iota\alpha}u^{\alpha}+[Q_\iota]_{\iota\iota}u^\iota=[Q_\iota]_{\iota\alpha}\sigma^\alpha_\iota+[Q_\iota]_{\iota\iota}\sigma^\iota_\iota$,
+which is \eqref{eq:n-down}. Substituting it into the factor's contribution to the
+$\alpha$ rows, $[Q_\iota]_{\alpha\alpha}u^\alpha+[Q_\iota]_{\alpha\iota}u^\iota$ against
+$[Q_\iota]_{\alpha\alpha}\sigma^\alpha_\iota+[Q_\iota]_{\alpha\iota}\sigma^\iota_\iota$,
+cancels every $\sigma^\iota_\iota$ term and leaves $S_\iota u^\alpha=S_\iota\sigma^\alpha_\iota$.
+Hence $\iota$ is replaced by the message $(S_\iota,S_\iota\sigma_\iota^{\alpha})$ on
+$\alpha(\iota)=\pi(\iota^-)$. For a level-$(m-1)$ node $\mu$, the remaining factors
+with scope exactly $\pi(\mu)$ are the $n_\mu$ messages of its children and its prior
+factor $(1-n_\mu)P_{0,\mu}$. No other factor contains $\theta_\mu$, since prior
+factors of levels $<m-1$ live on shorter paths. Summing them gives
+$(Q_\mu,Q_\mu\sigma_\mu)$ of \eqref{eq:n-merge}, which is Claim$(m-1)$.
+
+\emph{End} $m=1$: the root's factor is $(Q_{()},Q_{()}\sigma_{()})$, so $u^{()}=\sigma_{()}$.
+Back-substitution in reverse elimination order gives \eqref{eq:n-down}. The passes
+form a block $LDL^\T$ factorisation with the stated pivots, which proves uniqueness
+and the positive-definiteness criterion.
+\end{proof}
+
+\begin{tcolorbox}[colback=blue!3,colframe=blue!40!black,title={$N$-level composed score}]
+\textbf{Upward} (levels $N\to1$): at the leaves, $(Q,\sigma)=(P,s)$ from the network.
+At each node, Schur-reduce onto the ancestors, $S_\iota=([Q_\iota^{-1}]_{\alpha\alpha})^{-1}$,
+and send $(S_\iota,\sigma_\iota^\alpha)$ to the parent. The parent merges
+$Q=\sum_cS_c+(1-n)P_0$ and $\sigma=Q^{-1}[\sum_cS_c\sigma_c^\alpha+(1-n)P_0s_0]$.\\[2pt]
+\textbf{Downward} (levels $1\to N$): $u^{()}=\sigma_{()}$, then
+$u^\iota=\sigma_\iota^\iota+G_\iota(u^{\alpha(\iota)}-\sigma_\iota^{\alpha(\iota)})$.
+\end{tcolorbox}
+
+\paragraph{Reading the theorem as ``two levels, recursively''.}
+Claim$(m)$ says that \emph{a level-$m$ subtree behaves exactly like one
+observation of an $m$-level model}. Its ``network score'' is $\sigma_\iota$, the
+composed score of the subtree's own tall posterior on its path, and its
+``precision'' is $Q_\iota$. Every merge \eqref{eq:n-merge} is literally the
+\arrowm{} global rule. Every elimination \eqref{eq:n-elim} together with the
+back-substitution \eqref{eq:n-down} is literally the \arrowm{} local rule
+($S\leftrightarrow S_j$, $G\leftrightarrow R_j$). The induction can also be run
+top-down. Split the $N$-level model at the root into a two-level model whose
+``observations'' are the level-2 subtrees. Each subtree is an $(N-1)$-level model
+with global block $(\theta_{()},\theta_{(i_2)})$ and prior
+$p(\theta_{()},\theta_{(i_2)})$. Its tall posterior uses exactly the factors of
+\eqref{eq:nclean} that lie in the subtree, because \cref{lem:counting} makes their
+exponents cover the subtree's path once. The root combines the subtrees by the
+two-level rule. This gives the same $(Q,\sigma)$ and the same answer.
+
+\paragraph{Reductions.} $N=2$ is \arrowm{} \eqref{eq:two-level-recall} below.
+$N=3$ is the boxed rule of \cref{sec:elimination}, with $(S_{kj},K_{kj})$ from the
+leaf eliminations, $(Q_k,\sigma_k)$ from the group merges, $(T_k,G_k)$ from the group
+eliminations, and the root merge giving \eqref{eq:rule-g}:
+\begin{equation}\label{eq:two-level-recall}
+N=2:\quad u^g=\Big[\sum_jS_j+(1-n)P_0\Big]^{-1}\Big[\sum_jS_js^g_j+(1-n)P_0s_0\Big],\quad u^{\ell_j}=s^\ell_j+R_j(u^g-s^g_j).
+\end{equation}
+
+\paragraph{The local correction at depth $N$.} Expanding \eqref{eq:n-down} along
+the path, with $G_\iota=(G^{(1)}_\iota,\dots,G^{(m-1)}_\iota)$ split by ancestor
+level,
+\[
+u^\iota=\sigma^\iota_\iota+\sum_{a=1}^{m-1}G^{(a)}_\iota\big(u^{(a)}-\sigma^{(a)}_\iota\big).
+\]
+A node at level $m$ is corrected by the composed-minus-own discrepancy at
+\emph{every} ancestor level, each weighted by its regression coefficient under the
+node's subtree kernel. For leaves, $\sigma_\iota=s_\iota$ is the raw network score,
+as in \eqref{eq:rule-l}.
+
+\paragraph{Well-posedness and safeguard.} In information form,
+$Q_\iota=P_{0,\iota}+\sum_{c\in\ch(\iota)}(S_c-P_{0,\iota})$. If every increment is
+PSD (true for linear-Gaussian models, by the conditioning argument of
+\cref{sec:properties}), all pivots are positive definite. The PSD projection is
+applied once per internal node.
+
+\paragraph{Cost.} $\sum_{m=1}^{N}|\mathcal{I}_m|\,\mathcal{O}(D_m^3)$, i.e.\ linear in
+the number of nodes and cubic in the path dimension. A full $\Lambda$ solve would
+cost $\mathcal{O}\big((\sum_m|\mathcal{I}_m|d_m)^3\big)$.
+
+\paragraph{What has to be supplied at depth $N$.}
+\begin{itemize}
+\item Network: the joint score on full root-to-leaf paths of dimension $D_N$, and
+ the path precision $P_\iota$ (pilot covariance for \arrowm, $D_N$ JVPs/FD copies
+ for \quiver).
+\item Priors: the diffused score and backward precision of $p(\theta_{\pi(\iota)})$
+ for every internal level $m=1,\dots,N-1$ with $n_\iota\neq1$. For exchangeable
+ designs this means one prior model per level.
+\end{itemize}
+
+\begin{remark}[Ragged trees, several observations per leaf, data at inner levels]\label{rem:ragged}
+None of the proofs uses equal branching. If a node $\iota$ also has $o_\iota$
+observations attached directly (several trials per local, or data that depend
+only on $(g,h_k)$), each one enters the merge \eqref{eq:n-merge} like a child,
+with $(S_c,\sigma_c)$ replaced by the network's $(P_o,s_o)$ on $\pi(\iota)$. The
+prior exponent becomes $1-n_\iota-o_\iota$. The companion note
+\texttt{multilevel\_composition.tex} gives the general tree and DAG form.
+\end{remark}
+
+\subsection{Numerical confirmation}
+The level recursion of \cref{thm:nlevel} and a literal transcription of the boxed
+three-level rule were compared with the exact diffused tall-data score of random
+linear-Gaussian hierarchies, at $\lam\in[10^{-3},10]$
+(\texttt{check\_three\_level\_joint\_sampling.py}).
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+hierarchy & latent dim & observations & max rel.\ error\\
+\midrule
+$N=2$, branching $6$ & 8 & 6 & $1.2\times10^{-15}$\\
+$N=3$, branching $3\times3$ & 17 & 9 & $1.3\times10^{-15}$\\
+$N=3$, branching $3\times4$, explicit boxed rule & 23 & 12 & $1.4\times10^{-15}$\\
+$N=4$, branching $2\times3\times2$ & 23 & 12 & $1.3\times10^{-15}$\\
+$N=5$, branching $2\times2\times2\times2$ & 48 & 16 & $3.8\times10^{-15}$\\
+\midrule
+$N=3$, group priors $p(g,\hk)^{1-n_k}$ dropped & 23 & 12 & $0.011$--$0.82$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The ablation error is $0.011$ at $\lam=10$ and grows to $0.82$ at $\lam=0.01$.
+
+%=====================================================================
+\section{Summary}
+%=====================================================================
+\begin{enumerate}
+\item The three-level hierarchy factorises exactly as
+ $p(g)^{1-K}\prod_kp(g,\hk)^{1-n_k}\prod_{kj}p(g,\hk,\lkj\mid x_{kj})$, both for
+ clean densities and for diffusion backward kernels.
+\item Under \arrowm's single Gaussian-kernel approximation, the composed score of
+ \emph{all} latents solves a nested arrowhead system, which three elimination
+ passes solve in closed form \eqref{eq:rule-pass1}--\eqref{eq:rule-l}. Only network
+ path scores enter, and both the local and the mid-level own-scores cancel from the
+ levels above. Linear-Gaussian models are exact.
+\item The rule yields a joint score for top globals, mid globals and locals, and
+ therefore joint posterior sampling with any reverse-diffusion sampler (verified
+ to Monte Carlo noise).
+\item The $N$-level rule follows by induction: merge
+ ($\sum S+(1-n)P_0$) and eliminate (Schur, regression) once per level upwards,
+ then cascade conditional-mean corrections downwards. It is \arrowm{} applied
+ recursively, with each subtree acting as one observation, at cost linear in the
+ number of nodes.
+\item The new requirement is a diffused prior score and precision on every
+ intermediate path, e.g.\ $(g,h)$, weighted by $1-n$. In partial pooling this
+ prior is not Gaussian.
+\end{enumerate}
+
+\end{document}

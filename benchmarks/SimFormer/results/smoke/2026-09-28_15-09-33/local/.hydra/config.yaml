@@ -1,0 +1,48 @@
+name: smoke
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_tokenized
+  backend: jax
+  device: gpu
+  compass:
+    arch: tokenized
+    time_embedding_size: 128
+    token_offset: true
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 5000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 50
+    eps: 0.001
+    max_steps: 200
+task:
+  name: tree_all_cond
+  num_simulations: 1000
+eval:
+  metric:
+    c2st:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: structured_random
+      num_samples: 500
+      num_evaluations: 4
+partition: {}
+sweeper:
+  name: null
+  objective: null

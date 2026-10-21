@@ -1,0 +1,823 @@
+[driver] 4 jobs in phase fig4a
+[driver] resampling checkpoint results/fig4a/2026-09-28_19-47-37/local/compass_model
+[driver] 21:58:43 waiting for a free GPU (autocvd)
+[driver] 23:23:27 START fig4a gaussian_linear n=1000 compass_fx_euler500 on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_euler500.log)
+[driver] 23:47:07 END   fig4a gaussian_linear n=1000 compass_fx_euler500 rc=0 (23.7 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | — | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-08-39/local/compass_model
+[driver] 23:47:11 waiting for a free GPU (autocvd)
+[driver] 00:08:34 START fig4a gaussian_mixture n=1000 compass_fx_euler500 on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_euler500.log)
+[driver] 00:17:19 END   fig4a gaussian_mixture n=1000 compass_fx_euler500 rc=0 (8.7 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.636 (-0.005, **+0.060**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.636 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.060 ± 0.011** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-20-10/local/compass_model
+[driver] 00:17:22 waiting for a free GPU (autocvd)
+[driver] 01:04:16 START fig4a two_moons n=1000 compass_fx_euler500 on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_euler500.log)
+[driver] 01:10:14 END   fig4a two_moons n=1000 compass_fx_euler500 rc=0 (6.0 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.636 (-0.005, **+0.060**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.675 (-0.004, **+0.066**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.636 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.060 ± 0.011** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.675 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.066 ± 0.009** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — |
+
+[driver] resampling checkpoint results/fig4a/2026-09-28_20-34-26/local/compass_model
+[driver] 01:10:18 waiting for a free GPU (autocvd)
+[driver] 01:10:21 START fig4a slcp n=1000 compass_fx_euler500 on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_euler500.log)
+[driver] 01:19:19 END   fig4a slcp n=1000 compass_fx_euler500 rc=0 (9.0 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.636 (-0.005, **+0.060**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.675 (-0.004, **+0.066**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.972 (**-0.005**, **+0.053**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.636 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.060 ± 0.011** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.675 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.066 ± 0.009** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.972 ± 0.005 | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.053 ± 0.008** | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — |
+
+[driver] 12 jobs in phase fig4a
+[driver] 01:19:23 waiting for a free GPU (autocvd)
+[driver] 01:26:00 START fig4a gaussian_linear n=1000 compass_fx_final on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_final.log)
+[driver] 01:39:51 END   fig4a gaussian_linear n=1000 compass_fx_final rc=0 (13.8 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | — | 0.636 (-0.005, **+0.060**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | 0.675 (-0.004, **+0.066**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | 0.972 (**-0.005**, **+0.053**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | — | 0.636 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | — | **+0.060 ± 0.011** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | 0.675 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | **+0.066 ± 0.009** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | 0.972 ± 0.005 | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | **+0.053 ± 0.008** | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — |
+
+[driver] 01:39:54 waiting for a free GPU (autocvd)
+[driver] 01:42:01 START fig4a gaussian_linear n=1000 compass_fx_condemb on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_condemb.log)
+[driver] 01:57:30 END   fig4a gaussian_linear n=1000 compass_fx_condemb rc=0 (15.5 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | — | — | 0.636 (-0.005, **+0.060**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | — | 0.675 (-0.004, **+0.066**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | — | — | 0.636 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | — | — | **+0.060 ± 0.011** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | — | 0.675 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | — | **+0.066 ± 0.009** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — |
+
+[driver] 01:57:33 waiting for a free GPU (autocvd)
+[driver] 02:07:30 START fig4a gaussian_linear n=1000 compass_fx_final_condemb on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_final_condemb.log)
+[driver] 02:17:43 END   fig4a gaussian_linear n=1000 compass_fx_final_condemb rc=0 (10.2 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | — | — | 0.636 (-0.005, **+0.060**) | — | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | — | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | — | — | 0.636 ± 0.011 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | — | — | **+0.060 ± 0.011** | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | — | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | — | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:17:46 waiting for a free GPU (autocvd)
+[driver] 02:17:49 START fig4a gaussian_mixture n=1000 compass_fx_final on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_final.log)
+[driver] 02:24:44 END   fig4a gaussian_mixture n=1000 compass_fx_final rc=0 (6.9 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | — | 0.636 (-0.005, **+0.060**) | — | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | — | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | — | 0.636 ± 0.011 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | — | **+0.060 ± 0.011** | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | — | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | — | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:24:47 waiting for a free GPU (autocvd)
+[driver] 02:24:50 START fig4a gaussian_mixture n=1000 compass_fx_condemb on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_condemb.log)
+[driver] 02:32:12 END   fig4a gaussian_mixture n=1000 compass_fx_condemb rc=0 (7.4 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | — | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | — | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | — | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | — | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:32:15 waiting for a free GPU (autocvd)
+[driver] 02:32:19 START fig4a gaussian_mixture n=1000 compass_fx_final_condemb on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_final_condemb.log)
+[driver] 02:39:15 END   fig4a gaussian_mixture n=1000 compass_fx_final_condemb rc=0 (6.9 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | — | — | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | — | — | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | — | — | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:39:18 waiting for a free GPU (autocvd)
+[driver] 02:39:21 START fig4a two_moons n=1000 compass_fx_final on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_final.log)
+[driver] 02:46:54 END   fig4a two_moons n=1000 compass_fx_final rc=0 (7.6 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | — | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | — | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | — | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:46:57 waiting for a free GPU (autocvd)
+[driver] 02:47:01 START fig4a two_moons n=1000 compass_fx_condemb on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_condemb.log)
+[driver] 02:54:34 END   fig4a two_moons n=1000 compass_fx_condemb rc=0 (7.5 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | — | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 02:54:37 waiting for a free GPU (autocvd)
+[driver] 02:54:40 START fig4a two_moons n=1000 compass_fx_final_condemb on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_final_condemb.log)
+[driver] 03:01:00 END   fig4a two_moons n=1000 compass_fx_final_condemb rc=0 (6.3 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | — | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | — | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | — | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 03:01:03 waiting for a free GPU (autocvd)
+[driver] 03:01:07 START fig4a slcp n=1000 compass_fx_final on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_final.log)
+[driver] 03:09:16 END   fig4a slcp n=1000 compass_fx_final rc=0 (8.2 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | — | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | — | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | — | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 03:09:19 waiting for a free GPU (autocvd)
+[driver] 03:09:22 START fig4a slcp n=1000 compass_fx_condemb on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_condemb.log)
+[driver] 03:18:09 END   fig4a slcp n=1000 compass_fx_condemb rc=0 (8.8 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | — | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 03:18:12 waiting for a free GPU (autocvd)
+[driver] 03:18:15 START fig4a slcp n=1000 compass_fx_final_condemb on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_final_condemb.log)
+[driver] 03:26:26 END   fig4a slcp n=1000 compass_fx_final_condemb rc=0 (8.2 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — |
+
+[driver] 8 jobs in phase fig4a
+[driver] 16:16:08 waiting for a free GPU (autocvd)
+[driver] 16:16:11 START fig4a gaussian_linear n=1000 compass_fx_lowrank8 on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_lowrank8.log)
+[driver] 16:27:47 END   fig4a gaussian_linear n=1000 compass_fx_lowrank8 rc=0 (11.6 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | — |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | — |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — |
+
+[driver] 16:27:50 waiting for a free GPU (autocvd)
+[driver] 16:27:53 START fig4a gaussian_linear n=1000 compass_fx_wd on physical GPU 9  (log: results/logs/fig4a__gaussian_linear__1000__compass_fx_wd.log)
+[driver] 16:39:57 END   fig4a gaussian_linear n=1000 compass_fx_wd rc=0 (12.1 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | — | — |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | — | — |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | — | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | — | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | — | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | — | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 16:40:00 waiting for a free GPU (autocvd)
+[driver] 16:40:03 START fig4a gaussian_mixture n=1000 compass_fx_lowrank8 on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_lowrank8.log)
+[driver] 16:47:32 END   fig4a gaussian_mixture n=1000 compass_fx_lowrank8 rc=0 (7.5 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | — |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | — | — |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | — | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | — | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | — | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | — | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 16:47:35 waiting for a free GPU (autocvd)
+[driver] 16:47:38 START fig4a gaussian_mixture n=1000 compass_fx_wd on physical GPU 9  (log: results/logs/fig4a__gaussian_mixture__1000__compass_fx_wd.log)
+[driver] 16:58:12 END   fig4a gaussian_mixture n=1000 compass_fx_wd rc=0 (10.6 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | 0.643 (+0.003, **+0.068**) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | — | — |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | 0.643 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | **+0.068 ± 0.010** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | — | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | — | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 16:58:18 waiting for a free GPU (autocvd)
+[driver] 16:58:22 START fig4a two_moons n=1000 compass_fx_lowrank8 on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_lowrank8.log)
+[driver] 17:10:21 END   fig4a two_moons n=1000 compass_fx_lowrank8 rc=0 (12.0 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | 0.643 (+0.003, **+0.068**) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | 0.697 (**+0.018**, **+0.088**) | — |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | 0.643 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | **+0.068 ± 0.010** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.697 ± 0.015 | — | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.088 ± 0.009** | — | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 17:10:28 waiting for a free GPU (autocvd)
+[driver] 17:10:32 START fig4a two_moons n=1000 compass_fx_wd on physical GPU 9  (log: results/logs/fig4a__two_moons__1000__compass_fx_wd.log)
+[driver] 17:23:28 END   fig4a two_moons n=1000 compass_fx_wd rc=0 (12.9 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | 0.643 (+0.003, **+0.068**) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | 0.697 (**+0.018**, **+0.088**) | 0.679 (+0.000, **+0.071**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | — | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | 0.643 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | **+0.068 ± 0.010** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.697 ± 0.015 | 0.679 ± 0.016 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.088 ± 0.009** | **+0.071 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | — | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | — | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 17:23:34 waiting for a free GPU (autocvd)
+[driver] 17:23:37 START fig4a slcp n=1000 compass_fx_lowrank8 on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_lowrank8.log)
+[driver] 17:34:33 END   fig4a slcp n=1000 compass_fx_lowrank8 rc=0 (10.9 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | 0.643 (+0.003, **+0.068**) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | 0.697 (**+0.018**, **+0.088**) | 0.679 (+0.000, **+0.071**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | 0.936 (**-0.040**, **+0.017**) | — |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | 0.643 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | **+0.068 ± 0.010** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.697 ± 0.015 | 0.679 ± 0.016 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.088 ± 0.009** | **+0.071 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | 0.936 ± 0.011 | — | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | **+0.017 ± 0.008** | — | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 17:34:39 waiting for a free GPU (autocvd)
+[driver] 17:34:43 START fig4a slcp n=1000 compass_fx_wd on physical GPU 9  (log: results/logs/fig4a__slcp__1000__compass_fx_wd.log)
+[driver] 17:48:14 END   fig4a slcp n=1000 compass_fx_wd rc=0 (13.5 min)
+# fig4a: improvement arms, C2ST (lower is better)
+
+Δ base = arm − COMPASS (eps fixed); Δ Sim = arm − Simformer; both paired over the same observations. **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer | COMPASS (eps fixed) | COMPASS + final weights, all data (Δ base, Δ Sim) | COMPASS + token embeddings (Δ base, Δ Sim) | COMPASS + Euler 500 sampler (Δ base, Δ Sim) | COMPASS + final + embeddings (Δ base, Δ Sim) | COMPASS shared-time (1.0M) (Δ base, Δ Sim) | COMPASS shared-time, t64 (0.44M) (Δ base, Δ Sim) | COMPASS + low-rank time cond. (r=8) (Δ base, Δ Sim) | COMPASS + weight decay 0.1 (Δ base, Δ Sim) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 | 0.638 | 0.998 (**+0.360**, **+0.281**) | 0.641 (+0.002, **-0.077**) | 0.637 (-0.001, **-0.080**) | 0.999 (**+0.361**, **+0.282**) | 0.682 (**+0.044**, **-0.035**) | 0.667 (+0.029, **-0.050**) | 0.887 (**+0.249**, **+0.170**) | 0.637 (-0.001, **-0.080**) |
+| Gaussian Mixture | 1,000 | 0.575 | 0.641 | 0.630 (-0.010, **+0.055**) | 0.634 (-0.007, **+0.059**) | 0.636 (-0.005, **+0.060**) | 0.630 (-0.010, **+0.055**) | 0.599 (**-0.041**, **+0.024**) | 0.585 (**-0.056**, +0.009) | 0.616 (**-0.025**, **+0.041**) | 0.643 (+0.003, **+0.068**) |
+| Two Moons | 1,000 | 0.609 | 0.679 | 0.650 (**-0.029**, **+0.041**) | 0.641 (**-0.038**, **+0.032**) | 0.675 (-0.004, **+0.066**) | 0.652 (**-0.027**, **+0.044**) | 0.758 (**+0.078**, **+0.149**) | 0.762 (**+0.083**, **+0.153**) | 0.697 (**+0.018**, **+0.088**) | 0.679 (+0.000, **+0.071**) |
+| SLCP | 1,000 | 0.919 | 0.977 | 0.985 (+0.008, **+0.066**) | 0.974 (-0.003, **+0.055**) | 0.972 (**-0.005**, **+0.053**) | 0.983 (+0.007, **+0.065**) | 0.955 (**-0.021**, **+0.036**) | 0.962 (-0.015, **+0.043**) | 0.936 (**-0.040**, **+0.017**) | 0.979 (+0.002, **+0.060**) |
+
+[report] fig4a: results/tables/fig4a.md results/figures/fig4a.png
+# fig4a: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (legacy, full, eps 1e-5) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | COMPASS + final weights, all data | COMPASS + token embeddings | COMPASS + Euler 500 sampler | COMPASS + final + embeddings | COMPASS + low-rank time cond. (r=8) | COMPASS + weight decay 0.1 | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (legacy, full, eps 1e-5) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ COMPASS + final weights, all data | Δ COMPASS + token embeddings | Δ COMPASS + Euler 500 sampler | Δ COMPASS + final + embeddings | Δ COMPASS + low-rank time cond. (r=8) | Δ COMPASS + weight decay 0.1 | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Gaussian Linear | 1,000 | 0.717 ± 0.018 | 0.640 ± 0.010 | — | 0.638 ± 0.009 | 0.682 ± 0.020 | 0.667 ± 0.018 | 0.998 ± 0.001 | 0.641 ± 0.011 | 0.637 ± 0.009 | 0.999 ± 0.000 | 0.887 ± 0.026 | 0.637 ± 0.009 | 0.825 ± 0.011 | 0.822 ± 0.010 | **-0.077 ± 0.017** | — | **-0.079 ± 0.017** | **-0.035 ± 0.016** | **-0.050 ± 0.014** | **+0.281 ± 0.018** | **-0.077 ± 0.019** | **-0.080 ± 0.018** | **+0.282 ± 0.018** | **+0.170 ± 0.017** | **-0.080 ± 0.017** | **+0.108 ± 0.013** | **+0.104 ± 0.013** |
+| Gaussian Linear | 10,000 | 0.661 ± 0.022 | 0.532 ± 0.004 | — | 0.527 ± 0.002 | — | — | — | — | — | — | — | — | 0.706 ± 0.017 | 0.720 ± 0.017 | **-0.130 ± 0.023** | — | **-0.135 ± 0.022** | — | — | — | — | — | — | — | — | **+0.045 ± 0.018** | **+0.059 ± 0.018** |
+| Gaussian Linear | 100,000 | 0.506 ± 0.001 | 0.506 ± 0.001 | — | 0.502 ± 0.001 | — | — | — | — | — | — | — | — | 0.699 ± 0.013 | — | -0.000 ± 0.001 | — | **-0.004 ± 0.001** | — | — | — | — | — | — | — | — | **+0.192 ± 0.013** | — |
+| Gaussian Mixture | 1,000 | 0.575 ± 0.012 | 0.676 ± 0.008 | — | 0.641 ± 0.010 | 0.599 ± 0.011 | 0.585 ± 0.010 | 0.630 ± 0.012 | 0.634 ± 0.010 | 0.636 ± 0.011 | 0.630 ± 0.011 | 0.616 ± 0.011 | 0.643 ± 0.011 | 0.713 ± 0.006 | 0.713 ± 0.008 | **+0.101 ± 0.009** | — | **+0.065 ± 0.010** | **+0.024 ± 0.012** | +0.009 ± 0.010 | **+0.055 ± 0.013** | **+0.059 ± 0.013** | **+0.060 ± 0.011** | **+0.055 ± 0.015** | **+0.041 ± 0.010** | **+0.068 ± 0.010** | **+0.138 ± 0.013** | **+0.138 ± 0.013** |
+| Gaussian Mixture | 10,000 | 0.516 ± 0.004 | 0.625 ± 0.005 | 0.606 ± 0.005 | 0.549 ± 0.004 | — | — | — | — | — | — | — | — | 0.692 ± 0.004 | 0.683 ± 0.003 | **+0.109 ± 0.005** | **+0.090 ± 0.005** | **+0.033 ± 0.006** | — | — | — | — | — | — | — | — | **+0.176 ± 0.004** | **+0.167 ± 0.004** |
+| Gaussian Mixture | 100,000 | 0.502 ± 0.002 | 0.607 ± 0.003 | — | 0.514 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.105 ± 0.003** | — | **+0.012 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| Two Moons | 1,000 | 0.609 ± 0.014 | 0.729 ± 0.015 | — | 0.679 ± 0.018 | 0.758 ± 0.012 | 0.762 ± 0.013 | 0.650 ± 0.017 | 0.641 ± 0.013 | 0.675 ± 0.017 | 0.652 ± 0.017 | 0.697 ± 0.015 | 0.679 ± 0.016 | 0.786 ± 0.011 | 0.756 ± 0.015 | **+0.120 ± 0.010** | — | **+0.070 ± 0.009** | **+0.149 ± 0.009** | **+0.153 ± 0.010** | **+0.041 ± 0.007** | **+0.032 ± 0.009** | **+0.066 ± 0.009** | **+0.044 ± 0.007** | **+0.088 ± 0.009** | **+0.071 ± 0.007** | **+0.177 ± 0.011** | **+0.147 ± 0.013** |
+| Two Moons | 10,000 | 0.526 ± 0.007 | 0.653 ± 0.005 | 0.644 ± 0.007 | 0.530 ± 0.007 | — | — | — | — | — | — | — | — | 0.744 ± 0.007 | 0.673 ± 0.012 | **+0.127 ± 0.002** | **+0.118 ± 0.002** | +0.004 ± 0.003 | — | — | — | — | — | — | — | — | **+0.218 ± 0.002** | **+0.147 ± 0.006** |
+| Two Moons | 100,000 | 0.504 ± 0.003 | 0.641 ± 0.004 | — | 0.523 ± 0.003 | — | — | — | — | — | — | — | — | — | — | **+0.137 ± 0.002** | — | **+0.018 ± 0.003** | — | — | — | — | — | — | — | — | — | — |
+| SLCP | 1,000 | 0.919 ± 0.010 | 0.964 ± 0.006 | — | 0.977 ± 0.005 | 0.955 ± 0.008 | 0.962 ± 0.008 | 0.985 ± 0.005 | 0.974 ± 0.005 | 0.972 ± 0.005 | 0.983 ± 0.004 | 0.936 ± 0.011 | 0.979 ± 0.005 | 0.935 ± 0.009 | 0.936 ± 0.009 | **+0.045 ± 0.007** | — | **+0.058 ± 0.008** | **+0.036 ± 0.007** | **+0.043 ± 0.009** | **+0.066 ± 0.008** | **+0.055 ± 0.009** | **+0.053 ± 0.008** | **+0.065 ± 0.011** | **+0.017 ± 0.008** | **+0.060 ± 0.010** | **+0.016 ± 0.006** | **+0.017 ± 0.006** |
+| SLCP | 10,000 | 0.789 ± 0.021 | 0.744 ± 0.024 | — | 0.735 ± 0.023 | — | — | — | — | — | — | — | — | 0.910 ± 0.009 | 0.910 ± 0.009 | -0.045 ± 0.032 | — | -0.054 ± 0.033 | — | — | — | — | — | — | — | — | **+0.121 ± 0.026** | **+0.121 ± 0.025** |
+| SLCP | 100,000 | 0.687 ± 0.013 | 0.688 ± 0.021 | — | 0.648 ± 0.016 | — | — | — | — | — | — | — | — | — | — | +0.002 ± 0.025 | — | -0.039 ± 0.024 | — | — | — | — | — | — | — | — | — | — |
+

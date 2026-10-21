@@ -1,0 +1,35 @@
+Device: cuda
+
+########  Sign-ambiguous hierarchy (bimodality built by composition)  ########
+  observations y = [ 0.652 -0.838  1.26   1.005  2.097 -0.634 -2.016 -0.791]
+  true g = 0.970; exact modes [-1.138  1.138]; valley depth 11.46 nats; aligned mass 0.9644
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/models/sign_h32d3/Model_checkpoint.pt
+  learned row score, relative RMS vs exact: mean 0.1663  lam=0.05:0.440  lam=0.1:0.207  lam=0.2:0.152  lam=0.5:0.082  lam=1:0.069  lam=2:0.048
+  running dpm2_churn8_gauss_hierarchical [learned] ...
+    W1(g)/sigma 0.1116   modes 2/2   P(g>0) 0.465   44.5s
+  running dpm2_churn8_gauss_jacobian [learned] ...
+    W1(g)/sigma 0.0901   modes 2/2   P(g>0) 0.521   22.0s
+  running langevin_fnpe [learned] ...
+    W1(g)/sigma 0.1335   modes 2/2   P(g>0) 0.457   30.9s
+  running dpm2_gauss_hierarchical [learned] ...
+    W1(g)/sigma 0.1851   modes 2/2   P(g>0) 0.437   80.2s
+  running dpm2_gauss_jacobian [learned] ...
+    W1(g)/sigma 0.0932   modes 2/2   P(g>0) 0.492   124.6s
+
+########  Control: bimodality already present in the prior  ########
+  observations y = [ 3.197  0.334  3.436 -4.621 -3.572  4.869 -1.916 -0.182]
+  true g = -2.197; exact modes [-1.733  1.78 ]; valley depth 10.58 nats; aligned mass 1.0000
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/models/control_h32d3/Model_checkpoint.pt
+  learned row score, relative RMS vs exact: mean 0.2304  lam=0.05:0.866  lam=0.1:0.145  lam=0.2:0.182  lam=0.5:0.087  lam=1:0.046  lam=2:0.056
+  running dpm2_churn8_gauss_hierarchical [learned] ...
+    W1(g)/sigma 0.2279   modes 2/2   P(g>0) 0.601   43.9s
+  running dpm2_churn8_gauss_jacobian [learned] ...
+    W1(g)/sigma 0.2556   modes 2/2   P(g>0) 0.580   19.0s
+  running langevin_fnpe [learned] ...
+    W1(g)/sigma 0.1944   modes 2/2   P(g>0) 0.624   31.2s
+  running dpm2_gauss_hierarchical [learned] ...
+    W1(g)/sigma 0.2178   modes 2/2   P(g>0) 0.609   78.7s
+  running dpm2_gauss_jacobian [learned] ...
+    W1(g)/sigma 0.3110   modes 2/2   P(g>0) 0.546   134.7s
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/artifacts/method_metrics.csv
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/artifacts/network_fidelity.csv

@@ -1,0 +1,7 @@
+- name=extra4b
+- method=score_transformer
+- task=marcov_chain_all_cond
+- task.num_simulations=100000
+- eval=lik_joint
+- save_model=true
+- model_id=49

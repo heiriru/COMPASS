@@ -1,0 +1,45 @@
+INFO Selected physical GPU [8] via autocvd.
+CPU affinity: 3/72 CPUs (4.167%)
+tokenized/h32d3wide 268,545 parameters (six_weighted, log_sigma)
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  symmetric      n=32  rep=0 langevin_fnpse                 W1/sd=4.4876 mass=0.916 (exact 0.500) 78.9s
+  symmetric      n=32  rep=0 gauss_hierarchical             W1/sd=3.8185 mass=0.372 (exact 0.500) 25.5s
+  symmetric      n=32  rep=0 gauss_jacobian                 W1/sd=4.0509 mass=0.223 (exact 0.500) 25.5s
+  symmetric      n=32  rep=1 langevin_fnpse                 W1/sd=4.0064 mass=0.249 (exact 0.500) 78.0s
+  symmetric      n=32  rep=1 gauss_hierarchical             W1/sd=3.7227 mass=0.520 (exact 0.500) 25.6s
+  symmetric      n=32  rep=1 gauss_jacobian                 W1/sd=3.8930 mass=0.311 (exact 0.500) 23.2s
+  symmetric      n=32  rep=2 langevin_fnpse                 W1/sd=4.4809 mass=0.907 (exact 0.500) 78.3s
+  symmetric      n=32  rep=2 gauss_hierarchical             W1/sd=3.7402 mass=0.418 (exact 0.500) 25.7s
+  symmetric      n=32  rep=2 gauss_jacobian                 W1/sd=3.9408 mass=0.263 (exact 0.500) 23.2s
+antisymmetric  n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  antisymmetric  n=32  rep=0 langevin_fnpse                 W1/sd=3.6493 mass=0.234 (exact 0.500) 78.3s
+  antisymmetric  n=32  rep=0 gauss_hierarchical             W1/sd=3.4672 mass=0.434 (exact 0.500) 25.6s
+  antisymmetric  n=32  rep=0 gauss_jacobian                 W1/sd=3.5177 mass=0.355 (exact 0.500) 23.2s
+  antisymmetric  n=32  rep=1 langevin_fnpse                 W1/sd=3.6096 mass=0.234 (exact 0.500) 78.3s
+  antisymmetric  n=32  rep=1 gauss_hierarchical             W1/sd=3.4711 mass=0.382 (exact 0.500) 25.7s
+  antisymmetric  n=32  rep=1 gauss_jacobian                 W1/sd=3.5035 mass=0.344 (exact 0.500) 23.2s
+  antisymmetric  n=32  rep=2 langevin_fnpse                 W1/sd=3.5885 mass=0.234 (exact 0.500) 78.3s
+  antisymmetric  n=32  rep=2 gauss_hierarchical             W1/sd=3.4435 mass=0.423 (exact 0.500) 25.7s
+  antisymmetric  n=32  rep=2 gauss_jacobian                 W1/sd=3.4810 mass=0.345 (exact 0.500) 23.2s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  asymmetric     n=32  rep=0 langevin_fnpse                 W1/sd=4.6145 mass=0.449 (exact 0.750) 78.4s
+  asymmetric     n=32  rep=0 gauss_hierarchical             W1/sd=4.3034 mass=0.652 (exact 0.750) 25.6s
+  asymmetric     n=32  rep=0 gauss_jacobian                 W1/sd=4.8788 mass=0.313 (exact 0.750) 23.2s
+  asymmetric     n=32  rep=1 langevin_fnpse                 W1/sd=4.5031 mass=0.507 (exact 0.750) 78.4s
+  asymmetric     n=32  rep=1 gauss_hierarchical             W1/sd=4.5683 mass=0.464 (exact 0.750) 25.6s
+  asymmetric     n=32  rep=1 gauss_jacobian                 W1/sd=4.6085 mass=0.446 (exact 0.750) 23.2s
+  asymmetric     n=32  rep=2 langevin_fnpse                 W1/sd=4.6589 mass=0.969 (exact 0.750) 78.4s
+  asymmetric     n=32  rep=2 gauss_hierarchical             W1/sd=4.5630 mass=0.473 (exact 0.750) 25.6s
+  asymmetric     n=32  rep=2 gauss_jacobian                 W1/sd=4.7216 mass=0.391 (exact 0.750) 23.2s
+natural        n=32  T=-91.5502  w=(1.000, 0.000)  modes=(-2.796, -1.892)  branch sd=0.170  posterior sd=0.170
+  natural        n=32  rep=0 langevin_fnpse                 W1/sd=1.1197 mass=0.000 (exact 0.000) 78.3s
+  natural        n=32  rep=0 gauss_hierarchical             W1/sd=1.2204 mass=0.000 (exact 0.000) 25.6s
+  natural        n=32  rep=0 gauss_jacobian                 W1/sd=1.2132 mass=0.000 (exact 0.000) 23.1s
+  natural        n=32  rep=1 langevin_fnpse                 W1/sd=0.5165 mass=0.000 (exact 0.000) 78.3s
+  natural        n=32  rep=1 gauss_hierarchical             W1/sd=0.5414 mass=0.000 (exact 0.000) 25.6s
+  natural        n=32  rep=1 gauss_jacobian                 W1/sd=0.5164 mass=0.000 (exact 0.000) 23.1s
+  natural        n=32  rep=2 langevin_fnpse                 W1/sd=0.5005 mass=0.000 (exact 0.000) 78.3s
+  natural        n=32  rep=2 gauss_hierarchical             W1/sd=0.5575 mass=0.000 (exact 0.000) 25.6s
+  natural        n=32  rep=2 gauss_jacobian                 W1/sd=0.5284 mass=0.000 (exact 0.000) 23.2s
+
+48 rows in 25.5 minutes -> /export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts/scaling/main_n32

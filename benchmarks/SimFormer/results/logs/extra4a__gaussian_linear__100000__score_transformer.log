@@ -1,0 +1,162 @@
+[2026-10-08 08:17:01,431][scoresbibm.scripts.hydra_script][INFO] - name: extra4a
+seed: 0
+model_id: 16
+save_model: true
+save_summary: true
+method:
+  model:
+    token_dim: 40
+    condition_token_dim: 10
+    condition_token_init_scale: 0.1
+    condition_token_init_mean: 0.0
+    condition_mode: concat
+    time_embedding_dim: 128
+    num_heads: 4
+    num_layers: 6
+    attn_size: 10
+    widening_factor: 3
+    num_hidden_layers: 1
+    skip_connection_attn: true
+    skip_connection_mlp: true
+    layer_norm: true
+  train:
+    condition_mask_fn:
+      name: structured_random
+      p_joint: 0.2
+      p_posterior: 0.2
+      p_likelihood: 0.2
+      p_rnd1: 0.2
+      p_rnd2: 0.2
+      rnd1_prob: 0.3
+      rnd2_prob: 0.7
+    edge_mask_fn:
+      name: none
+    max_number_steps: 100000
+    min_number_steps: 5000
+    total_number_steps_scaling: 3
+    training_batch_size: 1000
+    learning_rate: 0.001
+    min_learning_rate: 1.0e-06
+    clip_max_norm: 10.0
+    validation_fraction: 0.05
+    val_repeat: 5
+    val_every: 50
+    stop_early_count: 5
+    rebalance_loss: false
+    z_score_data: false
+  sde:
+    name: vesde
+    sigma_max: 15.0
+    sigma_min: 0.0001
+    T_max: 1.0
+    T_min: 1.0e-05
+    scale_min: 0.001
+  posterior:
+    sampling_method: sde
+    num_steps: 500
+    method: euler_maruyama
+  name: score_transformer
+  backend: jax
+  device: gpu
+task:
+  name: gaussian_linear
+  num_simulations: 100000
+eval:
+  metric:
+    nll_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      num_steps: 200
+      batch_size: 500
+    cov_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+    nll_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 500
+    cov_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a/2026-10-08_08-17-01/local
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-08 08:17:01,432][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-08 08:17:01,488][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-08 08:17:01,491][scoresbibm.scripts.hydra_script][INFO] - Loading task for model with id: 16
+[2026-10-08 08:17:01,543][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_linear
+[2026-10-08 08:17:01,572][scoresbibm.scripts.hydra_script][INFO] - Loading model with id: 16
+[2026-10-08 08:17:01,941][scoresbibm.scripts.hydra_script][INFO] - Model loaded
+[2026-10-08 08:17:01,941][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: score_transformer
+[2026-10-08 08:17:01,941][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_likelihood
+[2026-10-08 08:22:52,971][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_likelihood
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished sampling for batch  2
+Finished sampling for batch  3
+Finished sampling for batch  4
+Finished sampling for batch  5
+Finished sampling for batch  6
+Finished sampling for batch  7
+Finished sampling for batch  8
+Finished sampling for batch  9
+Finished computing true log probs
+Finished computing sample log probs for batch  0
+Finished computing sample log probs for batch  1
+Finished computing sample log probs for batch  2
+Finished computing sample log probs for batch  3
+Finished computing sample log probs for batch  4
+Finished computing sample log probs for batch  5
+Finished computing sample log probs for batch  6
+Finished computing sample log probs for batch  7
+Finished computing sample log probs for batch  8
+Finished computing sample log probs for batch  9
+Coverage:  ([0.0, 0.02, 0.03959183673469388, 0.05918367346938776, 0.07877551020408163, 0.09836734693877551, 0.11795918367346939, 0.13755102040816325, 0.1571428571428571, 0.176734693877551, 0.1963265306122449, 0.21591836734693876, 0.23551020408163262, 0.25510204081632654, 0.2746938775510204, 0.29428571428571426, 0.31387755102040815, 0.33346938775510204, 0.35306122448979593, 0.3726530612244898, 0.39224489795918366, 0.41183673469387755, 0.43142857142857144, 0.4510204081632653, 0.47061224489795916, 0.49020408163265305, 0.509795918367347, 0.5293877551020408, 0.5489795918367347, 0.5685714285714285, 0.5881632653061224, 0.6077551020408163, 0.6273469387755102, 0.6469387755102041, 0.666530612244898, 0.6861224489795918, 0.7057142857142857, 0.7253061224489796, 0.7448979591836734, 0.7644897959183673, 0.7840816326530612, 0.8036734693877551, 0.823265306122449, 0.8428571428571429, 0.8624489795918368, 0.8820408163265305, 0.9016326530612244, 0.9212244897959183, 0.9408163265306122, 0.9604081632653061, 0.98, 1.0], [0.0, 0.020352, 0.038188, 0.057312, 0.076016, 0.09664, 0.118996, 0.13828, 0.155896, 0.1714, 0.191272, 0.209712, 0.228956, 0.247744, 0.268312, 0.28984, 0.3067, 0.325608, 0.342532, 0.361072, 0.380752, 0.400068, 0.41894, 0.440324, 0.460632, 0.479968, 0.502196, 0.523516, 0.543356, 0.563652, 0.58148, 0.601792, 0.621872, 0.640868, 0.659916, 0.678492, 0.699604, 0.717572, 0.733596, 0.752836, 0.773904, 0.794788, 0.816772, 0.8432, 0.86354, 0.88472, 0.903968, 0.92404, 0.940112, 0.962136, 0.981388, 1.0])
+[2026-10-08 12:16:36,581][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_posterior
+[2026-10-08 12:22:30,084][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_posterior
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished sampling for batch  2
+Finished sampling for batch  3
+Finished sampling for batch  4
+Finished sampling for batch  5
+Finished sampling for batch  6
+Finished sampling for batch  7
+Finished sampling for batch  8
+Finished sampling for batch  9
+Finished computing true log probs
+Finished computing sample log probs for batch  0
+Finished computing sample log probs for batch  1
+Finished computing sample log probs for batch  2
+Finished computing sample log probs for batch  3
+Finished computing sample log probs for batch  4
+Finished computing sample log probs for batch  5
+Finished computing sample log probs for batch  6
+Finished computing sample log probs for batch  7
+Finished computing sample log probs for batch  8
+Finished computing sample log probs for batch  9
+Coverage:  ([0.0, 0.02, 0.03959183673469388, 0.05918367346938776, 0.07877551020408163, 0.09836734693877551, 0.11795918367346939, 0.13755102040816325, 0.1571428571428571, 0.176734693877551, 0.1963265306122449, 0.21591836734693876, 0.23551020408163262, 0.25510204081632654, 0.2746938775510204, 0.29428571428571426, 0.31387755102040815, 0.33346938775510204, 0.35306122448979593, 0.3726530612244898, 0.39224489795918366, 0.41183673469387755, 0.43142857142857144, 0.4510204081632653, 0.47061224489795916, 0.49020408163265305, 0.509795918367347, 0.5293877551020408, 0.5489795918367347, 0.5685714285714285, 0.5881632653061224, 0.6077551020408163, 0.6273469387755102, 0.6469387755102041, 0.666530612244898, 0.6861224489795918, 0.7057142857142857, 0.7253061224489796, 0.7448979591836734, 0.7644897959183673, 0.7840816326530612, 0.8036734693877551, 0.823265306122449, 0.8428571428571429, 0.8624489795918368, 0.8820408163265305, 0.9016326530612244, 0.9212244897959183, 0.9408163265306122, 0.9604081632653061, 0.98, 1.0], [0.0, 0.020356, 0.037796, 0.058376, 0.07878, 0.097708, 0.119224, 0.139888, 0.16114, 0.178212, 0.200896, 0.21902, 0.2375, 0.260384, 0.283672, 0.304028, 0.325264, 0.344928, 0.363584, 0.381088, 0.40202, 0.42048, 0.44002, 0.461236, 0.48098, 0.499976, 0.5159, 0.535404, 0.555528, 0.575852, 0.59336, 0.61114, 0.629388, 0.646216, 0.667448, 0.687548, 0.707752, 0.72802, 0.748728, 0.766236, 0.794164, 0.812876, 0.830272, 0.848468, 0.865564, 0.88092, 0.900276, 0.918636, 0.941296, 0.959948, 0.979016, 1.0])
+[2026-10-08 16:11:23,047][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-08 16:11:23,483][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 16

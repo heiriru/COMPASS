@@ -1,0 +1,23 @@
+Device: cuda
+
+########  Control: bimodality already present in the prior  ########
+  observations y = [ 3.197  0.334  3.436 -4.621 -3.572  4.869 -1.916 -0.182]
+  true g = -2.197; exact modes [-1.733  1.78 ]; valley depth 10.58 nats; aligned mass 1.0000
+Loading checkpoint: /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/models/control_h128d6/Model_checkpoint.pt
+  learned_large (h128d6) row score, relative RMS vs exact: mean 0.0230  lam=0.05:0.053  lam=0.1:0.027  lam=0.2:0.020  lam=0.5:0.018  lam=1:0.012  lam=2:0.009
+  running dpm2_churn8_gauss_hierarchical [learned_large] ...
+    W1(g)/sigma 0.2173   modes 2/2   P(g>0) 0.608   98.0s
+  running dpm2_churn8_gauss_jacobian [learned_large] ...
+    out of memory; retrying in chunks of 1500 draws
+    out of memory; retrying in chunks of 750 draws
+    W1(g)/sigma 0.2962   modes 2/2   P(g>0) 0.554   112.7s
+  running langevin_fnpe [learned_large] ...
+    W1(g)/sigma 0.2196   modes 2/2   P(g>0) 0.604   139.9s
+  running dpm2_gauss_hierarchical [learned_large] ...
+    W1(g)/sigma 0.1950   modes 2/2   P(g>0) 0.623   252.4s
+  running dpm2_gauss_jacobian [learned_large] ...
+    out of memory; retrying in chunks of 1500 draws
+    out of memory; retrying in chunks of 750 draws
+    W1(g)/sigma 0.2766   modes 2/2   P(g>0) 0.567   726.5s
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/artifacts/method_metrics.csv
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/artifacts/network_fidelity.csv

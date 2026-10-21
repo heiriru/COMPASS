@@ -1,0 +1,5 @@
+sampling eps 0.001
+hierarchical_noboth gauss_jacobian_FD    n=4   P(g>0)=0.772 E|g|=1.146 sd=1.063  76s
+hierarchical_noboth gauss_jacobian_FD    n=16  P(g>0)=0.785 E|g|=1.164 sd=1.051  186s
+hierarchical_noboth gauss_jacobian_FD    n=64  P(g>0)=0.709 E|g|=1.113 sd=1.085  677s
+hierarchical_noboth gauss_jacobian_FD    n=128 P(g>0)=0.694 E|g|=1.083 sd=1.067  1216s

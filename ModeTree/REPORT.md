@@ -331,12 +331,33 @@ See 5.1.
 `artifacts/experiment_hierarchical.json` runs `d_g x d_l` of `1x1`, `2x1` and
 `7x3` (the COMPASS shape) at `n = 1, 4, 16, 64, 100`. Discovery recovers both
 true global modes at every shape and every `n` (`recall = 1.00`, `B = 2/2`),
-with the full arrowhead Schur path exercised throughout. At `d_g = 1`, where an
-exact global-marginal reference is available, ModeTree's W1 is 0.007–0.09
-against 0.08–0.24 for `gauss_jacobian` and 0.16–0.50 for F-NPSE. At `d_g = 2`
-and `7` only mode recovery and runtime are reported: a distributional metric
-would need a `d_g`-dimensional reference, which the grid construction does not
-provide above one dimension.
+with the full arrowhead Schur path exercised throughout.
+
+At `d_g = 1`, where an exact global-marginal reference is available (W1 of the
+returned mixture for ModeTree, sampled W1 at 1000 draws for the samplers):
+
+| n | ModeTree | gauss_jacobian | F-NPSE |
+|---|---|---|---|
+| 4 | 0.0022 | 0.165 | 0.158 |
+| 16 | 0.0006 | 0.079 | 0.268 |
+| 100 | **0.0004** | 0.076 | 0.496 |
+
+At `d_g = 2` and `7` only mode recovery and runtime are reported: a
+distributional metric would need a `d_g`-dimensional reference, which the grid
+construction does not provide above one dimension. Runtime at `n = 100`:
+
+| shape | ModeTree | gauss_jacobian | F-NPSE |
+|---|---|---|---|
+| 1x1 | 19.1 s | 34.1 s | 23.1 s |
+| 2x1 | 36.6 s | 60.6 s | 28.7 s |
+| **7x3 (COMPASS)** | **67.2 s** | 271.8 s | 94.4 s |
+
+One bug surfaced only here and is worth recording: `refine_mode`'s
+`is_local_maximum` test checked only the *global* Schur complement, so a
+hierarchical branch with an indefinite local block was accepted as a mode and
+the failure appeared downstream as a non-SPD Cholesky inside
+`log|H| = log|P_g| + sum_i log|-C_i|` (at `1x1`, `n = 16`). A joint maximum
+needs the whole negative Hessian positive definite; the test now says so.
 
 ### 3.8 Benchmark construction (a result in its own right)
 

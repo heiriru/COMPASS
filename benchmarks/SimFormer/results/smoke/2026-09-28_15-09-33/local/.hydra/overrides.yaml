@@ -1,0 +1,9 @@
+- name=smoke
+- method=compass_tokenized
+- task=tree_all_cond
+- task.num_simulations=1000
+- ++method.compass.max_steps=200
+- eval=c2st
+- eval.metric.c2st.num_evaluations=4
+- eval.metric.c2st.num_samples=500
+- save_model=false

@@ -1,0 +1,6 @@
+- name=smoke
+- method=score_transformer
+- task=two_moons
+- task.num_simulations=1000
+- method.train.min_number_steps=300
+- save_model=false

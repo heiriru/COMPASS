@@ -1,0 +1,29 @@
+# Same checkpoints as compass_upstream_v11, resampled with eps actually forwarded.
+# Original COMPASS package: github.com/bGuenes/COMPASS, branch v1.1-integration
+# (926f580), cloned to compass_upstream_v11/ and imported unmodified. Package
+# defaults for everything the package decides (network size, optimizer
+# AdamWScheduleFree, Bernoulli(0.33) condition masks, "mixture" time sampling,
+# DPM-2 50 steps + Langevin correctors, eps as shipped). Harness-matched:
+# z-scoring, batch 1000 and Simformer's step budget with no early stop.
+name: compass_upstream_v11_fixeps
+backend: jax
+device: gpu
+compass:
+  compass_src: compass_upstream_v11/src
+  hidden_size: 128           # package default
+  depth: 6
+  num_heads: 16
+  mlp_ratio: 4
+  sde: vesde
+  sigma: 25.0
+  z_score: true
+  time_sampling: mixture     # package default
+  lr: 1.0e-3
+  batch_size: 1000
+  validation_fraction: 0.1
+  patience_steps: 1000000000
+  sampler: dpm
+  order: 2
+  timesteps: 50
+  eps: 1.0e-5
+  forward_eps: true         # the only change: work around the eps bug

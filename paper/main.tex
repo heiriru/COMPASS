@@ -1,0 +1,76 @@
+%% gauss_hierarchical / gauss_jacobian -- hierarchical precision-weighted score composition.
+%% ICML-style submission draft.
+%%
+%% If the official ICML style kit (icml2026.sty, icml2026.bst, ...) is copied
+%% into this folder, the paper uses it automatically; otherwise it falls back to
+%% a two-column article with similar geometry so the draft still compiles.
+
+\IfFileExists{icml2026.sty}{\def\useicml{1}}{\def\useicml{0}}
+
+\if1\useicml
+  \documentclass{article}
+  \usepackage{microtype}
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage{hyperref}
+  \usepackage{icml2026}
+\else
+  \documentclass[10pt,twocolumn]{article}
+  \usepackage[letterpaper,margin=0.75in,columnsep=0.25in]{geometry}
+  \usepackage{microtype}
+  \usepackage{graphicx}
+  \usepackage{booktabs}
+  \usepackage[numbers,sort&compress]{natbib}
+  \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\fi
+
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{xcolor}
+\usepackage[capitalize,noabbrev]{cleveref}
+\usepackage{tcolorbox}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\input{macros}
+
+\if1\useicml
+  \icmltitlerunning{Hierarchical Precision-Weighted Score Composition}
+\fi
+
+\begin{document}
+
+\if1\useicml
+  \twocolumn[
+  \icmltitle{Precision-Weighted Score Composition\\for Hierarchical Simulation-Based Inference}
+  \begin{icmlauthorlist}
+  \icmlauthor{Anonymous}{anon}
+  \end{icmlauthorlist}
+  \icmlaffiliation{anon}{Anonymous Institution}
+  \icmlcorrespondingauthor{Anonymous}{anon@example.com}
+  \icmlkeywords{simulation-based inference, diffusion models, hierarchical models}
+  \vskip 0.3in
+  ]
+  \printAffiliationsAndNotice{}
+\else
+  \title{\textbf{Precision-Weighted Score Composition\\for Hierarchical Simulation-Based Inference}}
+  \author{Anonymous Authors}
+  \date{Draft --- \today}
+  \maketitle
+\fi
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/background}
+\input{sections/methods}
+\input{sections/implementation}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\bibliography{references}
+\if1\useicml
+  \bibliographystyle{icml2026}
+\else
+  \bibliographystyle{plainnat}
+\fi
+
+\end{document}

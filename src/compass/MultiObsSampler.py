@@ -114,6 +114,23 @@ class MultiObsSampler():
       fully pilot-free hierarchical pipeline. See
       New_Attempt/jacobian_curvature.md for the derivation, the conditioning
       argument and the cost accounting.
+    - "gauss_jacobian_FD": "gauss_jacobian" with the score Jacobian taken by
+      forward finite differences instead of forward-mode AD. All D perturbed
+      copies of the state (plus the base point) go through one no-grad network
+      call, which keeps the fused attention kernel; the D forward-mode JVPs of
+      "gauss_jacobian" cost ~7 forward passes each and run on the slow math
+      attention backend. The step is ``jacobian_fd_step * lambda_t`` in y
+      coordinates, since the lambda-smoothed score varies on the scale
+      lambda_t or slower. Everything downstream -- clamping, Schur reduction,
+      local cross-correction, refresh cache, guards -- is shared with
+      "gauss_jacobian", and `newton_map_estimate(curvature="jacobian")` with
+      this correction uses the same finite-difference Jacobian.
+
+      Measured on Partial_Pooling (small preset, 20 and 100 subjects) against
+      exact "gauss_jacobian": relative Jacobian error 1e-3 (2e-2 at
+      lambda = 0.003), posterior means within 0.001-0.007 posterior SD of the
+      exact rule at ~4x less wall clock. Combine with
+      `jacobian_refresh_low_noise` for a further ~1.5x (see :meth:`sample`).
 
     Certifying a composition:
         `certify_composition` evaluates the *exact* tall-data target
@@ -195,12 +212,26 @@ class MultiObsSampler():
         # Get SDE from model for calculations
         self.sde = self.SBIm.sde
         self.prior_object = None
+        self.training_prior = None  # see set_training_prior
+        # Project each observation's information I_j = K_j - P_0 onto the PSD cone
+        # (_project_information). On by default; COMPASS_INFORMATION_PROJECTION=0 or
+        # set_information_projection(False) turns it off (the diagnostics still record
+        # what it would have lifted).
+        self.information_projection = os.environ.get("COMPASS_INFORMATION_PROJECTION", "1") != "0"
+        # gauss_jacobian: clip the Jacobian curvature eigenvalues below at 0 (kappa~ = max(kappa, 0)).
+        # On by default; COMPASS_CURVATURE_CLIP=0 or set_curvature_lower_clip(False) keeps
+        # negative curvature (precision 1/(v(1 - v kappa)) < 1/v, still positive). The upper
+        # clip (1 - floor)/v always stays: past 1/v the precision is infinite or negative.
+        self.curvature_lower_clip = os.environ.get("COMPASS_CURVATURE_CLIP", "1") != "0"
         self.covariance_shrinkage = 0.01
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
         self.pd_floor = 1e-3
         self.jacobian_refresh = 1
         self.jacobian_curvature_floor = 1e-3
+        self.jacobian_fd_step = 1e-2
+        self.jacobian_refresh_low_noise = None
+        self.jacobian_refresh_lambda = 0.3
         self.local_prior_mean = None
         self.local_prior_std = None
         self._reset_jacobian_state()
@@ -208,6 +239,8 @@ class MultiObsSampler():
         # constructed sampler is usable by helpers that do not run a full setup.
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
+        self.evaluated_row_samples = 0
+        self.jacobian_row_samples = 0
         self.map_diagnostics = None
         self._reset_covariance_diagnostics()
 
@@ -221,7 +254,10 @@ class MultiObsSampler():
     # Corrections whose per-observation backward covariance comes from the
     # network's own Jacobian (Tweedie second order) rather than from a pilot
     # covariance. They share every downstream step with the Schur family.
-    JACOBIAN_GAUSSIAN_CORRECTIONS = frozenset({"gauss_jacobian"})
+    JACOBIAN_GAUSSIAN_CORRECTIONS = frozenset({"gauss_jacobian", "gauss_jacobian_FD"})
+    # Jacobian corrections whose score Jacobian is taken by finite differences
+    # rather than forward-mode AD; see `_row_score_jacobian`.
+    FINITE_DIFFERENCE_JACOBIAN_CORRECTIONS = frozenset({"gauss_jacobian_FD"})
     JACOBIAN_CORRECTIONS = JACOBIAN_GAUSSIAN_CORRECTIONS | frozenset({"bp_jac"})
     SCHUR_GAUSSIAN_CORRECTIONS = frozenset(
         {"Gauss_schur_global", "Gauss_global_local", "gauss_hierarchical"}
@@ -246,7 +282,8 @@ class MultiObsSampler():
     VALID_CORRECTIONS = frozenset(
         {
             "gauss", "full_gaussian", "Gauss_schur_global",
-            "Gauss_global_local", "gauss_hierarchical", "gauss_jacobian", "bp_jac",
+            "Gauss_global_local", "gauss_hierarchical", "gauss_jacobian",
+            "gauss_jacobian_FD", "bp_jac",
             "hybrid", "uncorrected",
             "fnpe", "legacy_mean",
             "prior_corrected_sum", "damped_sum", "minibatch_damped",
@@ -257,7 +294,8 @@ class MultiObsSampler():
         {"damped_sum", "minibatch_damped"}
     )
     TEMPERABLE_CORRECTIONS = frozenset(
-        {"fnpe", "gauss_hierarchical", "gauss_jacobian", "bp_jac"}
+        {"fnpe", "gauss_hierarchical", "gauss_jacobian", "gauss_jacobian_FD",
+         "bp_jac"}
     )
 
     #############################################
@@ -284,7 +322,12 @@ class MultiObsSampler():
                precision_est_batch_size=128, covariance_shrinkage=0.01,
                covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3,
                jacobian_refresh=1, jacobian_curvature_floor=1e-3,
-               jacobian_block_size=2, jacobian_pooling="contiguous"):
+               jacobian_block_size=2, jacobian_pooling="contiguous",
+               jacobian_fd_step=1e-2, jacobian_refresh_low_noise=None,
+               jacobian_refresh_lambda=0.3, jacobian_refresh_high_noise=None,
+               jacobian_refresh_high_lambda=None, jacobian_refresh_band=None,
+               jacobian_refresh_outside_band=None, jacobian_secant=False,
+               start_lambda=None, init_state=None):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -309,9 +352,10 @@ class MultiObsSampler():
                     "uncorrected", "fnpe", "damping", "gauss_damping", "hybrid"
                     and "hybrid_damping" values, accepts "legacy_mean",
                     "prior_corrected_sum", "damped_sum", "minibatch_damped" and
-                    "gauss_jacobian" (pilot-free hierarchical GAUSS) and
-                    "bp_jac" (block-pooled Jacobian composition; see the
-                    class docstring).
+                    "gauss_jacobian" (pilot-free hierarchical GAUSS),
+                    "gauss_jacobian_FD" (the same rule with a finite-difference
+                    Jacobian, ~4x cheaper) and "bp_jac" (block-pooled Jacobian
+                    composition; see the class docstring).
             jacobian_refresh: For correction="gauss_jacobian" only. Recompute
             jacobian_block_size: Number of observations K pooled by ``bp_jac``
                     before its Jacobian is inverted. The final short block is
@@ -321,6 +365,12 @@ class MultiObsSampler():
                     more slowly in t than the score does, so values of 5-20 cut
                     the overhead to a few percent at essentially no accuracy
                     cost. 1 (the default) refreshes at every evaluation.
+                    Use an odd period with the order-2 DPM sampler: it makes
+                    two calls per step, so an even period always refreshes at
+                    the same one of them, which measurably biases the result
+                    (docs/jacobian_speedup_results.md). 9 was 3.3x faster than
+                    the old low-noise schedule on Partial_Pooling at no
+                    measurable accuracy cost.
                     What is held between refreshes is only the network's
                     implied Sigma_0,j; the exact lambda(t)-dependent part of
                     Lambda_j(t) is rebuilt at every evaluation, so a lagged
@@ -331,6 +381,54 @@ class MultiObsSampler():
                     Lower bound on the eigenvalues of I - lambda^2 H_j, i.e. how
                     close a single-observation backward kernel may come to a
                     point mass. Caps Lambda_j at (floor * lambda^2)^-1.
+            jacobian_fd_step: For correction="gauss_jacobian_FD" only. Relative
+                    finite-difference step; the absolute step is
+                    ``jacobian_fd_step * lambda_t`` in y coordinates. 1e-2 keeps
+                    float32 rounding and truncation error both near 1e-3.
+            jacobian_refresh_low_noise: For the Jacobian corrections
+                    ("gauss_jacobian", "gauss_jacobian_FD"). Refresh period
+                    used once lambda_t < ``jacobian_refresh_lambda``;
+                    ``jacobian_refresh`` then governs only the high-noise part
+                    of the trajectory. None (the default) uses
+                    ``jacobian_refresh`` throughout. A lagged refresh is nearly
+                    free at low noise and costly at high noise: on
+                    Partial_Pooling, 20 below lambda 0.3 and 1 above stayed
+                    within Monte-Carlo noise of refreshing every evaluation,
+                    while the reverse moved posterior means by ~0.2 SD.
+            jacobian_refresh_lambda: Noise level lambda_t at which
+                    ``jacobian_refresh_low_noise`` takes over.
+            jacobian_refresh_high_noise, jacobian_refresh_high_lambda: The
+                    mirror image at the noise end: refresh period used while
+                    lambda_t > ``jacobian_refresh_high_lambda``. Both None (the
+                    default) leaves the high-noise end on ``jacobian_refresh``.
+            jacobian_refresh_band: ``(r_low, r_high)`` switches to an adaptive
+                    band instead of fixed lambda edges, on
+                    ``r = lambda^2 * median_j(min eig K_j)`` with K_j the cached
+                    lambda-free information: the noise variance against the
+                    widest direction of a single-observation posterior. The
+                    Jacobian is refreshed every ``jacobian_refresh`` calls while
+                    r_low <= r <= r_high and every
+                    ``jacobian_refresh_outside_band`` calls otherwise (None:
+                    never, after the first). Outside the band the information
+                    barely moves with the state: far above it Cov(theta_0 | y)
+                    tends to the posterior covariance, below it the smoothed
+                    density is locally Gaussian. Overrides the fixed-lambda
+                    edges when given.
+            jacobian_secant: Between refreshes, update each row's cached
+                    information K_j by a damped BFGS step from the secant pair
+                    of consecutive evaluations, ``K v = u`` with ``u = s2 - s1``
+                    and ``v = D1 - D2``, ``D = y + lambda^2 s`` the Tweedie
+                    denoiser. The relation holds exactly for a Gaussian
+                    posterior at any pair of noise levels and locally at a
+                    single level for any posterior, and costs no network calls.
+            start_lambda, init_state: Start the reverse diffusion at noise level
+                    ``start_lambda`` from ``init_state`` (shape
+                    ``(observations, num_samples, nodes)`` in the sampler's
+                    y = x/alpha coordinates, shared coordinates synchronised)
+                    instead of from pure noise at the top of the schedule. The
+                    levels below ``start_lambda`` are the ones the full schedule
+                    would use, so the step density is unchanged. See
+                    :meth:`laplace_initial_state`.
             posterior_precision: Optional estimate of the single-observation posterior
                     precision on the hierarchy dimensions, used by the "gauss" correction.
                     Shape (len(hierarchy),) or (num_observations, len(hierarchy)).
@@ -394,6 +492,29 @@ class MultiObsSampler():
             save_trajectory: Whether to save the intermediate denoising trajectory
         """
 
+        # Sampler ablation without editing every experiment: COMPASS_SAMPLER_OVERRIDE is a JSON
+        # object whose keys (churn_eta, corrector_steps, corrector_steps_interval,
+        # final_corrector_steps, terminal_corrector_steps, snr) replace the caller's arguments,
+        # for method="dpm" only, e.g. Langevin correctors instead of churn.
+        self.sampler_override = None
+        override = os.environ.get("COMPASS_SAMPLER_OVERRIDE")
+        if override and method == "dpm":
+            import json
+            self.sampler_override = json.loads(override)
+            allowed = {"churn_eta", "corrector_steps", "corrector_steps_interval",
+                       "final_corrector_steps", "terminal_corrector_steps", "snr"}
+            unknown = set(self.sampler_override) - allowed
+            if unknown:
+                raise ValueError(f"COMPASS_SAMPLER_OVERRIDE: unknown keys {sorted(unknown)}")
+            churn_eta = self.sampler_override.get("churn_eta", churn_eta)
+            corrector_steps = self.sampler_override.get("corrector_steps", corrector_steps)
+            corrector_steps_interval = self.sampler_override.get("corrector_steps_interval",
+                                                                 corrector_steps_interval)
+            final_corrector_steps = self.sampler_override.get("final_corrector_steps", final_corrector_steps)
+            terminal_corrector_steps = self.sampler_override.get("terminal_corrector_steps",
+                                                                 terminal_corrector_steps)
+            snr = self.sampler_override.get("snr", snr)
+
         # Set parameters
         self.world_size = world_size
         self.timesteps = timesteps
@@ -411,6 +532,8 @@ class MultiObsSampler():
         self.denoise_clamp = denoise_clamp
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
+        self.evaluated_row_samples = 0
+        self.jacobian_row_samples = 0
         self.jacobian_block_size = int(jacobian_block_size)
         self.jacobian_pooling = str(jacobian_pooling)
         self.solver_stats = None
@@ -422,6 +545,21 @@ class MultiObsSampler():
         self.jacobian_curvature_floor = float(jacobian_curvature_floor)
         if self.jacobian_refresh < 1:
             raise ValueError("jacobian_refresh must be at least 1.")
+        self._configure_jacobian_schedule(
+            jacobian_fd_step, jacobian_refresh_low_noise, jacobian_refresh_lambda,
+            refresh_high_noise=jacobian_refresh_high_noise,
+            refresh_high_lambda=jacobian_refresh_high_lambda,
+            refresh_band=jacobian_refresh_band,
+            refresh_outside_band=jacobian_refresh_outside_band,
+            secant=jacobian_secant,
+        )
+        self.start_lambda = None if start_lambda is None else float(start_lambda)
+        if self.start_lambda is not None and not (
+                math.isfinite(self.start_lambda) and self.start_lambda > 0.0):
+            raise ValueError("start_lambda must be finite and positive.")
+        if (init_state is None) != (self.start_lambda is None):
+            raise ValueError("start_lambda and init_state must be given together.")
+        self.init_state = init_state
         if self.jacobian_block_size < 1:
             raise ValueError("jacobian_block_size must be at least 1.")
         if self.jacobian_pooling not in {"contiguous", "score_sorted"}:
@@ -1033,6 +1171,8 @@ class MultiObsSampler():
         self.denoise_clamp = denoise_clamp
         self.score_network_calls = 0
         self.evaluated_subject_rows = 0
+        self.evaluated_row_samples = 0
+        self.jacobian_row_samples = 0
         latent_indices = torch.where(mask[0] == 0)[0].tolist()
         hierarchy_set = set(hierarchy)
         self.local_latent_indices = [
@@ -1053,6 +1193,9 @@ class MultiObsSampler():
             raise ValueError("jacobian_refresh must be at least 1.")
         if not 0.0 < self.jacobian_curvature_floor < 1.0:
             raise ValueError("jacobian_curvature_floor must lie in (0, 1).")
+        # MAP refinement always refreshes on the uniform `jacobian_refresh`
+        # schedule and uses the default finite-difference step.
+        self._configure_jacobian_schedule(1e-2, None, 0.3)
         self._reset_jacobian_state()
         self.local_prior_mean, self.local_prior_std = self._resolve_local_prior(
             local_prior
@@ -1487,6 +1630,173 @@ class MultiObsSampler():
             z, times[-1], latent, expanded_mask, expanded_data, hierarchy, device,
         )
 
+    def laplace_initial_state(
+            self, data, condition_mask, num_samples, start_lambda, hierarchy,
+            prior=None, local_prior=None, correction="gauss_jacobian_FD",
+            denoise_clamp=5.0, newton_levels=8, newton_iterations=3,
+            sigma_start=None, generator=None, device="cpu", fit=None):
+        """Draws from a Laplace approximation of p_lambda(theta | X) at ``start_lambda``.
+
+        Feed the result to :meth:`sample` as ``init_state`` together with the
+        same ``start_lambda``; the reverse diffusion then skips every level
+        above it. ``fit`` reuses a :meth:`laplace_fit` result (e.g. across draw
+        batches of one dataset); otherwise one is computed and kept in
+        :attr:`laplace_last_fit`. Returns ``(observations, num_samples, nodes)``
+        in y = x/alpha coordinates at ``start_lambda``.
+        """
+        if fit is None:
+            fit = self.laplace_fit(
+                data, condition_mask, start_lambda, hierarchy, prior=prior,
+                local_prior=local_prior, correction=correction,
+                denoise_clamp=denoise_clamp, newton_levels=newton_levels,
+                newton_iterations=newton_iterations, sigma_start=sigma_start,
+                device=device,
+            )
+        return self.laplace_draw(fit, num_samples, generator=generator)
+
+    def laplace_fit(
+            self, data, condition_mask, start_lambda, hierarchy, prior=None,
+            local_prior=None, correction="gauss_jacobian_FD", denoise_clamp=5.0,
+            newton_levels=8, newton_iterations=3, sigma_start=None, device="cpu"):
+        """Laplace approximation of the composed diffused posterior at ``start_lambda``.
+
+        1. :meth:`newton_map_estimate` (same correction, so the same composed
+           score) annealed down to ``start_lambda`` only, no Richardson step:
+           the mode m of the composed diffused posterior at that level.
+        2. One Jacobian at m gives each row's lambda-free information
+           K_j = Lambda_j - lambda^-2 I over (g, l_j) -- the quantity the
+           Jacobian corrections cache. Composed like the rule composes it:
+           S = P_prior + sum_j [K_j,gg - K_j,gl K_j,ll^-1 K_j,lg - P_ref]^+,
+           with P_ref the training prior's precision if one is declared.
+
+        :meth:`laplace_draw` then samples theta_0 - m ~ N(0, S^-1) on g, l_j | g
+        from the conditional of K_j, plus the diffusion noise lambda * eps on
+        every latent coordinate (shared on g). Exact when the composed posterior
+        is Gaussian. The fit touches one state, not the draws; its network rows
+        are in the returned ``diagnostics`` (and :attr:`laplace_diagnostics`).
+        """
+        lam = float(start_lambda)
+        if not (math.isfinite(lam) and lam > 0.0):
+            raise ValueError("start_lambda must be finite and positive.")
+        if correction not in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            raise ValueError("laplace_fit needs a Jacobian correction.")
+        t_s = self.sde.time_of_lambda(
+            torch.tensor([lam], dtype=torch.float32, device=device)
+        ).reshape(1, 1)
+        if sigma_start is None:
+            sigma_start = max(1.0, 3.0 * lam)
+        # sample() takes only the observed values; the MAP routine wants the
+        # full node vector with the observed columns filled in.
+        data = torch.as_tensor(data, dtype=torch.float32).cpu()
+        flat_mask = torch.as_tensor(condition_mask, dtype=torch.float32).cpu()
+        if flat_mask.dim() == 1 and data.shape[-1] != flat_mask.numel():
+            full = torch.zeros(data.shape[0], flat_mask.numel())
+            full[:, flat_mask == 1] = data
+            data = full
+        mode = self.newton_map_estimate(
+            data, flat_mask, hierarchy=hierarchy, prior=prior,
+            local_prior=local_prior, correction=correction,
+            denoise_clamp=denoise_clamp, timesteps=int(newton_levels),
+            max_iterations_per_level=int(newton_iterations),
+            convergence_tol=1e-3, max_backtracks=1,
+            eps=float(t_s.reshape(())), sigma_start=sigma_start,
+            richardson=False, curvature="jacobian", device=device,
+        ).to(device)
+        n_obs, _, nodes = mode.shape
+        mask = flat_mask.to(device=device, dtype=mode.dtype)
+        mask = mask.expand(n_obs, nodes).unsqueeze(1)
+        latent = 1 - mask
+        alpha = self.sde.alpha_t(t_s).to(device)
+        y_mode = mode * (latent / alpha + mask)
+
+        variance = lam * lam
+        joint = self._jacobian_joint_precision(y_mode, t_s, mask, variance)[:, 0]
+        h = len(hierarchy)
+        order = list(self.full_gaussian_features)
+        dimension = len(order)
+        eye = torch.eye(dimension, dtype=torch.float64, device=device)
+        information = joint - eye / variance
+        information = 0.5 * (information + information.mT)
+        values, vectors = torch.linalg.eigh(information)
+        floor = 1e-8 * values.abs().amax(dim=-1, keepdim=True).clamp_min(1.0)
+        information = (vectors * values.clamp_min(0.0).unsqueeze(-2)) @ vectors.mT
+
+        k_gg = information[:, :h, :h]
+        regression, local_factor = None, None
+        if dimension > h:
+            k_gl = information[:, :h, h:]
+            k_ll = information[:, h:, h:]
+            values, vectors = torch.linalg.eigh(k_ll)
+            values = values.clamp_min(float(floor.min()))
+            k_ll = (vectors * values.unsqueeze(-2)) @ vectors.mT
+            regression = torch.linalg.solve(k_ll, k_gl.mT)          # K_ll^-1 K_lg
+            marginal = k_gg - k_gl @ regression
+            local_factor = torch.linalg.cholesky(k_ll)
+        else:
+            marginal = k_gg
+        prior_precision = self.prior_precision_matrix.to(device=device,
+                                                         dtype=torch.float64)
+        reference = prior_precision
+        if self.training_prior is not None:
+            reference = torch.diag(1.0 / self.training_prior[1].to(
+                device=device, dtype=torch.float64) ** 2)
+        gain = 0.5 * ((marginal - reference) + (marginal - reference).mT)
+        values, vectors = torch.linalg.eigh(gain)
+        gain = (vectors * values.clamp_min(0.0).unsqueeze(-2)) @ vectors.mT
+        composed = prior_precision + gain.sum(dim=0)
+        diagnostics = {
+            "start_lambda": lam,
+            "row_samples": int(getattr(self, "evaluated_row_samples", 0)),
+            "jacobian_row_samples": int(getattr(self, "jacobian_row_samples", 0)),
+            "global_sd": torch.linalg.inv(composed).diagonal().sqrt().tolist(),
+            "mode_global": y_mode[0, 0, hierarchy].tolist(),
+            "map": self.map_diagnostics,
+        }
+        self.laplace_diagnostics = diagnostics
+        fit = {"lambda": lam, "mode": y_mode, "order": order, "hierarchy": list(hierarchy),
+               "global_factor": torch.linalg.cholesky(composed),
+               "regression": regression, "local_factor": local_factor,
+               "device": device, "diagnostics": diagnostics}
+        self.laplace_last_fit = fit
+        return fit
+
+    @staticmethod
+    def laplace_draw(fit, num_samples, generator=None):
+        """``num_samples`` draws at ``fit['lambda']`` from a :meth:`laplace_fit` result."""
+        device = fit["device"]
+        y_mode, order, hierarchy = fit["mode"], fit["order"], fit["hierarchy"]
+        n_obs, _, nodes = y_mode.shape
+        h, dimension, samples = len(hierarchy), len(order), int(num_samples)
+
+        def solve(factor, z):
+            # x = L^-T z has covariance (L L^T)^-1.
+            return torch.linalg.solve_triangular(
+                factor.mT, z.unsqueeze(-1), upper=True).squeeze(-1)
+
+        offset = torch.zeros(n_obs, samples, dimension, dtype=torch.float64,
+                             device=device)
+        z = torch.randn(samples, h, dtype=torch.float64, device=device,
+                        generator=generator)
+        xi_g = solve(fit["global_factor"].expand(samples, h, h), z)
+        offset[:, :, :h] = xi_g.unsqueeze(0)
+        if fit["regression"] is not None:
+            mean_shift = -torch.einsum("nlh,sh->nsl", fit["regression"], xi_g)
+            z = torch.randn(n_obs, samples, dimension - h, dtype=torch.float64,
+                            device=device, generator=generator)
+            local = solve(fit["local_factor"].unsqueeze(1).expand(
+                -1, samples, -1, -1), z)
+            offset[:, :, h:] = mean_shift + local
+        noise = torch.randn(n_obs, samples, dimension, dtype=torch.float64,
+                            device=device, generator=generator)
+        noise[:, :, :h] = noise[:1, :, :h]
+        offset = offset + fit["lambda"] * noise
+
+        state = y_mode.expand(n_obs, samples, nodes).clone().to(torch.float64)
+        state[:, :, order] = state[:, :, order] + offset
+        state = state.to(y_mode.dtype)
+        state[:, :, hierarchy] = state[:1, :, hierarchy]
+        return state
+
     def _raw_row_scores(self, z, t, condition_mask):
         """Uncomposed per-observation network score in y = x/alpha coordinates.
 
@@ -1503,6 +1813,7 @@ class MultiObsSampler():
         scores = self.SBIm.output_scale_function(t, scores)
         self.score_network_calls += 1
         self.evaluated_subject_rows += int(rows)
+        self.evaluated_row_samples = getattr(self, "evaluated_row_samples", 0) + int(rows) * int(samples)
         return (alpha * scores).reshape(rows, samples, features)
 
     def _row_score_jacobian(self, z, t, condition_mask, feature_order):
@@ -1517,7 +1828,15 @@ class MultiObsSampler():
         The shared coordinate is synchronized across rows, so its tangent is
         legitimately nonzero everywhere; a local tangent is too, but rows do not
         mix, so row ``j`` still receives exactly ``d s_j / d l_j``.
+
+        For ``correction="gauss_jacobian_FD"`` the columns come from
+        :meth:`_row_score_jacobian_fd` instead.
         """
+        if (getattr(self, "correction", None)
+                in self.FINITE_DIFFERENCE_JACOBIAN_CORRECTIONS):
+            return self._row_score_jacobian_fd(
+                z, t, condition_mask, feature_order
+            )
         try:
             from torch.func import jvp
         except ImportError as error:                       # pragma: no cover
@@ -1529,6 +1848,9 @@ class MultiObsSampler():
         def raw_scores(state):
             return self._raw_row_scores(state, t, condition_mask)
 
+        # A JVP costs several forward passes; counted here as one per column.
+        self.jacobian_row_samples = (getattr(self, "jacobian_row_samples", 0)
+                                     + z.shape[0] * z.shape[1] * len(feature_order))
         columns = []
         # The fused scaled-dot-product-attention kernels have no forward-mode
         # AD rule, so the transformer raises NotImplementedError under jvp
@@ -1547,6 +1869,59 @@ class MultiObsSampler():
                     column[:, :, feature_order].detach().to(torch.float64)
                 )
         return torch.stack(columns, dim=-1)
+
+    # Upper bound on (observation rows x samples x copies) per network call in
+    # the finite-difference Jacobian; bounds its peak memory to that of one
+    # ordinary forward pass over this many rows.
+    FD_JACOBIAN_MAX_ROWS = 16384
+
+    def _row_score_jacobian_fd(self, z, t, condition_mask, feature_order):
+        """Forward-difference counterpart of :meth:`_row_score_jacobian`.
+
+        Column ``k`` is ``(s(z + h e_k) - s(z)) / h`` with ``h =
+        jacobian_fd_step * lambda_t``. The perturbation of coordinate ``k`` is
+        applied in every observation row at once, exactly like the JVP tangent,
+        so a shared coordinate moves synchronously and a local one only ever
+        reaches its own row. The base point and all D perturbed copies are
+        stacked along the sample axis and evaluated in as few no-grad network
+        calls as ``FD_JACOBIAN_MAX_ROWS`` allows (usually one), which keeps the
+        fused attention kernel and is ~4-5x cheaper than D JVPs.
+
+        The step is accurate because a lambda-smoothed score is smooth on the
+        scale lambda_t; a network much rougher than that (e.g. untrained with
+        large random weights) needs a smaller ``jacobian_fd_step``.
+        """
+        rows, samples, features = z.shape
+        lam = float(self.sde.lambda_t(t).reshape(-1)[0])
+        step = float(self.jacobian_fd_step) * lam
+        copies = [z]
+        for feature in feature_order:
+            shifted = z.clone()
+            shifted[:, :, feature] += step
+            copies.append(shifted)
+        self.jacobian_row_samples = (getattr(self, "jacobian_row_samples", 0)
+                                     + rows * samples * len(copies))
+        per_call = max(1, self.FD_JACOBIAN_MAX_ROWS // max(1, rows * samples))
+        mask_per_sample = (
+            condition_mask.dim() == 3 and condition_mask.shape[1] == samples
+        )
+        outputs = []
+        with torch.no_grad():
+            for start in range(0, len(copies), per_call):
+                chunk = copies[start:start + per_call]
+                mask = (
+                    condition_mask.repeat(1, len(chunk), 1) if mask_per_sample
+                    else condition_mask
+                )
+                scores = self._raw_row_scores(torch.cat(chunk, dim=1), t, mask)
+                outputs.append(
+                    scores.reshape(rows, len(chunk), samples, features)
+                )
+        scores = torch.cat(outputs, dim=1)[..., feature_order].to(torch.float64)
+        columns = (scores[:, 1:] - scores[:, :1]) / step
+        # (rows, D_in, samples, D_out) -> (rows, samples, D_out, D_in), the
+        # layout `_row_score_jacobian` returns.
+        return columns.permute(0, 2, 3, 1).contiguous()
 
     @staticmethod
     def _forward_ad_attention():
@@ -1721,6 +2096,14 @@ class MultiObsSampler():
             torch.log10(sigma_max).item(), torch.log10(sigma_min).item(),
             self.timesteps, device=device,
         )
+        start = getattr(self, "start_lambda", None)
+        if start is not None:
+            # Warm start: keep the full schedule's levels below start_lambda,
+            # so the step density there is exactly that of a cold run.
+            below = sigmas[sigmas < start]
+            sigmas = torch.cat([torch.tensor([start], device=device,
+                                             dtype=sigmas.dtype), below])
+            self.timesteps = int(sigmas.numel())
         return self.sde.time_of_lambda(sigmas)
 
     def _sample_loop(self, rank, data, condition_mask, num_samples, result_dict=None):
@@ -1775,7 +2158,10 @@ class MultiObsSampler():
         self.terminal_corrector_seconds = {count: 0.0 for count in self.terminal_corrector_counts}
         for batch in data_loader:
             data_batch, condition_mask_batch, idx = self._prepare_data(batch, num_samples, self.device)
-            data_batch = self._initial_sample(data_batch, condition_mask_batch)
+            if getattr(self, "init_state", None) is not None:
+                data_batch = self._warm_start_state(data_batch, condition_mask_batch)
+            else:
+                data_batch = self._initial_sample(data_batch, condition_mask_batch)
 
             if self.method == "euler":
                 samples = self._basic_sampler(data_batch, condition_mask_batch, idx)
@@ -1836,8 +2222,25 @@ class MultiObsSampler():
             stats = dict(self.solver_stats or {})
             stats["score_network_calls"] = int(self.score_network_calls)
             stats["evaluated_subject_rows"] = int(self.evaluated_subject_rows)
+            stats["evaluated_row_samples"] = int(getattr(self, "evaluated_row_samples", 0))
+            stats["jacobian_row_samples"] = int(getattr(self, "jacobian_row_samples", 0))
+            stats["jacobian_refreshes"] = int(getattr(self, "_jacobian_refreshes", 0))
+            stats["jacobian_secant_updates"] = int(getattr(self, "_secant_updates", 0))
+            stats["jacobian_secant_skipped"] = int(getattr(self, "_secant_skipped", 0))
             stats.setdefault("score_evaluations", int(self.score_network_calls))
             self.solver_stats = stats
+            log = os.environ.get("COMPASS_PROJECTION_LOG")
+            if log and self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS | {"arruda_schur_gauss"}:
+                import json
+                diagnostics = {k: v for k, v in self.covariance_diagnostics.items() if k != "last_repair"}
+                with open(log, "a") as handle:
+                    handle.write(json.dumps({
+                        "label": os.environ.get("COMPASS_RUN_LABEL", ""), "correction": self.correction,
+                        "observations": int(data.shape[0]), "num_samples": int(num_samples),
+                        "churn_eta": self.churn_eta, "corrector_steps": getattr(self, "corrector_steps", None),
+                        "corrector_steps_interval": getattr(self, "corrector_steps_interval", None),
+                        "sampler_override": self.sampler_override, "score_network_calls": self.score_network_calls,
+                        **diagnostics}) + "\n")
             if self.terminal_corrector_counts:
                 return {count: torch.cat(values, dim=0) for count, values in sweep_samples.items()}
             return torch.cat(all_samples, dim=0)
@@ -2032,6 +2435,9 @@ class MultiObsSampler():
         self._pd_information_eigenvalues = 0
         self._pd_negative_information = 0
         self._pd_information_min = []
+        self._pd_adaptation_relative_mean = []
+        self._curv_eigenvalues = 0
+        self._curv_negative = 0
 
     @property
     def covariance_diagnostics(self):
@@ -2073,6 +2479,19 @@ class MultiObsSampler():
             ),
             "maximum_relative_adaptation": (
                 max(adaptation_relatives) if adaptation_relatives else 0.0
+            ),
+            "information_projection": bool(getattr(self, "information_projection", True)),
+            "curvature_lower_clip": bool(getattr(self, "curvature_lower_clip", True)),
+            # share of gauss_jacobian curvature eigenvalues below 0 (what the lower clip zeroes)
+            "negative_curvature_fraction": (
+                getattr(self, "_curv_negative", 0) / getattr(self, "_curv_eigenvalues", 0)
+                if getattr(self, "_curv_eigenvalues", 0) else 0.0
+            ),
+            # mean over activations of ||I^+ - I|| / ||I||, averaged over rows and samples
+            "mean_relative_adaptation": (
+                sum(values("_pd_adaptation_relative_mean"))
+                / len(values("_pd_adaptation_relative_mean"))
+                if values("_pd_adaptation_relative_mean") else 0.0
             ),
             "minimum_eigenvalue_before": (
                 min(values("_pd_min_before")) if count else None
@@ -2118,12 +2537,87 @@ class MultiObsSampler():
         ).expand(covariance.shape[:-2] + covariance.shape[-2:])
         return torch.cholesky_solve(identity, factors)
 
+    def _configure_jacobian_schedule(self, fd_step, refresh_low_noise,
+                                     refresh_lambda, refresh_high_noise=None,
+                                     refresh_high_lambda=None, refresh_band=None,
+                                     refresh_outside_band=None, secant=False):
+        """Validate and store the finite-difference step and refresh schedule."""
+        if (refresh_high_noise is None) != (refresh_high_lambda is None):
+            raise ValueError("jacobian_refresh_high_noise and "
+                             "jacobian_refresh_high_lambda go together.")
+        self.jacobian_refresh_high_noise = (
+            None if refresh_high_noise is None else int(refresh_high_noise))
+        self.jacobian_refresh_high_lambda = (
+            None if refresh_high_lambda is None else float(refresh_high_lambda))
+        if self.jacobian_refresh_high_noise is not None and (
+                self.jacobian_refresh_high_noise < 1
+                or not self.jacobian_refresh_high_lambda > 0.0):
+            raise ValueError("jacobian_refresh_high_noise must be >= 1 and "
+                             "jacobian_refresh_high_lambda positive.")
+        if refresh_band is not None:
+            low, high = (float(v) for v in refresh_band)
+            if not (0.0 <= low < high):
+                raise ValueError("jacobian_refresh_band must be (r_low, r_high) "
+                                 "with 0 <= r_low < r_high.")
+            refresh_band = (low, high)
+        self.jacobian_refresh_band = refresh_band
+        self.jacobian_refresh_outside_band = (
+            None if refresh_outside_band is None else int(refresh_outside_band))
+        if (self.jacobian_refresh_outside_band is not None
+                and self.jacobian_refresh_outside_band < 1):
+            raise ValueError("jacobian_refresh_outside_band must be at least 1.")
+        self.jacobian_secant = bool(secant)
+        self.jacobian_fd_step = float(fd_step)
+        if not (math.isfinite(self.jacobian_fd_step)
+                and self.jacobian_fd_step > 0.0):
+            raise ValueError("jacobian_fd_step must be finite and positive.")
+        self.jacobian_refresh_low_noise = (
+            None if refresh_low_noise is None else int(refresh_low_noise)
+        )
+        if (self.jacobian_refresh_low_noise is not None
+                and self.jacobian_refresh_low_noise < 1):
+            raise ValueError("jacobian_refresh_low_noise must be at least 1.")
+        self.jacobian_refresh_lambda = float(refresh_lambda)
+        if not (math.isfinite(self.jacobian_refresh_lambda)
+                and self.jacobian_refresh_lambda > 0.0):
+            raise ValueError("jacobian_refresh_lambda must be finite and positive.")
+
+    # Period that stands for "never again": the modulo test below then only
+    # fires at call index 0.
+    NEVER_REFRESH = 10 ** 12
+
+    def _jacobian_refresh_at(self, inverse_variance):
+        """Refresh period at noise level lambda = inverse_variance ** -0.5."""
+        band = getattr(self, "jacobian_refresh_band", None)
+        stats = getattr(self, "_jacobian_info_scale", None)
+        if band is not None:
+            if stats is None:
+                return 1
+            k_min, _ = stats
+            in_band = band[0] <= k_min / inverse_variance <= band[1]
+            if in_band:
+                return max(1, int(self.jacobian_refresh))
+            outside = getattr(self, "jacobian_refresh_outside_band", None)
+            return self.NEVER_REFRESH if outside is None else max(1, int(outside))
+        high = getattr(self, "jacobian_refresh_high_noise", None)
+        if high is not None and inverse_variance < self.jacobian_refresh_high_lambda ** -2:
+            return max(1, int(high))
+        low = getattr(self, "jacobian_refresh_low_noise", None)
+        if low is not None and inverse_variance > self.jacobian_refresh_lambda ** -2:
+            return max(1, int(low))
+        return max(1, int(self.jacobian_refresh))
+
     def _reset_jacobian_state(self):
         """Clear the Jacobian-curvature refresh cache and its counters."""
         self._jacobian_call_index = 0
         self._jacobian_cached_information = None
         self._jacobian_evaluations = 0
         self._bp_jacobian_cached = None
+        self._jacobian_info_scale = None
+        self._jacobian_refreshes = 0
+        self._secant_previous = None
+        self._secant_updates = 0
+        self._secant_skipped = 0
 
     @staticmethod
     def _batched_eigh(matrices, max_batch=2048):
@@ -2206,7 +2700,10 @@ class MultiObsSampler():
         curvature = 0.5 * (curvature + curvature.mT)
         eigenvalues, eigenvectors = self._batched_eigh(curvature)
         floor = float(self.jacobian_curvature_floor)
-        eigenvalues = eigenvalues.clamp(min=0.0, max=(1.0 - floor) / variance)
+        self._curv_eigenvalues = getattr(self, "_curv_eigenvalues", 0) + int(eigenvalues.numel())
+        self._curv_negative = getattr(self, "_curv_negative", 0) + int((eigenvalues < 0).sum())
+        lower = 0.0 if getattr(self, "curvature_lower_clip", True) else None
+        eigenvalues = eigenvalues.clamp(min=lower, max=(1.0 - floor) / variance)
         precision = 1.0 / (variance * (1.0 - variance * eigenvalues))
         return (eigenvectors * precision.unsqueeze(-2)) @ eigenvectors.mT
 
@@ -2296,7 +2793,8 @@ class MultiObsSampler():
         return effective_precision, cross_factor
 
     def _effective_global_factors(self, var_t, num_observations=None,
-                                  state=None, t=None, condition_mask=None):
+                                  state=None, t=None, condition_mask=None,
+                                  row_scores=None):
         """Return per-observation effective global precisions and R blocks.
 
         The returned precisions are projected onto the set of statistically
@@ -2332,7 +2830,7 @@ class MultiObsSampler():
                     "correction='gauss_jacobian' needs the current state, time "
                     "and condition mask to evaluate the score Jacobian."
                 )
-            refresh = max(1, int(self.jacobian_refresh))
+            refresh = self._jacobian_refresh_at(inverse_variance)
             index = int(getattr(self, "_jacobian_call_index", 0))
             self._jacobian_call_index = index + 1
             information = getattr(self, "_jacobian_cached_information", None)
@@ -2358,6 +2856,30 @@ class MultiObsSampler():
                 )
                 information = joint_precision_t - inverse_variance * identity
                 self._jacobian_cached_information = information
+                self._jacobian_refreshes = getattr(self, "_jacobian_refreshes", 0) + 1
+                if getattr(self, "jacobian_refresh_band", None) is not None:
+                    # Chunked like every other batched eigh here: the CUDA
+                    # kernel's workspace scales with the batch size.
+                    eigenvalues, _ = self._batched_eigh(
+                        0.5 * (information + information.mT)
+                    )
+                    eigenvalues = eigenvalues.clamp_min(0.0)
+                    self._jacobian_info_scale = (
+                        float(eigenvalues[..., 0].median()),
+                        float(eigenvalues[..., -1].median()),
+                    )
+            elif getattr(self, "jacobian_secant", False) and row_scores is not None:
+                information = self._secant_update(
+                    information, state, row_scores, 1.0 / inverse_variance,
+                )
+                self._jacobian_cached_information = information
+            if getattr(self, "jacobian_secant", False) and row_scores is not None:
+                order = list(self.full_gaussian_features)
+                self._secant_previous = (
+                    state[..., order].to(torch.float64),
+                    row_scores[..., order].to(torch.float64),
+                    1.0 / inverse_variance,
+                )
 
             identity = torch.eye(
                 information.shape[-1], dtype=torch.float64,
@@ -2388,6 +2910,68 @@ class MultiObsSampler():
         cache[cache_key] = result
         self._covariance_time_cache = cache
         return result
+
+    # Relative threshold below which a secant pair carries no usable curvature.
+    SECANT_TOLERANCE = 1e-8
+
+    def _secant_update(self, information, state, row_scores, var_t):
+        """Damped BFGS update of the cached lambda-free information per row.
+
+        For a Gaussian single-observation posterior N(mu, C) the Tweedie
+        denoiser is D(y) = y + lambda^2 s(y) = mu - C s(y) at every lambda, so
+        two evaluations (y1, lambda1) and (y2, lambda2) of the same row obey
+
+            K v = u,   u = s2 - s1,   v = D1 - D2,   K = C^-1,
+
+        whatever the two noise levels. At a single level the same equation is
+        the exact local linearisation for any posterior, with K = Lambda_j -
+        lambda^-2 I. Powell damping keeps K symmetric positive definite; pairs
+        with no curvature information (|v| or u.v ~ 0) leave a row unchanged.
+        """
+        previous = getattr(self, "_secant_previous", None)
+        order = list(self.full_gaussian_features)
+        if previous is None:
+            return information
+        y1, s1, var1 = previous
+        y2 = state[..., order].to(torch.float64)
+        s2 = row_scores[..., order].to(torch.float64)
+        if y1.shape != y2.shape or information.shape[:-2] != y2.shape[:-1]:
+            return information
+        u = s2 - s1
+        v = (y1 + var1 * s1) - (y2 + float(var_t) * s2)
+        Bv = torch.matmul(information, v.unsqueeze(-1)).squeeze(-1)
+        vBv = (v * Bv).sum(-1)
+        vu = (v * u).sum(-1)
+        scale = v.square().sum(-1).sqrt() * u.square().sum(-1).sqrt()
+        # Powell damping: blend u towards B v when the pair has too little
+        # positive curvature, so the update stays positive definite.
+        theta = torch.where(
+            vu >= 0.2 * vBv, torch.ones_like(vu),
+            0.8 * vBv / (vBv - vu).clamp_min(torch.finfo(torch.float64).tiny),
+        )
+        r = theta.unsqueeze(-1) * u + (1.0 - theta).unsqueeze(-1) * Bv
+        vr = (v * r).sum(-1)
+        tol = self.SECANT_TOLERANCE * scale
+        has_b = vBv > tol
+        ok = (vr > tol) & torch.isfinite(vr) & torch.isfinite(vBv)
+        # Where K has no curvature along v yet, add the rank-one term only.
+        r = torch.where(has_b.unsqueeze(-1), r, u)
+        vr = torch.where(has_b, vr, vu)
+        ok = ok & (vr > tol)
+        safe_vBv = torch.where(has_b, vBv, torch.ones_like(vBv))
+        safe_vr = torch.where(ok, vr, torch.ones_like(vr))
+        update = (r.unsqueeze(-1) * r.unsqueeze(-2)) / safe_vr[..., None, None]
+        update = update - torch.where(
+            has_b[..., None, None],
+            (Bv.unsqueeze(-1) * Bv.unsqueeze(-2)) / safe_vBv[..., None, None],
+            torch.zeros_like(update),
+        )
+        updated = information + torch.where(ok[..., None, None], update,
+                                             torch.zeros_like(update))
+        updated = 0.5 * (updated + updated.mT)
+        self._secant_updates = getattr(self, "_secant_updates", 0) + int(ok.sum())
+        self._secant_skipped = getattr(self, "_secant_skipped", 0) + int((~ok).sum())
+        return updated
 
     @staticmethod
     def _schur_global_precision(joint_precision_t, h):
@@ -2420,6 +3004,41 @@ class MultiObsSampler():
         adaptation = torch.zeros_like(joint_precision_t)
         adaptation[..., :h, :h] = delta
         return adaptation
+
+    def set_curvature_lower_clip(self, enabled):
+        """Switch the lower clip at 0 of the gauss_jacobian curvature eigenvalues on or off."""
+        self.curvature_lower_clip = bool(enabled)
+
+    def set_information_projection(self, enabled):
+        """Switch the PSD projection of each observation's information on or off.
+
+        On (the default) it is "projected hierarchical GAUSS": negative eigenvalues of
+        I_j = K_j - P_0 are clipped to zero, so the composed precision is P_0 + sum_j I_j^+.
+        Off, the raw I_j are composed; an indefinite composed precision then falls through
+        to the composed-level spectral repair in _solve_composed_global (counted in
+        ``covariance_diagnostics['repair_count']``)."""
+        self.information_projection = bool(enabled)
+
+    def set_training_prior(self, prior):
+        """Declare the Gaussian prior ``(mean, std)`` over the shared parameters
+        that the network was *trained* under, when it differs from the target
+        prior passed to :meth:`sample`. Each factor p~(g | x_j) then divides out
+        p~(g) instead of p(g): p(g | X) ~ p(g) prod_j p~(g | x_j) / p~(g), which is
+        exact because the likelihood does not depend on the prior. ``None``
+        (the default) restores the usual (1-n) p(g) composition bit for bit.
+        Only the covariance-Gaussian corrections support it."""
+        if prior is None:
+            self.training_prior = None
+            return
+        mean, std = (torch.as_tensor(v, dtype=torch.float32).flatten() for v in prior)
+        self.training_prior = (mean, std)
+
+    def _training_prior_terms(self, theta_h, var_t, inverse_variance, identity):
+        """(Lambda~(t), s~_t(theta_h)) of the diffused diagonal training prior."""
+        mean, std = (v.to(device=theta_h.device, dtype=torch.float64) for v in self.training_prior)
+        precision_t = torch.diag(1.0 / std**2) + inverse_variance * identity
+        score = -(theta_h.to(torch.float64) - mean) / (std**2 + var_t)
+        return precision_t, score
 
     def _prior_precision_at(self, inverse_variance, h, reference):
         """Lambda_prior(t): the diffused Gaussian prior's backward precision."""
@@ -2464,6 +3083,11 @@ class MultiObsSampler():
         precision, or None when every I_j(t) is already admissible.
         """
         prior_t = self._prior_precision_at(inverse_variance, h, effective)
+        if self.training_prior is not None:
+            # Each factor's information is relative to the prior it was trained under.
+            prior_t = torch.diag(1.0 / self.training_prior[1].to(
+                device=effective.device, dtype=torch.float64) ** 2) + inverse_variance * torch.eye(
+                h, dtype=torch.float64, device=effective.device)
         information = effective - prior_t
         information = 0.5 * (information + information.mT)
         # Chunked: with a per-sample precision this batch is
@@ -2481,16 +3105,21 @@ class MultiObsSampler():
         if negative == 0:
             return None
 
+        # Counted whether or not the projection is applied: with it off, these
+        # record the lift it *would* have made.
         self._pd_adaptation_count += 1
         # I^+ - I = sum of the removed negative eigencomponents.
         delta = torch.matmul(
             eigenvectors * deficits.unsqueeze(-2), eigenvectors.mT
         )
-        self._pd_adaptation_relative.append(float(
-            (torch.linalg.matrix_norm(delta)
-             / torch.linalg.matrix_norm(information).clamp_min(
-                 torch.finfo(torch.float64).eps)).max()
-        ))
+        relative = (torch.linalg.matrix_norm(delta)
+                    / torch.linalg.matrix_norm(information).clamp_min(
+                        torch.finfo(torch.float64).eps))
+        self._pd_adaptation_relative.append(float(relative.max()))
+        self._pd_adaptation_relative_mean = getattr(self, "_pd_adaptation_relative_mean", [])
+        self._pd_adaptation_relative_mean.append(float(relative.mean()))
+        if not self.information_projection:
+            return None
         return delta
 
     def _marginal_global_factors(self, var_t):
@@ -3119,7 +3748,9 @@ class MultiObsSampler():
         # A stale cached curvature would make the field piecewise constant and
         # silently zero the finite differences.
         saved_refresh = getattr(self, "jacobian_refresh", 1)
+        saved_low_noise = getattr(self, "jacobian_refresh_low_noise", None)
         self.jacobian_refresh = 1
+        self.jacobian_refresh_low_noise = None
 
         report = {
             "times": times.detach().cpu(), "probes": probes,
@@ -3178,6 +3809,7 @@ class MultiObsSampler():
                 report["jacobian"].append(jacobian.mean(dim=0).cpu())
         finally:
             self.jacobian_refresh = saved_refresh
+            self.jacobian_refresh_low_noise = saved_low_noise
             self._reset_jacobian_state()
 
         report["width"] = width
@@ -3286,6 +3918,7 @@ class MultiObsSampler():
             scores_flat = self.SBIm.output_scale_function(t, scores_flat)
             self.score_network_calls += 1
             self.evaluated_subject_rows += int(evaluated_rows)
+            self.evaluated_row_samples += int(evaluated_rows) * int(num_samples)
 
             if cfg_alpha is not None:
                 scores_uncond = self.SBIm.model(x=x_flat, t=t, c=torch.zeros_like(c_flat))
@@ -3293,6 +3926,7 @@ class MultiObsSampler():
                 scores_flat = scores_uncond + cfg_alpha * (scores_flat - scores_uncond)
                 self.score_network_calls += 1
                 self.evaluated_subject_rows += int(evaluated_rows)
+                self.evaluated_row_samples += int(evaluated_rows) * int(num_samples)
 
             # Network scores are in x-space; samplers step in y=x/alpha space.
             score_table = (alpha * scores_flat).reshape(
@@ -3427,6 +4061,14 @@ class MultiObsSampler():
 
         var_t = self.sde.lambda_t(t).to(x.device)**2
         scores = self._moment_projected_scores(scores, x, var_t)
+        # The secant update needs the network's own row scores, before the
+        # clamps below rewrite them in place.
+        raw_row_scores = (
+            scores.detach().clone()
+            if getattr(self, "jacobian_secant", False)
+            and self.correction in self.JACOBIAN_GAUSSIAN_CORRECTIONS
+            else None
+        )
 
         theta_h = x[:1, :, h]                                   # (1, num_samples, H), shared
 
@@ -3438,7 +4080,14 @@ class MultiObsSampler():
         if self.denoise_clamp is not None:
             lo = self.prior_mean - self.denoise_clamp * self.prior_std
             hi = self.prior_mean + self.denoise_clamp * self.prior_std
-            x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=lo, max=hi)
+            # The individual scores were trained under the training prior, so
+            # their box is that prior's; the composed clamp below keeps lo/hi.
+            ilo, ihi = lo, hi
+            if self.training_prior is not None:
+                t_mean, t_std = (v.to(theta_h.device) for v in self.training_prior)
+                ilo = t_mean - self.denoise_clamp * t_std
+                ihi = t_mean + self.denoise_clamp * t_std
+            x0 = torch.clamp(theta_h + var_t * scores[:, :, h], min=ilo, max=ihi)
             scores[:, :, h] = (x0 - theta_h) / var_t
         # The same tail protection for the row-local latents. Without a local
         # prior nothing here bounds them, so a bad local score -- or a local
@@ -3448,6 +4097,11 @@ class MultiObsSampler():
         sum_scores = scores[:, :, h].sum(dim=0, keepdim=True)
         scaled_sum_scores = sum_scores * (n / m) if minibatch_selected else sum_scores
         prior_score = self._diffused_gaussian_prior_score(theta_h, t)
+
+        if (self.training_prior is not None
+                and self.correction not in self.COVARIANCE_GAUSSIAN_CORRECTIONS):
+            raise NotImplementedError(
+                f"set_training_prior is only implemented for {sorted(self.COVARIANCE_GAUSSIAN_CORRECTIONS)}")
 
         if self.correction == "fnpe":
             # Eq. 7 with the *diffused* prior score. With the undiffused prior of the
@@ -3484,6 +4138,7 @@ class MultiObsSampler():
         elif self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS:
             effective_precision, cross_factor = self._effective_global_factors(
                 var_t, n, state=x, t=t, condition_mask=condition_mask,
+                row_scores=raw_row_scores,
             )
             if self.correction == "Gauss_global_local" and (
                     getattr(self, "global_posterior_mean", None) is not None):
@@ -3539,10 +4194,21 @@ class MultiObsSampler():
                 "ij,bsj->bsi", precision_prior_t,
                 prior_score.to(torch.float64),
             )
-            composed_precision = (
-                precision_sum + (1 - n) * precision_prior_t
-            )
-            numerator = weighted_sum + (1 - n) * weighted_prior
+            if self.training_prior is None:
+                composed_precision = (
+                    precision_sum + (1 - n) * precision_prior_t
+                )
+                numerator = weighted_sum + (1 - n) * weighted_prior
+            else:
+                # p(g | X) ~ p(g) prod_j p~(g | x_j) / p~(g): each factor divides
+                # out the prior it was trained under, the target prior enters once.
+                train_precision_t, train_score = self._training_prior_terms(
+                    theta_h, var_t, inverse_variance, identity)
+                composed_precision = (
+                    precision_sum - n * train_precision_t + precision_prior_t
+                )
+                numerator = weighted_sum + weighted_prior - n * torch.einsum(
+                    "ij,bsj->bsi", train_precision_t, train_score)
             composed64, _, _, _ = self._solve_composed_global(
                 composed_precision, numerator, global_scores
             )
@@ -3769,6 +4435,20 @@ class MultiObsSampler():
             joint_data[condition_mask==1] = data.flatten()
 
         return joint_data, condition_mask, idx
+
+    def _warm_start_state(self, data, condition_mask):
+        """The caller's ``init_state`` with the observed columns restored."""
+        init = torch.as_tensor(self.init_state).to(device=data.device,
+                                                   dtype=data.dtype)
+        if init.shape != data.shape:
+            raise ValueError(
+                f"init_state has shape {tuple(init.shape)}, expected "
+                f"{tuple(data.shape)} (observations, num_samples, nodes); "
+                "warm starts need a single data batch."
+            )
+        state = init * (1 - condition_mask) + data * condition_mask
+        state[:, :, self.hierarchy] = state[:1, :, self.hierarchy]
+        return state
 
     def _initial_sample(self, data, condition_mask):
         # Initialize latent variables with noise from the diffusion reference

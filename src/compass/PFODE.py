@@ -1,5 +1,14 @@
+import contextlib
+
 import torch
 import tqdm
+
+
+def _latent_eigen_mask(P, lat, evecs=None):
+    """Which eigenvectors of the block-diagonal P live on the latent dims."""
+    if evecs is None:
+        _, evecs = torch.linalg.eigh(P)
+    return (evecs.abs() ** 2 * lat.to(evecs.dtype).unsqueeze(2)).sum(1) > 0.5
 
 #################################################################################################
 # ////////////////////////// Probability-Flow ODE log-probability ///////////////////////////////
@@ -43,10 +52,10 @@ class PFODE():
     # ----- Log-probability -----
     #############################################
 
-    @torch.no_grad()
     def log_prob(self, data, condition_mask, timesteps=100, eps=1e-3,
                  divergence="exact", hutchinson_samples=32,
-                 device="cpu", batch_size=4096, verbose=False):
+                 device="cpu", batch_size=4096, verbose=False,
+                 differentiable=False, endpoint="isotropic"):
         """
         Log-probability of the latent dimensions of `data` given its conditioned
         dimensions, evaluated with the probability-flow ODE.
@@ -71,10 +80,56 @@ class PFODE():
             device:         Device to run on.
             batch_size:     Points per integration batch.
             verbose:        Show a progress bar over integration steps.
+            differentiable: Keep the autograd graph (``create_graph`` through the
+                            divergence), so the result can be differentiated
+                            with respect to ``data`` -- in particular with
+                            respect to the conditioned dims, which gives
+                            d log p(x | theta) / d theta for likelihood
+                            maximization. The result then stays on ``device``.
+
+            endpoint:       Density assumed at t = 1 for the latent dims.
+                            "isotropic" (default): N(mu, lambda_max^2 I) with mu
+                            from Tweedie. Its error is O(Var(data) / lambda_max^2):
+                            with exact scores +0.007 nats for a Gaussian and +0.039
+                            for a bimodal likelihood at sigma = 25 (lambda_max 9.8),
+                            i.e. it differs between models.
+                            "gaussian": a Gaussian whose covariance also comes from
+                            the score Jacobian (Tweedie: -J = (Sigma + lambda_max^2
+                            I)^-1). With *exact* scores this removes that bias
+                            (< 0.001 nats), but with *trained* networks it was worse
+                            in every family and budget and occasionally explodes
+                            where the network Jacobian is near flat
+                            (validation/b5_b6_pfode_accuracy). Use it only with
+                            exact or near-exact scores.
+                            "fixed": the network-independent base N(m, lambda_max^2
+                            + v) with per-node data moments SBIm.base_moments. A
+                            normalised density for any weights; required when the
+                            PF-ODE likelihood itself is optimised.
 
         Returns:
-            log_prob: tensor of shape (num_points,) on CPU.
+            log_prob: tensor of shape (num_points,) on CPU (on ``device`` if
+            ``differentiable``).
         """
+        if endpoint not in ("gaussian", "isotropic", "fixed"):
+            raise ValueError(f"endpoint must be 'gaussian', 'isotropic' or 'fixed', got {endpoint!r}")
+        if endpoint == "fixed" and getattr(self.SBIm, "base_moments", None) is None:
+            raise ValueError("endpoint='fixed' needs SBIm.base_moments = (mean, var) per node "
+                             "(set_base_moments).")
+        self._endpoint = endpoint
+        # Fused attention kernels (flash / memory-efficient) have no double
+        # backward, which the differentiable path needs (gradient of a
+        # divergence); fall back to the math kernel there.
+        kernel = contextlib.nullcontext()
+        if differentiable:
+            from torch.nn.attention import SDPBackend, sdpa_kernel
+            kernel = sdpa_kernel(SDPBackend.MATH)
+        with torch.set_grad_enabled(bool(differentiable)), kernel:
+            return self._log_prob(data, condition_mask, timesteps, eps, divergence,
+                                  hutchinson_samples, device, batch_size, verbose,
+                                  bool(differentiable))
+
+    def _log_prob(self, data, condition_mask, timesteps, eps, divergence,
+                  hutchinson_samples, device, batch_size, verbose, differentiable):
         model = self.SBIm.model.to(device)
         was_training = model.training
         model.eval()
@@ -85,6 +140,8 @@ class PFODE():
         condition_mask = torch.as_tensor(condition_mask, dtype=torch.float32)
         if condition_mask.dim() == 1:
             condition_mask = condition_mask.unsqueeze(0).repeat(data.shape[0], 1)
+        if not differentiable:
+            data = data.detach()
 
         log_probs = []
         for start in range(0, data.shape[0], int(batch_size)):
@@ -92,13 +149,15 @@ class PFODE():
             mask = condition_mask[start:start + int(batch_size)].to(device)
             log_probs.append(self._log_prob_batch(batch, mask, timesteps, eps,
                                                   divergence, hutchinson_samples,
-                                                  device, verbose))
+                                                  device, verbose, differentiable))
         if was_training:
             model.train()
-        return torch.cat(log_probs, dim=0).cpu()
+        log_probs = torch.cat(log_probs, dim=0)
+        return log_probs if differentiable else log_probs.cpu()
 
     def _log_prob_batch(self, data, condition_mask, timesteps, eps,
-                        divergence, hutchinson_samples, device, verbose):
+                        divergence, hutchinson_samples, device, verbose,
+                        differentiable=False):
         sde = self.sde
         latent = (1 - condition_mask)
 
@@ -125,10 +184,12 @@ class PFODE():
             h = lam1 - lam0
 
             s0, div0 = self._score_and_div(y, ts[i], condition_mask, latent,
-                                           divergence, hutchinson_samples)
+                                           divergence, hutchinson_samples,
+                                           create_graph=differentiable)
             y_pred = y + h * (-lam0 * s0) * latent
             s1, div1 = self._score_and_div(y_pred, ts[i + 1], condition_mask, latent,
-                                           divergence, hutchinson_samples)
+                                           divergence, hutchinson_samples,
+                                           create_graph=differentiable)
 
             y = y + 0.5 * h * (-lam0 * s0 - lam1 * s1) * latent
             I = I + 0.5 * h * (lam0 * div0 + lam1 * div1)
@@ -141,23 +202,110 @@ class PFODE():
         # O(Var(data)/lambda_max^2), hence (y - mu_1)^2 / (2 lambda_max^2)
         # = lambda_max^2 * s_1(y)^2 / 2. This makes the evaluation independent
         # of the data location, so no normalization of the data is required.
-        s_end, _ = self._score_and_div(y, ts[-1], condition_mask, latent,
-                                       divergence, hutchinson_samples,
-                                       compute_div=False)
         d = latent.sum(dim=-1)
-        log_prior = (-0.5 * torch.log(2 * torch.pi * lams[-1]**2) * d
-                     - 0.5 * lams[-1]**2 * (s_end**2 * latent).sum(dim=-1))
+        if getattr(self, "_endpoint", "isotropic") == "fixed":
+            # A fixed, network-independent base density N(m, lam_max^2 + v) per latent
+            # dim. With it the PF-ODE log p is a normalised flow density for *any*
+            # network weights, which is what maximum-likelihood training through the
+            # ODE needs: the score-based endpoints let the network lower the NLL by
+            # shrinking its own t = 1 score (validation/likelihood_improvement).
+            mean, var = (m.to(y.device, y.dtype) for m in self.SBIm.base_moments)
+            v = lams[-1] ** 2 + var
+            log_prior = ((-0.5 * torch.log(2 * torch.pi * v) - 0.5 * (y - mean) ** 2 / v)
+                         * latent).sum(dim=-1)
+        elif getattr(self, "_endpoint", "isotropic") == "gaussian":
+            log_prior = self._gaussian_endpoint(y, ts[-1], condition_mask, latent,
+                                                lams[-1], differentiable)
+        else:
+            s_end, _ = self._score_and_div(y, ts[-1], condition_mask, latent,
+                                           divergence, hutchinson_samples,
+                                           compute_div=False, create_graph=differentiable)
+            log_prior = (-0.5 * torch.log(2 * torch.pi * lams[-1]**2) * d
+                         - 0.5 * lams[-1]**2 * (s_end**2 * latent).sum(dim=-1))
 
         # Change of variables x = alpha * y at the data end.
         return log_prior - I - d * torch.log(alpha_eps)
 
+    def _gaussian_endpoint(self, y, t, condition_mask, latent, lam_max, differentiable):
+        """log N(y; mu, C) at t = 1 with mu and C from the score and its Jacobian.
+
+        With p_1 = p_data * N(0, lam^2 I) approximated by N(mu, C), the score is
+        s = -C^-1 (y - mu) and its Jacobian J = -C^-1, so
+            log p_1(y) = -d/2 log 2 pi + 1/2 log det(-J) - 1/2 s^T (-J)^-1 s.
+        C >= lam_max^2 I holds exactly (C = Sigma + lam^2 I), so the eigenvalues of
+        C are floored at lam_max^2, which also guards a noisy network Jacobian.
+        Non-latent dims get an identity block and a zero score (no contribution).
+        """
+        sde = self.sde
+        alpha = sde.alpha_t(t).to(y.device)
+        sigma = sde.sigma_t(t).to(y.device)
+        t_vec = t * torch.ones(y.shape[0], 1, device=y.device)
+        with torch.enable_grad():
+            x = y * (alpha * latent + condition_mask)
+            if not x.requires_grad:
+                x = x.detach().requires_grad_(True) if not differentiable else x.requires_grad_(True)
+            s_x = self.SBIm.model(x=x, t=t_vec, c=condition_mask) / sigma
+            dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
+            n, D = y.shape
+            J = torch.zeros(n, D, D, device=y.device, dtype=s_x.dtype)
+            for k, j in enumerate(dims):
+                grad_j = torch.autograd.grad(s_x[:, j].sum(), x, create_graph=differentiable,
+                                             retain_graph=differentiable or k < len(dims) - 1)[0]
+                J[:, j, :] = grad_j
+        s_y = alpha * s_x
+        J_y = alpha ** 2 * J
+        if not differentiable:
+            s_y, J_y = s_y.detach(), J_y.detach()
+        lat = latent.bool()
+        pair = lat.unsqueeze(2) & lat.unsqueeze(1)
+        eye = torch.eye(D, device=y.device, dtype=J_y.dtype).expand(n, D, D)
+        # Precision P = -J on the latent block, identity elsewhere; symmetrised.
+        P = torch.where(pair, -J_y, eye)
+        P = 0.5 * (P + P.transpose(1, 2)).double()
+        # A network queried far outside its training range can return non-finite
+        # values; such rows get NaN (callers such as the MLE treat that as a
+        # rejected step) instead of crashing the eigendecomposition.
+        finite = torch.isfinite(P).all(dim=(1, 2)) & torch.isfinite(s_y).all(dim=1)
+        P = torch.where(finite[:, None, None], P, eye.double())
+        s_lat = (s_y * latent).double()
+        d = latent.sum(dim=-1).double()
+        cap = 1.0 / float(lam_max) ** 2
+        # Rows whose latent precision is a valid C^-1 with C >= lam_max^2 I use
+        # slogdet / solve, which stay differentiable when eigenvalues coincide
+        # (eigh's backward divides by eigenvalue gaps and returns NaN there).
+        with torch.no_grad():
+            check = torch.linalg.eigvalsh(P)
+            lat_vals = torch.where(_latent_eigen_mask(P, lat), check, torch.full_like(check, cap / 2))
+            valid = (lat_vals > 0).all(1) & (lat_vals <= cap * (1 + 1e-6)).all(1)
+        sign, logdet = torch.linalg.slogdet(P)
+        quad = (s_lat * torch.linalg.solve(P, s_lat.unsqueeze(-1)).squeeze(-1)).sum(1)
+        smooth = 0.5 * logdet - 0.5 * quad
+        if not bool(valid.all()):
+            # Clamp the latent eigenvalues into (0, 1/lam_max^2] for the others.
+            evals, evecs = torch.linalg.eigh(P.detach())
+            latent_dir = _latent_eigen_mask(P.detach(), lat, evecs)
+            evals = torch.where(latent_dir, evals.clamp(min=cap * 1e-6, max=cap), evals)
+            coeff = torch.einsum("nij,ni->nj", evecs, s_lat)
+            quad_c = (coeff ** 2 / evals).sum(1)
+            logdet_c = torch.where(latent_dir, torch.log(evals), torch.zeros_like(evals)).sum(1)
+            smooth = torch.where(valid, smooth, 0.5 * logdet_c - 0.5 * quad_c)
+        out = -0.5 * d * torch.log(torch.tensor(2 * torch.pi, dtype=torch.float64)) + smooth
+        out = torch.where(finite, out, torch.full_like(out, float("nan")))
+        return out.to(y.dtype)
+
     def _score_and_div(self, y, t, condition_mask, latent, divergence, hutchinson_samples,
-                       compute_div=True):
+                       compute_div=True, create_graph=False):
         """Score s_y = alpha * s_x and its divergence w.r.t. y over the latent dims.
 
         The network approximates s_x = model(x,t,c)/sigma(t) with x = alpha(t) y on
         the latent dims; div_y(s_y) = alpha^2 * div_x(s_x).
+
+        With ``create_graph`` the outputs keep their dependence on ``y`` (and on the
+        conditioned values it carries), so the whole integration is differentiable.
         """
+        if create_graph:
+            return self._score_and_div_graph(y, t, condition_mask, latent, divergence,
+                                             hutchinson_samples, compute_div)
         sde = self.sde
         alpha = sde.alpha_t(t).to(y.device)
         sigma = sde.sigma_t(t).to(y.device)
@@ -199,6 +347,37 @@ class PFODE():
         s_y = (alpha * s_x).detach()
         div_y = (alpha**2 * div).detach()
         return s_y, div_y
+
+    def _score_and_div_graph(self, y, t, condition_mask, latent, divergence,
+                             hutchinson_samples, compute_div):
+        """Differentiable twin of :meth:`_score_and_div` (``create_graph=True``)."""
+        sde = self.sde
+        alpha = sde.alpha_t(t).to(y.device)
+        sigma = sde.sigma_t(t).to(y.device)
+        t_vec = (t * torch.ones(y.shape[0], 1, device=y.device))
+
+        x = y * (alpha * latent + condition_mask)
+        if not x.requires_grad:
+            x = x.requires_grad_(True)
+        s_x = self.SBIm.model(x=x, t=t_vec, c=condition_mask) / sigma
+        if not compute_div:
+            return alpha * s_x, None
+
+        div = torch.zeros(y.shape[0], device=y.device)
+        if divergence == "exact":
+            latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
+            for j in latent_dims:
+                grad_j = torch.autograd.grad(s_x[:, j].sum(), x, create_graph=True)[0]
+                div = div + grad_j[:, j] * latent[:, j]
+        elif divergence == "hutchinson":
+            for _ in range(hutchinson_samples):
+                v = (torch.randint(0, 2, y.shape, device=y.device).float() * 2 - 1) * latent
+                grad_v = torch.autograd.grad((s_x * v).sum(), x, create_graph=True)[0]
+                div = div + (grad_v * v).sum(dim=-1)
+            div = div / hutchinson_samples
+        else:
+            raise ValueError(f"Unknown divergence method '{divergence}'")
+        return alpha * s_x, alpha**2 * div
 
     #############################################
     # ----- Score-ascent MAP -----

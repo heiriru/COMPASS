@@ -1,0 +1,34 @@
+CPU affinity: 3/72 CPUs
+Loaded legacy_h16d2_n200000_six_weighted_log_sigma (367,136 parameters)
+  reference bimodal n=8: modes [-0.42, 0.46] dip 0.075
+bimodal  n=   8 gauss_jacobian   W1/sd=0.4610 width=0.706 dip=0.957    64.74s
+bimodal  n=   8 langevin_fnpse   W1/sd=0.5869 width=0.777 dip=0.956    72.86s
+  reference bimodal n=16: modes [-0.46, 0.47] dip 0.003
+bimodal  n=  16 gauss_jacobian   W1/sd=0.5434 width=0.581 dip=0.988   121.27s
+bimodal  n=  16 langevin_fnpse   W1/sd=0.6107 width=0.614 dip=0.934   146.31s
+  reference bimodal n=32: modes [-0.45, 0.48] dip 0.000
+bimodal  n=  32 gauss_jacobian   W1/sd=0.5850 width=0.472 dip=0.995   240.18s
+bimodal  n=  32 langevin_fnpse   W1/sd=0.5573 width=0.428 dip=1.000   375.85s
+  reference bimodal n=64: modes [-0.47, 0.48] dip 0.000
+bimodal  n=  64 gauss_jacobian   W1/sd=0.9839 width=0.650 dip=0.980   671.82s
+bimodal  n=  64 langevin_fnpse   W1/sd=0.4954 width=0.448 dip=1.000   570.07s
+  reference bimodal n=128: modes [-0.48, 0.48] dip 0.000
+bimodal  n= 128 gauss_jacobian   W1/sd=9.3258 width=5.328 dip=0.985  1442.35s
+bimodal  n= 128 langevin_fnpse   W1/sd=2.3212 width=2.518 dip=1.000  1337.74s
+  reference stock n=8: modes [0.04] dip 1.000
+stock    n=   8 gauss_jacobian   W1/sd=0.0862 width=0.923 dip=1.000    72.91s
+stock    n=   8 langevin_fnpse   W1/sd=0.1080 width=1.019 dip=1.000    99.42s
+  reference stock n=16: modes [0.06] dip 1.000
+stock    n=  16 gauss_jacobian   W1/sd=0.2561 width=0.998 dip=1.000   146.22s
+stock    n=  16 langevin_fnpse   W1/sd=0.2039 width=0.944 dip=1.000   200.04s
+  reference stock n=32: modes [0.06] dip 1.000
+stock    n=  32 gauss_jacobian   W1/sd=0.2706 width=1.109 dip=1.000   327.68s
+stock    n=  32 langevin_fnpse   W1/sd=0.2981 width=1.005 dip=1.000   381.52s
+  reference stock n=64: modes [0.06] dip 1.000
+stock    n=  64 gauss_jacobian   W1/sd=0.4437 width=1.297 dip=1.000   731.48s
+stock    n=  64 langevin_fnpse   W1/sd=0.5391 width=1.108 dip=1.000   574.79s
+  reference stock n=128: modes [0.02] dip 1.000
+stock    n= 128 gauss_jacobian   W1/sd=0.5352 width=1.318 dip=1.000  1507.67s
+stock    n= 128 langevin_fnpse   W1/sd=0.8545 width=1.038 dip=1.000  1211.11s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/ik_baselines_modetree.json

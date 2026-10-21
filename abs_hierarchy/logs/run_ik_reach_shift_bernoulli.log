@@ -1,0 +1,6 @@
+shift_bernoulli  gauss_jacobian_FD  n=8   P(a1>0) 0.644  20s
+shift_bernoulli  arruda_direct      n=8   P(a1>0) 0.665  20s
+shift_bernoulli  gauss_jacobian_FD  n=32  P(a1>0) 0.688  88s
+shift_bernoulli  arruda_direct      n=32  P(a1>0) 0.824  130s
+shift_bernoulli  gauss_jacobian_FD  n=128 P(a1>0) 0.608  405s
+shift_bernoulli  arruda_direct      n=128 P(a1>0) 0.903  470s

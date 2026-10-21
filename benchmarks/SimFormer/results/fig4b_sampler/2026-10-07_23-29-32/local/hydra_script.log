@@ -1,0 +1,65 @@
+[2026-10-07 23:29:32,551][scoresbibm.scripts.hydra_script][INFO] - name: fig4b_sampler
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_fx_langevin
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 0.0
+    corrector_steps: 2
+    corrector_steps_interval: 1
+    final_corrector_steps: 3
+    snr: 0.2
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-09-29_09-26-42/local/compass_model
+task:
+  name: marcov_chain_all_cond
+  num_simulations: 10000
+eval:
+  metric:
+    c2st:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: structured_random
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b_sampler/2026-10-07_23-29-32/local
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b_sampler
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-07 23:29:32,552][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-07 23:29:32,589][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-07 23:29:32,590][scoresbibm.scripts.hydra_script][INFO] - Task: marcov_chain_all_cond
+[2026-10-07 23:29:36,253][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_fx_langevin
+[2026-10-07 23:29:43,105][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_fx_langevin
+[2026-10-07 23:29:43,106][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st
+[2026-10-08 00:08:53,241][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-08 00:08:53,273][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 11

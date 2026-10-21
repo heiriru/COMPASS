@@ -1,0 +1,22 @@
+n=16, 8000 draws per cell (lambda < 0.03167 is outside the trained range)
+     lam     regime |      |s|     |ds|      err   SNR_s  SNR_ds  cos_ds
+       2   training |    0.493    0.331    0.043   11.56    7.76   0.992
+       2  posterior |    0.495    0.448    0.165    2.99    2.71   0.930
+       1   training |    0.931    0.390    0.119    7.84    3.28   0.953
+       1  posterior |    1.161    1.281    0.765    1.52    1.67   0.824
+     0.5   training |    1.618    0.448    0.284    5.69    1.58   0.773
+     0.5  posterior |    3.325    1.949    1.751    1.90    1.11   0.707
+     0.2   training |    2.468    1.077    0.786    3.14    1.37   0.686
+     0.2  posterior |    7.828    1.567    4.283    1.83    0.37   0.683
+     0.1   training |    2.780    1.311    1.035    2.69    1.27   0.614
+     0.1  posterior |    9.469    1.481    5.476    1.73    0.27   0.600
+    0.05   training |    2.826    1.389    1.316    2.15    1.06   0.528
+    0.05  posterior |   10.036    1.492    4.981    2.01    0.30   0.490
+ 0.03167   training |    2.886    1.439    2.669    1.08    0.54   0.371
+ 0.03167  posterior |   10.274    1.495    6.497    1.58    0.23   0.256
+    0.02   training |    2.876    1.428    5.330    0.54    0.27   0.285
+    0.02  posterior |   10.212    1.493   11.974    0.85    0.12   0.008
+    0.01   training |    2.875    1.444   12.856    0.22    0.11   0.242
+    0.01  posterior |   10.283    1.506   32.042    0.32    0.05  -0.146
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/gm_residual/indistribution_rows.json

@@ -1,0 +1,46 @@
+%% Method names -- change them here and they change everywhere.
+\newcommand{\arrowm}{\textnormal{\texttt{gauss\_\allowbreak hierarchical}}}
+\newcommand{\supH}{\mathrm{hier}}   % superscript for gauss_hierarchical quantities
+\newcommand{\quiver}{\textnormal{\texttt{gauss\_\allowbreak jacobian}}}
+\newcommand{\supJ}{\mathrm{jac}}    % superscript for gauss_jacobian quantities
+\newcommand{\gauss}{\textnormal{\textsc{Gauss}}}
+\newcommand{\jac}{\textnormal{\textsc{Jac}}}
+\newcommand{\fnpse}{F-NPSE}
+
+%% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\crefname{assumption}{Assumption}{Assumptions}
+\crefname{remark}{Remark}{Remarks}
+
+%% Notation
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\I}{\mathbf{I}}
+\newcommand{\T}{\top}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\X}{\mathbf{x}_{1:n}}         % all observations
+\newcommand{\g}{g}                         % global parameters
+\newcommand{\lj}{\ell_j}                   % local parameters of row j
+\newcommand{\thj}{\vartheta_j}             % (g, l_j)
+\newcommand{\yj}{y_j}                      % (g_t, l_{j,t})
+\newcommand{\lam}{\lambda}
+\newcommand{\Pz}{P_{0}}                    % prior backward precision
+\newcommand{\sgj}{s_j^{\g}}
+\newcommand{\slj}{s_j^{\ell}}
+\newcommand{\ug}{u^{\g}}
+\newcommand{\ulj}{u^{\ell_j}}
+
+%% Editorial
+\newcommand{\todo}[1]{\textcolor{red!70!black}{[\textbf{TODO:} #1]}}
+\newcommand{\note}[1]{\textcolor{blue!60!black}{[\textit{Note:} #1]}}

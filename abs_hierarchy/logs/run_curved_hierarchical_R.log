@@ -1,0 +1,9 @@
+sampling eps 0.001
+hierarchical_R gauss_jacobian_FD    n=4   P(g>0)=0.627 E|g|=1.210 sd=1.229  28s
+hierarchical_R arruda_direct        n=4   P(g>0)=0.659 E|g|=1.201 sd=1.208  26s
+hierarchical_R gauss_jacobian_FD    n=16  P(g>0)=0.643 E|g|=1.224 sd=1.233  78s
+hierarchical_R arruda_direct        n=16  P(g>0)=0.688 E|g|=1.205 sd=1.192  85s
+hierarchical_R gauss_jacobian_FD    n=64  P(g>0)=0.660 E|g|=1.141 sd=1.145  270s
+hierarchical_R arruda_direct        n=64  P(g>0)=0.390 E|g|=1.258 sd=1.182  205s
+hierarchical_R gauss_jacobian_FD    n=128 P(g>0)=0.662 E|g|=1.113 sd=1.118  386s
+hierarchical_R arruda_direct        n=128 P(g>0)=0.329 E|g|=1.255 sd=1.110  271s

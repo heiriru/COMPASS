@@ -1,0 +1,39 @@
+{
+ "gauss_hierarchical": {
+  "seconds": 30.230445626191795,
+  "w1_over_sigma": 0.16165236408917066,
+  "mean_error_sigma": -0.0722849435065721,
+  "width_ratio": 1.014729371856135
+ },
+ "gauss_jacobian": {
+  "seconds": 18.687851172173396,
+  "w1_over_sigma": 0.145920934913567,
+  "mean_error_sigma": -0.04951859782964489,
+  "width_ratio": 1.0047249641600922
+ },
+ "langevin_fnpse": {
+  "seconds": 16.14469765103422,
+  "w1_over_sigma": 0.16274597224851928,
+  "mean_error_sigma": -0.07470705084132245,
+  "width_ratio": 0.9976804363697813
+ },
+ "mixture_product": {
+  "seconds": 20.36188369616866,
+  "w1_over_sigma": 0.20043335602585702,
+  "mean_error_sigma": -0.22472076379958322,
+  "width_ratio": 0.9875330876506018,
+  "chosen_k": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "components": 64,
+  "exact_components": 256,
+  "cancellation_ratio": 6.535432089344398
+ }
+}

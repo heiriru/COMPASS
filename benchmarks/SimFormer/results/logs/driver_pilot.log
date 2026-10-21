@@ -1,0 +1,109 @@
+[driver] 3 jobs in phase pilot
+[driver] 15:15:23 START pilot two_moons n=10000 score_transformer on physical GPU 6  (log: results/logs/pilot__two_moons__10000__score_transformer.log)
+[driver] 15:32:52 END   pilot two_moons n=10000 score_transformer rc=0 (17.5 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) |  |
+|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 |  |
+
+0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /[driver] 15:43:59 START pilot two_moons n=10000 compass_legacy on physical GPU 8  (log: results/logs/pilot__two_moons__10000__compass_legacy.log)
+[driver] 3 jobs in phase pilot
+[driver] skip (done) two_moons n=10000 score_transformer
+[driver] skip (done) two_moons n=10000 compass_legacy
+[driver] 16:50:44 waiting for a free GPU (autocvd)
+[driver] 16:50:48 START pilot two_moons n=10000 compass_tokenized on physical GPU 8  (log: results/logs/pilot__two_moons__10000__compass_tokenized.log)
+[driver] 3 jobs in phase pilot
+[driver] skip (done) two_moons n=10000 score_transformer
+[driver] 16:52:49 waiting for a free GPU (autocvd)
+[driver] 16:52:53 START pilot two_moons n=10000 compass_legacy on physical GPU 8  (log: results/logs/pilot__two_moons__10000__compass_legacy.log)
+[driver] 16:59:39 END   pilot two_moons n=10000 compass_legacy rc=0 (6.8 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | Δ COMPASS (legacy trunk) |
+|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | **+0.171 ± 0.004** |
+
+[driver] 16:59:41 waiting for a free GPU (autocvd)
+[driver] 16:59:45 START pilot two_moons n=10000 compass_tokenized on physical GPU 8  (log: results/logs/pilot__two_moons__10000__compass_tokenized.log)
+[driver] 17:06:24 END   pilot two_moons n=10000 compass_tokenized rc=0 (6.7 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) |
+|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | **+0.171 ± 0.004** | **+0.358 ± 0.006** |
+
+[driver] 2 jobs in phase pilot
+[driver] 19:04:20 waiting for a free GPU (autocvd)
+[driver] 19:04:24 START pilot two_moons n=10000 compass_legacy_euler500 on physical GPU 7  (log: results/logs/pilot__two_moons__10000__compass_legacy_euler500.log)
+[driver] 19:04:52 END   pilot two_moons n=10000 compass_legacy_euler500 rc=1 (0.5 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) |
+|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | **+0.171 ± 0.004** | **+0.358 ± 0.006** |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] 19:04:54 waiting for a free GPU (autocvd)
+[driver] 19:04:58 START pilot two_moons n=10000 compass_legacy_dpm200 on physical GPU 7  (log: results/logs/pilot__two_moons__10000__compass_legacy_dpm200.log)
+[driver] 19:05:23 END   pilot two_moons n=10000 compass_legacy_dpm200 rc=1 (0.4 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) |
+|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | **+0.171 ± 0.004** | **+0.358 ± 0.006** |
+
+[driver] job failed (rc=1); continuing with the next one
+[driver] 2 jobs in phase pilot
+[driver] 19:05:33 waiting for a free GPU (autocvd)
+[driver] 19:05:37 START pilot two_moons n=10000 compass_legacy_euler500 on physical GPU 7  (log: results/logs/pilot__two_moons__10000__compass_legacy_euler500.log)
+[driver] 19:10:46 END   pilot two_moons n=10000 compass_legacy_euler500 rc=0 (5.2 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | COMPASS (legacy, Euler 500) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) | Δ COMPASS (legacy, Euler 500) |
+|---|---|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | 0.692 ± 0.009 | **+0.171 ± 0.004** | **+0.358 ± 0.006** | **+0.167 ± 0.004** |
+
+[driver] 19:10:48 waiting for a free GPU (autocvd)
+[driver] 19:10:52 START pilot two_moons n=10000 compass_legacy_dpm200 on physical GPU 7  (log: results/logs/pilot__two_moons__10000__compass_legacy_dpm200.log)
+[driver] 19:15:35 END   pilot two_moons n=10000 compass_legacy_dpm200 rc=0 (4.7 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | COMPASS (legacy, Euler 500) | COMPASS (legacy, DPM-2 200) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) | Δ COMPASS (legacy, Euler 500) | Δ COMPASS (legacy, DPM-2 200) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | 0.692 ± 0.009 | 0.693 ± 0.008 | **+0.171 ± 0.004** | **+0.358 ± 0.006** | **+0.167 ± 0.004** | **+0.169 ± 0.003** |
+
+[driver] 1 jobs in phase pilot
+[driver] 19:15:45 waiting for a free GPU (autocvd)
+[driver] 19:15:49 START pilot two_moons n=10000 compass_legacy_full on physical GPU 7  (log: results/logs/pilot__two_moons__10000__compass_legacy_full.log)
+[driver] 19:29:40 END   pilot two_moons n=10000 compass_legacy_full rc=0 (13.8 min)
+[report] pilot: results/tables/pilot.md results/figures/pilot.png
+# pilot: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy trunk) | COMPASS (tokenized trunk) | COMPASS (legacy, Euler 500) | COMPASS (legacy, DPM-2 200) | COMPASS (legacy, full budget) | Δ COMPASS (legacy trunk) | Δ COMPASS (tokenized trunk) | Δ COMPASS (legacy, Euler 500) | Δ COMPASS (legacy, DPM-2 200) | Δ COMPASS (legacy, full budget) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Two Moons | 10,000 | 0.525 ± 0.007 | 0.696 ± 0.009 | 0.882 ± 0.005 | 0.692 ± 0.009 | 0.693 ± 0.008 | 0.653 ± 0.005 | **+0.171 ± 0.004** | **+0.358 ± 0.006** | **+0.167 ± 0.004** | **+0.169 ± 0.003** | **+0.128 ± 0.003** |
+

@@ -1,0 +1,102 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |INFO Selected GPU(s): 0.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=0 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 0 via autocvd.
+Model Lotka-Volterra added to transfuser.
+Model Logistic Prey added to transfuser.
+Model Satiated Predator added to transfuser.
+Model Rosenzweig-MacArthur added to transfuser.
+WAIC comparison for true model: Lotka-Volterra
+Comparing models:   0%|          | 0/4 [00:00<?, ?model/s]Comparing models:  25%|██▌       | 1/4 [01:06<03:20, 66.98s/model]Comparing models:  50%|█████     | 2/4 [02:13<02:13, 66.53s/model]Comparing models:  75%|███████▌  | 3/4 [03:19<01:06, 66.62s/model]Comparing models: 100%|██████████| 4/4 [04:26<00:00, 66.55s/model]Comparing models: 100%|██████████| 4/4 [04:26<00:00, 66.59s/model]
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Substituting symbol M from STIXNonUnicode
+INFO Substituting symbol M from STIXNonUnicode
+[compass] Lotka-Volterra: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Logistic Prey: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Satiated Predator: p_waic > 0.4 on 3/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Rosenzweig-MacArthur: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+Probabilities of the models after 20 observations:
+Lotka-Volterra      :   0.00 %
+Logistic Prey       :   0.00 %
+Satiated Predator   :   0.00 %
+Rosenzweig-MacArthur: 100.00 %
+
+Model Rosenzweig-MacArthur fits the data best with a relative support of 100.0% among the considered models.
+Saved plots to /export/home/rheinric/COMPASS/tutorials/output/Population_Dynamics_WAIC/lotka-volterra
+WAIC comparison for true model: Logistic Prey
+Comparing models:   0%|          | 0/4 [00:00<?, ?model/s]Comparing models:  25%|██▌       | 1/4 [01:05<03:16, 65.62s/model]Comparing models:  50%|█████     | 2/4 [02:11<02:12, 66.01s/model]Comparing models:  75%|███████▌  | 3/4 [03:18<01:06, 66.14s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.28s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.17s/model]
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Substituting symbol M from STIXNonUnicode
+INFO Substituting symbol M from STIXNonUnicode
+[compass] Lotka-Volterra: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Logistic Prey: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Satiated Predator: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Rosenzweig-MacArthur: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+Probabilities of the models after 20 observations:
+Lotka-Volterra      :   0.00 %
+Logistic Prey       : 100.00 %
+Satiated Predator   :   0.00 %
+Rosenzweig-MacArthur:   0.00 %
+
+Model Logistic Prey fits the data best with a relative support of 100.0% among the considered models.
+Saved plots to /export/home/rheinric/COMPASS/tutorials/output/Population_Dynamics_WAIC/logistic_prey
+WAIC comparison for true model: Satiated Predator
+Comparing models:   0%|          | 0/4 [00:00<?, ?model/s]Comparing models:  25%|██▌       | 1/4 [01:05<03:17, 65.76s/model]Comparing models:  50%|█████     | 2/4 [02:12<02:12, 66.31s/model]Comparing models:  75%|███████▌  | 3/4 [03:18<01:06, 66.16s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.21s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.18s/model]
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Substituting symbol M from STIXNonUnicode
+INFO Substituting symbol M from STIXNonUnicode
+[compass] Lotka-Volterra: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Logistic Prey: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Satiated Predator: p_waic > 0.4 on 19/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Rosenzweig-MacArthur: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+Probabilities of the models after 20 observations:
+Lotka-Volterra      : 100.00 %
+Logistic Prey       :   0.00 %
+Satiated Predator   :   0.00 %
+Rosenzweig-MacArthur:   0.00 %
+
+Model Lotka-Volterra fits the data best with a relative support of 100.0% among the considered models.
+Saved plots to /export/home/rheinric/COMPASS/tutorials/output/Population_Dynamics_WAIC/satiated_predator
+WAIC comparison for true model: Rosenzweig-MacArthur
+Comparing models:   0%|          | 0/4 [00:00<?, ?model/s]Comparing models:  25%|██▌       | 1/4 [01:05<03:17, 65.77s/model]Comparing models:  50%|█████     | 2/4 [02:11<02:11, 65.97s/model]Comparing models:  75%|███████▌  | 3/4 [03:18<01:06, 66.13s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.18s/model]Comparing models: 100%|██████████| 4/4 [04:24<00:00, 66.11s/model]
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+INFO Substituting symbol M from STIXNonUnicode
+INFO Substituting symbol M from STIXNonUnicode
+[compass] Lotka-Volterra: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Logistic Prey: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Satiated Predator: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+[compass] Rosenzweig-MacArthur: p_waic > 0.4 on 20/20 rows; WAIC is unreliable there (Vehtari, Gelman & Gabry 2017).
+Probabilities of the models after 20 observations:
+Lotka-Volterra      :   0.00 %
+Logistic Prey       : 100.00 %
+Satiated Predator   :   0.00 %
+Rosenzweig-MacArthur:   0.00 %
+
+Model Logistic Prey fits the data best with a relative support of 100.0% among the considered models.
+Saved plots to /export/home/rheinric/COMPASS/tutorials/output/Population_Dynamics_WAIC/rosenzweig-macarthur
+true Lotka-Volterra
+  Lotka-Volterra         WAIC     682.86  p_waic  1185.80  MC-SE 139.84  weight 0.000
+  Logistic Prey          WAIC    4411.51  p_waic  1405.06  MC-SE 157.37  weight 0.000
+  Satiated Predator      WAIC    2077.53  p_waic     4.75  MC-SE 0.86  weight 0.000
+  Rosenzweig-MacArthur   WAIC    -488.31  p_waic   150.50  MC-SE 49.41  weight 1.000
+true Logistic Prey
+  Lotka-Volterra         WAIC    -499.38  p_waic   874.11  MC-SE 170.34  weight 0.000
+  Logistic Prey          WAIC   -2746.05  p_waic   261.71  MC-SE 34.08  weight 1.000
+  Satiated Predator      WAIC    1495.08  p_waic   500.89  MC-SE 141.15  weight 0.000
+  Rosenzweig-MacArthur   WAIC    3405.79  p_waic  3524.33  MC-SE 667.81  weight 0.000
+true Satiated Predator
+  Lotka-Volterra         WAIC    -596.27  p_waic   151.15  MC-SE 41.21  weight 1.000
+  Logistic Prey          WAIC   12228.24  p_waic   246.12  MC-SE 32.63  weight 0.000
+  Satiated Predator      WAIC    2066.92  p_waic    28.38  MC-SE 4.53  weight 0.000
+  Rosenzweig-MacArthur   WAIC    5989.57  p_waic  1359.93  MC-SE 391.13  weight 0.000
+true Rosenzweig-MacArthur
+  Lotka-Volterra         WAIC    -637.92  p_waic   605.07  MC-SE 163.83  weight 0.000
+  Logistic Prey          WAIC   -2140.94  p_waic   179.06  MC-SE 31.29  weight 1.000
+  Satiated Predator      WAIC    3267.36  p_waic  1288.00  MC-SE 113.51  weight 0.000
+  Rosenzweig-MacArthur   WAIC    8699.86  p_waic  6095.95  MC-SE 1077.85  weight 0.000
+

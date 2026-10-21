@@ -1,0 +1,62 @@
+[2026-09-28 15:09:33,451][scoresbibm.scripts.hydra_script][INFO] - name: smoke
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_tokenized
+  backend: jax
+  device: gpu
+  compass:
+    arch: tokenized
+    time_embedding_size: 128
+    token_offset: true
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 5000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 50
+    eps: 0.001
+    max_steps: 200
+task:
+  name: tree_all_cond
+  num_simulations: 1000
+eval:
+  metric:
+    c2st:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: structured_random
+      num_samples: 500
+      num_evaluations: 4
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-28 15:09:33,452][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-28 15:09:33,452][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/smoke/2026-09-28_15-09-33/local
+[2026-09-28 15:09:33,453][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/smoke
+[2026-09-28 15:09:33,453][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-28 15:09:33,454][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-28 15:09:33,455][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-28 15:09:33,494][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-28 15:09:33,495][scoresbibm.scripts.hydra_script][INFO] - Task: tree_all_cond
+[2026-09-28 15:09:36,038][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_tokenized
+[2026-09-28 15:10:16,831][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_tokenized
+[2026-09-28 15:10:16,832][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st
+[2026-09-28 15:10:28,872][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-28 15:10:28,890][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 1

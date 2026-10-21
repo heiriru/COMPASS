@@ -1,0 +1,118 @@
+[2026-10-03 13:05:47,603][scoresbibm.scripts.hydra_script][INFO] - name: extra4a
+seed: 0
+model_id: 8
+save_model: true
+save_summary: true
+method:
+  model:
+    token_dim: 40
+    condition_token_dim: 10
+    condition_token_init_scale: 0.1
+    condition_token_init_mean: 0.0
+    condition_mode: concat
+    time_embedding_dim: 128
+    num_heads: 4
+    num_layers: 6
+    attn_size: 10
+    widening_factor: 3
+    num_hidden_layers: 1
+    skip_connection_attn: true
+    skip_connection_mlp: true
+    layer_norm: true
+  train:
+    condition_mask_fn:
+      name: structured_random
+      p_joint: 0.2
+      p_posterior: 0.2
+      p_likelihood: 0.2
+      p_rnd1: 0.2
+      p_rnd2: 0.2
+      rnd1_prob: 0.3
+      rnd2_prob: 0.7
+    edge_mask_fn:
+      name: none
+    max_number_steps: 100000
+    min_number_steps: 5000
+    total_number_steps_scaling: 3
+    training_batch_size: 1000
+    learning_rate: 0.001
+    min_learning_rate: 1.0e-06
+    clip_max_norm: 10.0
+    validation_fraction: 0.05
+    val_repeat: 5
+    val_every: 50
+    stop_early_count: 5
+    rebalance_loss: false
+    z_score_data: false
+  sde:
+    name: vesde
+    sigma_max: 15.0
+    sigma_min: 0.0001
+    T_max: 1.0
+    T_min: 1.0e-05
+    scale_min: 0.001
+  posterior:
+    sampling_method: sde
+    num_steps: 500
+    method: euler_maruyama
+  name: score_transformer
+  backend: jax
+  device: gpu
+task:
+  name: gaussian_linear
+  num_simulations: 10000
+eval:
+  metric:
+    nll_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      num_steps: 200
+      batch_size: 500
+    cov_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+    nll_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 500
+    cov_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-03 13:05:47,603][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-03 13:05:47,603][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a/2026-10-03_13-05-47/local
+[2026-10-03 13:05:47,603][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a
+[2026-10-03 13:05:47,604][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-03 13:05:47,604][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-03 13:05:47,604][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-03 13:05:47,646][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-03 13:05:47,648][scoresbibm.scripts.hydra_script][INFO] - Loading task for model with id: 8
+[2026-10-03 13:05:47,670][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_linear
+[2026-10-03 13:05:47,682][scoresbibm.scripts.hydra_script][INFO] - Loading model with id: 8
+[2026-10-03 13:05:47,961][scoresbibm.scripts.hydra_script][INFO] - Model loaded
+[2026-10-03 13:05:47,961][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: score_transformer
+[2026-10-03 13:05:47,961][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_likelihood
+[2026-10-03 13:11:33,114][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_likelihood
+[2026-10-03 17:40:46,349][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_posterior
+[2026-10-03 17:46:31,046][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_posterior
+[2026-10-03 22:14:03,295][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-03 22:14:03,551][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 8

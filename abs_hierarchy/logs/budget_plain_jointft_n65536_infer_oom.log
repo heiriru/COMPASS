@@ -1,0 +1,73 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+  gauss_jacobian_FD: sampling 100 draws in 4 batches (draw batch=25, subjects=100, composing 100 subjects)
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 403, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 399, in main
+    return infer(arguments)
+           ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/experiments_arruda_schur/pp.py", line 334, in infer
+    posterior, stats, runtime = ipp._sample_dataset(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/infer_partial_pooling.py", line 656, in _sample_dataset
+    chunk = model.sample(
+            ^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ScoreBasedInferenceModel.py", line 560, in sample
+    samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 116, in sample
+    return super().sample(world_size, data, condition_mask=condition_mask, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 853, in sample
+    samples = self._sample_loop(rank, data, condition_mask, num_samples)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1926, in _sample_loop
+    samples = self._dpm_sampler(data_batch, condition_mask_batch, idx,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4378, in _dpm_sampler
+    data = self._dpm_solver_2_step(data, t_start, t_next, condition_mask, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4287, in _dpm_solver_2_step
+    score_half = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3553, in _get_score
+    score = self._compositional_score(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/marginal_schur.py", line 143, in _compositional_score
+    return super()._compositional_score(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3744, in _compositional_score
+    effective_precision, cross_factor = self._effective_global_factors(
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2551, in _effective_global_factors
+    joint_precision_t = self._jacobian_joint_precision(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2396, in _jacobian_joint_precision
+    jacobian = self._row_score_jacobian(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1610, in _row_score_jacobian
+    return self._row_score_jacobian_fd(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1684, in _row_score_jacobian_fd
+    scores = self._raw_row_scores(torch.cat(chunk, dim=1), t, mask)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1583, in _raw_row_scores
+    scores = self.SBIm.model(
+             ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/latent_attention.py", line 180, in forward
+    tokens = self._block_forward(block, tokens, attn_mask, t)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/experimental/latent_attention.py", line 155, in _block_forward
+    x_norm = modulate(block.norm1(x), shift_msa, scale_msa)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ConditionTransformer.py", line 22, in modulate
+    return x * (1 + scale) + shift
+           ~~~~~~~~~~~~~~~~^~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 144.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 101.25 MiB is free. Process 2741688 has 5.69 GiB memory in use. Process 2751744 has 4.04 GiB memory in use. Including non-PyTorch memory, this process has 760.00 MiB memory in use. Of the allocated memory 526.89 MiB is allocated by PyTorch, and 31.11 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

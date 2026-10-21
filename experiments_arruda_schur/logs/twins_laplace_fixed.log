@@ -1,0 +1,14 @@
+
+########## laplace: Laplace noise (symmetric, non-Gaussian)
+    true g = -0.14680   exact posterior mean +0.02435 sd 0.21748   mode +0.02797
+    method                    secs   W1/sig   MAPerr  truthErr  p(g*)/pk   width
+    arruda_laplace          3842.3   0.9722   0.2097    0.3845     0.736   1.896
+    arruda_gauss_laplace    3778.1   1.2327   0.5879    0.7627     0.821   2.357
+
+########## exponential: Exponential noise (skewed, hard wall)
+    true g = -0.14680   exact posterior mean -0.14571 sd 0.13587   mode -0.09546
+    method                    secs   W1/sig   MAPerr  truthErr  p(g*)/pk   width
+    arruda_laplace          3941.6   1.1784   0.1862    0.1349     0.464   1.036
+    arruda_gauss_laplace    3717.7   1.2774   0.1962    0.1449     0.442   1.044
+
+Wrote artifacts/twins_laplace_fixed

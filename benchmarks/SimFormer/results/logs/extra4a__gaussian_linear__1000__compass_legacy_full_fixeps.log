@@ -1,0 +1,142 @@
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - name: extra4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_19-47-37/local/compass_model
+task:
+  name: gaussian_linear
+  num_simulations: 1000
+eval:
+  metric:
+    nll_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      num_steps: 200
+      batch_size: 500
+    cov_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+    nll_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 500
+    cov_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a/2026-10-08_07-40-51/local
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-08 07:40:51,214][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-08 07:40:51,253][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-08 07:40:51,254][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_linear
+[2026-10-08 07:40:51,336][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_full_fixeps
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 9 compass /export/home/rheinric/COMPASS/src/compass/__init__.py 
+[compass-worker] loaded /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_19-47-37/local/compass_model
+[compass] train info: {'loaded_from': '/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_19-47-37/local/compass_model'}
+[2026-10-08 07:40:57,923][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_full_fixeps
+[2026-10-08 07:40:57,924][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_likelihood
+[2026-10-08 07:46:16,740][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_likelihood
+[compass-worker] forwarding eps 1e-05 to Sampler.sample
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/bridge/compass_worker.py", line 517, in main
+    reply = {"ok": True, **log_prob_batched(worker, msg)}
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/bridge/compass_worker.py", line 492, in log_prob_batched
+    lp = worker.model.log_prob(torch.tensor(z, dtype=torch.float32),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ScoreBasedInferenceModel.py", line 632, in log_prob
+    return self.pfode.log_prob(data=data, condition_mask=condition_mask,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/PFODE.py", line 93, in log_prob
+    log_probs.append(self._log_prob_batch(batch, mask, timesteps, eps,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/PFODE.py", line 127, in _log_prob_batch
+    s0, div0 = self._score_and_div(y, ts[i], condition_mask, latent,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/PFODE.py", line 185, in _score_and_div
+    grad_j = torch.autograd.grad(s_x[:, j].sum(), x,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/autograd/__init__.py", line 530, in grad
+    result = _engine_run_backward(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/autograd/graph.py", line 882, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 626.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 454.12 MiB is free. Process 3413918 has 172.00 MiB memory in use. Including non-PyTorch memory, this process has 9.95 GiB memory in use. Of the allocated memory 9.09 GiB is allocated by PyTorch, and 690.62 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished sampling for batch  2
+Finished sampling for batch  3
+Finished sampling for batch  4
+Finished sampling for batch  5
+Finished sampling for batch  6
+Finished sampling for batch  7
+Finished sampling for batch  8
+Finished sampling for batch  9
+Finished computing true log probs
+Error executing job with overrides: ['name=extra4a', 'method=compass_legacy_full_fixeps', 'task=gaussian_linear', 'task.num_simulations=1000', 'eval=nll_cov', 'save_model=false', '++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_19-47-37/local/compass_model']
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/simformer_official/src/scoresbibm/scoresbibm/scripts/hydra_script.py", line 136, in score_sbi
+    metric_values, eval_time = eval_coverage(task, model, metric_params, rng_eval)
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/simformer_official/src/scoresbibm/scoresbibm/evaluation/eval_task.py", line 195, in eval_coverage
+    batched_log_probs = log_prob_fn(samples_batch, xs_batch)
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/simformer_official/src/scoresbibm/scoresbibm/evaluation/eval_task.py", line 171, in log_prob_fn
+    return model.log_prob_batched(samples, x_o=x_o, condition_mask=condition_mask, **log_prob_kwargs).detach().numpy()
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/bridge/compass_method.py", line 107, in log_prob_batched
+    reply = self.worker.call(cmd="log_prob_batched", latent=np.asarray(theta, dtype=np.float32),
+  File "/export/home/rheinric/COMPASS/benchmarks/SimFormer/bridge/compass_method.py", line 58, in call
+    raise RuntimeError(f"COMPASS worker error: {reply.get('error')}")
+RuntimeError: COMPASS worker error: OutOfMemoryError('CUDA out of memory. Tried to allocate 626.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 454.12 MiB is free. Process 3413918 has 172.00 MiB memory in use. Including non-PyTorch memory, this process has 9.95 GiB memory in use. Of the allocated memory 9.09 GiB is allocated by PyTorch, and 690.62 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)')
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

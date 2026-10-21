@@ -1,0 +1,8 @@
+2026-09-30T23:20:44+02:00 GPU 2: ../.COMPASS/bin/python -u gm.py run --mode none --tag posteriors -- --device cuda --regimes asymmetric symmetric --observations 8 16 32 64 --replicates 1 --draws 2000 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct > logs/gm_posteriors_none.log 2>&1
+2026-10-01T00:52:07+02:00 GPU 2: exit 0
+2026-10-01T00:52:07+02:00 GPU 2: ../.COMPASS/bin/python plot_gm_posteriors.py none posteriors > logs/plot_none.log 2>&1
+2026-10-01T00:52:16+02:00 GPU 2: exit 0
+2026-10-01T00:52:16+02:00 GPU 2: ../.COMPASS/bin/python -u gm.py run --mode hierarchical --tag posteriors -- --device cuda --regimes asymmetric symmetric --observations 8 16 32 64 --replicates 1 --draws 2000 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct > logs/gm_posteriors_hierarchical.log 2>&1
+2026-10-01T02:14:45+02:00 GPU 2: exit 0
+2026-10-01T02:14:45+02:00 GPU 2: ../.COMPASS/bin/python plot_gm_posteriors.py hierarchical posteriors > logs/plot_hier.log 2>&1
+2026-10-01T02:14:53+02:00 GPU 2: exit 0

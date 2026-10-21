@@ -1,0 +1,79 @@
+[
+ {
+  "method": "modetree",
+  "seconds": 311.49496492603794,
+  "error": "no branches found",
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.6507201199419796,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ },
+ {
+  "method": "gauss_jacobian",
+  "seconds": 7.187574286013842,
+  "draws": 300,
+  "w1_over_sigma": 0.24702696212313296,
+  "mean_error_sigma": 0.21278654309220532,
+  "width_ratio": 0.84073936699015,
+  "truth_error_sigma": -1.5761595362213225,
+  "posterior_mean": 0.03514000000000003,
+  "posterior_std": 0.30130201158226605,
+  "posterior_mode": 0.33999999999999986,
+  "shape_modes": [
+   -0.21999999999999997,
+   -0.1399999999999999
+  ],
+  "shape_dip_ratio": 0.9734422880490308,
+  "shape_mode_mass_ratio": 0.40091105548732137,
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.6507201199419796,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ },
+ {
+  "method": "langevin_fnpse",
+  "seconds": 7.206044752616435,
+  "draws": 300,
+  "w1_over_sigma": 0.24106139514471658,
+  "mean_error_sigma": 0.23343516499504463,
+  "width_ratio": 0.8718432837873015,
+  "truth_error_sigma": -1.5555109143184833,
+  "posterior_mean": 0.04254000000000005,
+  "posterior_std": 0.3124489532707703,
+  "posterior_mode": -0.040000000000000036,
+  "shape_modes": [
+   -0.19999999999999996,
+   -0.11999999999999988
+  ],
+  "shape_dip_ratio": 0.9362699156513584,
+  "shape_mode_mass_ratio": 0.4520110352838684,
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.6507201199419796,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ }
+]

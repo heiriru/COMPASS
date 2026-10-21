@@ -1,0 +1,103 @@
+[
+ {
+  "method": "modetree",
+  "seconds": 405.18960872106254,
+  "branches": 1,
+  "branch_means": [
+   0.6012164590275787
+  ],
+  "branch_sds": [
+   0.4278580974707251
+  ],
+  "branch_weights": [
+   1.0
+  ],
+  "network_forwards": 143224,
+  "score_calls": 13894,
+  "jacobian_calls": 5478,
+  "w1_over_sigma": 1.790619590772051,
+  "mean_error_sigma": 1.789155123380705,
+  "width_ratio": 1.189820527746274,
+  "truth_error_sigma": 0.00020904406717730376,
+  "posterior_mean": 0.6000749166750396,
+  "posterior_std": 0.4264048199803469,
+  "posterior_mode": 0.6000000000000001,
+  "shape_modes": [
+   0.6000000000000001
+  ],
+  "shape_dip_ratio": 1.0,
+  "shape_mode_mass_ratio": 0.0,
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.577269528992474,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ },
+ {
+  "method": "gauss_jacobian",
+  "seconds": 7.410499616060406,
+  "draws": 300,
+  "w1_over_sigma": 0.24702696212313296,
+  "mean_error_sigma": 0.21278654309220532,
+  "width_ratio": 0.84073936699015,
+  "truth_error_sigma": -1.5761595362213225,
+  "posterior_mean": 0.03514000000000003,
+  "posterior_std": 0.30130201158226605,
+  "posterior_mode": 0.33999999999999986,
+  "shape_modes": [
+   -0.21999999999999997,
+   -0.1399999999999999
+  ],
+  "shape_dip_ratio": 0.9734422880490308,
+  "shape_mode_mass_ratio": 0.40091105548732137,
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.577269528992474,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ },
+ {
+  "method": "langevin_fnpse",
+  "seconds": 7.339685780927539,
+  "draws": 300,
+  "w1_over_sigma": 0.24106139514471658,
+  "mean_error_sigma": 0.23343516499504463,
+  "width_ratio": 0.8718432837873015,
+  "truth_error_sigma": -1.5555109143184833,
+  "posterior_mean": 0.04254000000000005,
+  "posterior_std": 0.3124489532707703,
+  "posterior_mode": -0.040000000000000036,
+  "shape_modes": [
+   -0.19999999999999996,
+   -0.11999999999999988
+  ],
+  "shape_dip_ratio": 0.9362699156513584,
+  "shape_mode_mass_ratio": 0.4520110352838684,
+  "regime": "bimodal",
+  "n": 4,
+  "truth": 0.6,
+  "reference_seconds": 1.577269528992474,
+  "reference_shape": {
+   "modes": [
+    -0.3599999999999999,
+    0.3999999999999999
+   ],
+   "dip_ratio": 0.5019525249837434,
+   "mode_mass_ratio": 0.580863006420494
+  }
+ }
+]

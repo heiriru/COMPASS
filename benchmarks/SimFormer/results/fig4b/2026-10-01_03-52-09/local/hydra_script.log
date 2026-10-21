@@ -1,0 +1,61 @@
+[2026-10-01 03:52:10,053][scoresbibm.scripts.hydra_script][INFO] - name: fig4b
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_fx_euler500
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: euler
+    order: 2
+    churn_eta: 2.0
+    timesteps: 500
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-09-29_07-45-08/local/compass_model
+task:
+  name: two_moons_all_cond
+  num_simulations: 1000
+eval:
+  metric:
+    c2st:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: structured_random
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-10-01_03-52-09/local
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-01 03:52:10,054][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-01 03:52:10,099][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-01 03:52:10,100][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons_all_cond
+[2026-10-01 03:52:13,888][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_fx_euler500
+[2026-10-01 03:52:20,628][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_fx_euler500
+[2026-10-01 03:52:20,629][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st
+[2026-10-01 04:00:54,643][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-01 04:00:54,687][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 57

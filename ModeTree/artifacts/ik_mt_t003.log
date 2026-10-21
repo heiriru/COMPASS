@@ -1,0 +1,16 @@
+CPU affinity: 3/72 CPUs
+Loaded legacy_h16d2_n200000_six_weighted_log_sigma (367,136 parameters)
+  reference bimodal n=8: modes [-0.42, 0.46] dip 0.075
+bimodal  n=   8 modetree         FAILED no branches found
+  reference bimodal n=16: modes [-0.46, 0.47] dip 0.003
+bimodal  n=  16 modetree         FAILED no branches found
+  reference bimodal n=32: modes [-0.45, 0.48] dip 0.000
+bimodal  n=  32 modetree         FAILED no branches found
+  reference stock n=8: modes [0.04] dip 1.000
+stock    n=   8 modetree         W1/sd=0.3782 width=1.243 dip=1.000   268.45s
+  reference stock n=16: modes [0.06] dip 1.000
+stock    n=  16 modetree         W1/sd=0.6661 width=1.289 dip=1.000   313.99s
+  reference stock n=32: modes [0.06] dip 1.000
+stock    n=  32 modetree         FAILED no branches found
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/ik_mt_t003_modetree.json

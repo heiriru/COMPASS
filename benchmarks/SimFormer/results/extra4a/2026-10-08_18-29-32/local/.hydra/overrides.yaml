@@ -1,0 +1,7 @@
+- name=extra4a
+- method=score_transformer
+- task=two_moons
+- task.num_simulations=100000
+- eval=nll_cov
+- save_model=true
+- model_id=20

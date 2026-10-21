@@ -1,0 +1,62 @@
+[2026-10-02 11:20:07,825][scoresbibm.scripts.hydra_script][INFO] - name: fig4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_fx_notime_add
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    arch_variant: no_time_mod
+    time_input: add
+task:
+  name: slcp
+  num_simulations: 100000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-02 11:20:07,825][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-02 11:20:07,826][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-10-02_11-20-07/local
+[2026-10-02 11:20:07,826][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a
+[2026-10-02 11:20:07,826][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-02 11:20:07,826][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-02 11:20:07,826][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-02 11:20:07,867][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-02 11:20:07,869][scoresbibm.scripts.hydra_script][INFO] - Task: slcp
+[2026-10-02 11:20:07,976][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_fx_notime_add
+[2026-10-02 11:57:57,223][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_fx_notime_add
+[2026-10-02 11:57:57,224][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+[2026-10-02 12:03:00,012][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-02 12:03:00,048][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 114

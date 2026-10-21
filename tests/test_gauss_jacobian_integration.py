@@ -32,6 +32,11 @@ def draw(model, data, **kwargs):
     arguments = dict(
         x=data, multi_obs_inference=True, hierarchy=HIERARCHY,
         correction="gauss_jacobian", timesteps=4, num_samples=5,
+        # These tests are about the gauss_jacobian composition, not the
+        # predictor, so they pin the corrector sampler they were written
+        # against; churn is the library default now and the two are
+        # mutually exclusive (compass.churn).
+        churn_eta=0.0,
         corrector_steps=1, corrector_steps_interval=2, final_corrector_steps=0,
         verbose=False,
     )

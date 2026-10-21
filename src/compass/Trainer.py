@@ -52,7 +52,9 @@ class Trainer():
               max_epochs=500, early_stopping_patience=20, batch_size=128, lr=1e-3,
               path=None, name="Model", device="cpu", verbose=True,
               time_sampling="mixture", mask_loss_weights=None,
-              mask_sampler=None, validation_mask_seed=20250718):
+              mask_sampler=None, validation_mask_seed=20250718,
+              global_target_fn=None, global_target_indices=None, tsm_lambda_c=1.0,
+              tsm_variance_fn=None, time_loss_weight=None, sigma_data=1.0):
 
         """
         Training function for the score prediction task
@@ -78,6 +80,28 @@ class Trainer():
                     "log_sigma": noise scales log-uniform between sigma_m(eps)
                         and sigma_m(1).
                     "mixture" (default): 50/50 mix of both.
+            global_target_fn: Optional target score matching (TSM) for the shared
+                    (global) coordinates of a hierarchical model. A callable mapping a
+                    batch of *clean* node vectors (B, nodes) to the clean joint score
+                    of the globals,
+                        T = grad_g log p(g) + grad_g log p(l | g)     (B, len(indices)),
+                    in network coordinates. Because g reaches the data only through l,
+                    E[T | noisy g, x] / alpha_t is exactly the diffused score of the
+                    globals (Tweedie / target score matching + Fisher's identity), for
+                    every mask in which they are latent, and its variance stays bounded
+                    as the noise vanishes, unlike the DSM target -eps / sigma. ``None``
+                    (default) is plain DSM, unchanged.
+            global_target_indices: Node indices of the globals T refers to.
+            tsm_lambda_c: Blend scale. The global target is
+                    w T / alpha_t + (1 - w) (-eps / sigma_t), w = 1 / (1 + (lambda/lambda_c)^2):
+                    TSM at low noise, where DSM is noisiest, DSM at high noise. Any w
+                    keeps the target unbiased.
+            tsm_variance_fn: Optional per-coordinate blend instead of ``tsm_lambda_c``.
+                    Maps the *noisy* globals x_t[:, indices] and lambda (B, 1) to V (B, k), a
+                    variance (bound) of T; the blend is then the inverse-variance weight
+                    w = 1 / (1 + lambda^2 V), the DSM target having variance 1/lambda^2.
+                    V may depend only on network inputs (here x_t), never on the clean
+                    values, or the blend is biased.
         """
         start_time = time.time()
 
@@ -104,6 +128,22 @@ class Trainer():
         # samplers actually evaluate.
         self.mask_sampler = mask_sampler
         self.validation_mask_seed = validation_mask_seed
+        if (global_target_fn is None) != (global_target_indices is None):
+            raise ValueError("global_target_fn and global_target_indices go together.")
+        self.global_target_fn = global_target_fn
+        self.global_target_indices = (None if global_target_indices is None
+                                      else torch.as_tensor(global_target_indices, dtype=torch.long))
+        self.tsm_lambda_c = float(tsm_lambda_c)
+        self.tsm_variance_fn = tsm_variance_fn
+        if time_loss_weight not in (None, "edm"):
+            raise ValueError(f"time_loss_weight must be None or 'edm', got {time_loss_weight!r}")
+        # Optional noise-level weighting of the per-example epsilon loss. "edm"
+        # multiplies by (1 + sigma^2 / sigma_data^2), i.e. the EDM weighting written
+        # for an epsilon target: the epsilon loss weights denoiser errors by 1/sigma^2,
+        # which leaves high-noise accuracy (where the PF-ODE log-density is most
+        # sensitive) nearly untrained. Normalised per batch like the mask weights.
+        self.time_loss_weight = time_loss_weight
+        self.sigma_data = float(sigma_data)
         self.mask_loss_weights = []
         for mask, weight in (mask_loss_weights or []):
             mask = torch.as_tensor(mask, dtype=torch.float32)
@@ -231,11 +271,25 @@ class Trainer():
                     break
             
             
+        # Schedule-free AdamW keeps its evaluation weights (the averaged sequence)
+        # behind optimizer.eval(). With validation data the last pass already was an
+        # eval pass; without it the model would otherwise end on the raw training
+        # weights, both in memory and in the saved final model.
+        optimizer.eval()
+        self.model.eval()
+
         if self.world_size > 1:
             dist.barrier()
             if rank == 0:
                 self._save_checkpoint(name=self.name)
             dist.destroy_process_group()
+        elif getattr(self, "path", None) is not None:
+            # Single GPU/CPU: write the final-epoch model as ``{name}.pt`` too, as the
+            # multi-GPU branch does. ModelTransfuser.train_models reloads exactly that
+            # file, and it used not to exist here. The final model is also the better
+            # one: the best-validation checkpoint had 30-70% larger log-likelihood
+            # error in every family and budget (validation/c9_network_seeds, E-C9.2).
+            self._save_checkpoint(name=self.name)
         
     def _run_epoch(self, epoch, data_loader, optimizer, is_train):
         if self.world_size > 1:
@@ -281,10 +335,36 @@ class Trainer():
         x_t = self.SBIm.forward_diffusion_sample(data, timesteps, x_1, condition_mask)
         # Get score
         score = self._get_score(x_t, timesteps, condition_mask)
-        # Calculate loss
-        loss = self.loss_fn(score, timesteps, x_1, condition_mask)
+        # Calculate loss (DSM target -x_1/sigma, optionally blended with TSM on the globals)
+        target_noise = self._blend_global_target(data, timesteps, x_1, condition_mask, x_t)
+        loss = self.loss_fn(score, timesteps, target_noise, condition_mask)
 
         return loss
+
+    def _blend_global_target(self, data, timesteps, x_1, condition_mask, x_t=None):
+        """The loss compares x_1 + sigma_t * score with 0, i.e. score with -x_1 / sigma_t.
+        With a global target, x_1 on the latent globals is replaced by
+        w * (-sigma_t * T / alpha_t) + (1 - w) * x_1, i.e. score with
+        w T / alpha_t + (1 - w)(-x_1 / sigma_t). Conditioned globals are untouched (their
+        loss term is masked anyway). x_t itself was built from the real x_1."""
+        if getattr(self, "global_target_fn", None) is None:
+            return x_1
+        idx = self.global_target_indices.to(data.device)
+        with torch.no_grad():
+            target = self.global_target_fn(data).to(x_1.dtype)              # (B, k)
+            sigma = self.sde.marginal_prob_std(timesteps).reshape(-1, 1).to(x_1.dtype)
+            alpha = self.sde.alpha_t(timesteps).reshape(-1, 1).to(x_1.dtype)
+            lam = sigma / alpha
+            if getattr(self, "tsm_variance_fn", None) is not None:
+                variance = self.tsm_variance_fn(x_t[:, idx], lam).to(x_1.dtype)
+                w = 1.0 / (1.0 + lam ** 2 * variance)
+            else:
+                w = 1.0 / (1.0 + (lam / self.tsm_lambda_c) ** 2)
+            blended = w * (-sigma * target / alpha) + (1.0 - w) * x_1[:, idx]
+            latent = 1.0 - condition_mask[:, idx]
+            out = x_1.clone()
+            out[:, idx] = latent * blended + (1.0 - latent) * x_1[:, idx]
+        return out
 
     def _fixed_validation_masks(self, val_data):
         """One mask per validation row, drawn once from a dedicated seed.
@@ -356,6 +436,8 @@ class Trainer():
                 dim=1,
             )
             weights = torch.where(match, weight, weights)
+        if getattr(self, "time_loss_weight", None) == "edm":
+            weights = weights * (1.0 + sigma_t.reshape(-1) ** 2 / self.sigma_data ** 2)
         weights = weights / weights.mean()
 
         # The sigma^2 factor is applied as the batch mean, not per example. That
@@ -459,6 +541,7 @@ class Trainer():
                 'num_heads': self.SBIm.num_heads,
                 'mlp_ratio': self.SBIm.mlp_ratio,
                 **self.SBIm.architecture_payload(),
+                **self.SBIm.time_payload(),
             }
             torch.save(state_dict, f"{self.path}/{name}.pt")
         else:

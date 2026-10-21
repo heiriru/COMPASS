@@ -1,0 +1,75 @@
+[2026-09-28 17:00:01,920][scoresbibm.scripts.hydra_script][INFO] - name: pilot
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_tokenized
+  backend: jax
+  device: gpu
+  compass:
+    arch: tokenized
+    time_embedding_size: 128
+    token_offset: true
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 5000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 50
+    eps: 0.001
+task:
+  name: two_moons
+  num_simulations: 10000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-28 17:00:01,920][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-28 17:00:01,920][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot/2026-09-28_17-00-01/local
+[2026-09-28 17:00:01,921][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/pilot
+[2026-09-28 17:00:01,921][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-28 17:00:01,922][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-28 17:00:01,924][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-28 17:00:01,965][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-28 17:00:01,966][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-09-28 17:00:02,009][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_tokenized
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 8
+[compass-worker] train arch=tokenized params=622658 rows=9000 val=1000 steps/epoch=9 max_epochs=3334 patience=556
+[compass-worker] trained {'n_params': 622658, 'train_seconds': 235.26826906204224, 'epochs': 1068, 'steps': 9612, 'best_val': 8.3892578125, 'max_epochs': 3334, 'patience': 556}
+[compass] train info: {'n_params': 622658, 'train_seconds': 235.26826906204224, 'epochs': 1068, 'steps': 9612, 'best_val': 8.3892578125, 'max_epochs': 3334, 'patience': 556}
+[2026-09-28 17:04:03,830][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_tokenized
+[2026-09-28 17:04:03,830][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+Metric value:  0.8867999911308289
+Metric value:  0.880649983882904
+Metric value:  0.888700008392334
+Metric value:  0.8781499862670898
+Metric value:  0.912850022315979
+Metric value:  0.8840500116348267
+Metric value:  0.8464999794960022
+Metric value:  0.8798999786376953
+Metric value:  0.8862000107765198
+Metric value:  0.8791000247001648
+[2026-09-28 17:06:22,674][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-28 17:06:22,693][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 2

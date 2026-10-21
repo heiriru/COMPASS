@@ -1,0 +1,7 @@
+- name=fig4a_sampler
+- method=compass_fx_churn2
+- task=slcp
+- task.num_simulations=100000
+- eval=c2st_posterior
+- save_model=false
+- ++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-29_05-21-57/local/compass_model

@@ -1,5 +1,14 @@
 # Composing a score network on `g → ℓⱼ → xⱼ`
 
+> **Sampler and training-recipe change.** Churn now lives in `compass.churn` and
+> is the sampler default (`churn_eta=2.0`, corrector-free); `time_sampling` and
+> the training condition-mask law are chosen through the COMPASS API. The
+> defaults used by the commands below are no longer the ones the tables in this
+> file were produced under. See [`docs/unified_method.md`](../../../../docs/unified_method.md)
+> for what changed, what is pinned to reproduce the old numbers, and which
+> checkpoints are now stale.
+
+
 A hierarchy that is generative, non-Gaussian, and **exactly solvable at every
 noise level** — including the diffused joint score, which is what makes it a
 usable test bench for composition rules rather than one more plausible-looking

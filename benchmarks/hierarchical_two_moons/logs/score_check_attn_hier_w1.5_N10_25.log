@@ -1,0 +1,25 @@
+N=10  lam=0.02  rel_err=0.748 (oracle mc 0.050)  shift_N=6.32 sd  shift_sys=3.97 sd  [exact composed lik score: 5.5 sd]  sys per coord (mu0,mu1,s0,s1)=[-1.21 -1.04 -1.04 -0.6 ]
+N=10  lam=0.05  rel_err=0.554 (oracle mc 0.050)  shift_N=5.46 sd  shift_sys=2.72 sd  [exact composed lik score: 5.5 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.09 -0.76 -0.06 -0.  ]
+N=10  lam=0.1   rel_err=0.429 (oracle mc 0.049)  shift_N=3.89 sd  shift_sys=1.48 sd  [exact composed lik score: 5.6 sd]  sys per coord (mu0,mu1,s0,s1)=[ 0.04 -0.42  0.13 -0.05]
+N=10  lam=0.2   rel_err=0.324 (oracle mc 0.051)  shift_N=2.79 sd  shift_sys=0.73 sd  [exact composed lik score: 5.6 sd]  sys per coord (mu0,mu1,s0,s1)=[ 0.07 -0.31  0.1  -0.12]
+N=10  lam=0.5   rel_err=0.234 (oracle mc 0.074)  shift_N=0.87 sd  shift_sys=0.27 sd  [exact composed lik score: 3.9 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.02 -0.01  0.04  0.14]
+N=10  lam=1.0   rel_err=0.204 (oracle mc 0.123)  shift_N=0.37 sd  shift_sys=0.08 sd  [exact composed lik score: 1.6 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.    0.    0.01  0.03]
+N=25  lam=0.02  rel_err=0.732 (oracle mc 0.047)  shift_N=9.53 sd  shift_sys=6.97 sd  [exact composed lik score: 6.6 sd]  sys per coord (mu0,mu1,s0,s1)=[-4.41 -0.58 -1.71 -1.43]
+N=25  lam=0.05  rel_err=0.549 (oracle mc 0.047)  shift_N=6.37 sd  shift_sys=4.01 sd  [exact composed lik score: 7.3 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.93  0.67  0.03 -0.45]
+N=25  lam=0.1   rel_err=0.456 (oracle mc 0.047)  shift_N=5.11 sd  shift_sys=3.14 sd  [exact composed lik score: 7.7 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.25  0.28  0.64 -0.16]
+N=25  lam=0.2   rel_err=0.361 (oracle mc 0.046)  shift_N=3.82 sd  shift_sys=2.13 sd  [exact composed lik score: 8.9 sd]  sys per coord (mu0,mu1,s0,s1)=[-0.48  0.02  0.02  0.01]
+N=25  lam=0.5   rel_err=0.246 (oracle mc 0.061)  shift_N=1.49 sd  shift_sys=0.56 sd  [exact composed lik score: 7.4 sd]  sys per coord (mu0,mu1,s0,s1)=[ 0.15 -0.06  0.03  0.08]
+N=25  lam=1.0   rel_err=0.217 (oracle mc 0.106)  shift_N=0.57 sd  shift_sys=0.23 sd  [exact composed lik score: 4.6 sd]  sys per coord (mu0,mu1,s0,s1)=[ 0.06 -0.11 -0.02  0.02]
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/checks/score_check.py", line 131, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/checks/score_check.py", line 109, in main
+    s_exact, mc = exact_scores(ref, g, lam, gen)                 # (N, P, 4)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/checks/score_check.py", line 63, in exact_scores
+    logw = per_group_loglik(ref, gp) - 0.5 * (gp / TRAIN_SCALE).pow(2).sum(-1)[None]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/benchmarks/hierarchical_two_moons/checks/score_check.py", line 51, in per_group_loglik
+    log_tn = ref.features @ coeff.T.to(ref.features.dtype) + ref.logw_flat[:, None]
+             ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.34 GiB. GPU 0 has a total capacity of 10.57 GiB of which 2.00 GiB is free. Process 2659901 has 1.75 GiB memory in use. Process 2659906 has 1.75 GiB memory in use. Process 2659910 has 702.00 MiB memory in use. Process 2659907 has 1.74 GiB memory in use. Process 2659908 has 704.00 MiB memory in use. Process 2659905 has 1.74 GiB memory in use. Including non-PyTorch memory, this process has 222.00 MiB memory in use. Of the allocated memory 18.10 MiB is allocated by PyTorch, and 11.90 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

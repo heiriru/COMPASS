@@ -1,0 +1,9 @@
+\section{Experiments}\label{sec:exp}
+\todo{Not yet written. Candidate experiments, each graded against a reference posterior:}
+\begin{itemize}
+  \item \textbf{Linear-Gaussian shared/local toy, exact scores.} Here both rules are exact (\cref{sec:properties}), so this isolates the composition rule from network error. Compare flat \gauss{} applied to $\g$ against \arrowm/\quiver.
+  \item \textbf{Non-Gaussian single-observation posteriors} (mixtures, folded $|g|$ likelihoods): \quiver{} versus \arrowm{} with exact moment-matched pilot covariances.
+  \item \textbf{Partial-pooling cognitive model}, global/local accuracy and coverage against \fnpse{} with Langevin and against the damped sum \citep{arruda2025compositional}.
+  \item \textbf{Inverse kinematics / hierarchical two moons}: multimodal stress tests.
+  \item \textbf{Ablations}: information projection, curvature clip, finite-difference vs.\ JVP Jacobian, refresh schedule, and cost.
+\end{itemize}

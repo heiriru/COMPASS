@@ -1,0 +1,4 @@
+2026-09-30T19:18:58+02:00 GPU 8: ../.COMPASS/bin/python -u gm.py run --mode hierarchical --tag net -- --regimes asymmetric symmetric --observations 8 32 128 --replicates 2 --draws 2000 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct arruda_laplace arruda_gauss_laplace > logs/gm_net_hierarchical.log 2>&1
+2026-10-01T03:55:34+02:00 GPU 8: exit 0
+2026-10-01T03:55:34+02:00 GPU 8: ../.COMPASS/bin/python -u gm.py run --mode none --tag net -- --regimes asymmetric symmetric --observations 8 32 128 --replicates 2 --draws 2000 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct arruda_laplace arruda_gauss_laplace > logs/gm_net_none.log 2>&1
+2026-10-01T08:17:03+02:00 GPU 8: exit 0

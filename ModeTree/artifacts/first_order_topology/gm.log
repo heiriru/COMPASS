@@ -1,0 +1,21 @@
+problem=gm sources=['oracle', 'learned'] sde_sigma=15.0 prior_sd=2.5317977802344327
+oracle   n=   8 t=0.01     lam=0.1014  modes=[-1.0962, 1.1704]  valleys=[-0.0074]  ref=[-1.1302, 1.2008]  dip=0.002 (ref 0.000)  W1/sd=0.0405  15s
+oracle   n=   8 t=0.001    lam=0.0317  modes=[-1.1317, 1.2021]  valleys=[-0.0026]  ref=[-1.1302, 1.2008]  dip=0.001 (ref 0.000)  W1/sd=0.0041  10s
+oracle   n=   8 t=0.0001   lam=0.0100  modes=[-1.1387, 1.209]  valleys=[-0.0021]  ref=[-1.1302, 1.2008]  dip=0.000 (ref 0.000)  W1/sd=0.0004  10s
+oracle   n=  16 t=0.01     lam=0.1014  modes=[-0.6593, 0.7328]  valleys=[-0.0121]  ref=[-0.724, 0.7947]  dip=0.047 (ref 0.011)  W1/sd=0.1026  17s
+oracle   n=  16 t=0.001    lam=0.0317  modes=[-0.724, 0.7947]  valleys=[-0.004]  ref=[-0.724, 0.7947]  dip=0.013 (ref 0.011)  W1/sd=0.0104  17s
+oracle   n=  16 t=0.0001   lam=0.0100  modes=[-0.7324, 0.8026]  valleys=[-0.0033]  ref=[-0.724, 0.7947]  dip=0.011 (ref 0.011)  W1/sd=0.0010  18s
+oracle   n=  32 t=0.01     lam=0.1014  modes=[-0.309, 0.3885]  valleys=[-0.0331]  ref=[-0.4238, 0.4945]  dip=0.522 (ref 0.126)  W1/sd=0.2269  35s
+oracle   n=  32 t=0.001    lam=0.0317  modes=[-0.4062, 0.4768]  valleys=[-0.007]  ref=[-0.4238, 0.4945]  dip=0.151 (ref 0.126)  W1/sd=0.0234  34s
+oracle   n=  32 t=0.0001   lam=0.0100  modes=[-0.415, 0.4856]  valleys=[-0.0057]  ref=[-0.4238, 0.4945]  dip=0.129 (ref 0.126)  W1/sd=0.0024  35s
+learned  n=   8 t=0.01     lam=0.1014  modes=[-0.0014]  valleys=[-5.146, 4.7557]  ref=[-1.1302, 1.2008]  dip=0.000 (ref 0.000)  W1/sd=9.4774  40s
+learned  n=   8 t=0.001    lam=0.0317  modes=[-1.9629, -0.0085, 2.1436]  valleys=[-0.2652, 0.904, 8.4829]  ref=[-1.1302, 1.2008]  dip=0.000 (ref 0.000)  W1/sd=2.4576  41s
+learned  n=   8 t=0.0001   lam=0.0100  modes=[-2.1204, 2.261]  valleys=[0.2716]  ref=[-1.1302, 1.2008]  dip=0.000 (ref 0.000)  W1/sd=2.6073  40s
+learned  n=  16 t=0.01     lam=0.1014  modes=[-0.003]  valleys=[-4.7362, 4.5451]  ref=[-0.724, 0.7947]  dip=1.000 (ref 0.011)  W1/sd=14.5476  76s
+learned  n=  16 t=0.001    lam=0.0317  modes=[-1.9151, -0.0116, 2.0979]  valleys=[-0.2535, 0.971, 8.1592]  ref=[-0.724, 0.7947]  dip=0.000 (ref 0.011)  W1/sd=3.3384  74s
+learned  n=  16 t=0.0001   lam=0.0100  modes=[-2.1048, 2.2452]  valleys=[0.288]  ref=[-0.724, 0.7947]  dip=0.000 (ref 0.011)  W1/sd=3.6090  79s
+learned  n=  32 t=0.01     lam=0.1014  modes=[-0.0041]  valleys=[-4.5994, 4.4164]  ref=[-0.4238, 0.4945]  dip=1.000 (ref 0.126)  W1/sd=24.1926  152s
+learned  n=  32 t=0.001    lam=0.0317  modes=[-1.8868, -0.0139, 2.0867]  valleys=[-0.2578, 1.0133, 7.994]  ref=[-0.4238, 0.4945]  dip=0.000 (ref 0.126)  W1/sd=5.0336  145s
+learned  n=  32 t=0.0001   lam=0.0100  modes=[-2.0912, 2.2457]  valleys=[0.2982]  ref=[-0.4238, 0.4945]  dip=1.000 (ref 0.126)  W1/sd=5.5116  140s
+
+wrote /export/home/rheinric/COMPASS/ModeTree/artifacts/first_order_topology/gm_rows.json

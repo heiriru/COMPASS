@@ -54,7 +54,8 @@ def load(name):
 # ---------------------------------------------------------------------------
 
 
-def figure_1_posterior(case="map_vs_mass", n=32):
+def figure_1_posterior(case="map_vs_mass", n=32, filename=None,
+                       num_draws=20000):
     """Exact posterior vs every method, with true and estimated modes marked."""
     model = B.map_vs_mass_1d(n) if case == "map_vs_mass" else B.bimodal_1d(n, case)
     ref = B.reference_1d(model, -8, 8, points=200_001)
@@ -66,10 +67,10 @@ def figure_1_posterior(case="map_vs_mass", n=32):
     for rule, kind in (("gauss_jacobian", "diffusion"), ("fnpe", "langevin")):
         field = ComposedField(DiffusedOracle(model), rule)
         if kind == "diffusion":
-            samples, _ = reverse_diffusion(field, 20000, levels=200,
+            samples, _ = reverse_diffusion(field, num_draws, levels=200,
                                            prior_std=prior_std, generator=generator)
         else:
-            samples, _ = annealed_langevin(field, 20000, levels=100,
+            samples, _ = annealed_langevin(field, num_draws, levels=100,
                                            steps_per_level=10, prior_std=prior_std,
                                            generator=generator)
         draws[rule] = samples[:, 0]
@@ -111,7 +112,8 @@ def figure_1_posterior(case="map_vs_mass", n=32):
         axis.set_title(f"{case}, n = {n}: dotted = true modes, dashed = found")
         axis.legend(fontsize=7.5, loc="upper left")
         figure.tight_layout()
-        figure.savefig(os.path.join(FIGURES, "figure1_posterior.png"))
+        figure.savefig(os.path.join(
+            FIGURES, filename or f"figure1_posterior_{case}_n{n}.png"))
         plt.close(figure)
 
 
@@ -338,10 +340,23 @@ def figure_6_calibration(case="map_vs_mass", n=16, repeats=200):
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--figure1-only", default=None,
+                        help="comma-separated n values; draw only figure 1")
+    parser.add_argument("--case", default="map_vs_mass")
+    args = parser.parse_args()
     os.makedirs(FIGURES, exist_ok=True)
+    if args.figure1_only:
+        for n in (int(v) for v in args.figure1_only.split(",")):
+            print(f"figure 1, {args.case}, n = {n} ...", flush=True)
+            figure_1_posterior(case=args.case, n=n)
+        print("wrote", FIGURES)
+        return
     rows = load("compare_methods.json") or load("compare_methods_quick.json")
     print("figure 1 ...")
-    figure_1_posterior()
+    figure_1_posterior(filename="figure1_posterior.png")
     if rows:
         print("figure 2 ...")
         figure_2_versus_n(rows)

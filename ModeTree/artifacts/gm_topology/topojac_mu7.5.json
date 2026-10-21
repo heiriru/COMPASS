@@ -1,0 +1,796 @@
+{
+  "128": {
+    "per_level/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 4.5017823715618865,
+      "w2_over_sd": 4.781670749050664,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        16.12203351708549,
+        15.961217958010353
+      ],
+      "weight_tv": 0.2060004690053358,
+      "positive_branch_mass": 0.544,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0015,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.10805816536372605,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.11318053904353709,
+      "width_ratio": 5.617100886670032,
+      "seconds": 184.53083439124748,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 7804134,
+        "eigenvalue_clips": 5266135
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.75,
+          0.825
+        ],
+        [
+          0.5,
+          0.675
+        ],
+        [
+          0.25,
+          0.0
+        ],
+        [
+          0.1,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "per_level/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.722499435253413,
+      "w2_over_sd": 3.8024037554059804,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        13.106726906527909,
+        13.262508781715518
+      ],
+      "weight_tv": 0.1855004690053358,
+      "positive_branch_mass": 0.5645,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0005,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.14735425080197556,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.04889174799638946,
+      "width_ratio": 4.561008999710568,
+      "seconds": 462.18955130223185,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 28164496,
+        "eigenvalue_clips": 18914580
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.75,
+          0.825
+        ],
+        [
+          0.5,
+          0.675
+        ],
+        [
+          0.25,
+          0.0
+        ],
+        [
+          0.1,
+          1.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "constant/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 4.33280495165019,
+      "w2_over_sd": 4.694007750287251,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        14.997075170482159,
+        15.366089149377482
+      ],
+      "weight_tv": 0.1920004690053358,
+      "positive_branch_mass": 0.558,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.073,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 1.1742549932714168,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.0777895209456412,
+      "width_ratio": 5.532055399161155,
+      "seconds": 184.25835512112826,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 6838991,
+        "eigenvalue_clips": 4359577
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.6256
+        ],
+        [
+          0.75,
+          0.6256
+        ],
+        [
+          0.5,
+          0.6256
+        ],
+        [
+          0.25,
+          0.6256
+        ],
+        [
+          0.1,
+          0.6256
+        ],
+        [
+          0.0,
+          0.6256
+        ]
+      ]
+    },
+    "constant/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.0875571115685383,
+      "w2_over_sd": 3.1702446523197048,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        10.936725610449184,
+        11.064358387446015
+      ],
+      "weight_tv": 0.1450004690053358,
+      "positive_branch_mass": 0.605,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0075,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.48605173409164076,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.2939907118006145,
+      "width_ratio": 3.9567510091100537,
+      "seconds": 462.00272200489417,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 23824634,
+        "eigenvalue_clips": 13564481
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.6256
+        ],
+        [
+          0.75,
+          0.6256
+        ],
+        [
+          0.5,
+          0.6256
+        ],
+        [
+          0.25,
+          0.6256
+        ],
+        [
+          0.1,
+          0.6256
+        ],
+        [
+          0.0,
+          0.6256
+        ]
+      ]
+    },
+    "piecewise3/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 4.087575811876608,
+      "w2_over_sd": 4.469247181719498,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        14.379015980861256,
+        14.268337661376481
+      ],
+      "weight_tv": 0.1935004690053358,
+      "positive_branch_mass": 0.5565,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0535,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.9245454855942221,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.024980231068859705,
+      "width_ratio": 5.30884608945794,
+      "seconds": 184.51940131606534,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 5958710,
+        "eigenvalue_clips": 3794962
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.356
+        ],
+        [
+          0.75,
+          0.5208
+        ],
+        [
+          0.5,
+          0.6855
+        ],
+        [
+          0.25,
+          0.7333
+        ],
+        [
+          0.1,
+          0.762
+        ],
+        [
+          0.0,
+          0.7811
+        ]
+      ]
+    },
+    "piecewise3/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.026581916030942,
+      "w2_over_sd": 3.1273139904364133,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        10.577875940895959,
+        10.430172321321999
+      ],
+      "weight_tv": 0.1865004690053358,
+      "positive_branch_mass": 0.5635,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0045,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.3544842457840004,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.08818484870123293,
+      "width_ratio": 3.87219515071868,
+      "seconds": 462.6002874481492,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 21054009,
+        "eigenvalue_clips": 11729488
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.356
+        ],
+        [
+          0.75,
+          0.5208
+        ],
+        [
+          0.5,
+          0.6855
+        ],
+        [
+          0.25,
+          0.7333
+        ],
+        [
+          0.1,
+          0.762
+        ],
+        [
+          0.0,
+          0.7811
+        ]
+      ]
+    },
+    "piecewise5/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 5.083190810993107,
+      "w2_over_sd": 5.254557993598161,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        17.986469970052674,
+        18.57380091380322
+      ],
+      "weight_tv": 0.1940004690053358,
+      "positive_branch_mass": 0.556,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0115,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.6050069641018945,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.176170409670798,
+      "width_ratio": 6.048160841861814,
+      "seconds": 184.2766956598498,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 7151360,
+        "eigenvalue_clips": 5085389
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.75,
+          1.0
+        ],
+        [
+          0.5,
+          0.628
+        ],
+        [
+          0.25,
+          0.3063
+        ],
+        [
+          0.1,
+          0.8713
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "piecewise5/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.527118625526952,
+      "w2_over_sd": 3.6011828418252,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        12.44746948663573,
+        12.279751397471122
+      ],
+      "weight_tv": 0.1975004690053358,
+      "positive_branch_mass": 0.5525,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0015,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.5893888555094727,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.12463462451011087,
+      "width_ratio": 4.323595315432234,
+      "seconds": 461.9616389623843,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 24515674,
+        "eigenvalue_clips": 17056149
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.75,
+          1.0
+        ],
+        [
+          0.5,
+          0.628
+        ],
+        [
+          0.25,
+          0.3063
+        ],
+        [
+          0.1,
+          0.8713
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "sigmoid_tau/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 4.0488119988309705,
+      "w2_over_sd": 4.42788076345552,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        14.115117731548585,
+        13.910735859844683
+      ],
+      "weight_tv": 0.22200046900533577,
+      "positive_branch_mass": 0.528,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.034,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.5155887934239243,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.31755795245405943,
+      "width_ratio": 5.234516695785111,
+      "seconds": 183.757104662247,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 5738187,
+        "eigenvalue_clips": 3403709
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.2574
+        ],
+        [
+          0.75,
+          0.4721
+        ],
+        [
+          0.5,
+          0.6977
+        ],
+        [
+          0.25,
+          0.8562
+        ],
+        [
+          0.1,
+          0.9132
+        ],
+        [
+          0.0,
+          0.9389
+        ]
+      ]
+    },
+    "sigmoid_tau/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.005509350070995,
+      "w2_over_sd": 3.120138317991727,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        10.038554946124119,
+        10.040912860674206
+      ],
+      "weight_tv": 0.23600046900533578,
+      "positive_branch_mass": 0.514,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0045,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.3832067843632162,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.4528587870172514,
+      "width_ratio": 3.7864018703299576,
+      "seconds": 461.888732612133,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 20332052,
+        "eigenvalue_clips": 11009878
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.2574
+        ],
+        [
+          0.75,
+          0.4721
+        ],
+        [
+          0.5,
+          0.6977
+        ],
+        [
+          0.25,
+          0.8562
+        ],
+        [
+          0.1,
+          0.9132
+        ],
+        [
+          0.0,
+          0.9389
+        ]
+      ]
+    },
+    "poly_loglambda2/dpm2,churn=0.5,steps=200": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 4.150716354087153,
+      "w2_over_sd": 4.494410566155757,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        13.706909378949716,
+        14.955681588420598
+      ],
+      "weight_tv": 0.22300046900533577,
+      "positive_branch_mass": 0.527,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.0555,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.846872620685108,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.13366111588134014,
+      "width_ratio": 5.3219013636227706,
+      "seconds": 184.03801944106817,
+      "nfe": 398,
+      "field_calls": 398,
+      "row_score_evaluations": 101888000,
+      "row_jacobian_evaluations": 101888000,
+      "field_diagnostics": {
+        "information_projections": 5964633,
+        "eigenvalue_clips": 3736565
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.3225
+        ],
+        [
+          0.75,
+          0.5333
+        ],
+        [
+          0.5,
+          0.6744
+        ],
+        [
+          0.25,
+          0.7458
+        ],
+        [
+          0.1,
+          0.7552
+        ],
+        [
+          0.0,
+          0.7476
+        ]
+      ]
+    },
+    "poly_loglambda2/dpm2,churn=0.5,steps=500": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.041727580245277,
+      "w2_over_sd": 3.131674138505052,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        10.461510904208483,
+        10.574378347992962
+      ],
+      "weight_tv": 0.1910004690053358,
+      "positive_branch_mass": 0.559,
+      "exact_positive_branch_mass": 0.7500004690053358,
+      "branch_weights": [
+        0.25000000000003236,
+        0.7499999999999676
+      ],
+      "valley_mass": 0.006,
+      "exact_valley_mass": 0.01406966735505455,
+      "dip_ratio": 0.5368530287330994,
+      "exact_dip_ratio": 0.0003498752970500977,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.38045824251424926,
+        0.4038953046725023
+      ],
+      "split_point": -0.000674318953804646,
+      "mode_separation_in_within_sd": 8.575116624936985,
+      "mean_error_sd": 0.08849595966341257,
+      "width_ratio": 3.875472151991709,
+      "seconds": 461.75404526200145,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 20994543,
+        "eigenvalue_clips": 11686174
+      },
+      "alpha_profile": [
+        [
+          1.0,
+          0.3225
+        ],
+        [
+          0.75,
+          0.5333
+        ],
+        [
+          0.5,
+          0.6744
+        ],
+        [
+          0.25,
+          0.7458
+        ],
+        [
+          0.1,
+          0.7552
+        ],
+        [
+          0.0,
+          0.7476
+        ]
+      ]
+    }
+  }
+}

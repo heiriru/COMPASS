@@ -1,0 +1,12 @@
+oracle_joint  langevin_fnpse       n=4   P(g>0)=0.831 E|g|=1.687 sd=1.437  14s
+oracle_joint  gauss_hierarchical   n=4   P(g>0)=0.784 E|g|=1.749 sd=1.610  20s
+oracle_joint  gauss_jacobian_FD    n=4   P(g>0)=0.776 E|g|=1.709 sd=1.585  10s
+oracle_joint  langevin_fnpse       n=16  P(g>0)=0.986 E|g|=1.703 sd=0.505  13s
+oracle_joint  gauss_hierarchical   n=16  P(g>0)=0.926 E|g|=1.744 sd=1.092  21s
+oracle_joint  gauss_jacobian_FD    n=16  P(g>0)=0.920 E|g|=1.731 sd=1.124  20s
+oracle_joint  langevin_fnpse       n=64  P(g>0)=1.000 E|g|=1.564 sd=0.118  27s
+oracle_joint  gauss_hierarchical   n=64  P(g>0)=0.901 E|g|=1.580 sd=1.121  20s
+oracle_joint  gauss_jacobian_FD    n=64  P(g>0)=0.865 E|g|=1.646 sd=1.315  25s
+oracle_joint  langevin_fnpse       n=128 P(g>0)=1.000 E|g|=1.509 sd=0.055  32s
+oracle_joint  gauss_hierarchical   n=128 P(g>0)=0.846 E|g|=1.538 sd=1.295  23s
+oracle_joint  gauss_jacobian_FD    n=128 P(g>0)=0.824 E|g|=1.617 sd=1.416  44s

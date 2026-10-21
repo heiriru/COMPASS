@@ -1,0 +1,8 @@
+2026-09-30T20:34:22+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --tag smoke --mode full --method arruda_gauss_laplace --datasets 1 --draws 10 > logs/pp_smoke_full_arruda_gauss_laplace.log 2>&1
+2026-09-30T20:36:16+02:00 GPU 8: exit 0
+2026-09-30T20:36:16+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --tag smoke --mode full --method arruda_laplace_damped --datasets 1 --draws 10 > logs/pp_smoke_full_arruda_laplace_damped.log 2>&1
+2026-09-30T20:36:59+02:00 GPU 8: exit 0
+2026-09-30T20:36:59+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --tag smoke --mode full --method arruda_direct --datasets 1 --draws 10 > logs/pp_smoke_full_arruda_direct.log 2>&1
+2026-09-30T20:37:27+02:00 GPU 8: exit 0
+2026-09-30T20:37:27+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --tag smoke --mode full --method arruda_schur --datasets 1 --draws 10 > logs/pp_smoke_full_arruda_schur.log 2>&1
+2026-09-30T20:38:48+02:00 GPU 8: exit 0

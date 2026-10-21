@@ -1,0 +1,20 @@
+CPU affinity: 3/72 CPUs (4.167%)
+tokenized/h32d3wide 268,545 parameters (six_weighted, log_sigma)
+asymmetric     n=8   T=+0.5295  w=(0.250, 0.750)  modes=(-1.137, +1.207)  branch sd=0.274  posterior sd=1.051
+  asymmetric     n=8   rep=0 gauss_jacobian_FD              W1/sd=0.5232 mass=0.629 (exact 0.750) 120.0s
+asymmetric     n=16  T=+0.8108  w=(0.250, 0.750)  modes=(-0.730, +0.801)  branch sd=0.221  posterior sd=0.699
+  asymmetric     n=16  rep=0 gauss_jacobian_FD              W1/sd=1.5040 mass=0.336 (exact 0.750) 186.0s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  asymmetric     n=32  rep=0 gauss_jacobian_FD              W1/sd=2.9587 mass=0.144 (exact 0.750) 334.0s
+asymmetric     n=64  T=+2.4982  w=(0.250, 0.750)  modes=(-0.213, +0.284)  branch sd=0.126  posterior sd=0.249
+  asymmetric     n=64  rep=0 gauss_jacobian_FD              W1/sd=5.2206 mass=0.056 (exact 0.750) 623.0s
+symmetric      n=8   T=-0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  symmetric      n=8   rep=0 gauss_jacobian_FD              W1/sd=0.4278 mass=0.389 (exact 0.500) 113.9s
+symmetric      n=16  T=-0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  symmetric      n=16  rep=0 gauss_jacobian_FD              W1/sd=1.1395 mass=0.209 (exact 0.500) 179.3s
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  symmetric      n=32  rep=0 gauss_jacobian_FD              W1/sd=2.1815 mass=0.110 (exact 0.500) 226.5s
+symmetric      n=64  T=-0.0000  w=(0.500, 0.500)  modes=(-0.248, +0.248)  branch sd=0.126  posterior sd=0.279
+  symmetric      n=64  rep=0 gauss_jacobian_FD              W1/sd=4.1215 mass=0.050 (exact 0.500) 443.2s
+
+16 rows in 37.1 minutes -> /export/home/rheinric/COMPASS/experiments_arruda_schur/artifacts/gm/hierarchical/scaling/posteriors_noboth

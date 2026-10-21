@@ -460,6 +460,14 @@ class BatchedCleanComposer(CleanComposer):
         A = H_prior + (H - H_prior.unsqueeze(-3)).sum(-3)
         return 0.5 * (A + A.mT)
 
+    def blocks_batched(self, states):
+        """Arrowhead blocks for a batch of full states ``(..., dim)``."""
+        states = torch.as_tensor(states, dtype=torch.float64)
+        H_prior = self.source.prior_hessian(states[..., : self.d_g])
+        H = self.source.hessians_all(_rows_state(self, states))
+        self.hessian_evaluations += self.n
+        return arrow_blocks_batched(H, H_prior, self.d_g)
+
     def blocks(self, state):
         state = torch.as_tensor(state, dtype=torch.float64).reshape(-1)
         g = state[: self.d_g]
@@ -483,3 +491,65 @@ def make_composer(model, marginal=False, batched=True):
     if marginal:
         return MarginalGlobalComposer(model)
     return CleanComposer(OracleRowSource(model))
+
+
+# ----------------------------------------------------------------------------
+# Batched arrowhead Newton (hierarchical states)
+# ----------------------------------------------------------------------------
+
+def arrow_blocks_batched(H, H_prior, d_g):
+    """Arrowhead blocks for a batch of states from batched row curvatures.
+
+    ``H`` is ``(..., n, D, D)`` and ``H_prior`` is ``(..., d_g, d_g)`` *without*
+    a row axis; returns ``A (..., d_g, d_g)``, ``B (..., n, d_g, d_l)``,
+    ``C (..., n, d_l, d_l)``.  The row axis is added only for the subtraction --
+    adding it to the outer term as well silently leaves a spurious length-1 row
+    axis on ``A`` and every downstream solve inherits it.
+    """
+    A = H_prior + (H[..., :d_g, :d_g] - H_prior.unsqueeze(-3)).sum(-3)
+    A = 0.5 * (A + A.mT)
+    if H.shape[-1] == d_g:
+        return A, None, None
+    B = H[..., :d_g, d_g:]
+    C = H[..., d_g:, d_g:]
+    return A, B, 0.5 * (C + C.mT)
+
+
+def global_precision_batched(A, B, C):
+    """``P_g = -(A - sum_i B_i C_i^-1 B_i^T)`` for a batch, via solves."""
+    marginal = A
+    if B is not None:
+        solved = torch.linalg.solve(C, B.mT)                  # (..., n, d_l, d_g)
+        marginal = marginal - torch.einsum("...igl,...ilh->...gh", B, solved)
+    precision = -marginal
+    return 0.5 * (precision + precision.mT)
+
+
+def arrow_newton_batched(A, B, C, score, d_g, d_l, n):
+    """``-H^{-1} S`` for a batch of arrowhead systems; no dense Hessian.
+
+    Mirrors :meth:`CleanComposer.newton_step` with a leading batch axis. This is
+    what lets mode discovery refine a whole probe set of *hierarchical* states in
+    one pass; without it the hierarchical path falls back to a per-probe Python
+    loop, which is what made ModeTree 25x slower than the samplers it is meant
+    to replace on the Gaussian-mixture benchmark.
+    """
+    s_g = score[..., :d_g]
+    if B is None:
+        precision = -A
+        return torch.linalg.solve(precision, s_g.unsqueeze(-1)).squeeze(-1), \
+            0.5 * (precision + precision.mT)
+    s_l = score[..., d_g:].reshape(score.shape[:-1] + (n, d_l))
+    solved_gradient = torch.linalg.solve(C, s_l.unsqueeze(-1))     # (...,n,d_l,1)
+    solved_cross = torch.linalg.solve(C, B.mT)                     # (...,n,d_l,d_g)
+    marginal = A - torch.einsum("...igl,...ilh->...gh", B, solved_cross)
+    rhs = s_g - torch.einsum(
+        "...igl,...ilj->...gj", B, solved_gradient
+    ).squeeze(-1)
+    delta_g = torch.linalg.solve(-marginal, rhs.unsqueeze(-1)).squeeze(-1)
+    delta_l = -(solved_gradient.squeeze(-1)
+                + torch.einsum("...ilg,...g->...il", solved_cross, delta_g))
+    step = torch.cat([delta_g, delta_l.reshape(score.shape[:-1] + (n * d_l,))],
+                     dim=-1)
+    precision = -marginal
+    return step, 0.5 * (precision + precision.mT)

@@ -1,0 +1,54 @@
+name: extra4b
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-09-30_06-32-17/local/compass_model
+task:
+  name: slcp_all_cond
+  num_simulations: 10000
+eval:
+  metric:
+    c2st_likelihood:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: likelihood
+      num_samples: 2000
+      num_evaluations: 50
+    c2st_joint:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: joint
+      num_samples: 3000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null

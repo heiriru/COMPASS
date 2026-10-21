@@ -1,0 +1,206 @@
+\section{Background}\label{sec:background}
+
+\subsection{Simulation-based inference}\label{sec:bg-sbi}
+
+A simulator defines an implicit likelihood: given parameters $\theta\in\R^d$ we can sample $x\sim p(x\mid\theta)$, but we cannot evaluate $p(x\mid\theta)$.
+With a prior $p(\theta)$, the target is the posterior $p(\theta\mid x)\propto p(\theta)p(x\mid\theta)$ for an observed $x$.
+\emph{Amortised} neural posterior estimation simulates pairs $(\theta,x)\sim p(\theta)p(x\mid\theta)$, trains a conditional density estimator $q_\psi(\theta\mid x)$ on them once, and then evaluates it on any observation without further simulation.
+In this paper the estimator is a conditional diffusion model, which represents the posterior through its score.
+
+\subsection{Score-based diffusion models for posteriors}\label{sec:bg-diffusion}
+
+\paragraph{Forward process.}
+A diffusion model perturbs clean posterior draws $\theta_0\sim p(\theta\mid x)$ with a Gaussian forward kernel
+\begin{equation}\label{eq:forward}
+  q_t(\theta_t\mid\theta_0)=\N(\theta_t;\alpha_t\theta_0,\sigma_t^2\I),\qquad t\in[0,1],
+\end{equation}
+where $\alpha_t$ and $\sigma_t$ are fixed schedules.
+For the variance-exploding (VE) SDE, $\alpha_t=1$ and $\sigma_t$ grows from $\approx0$ to a large $\sigma_{\max}$.
+For the variance-preserving (VP) SDE, $\alpha_t^2+\sigma_t^2=1$.
+This yields a family of noised posteriors $p_t(\theta_t\mid x)=\int q_t(\theta_t\mid\theta_0)p(\theta_0\mid x)\dd\theta_0$ that interpolates between the posterior ($t=0$) and an uninformative Gaussian ($t=1$).
+
+\paragraph{Variance-exploding coordinates.}
+Every such process becomes variance exploding in the rescaled state $y=\theta_t/\alpha_t$ with noise level $\lam_t=\sigma_t/\alpha_t$:
+\begin{equation}\label{eq:ve-kernel}
+  p_t(y\mid x)=\int \N(y;\theta_0,\lam_t^2\I)\,p(\theta_0\mid x)\dd\theta_0 .
+\end{equation}
+The score in $y$ is $\alpha_t$ times the score in $\theta_t$.
+We work in these coordinates throughout, write $\lam$ for $\lam_t$ when $t$ is fixed, and write $s(y)=\nabla_y\log p_t(y\mid x)$ for the noised posterior score.
+
+\paragraph{Reverse process.}
+In $y$-coordinates the forward process is $\mathrm{d}y=\sqrt{\mathrm{d}\lam_t^2/\mathrm{d}t}\,\mathrm{d}W_t$.
+It is reversed in time by
+\begin{equation}\label{eq:reverse-sde}
+  \mathrm{d}y=-\frac{\mathrm{d}\lam_t^2}{\mathrm{d}t}\,s(y)\,\mathrm{d}t+\sqrt{\frac{\mathrm{d}\lam_t^2}{\mathrm{d}t}}\,\mathrm{d}\bar W_t ,
+\end{equation}
+integrated from $t=1$ to $t=0$, or equivalently in distribution by the probability-flow ODE
+\begin{equation}\label{eq:pf-ode}
+  \frac{\mathrm{d}y}{\mathrm{d}t}=-\frac12\,\frac{\mathrm{d}\lam_t^2}{\mathrm{d}t}\,s(y).
+\end{equation}
+Both require only the score $s$ at every noise level.
+Numerical solvers (Euler--Maruyama, DPM-Solver, Heun) discretise \cref{eq:reverse-sde,eq:pf-ode}.
+They can be combined with Langevin \emph{corrector} steps $y\leftarrow y+\epsilon\,s(y)+\sqrt{2\epsilon}\,z$, $z\sim\N(0,\I)$, which leave $p_t(\cdot\mid x)$ invariant when $s$ is its exact score.
+
+\paragraph{Training by denoising score matching.}
+The score is learned with a network $s_\psi(y,t,x)$ that minimises
+\begin{equation}\label{eq:dsm}
+  \E_{t,\,(\theta_0,x),\,\varepsilon}\Big[w(t)\,\Big\|s_\psi(\theta_0+\lam_t\varepsilon,t,x)+\frac{\varepsilon}{\lam_t}\Big\|^2\Big],
+\end{equation}
+with $\varepsilon\sim\N(0,\I)$, $(\theta_0,x)$ drawn from the simulator and a positive weighting $w(t)$.
+The minimiser is the noised posterior score: $s_\psi(y,t,x)=\nabla_y\log p_t(y\mid x)$.
+
+\paragraph{Backward kernel and Tweedie's identities.}
+For fixed $y$, the \emph{backward kernel} is the conditional law of the clean parameter given the noisy one:
+\begin{equation}\label{eq:backward-kernel}
+  \pi_t(\theta_0\mid y,x)=\frac{\N(y;\theta_0,\lam^2\I)\,p(\theta_0\mid x)}{p_t(y\mid x)} .
+\end{equation}
+Tweedie's formula ties its mean to the score.
+The second-order identity ties its covariance to the score Jacobian:
+\begin{align}
+  s(y)&=\frac{\E_{\pi_t}[\theta_0\mid y,x]-y}{\lam^2},\label{eq:tweedie1}\\
+  \nabla_ys(y)&=\frac{\Cov_{\pi_t}[\theta_0\mid y,x]-\lam^2\I}{\lam^4}.\label{eq:tweedie2-bg}
+\end{align}
+Both identities hold for any posterior, not only Gaussian ones (\cref{sec:composed-tweedie,sec:quiver} re-derive them).
+They are the tools for everything that follows: \cref{eq:tweedie1} converts between scores and denoised means, and \cref{eq:tweedie2-bg} between score Jacobians and denoising uncertainty.
+
+\subsection{Tall data and compositional score modelling}\label{sec:bg-tall}
+
+Suppose $n$ observations $\X$ are conditionally independent given one shared $\theta$.
+Bayes' rule gives the \emph{tall-data} factorisation
+\begin{equation}\label{eq:tall}
+  p(\theta\mid\X)\;\propto\;p(\theta)^{1-n}\prod_{j=1}^{n}p(\theta\mid x_j).
+\end{equation}
+Training a posterior estimator directly on sets of $n$ observations requires simulating at that $n$, and it has to be repeated for every $n$.
+Compositional score modelling instead trains a single-observation network $s_\psi(y,t,x_j)\approx s_j(y):=\nabla_y\log p_t(y\mid x_j)$ once.
+It then builds the score of the tall posterior from the $n$ single-observation scores at inference time.
+
+\paragraph{The obstacle.}
+\Cref{eq:tall} is a statement about clean densities.
+Diffusion convolves the posterior with the forward kernel, and convolution does not commute with products:
+\begin{equation}\label{eq:tall-fails}
+  p_t(y\mid\X)\;\not\propto\;p_t(y)^{1-n}\prod_{j=1}^np_t(y\mid x_j)\qquad\text{for }t>0 .
+\end{equation}
+The right-hand side of \cref{eq:tall-fails} is exact only at $t=0$.
+Every compositional method is a way of handling this mismatch.
+
+\subsection{Competing composition rules for a shared parameter}\label{sec:bg-competitors}
+
+\paragraph{Uncorrected sum.}
+The simplest rule takes the score of the right-hand side of \cref{eq:tall-fails},
+\begin{equation}\label{eq:uncorrected}
+  s_\mathrm{sum}(y)=(1-n)\,s_0(y)+\sum_{j=1}^n s_j(y),
+\end{equation}
+where $s_0(y)=\nabla_y\log p_t(y)$ is the diffused prior score.
+It is the correct tall-data score at $t=0$ and wrong at every intermediate noise level.
+The reverse process then follows the wrong path of distributions, and the error grows with $n$.
+
+\paragraph{\fnpse: annealed Langevin.}
+\citet{geffner2023compositional} use the bridge
+\begin{equation}\label{eq:fnpse}
+  s_\mathrm{F}(y,t)=(1-n)(1-t)\,\nabla_y\log p(y)+\sum_{j=1}^n s_j(y),
+\end{equation}
+with the \emph{un}diffused prior score, annealed by $(1-t)$.
+\Cref{eq:fnpse} is not the score of the noised tall posterior.
+They therefore do not integrate \cref{eq:reverse-sde}.
+Instead they run unadjusted Langevin dynamics $y\leftarrow y+\epsilon_t s_\mathrm{F}(y,t)+\sqrt{2\epsilon_t}z$ for several steps at each noise level of a decreasing schedule, so that MCMC corrects the mismatch.
+The cost is many score evaluations per noise level, and the step sizes are sensitive tuning parameters.
+For a VE diffusion and large $n$, the bridge densities defined by \cref{eq:fnpse} can become improper at intermediate $t$ (negative total precision), which makes the Langevin chains diverge.
+Our implementation therefore uses the diffused prior score in \cref{eq:fnpse}.
+
+\paragraph{\gauss{} and \jac: precision-weighted composition.}
+\citet{linhart2024diffusion} start from an identity that holds exactly.
+Writing $\pi^0_t(\theta_0\mid y)$ for the backward kernel of the prior and $\pi_t(\theta_0\mid y,x_j)$ for those of the single-observation posteriors, and splitting the forward kernel so that each factor of \cref{eq:tall} receives one copy, gives
+\begin{equation}\label{eq:linhart-identity}
+\begin{aligned}
+  p_t(y\mid\X)\propto\;&p_t(y)^{1-n}\prod_{j}p_t(y\mid x_j)\\
+  &\times\underbrace{\int\pi^0_t(\theta_0\mid y)^{1-n}\prod_j\pi_t(\theta_0\mid y,x_j)\dd\theta_0}_{=:Z_t(y)} .
+\end{aligned}
+\end{equation}
+The tall-data score is therefore the uncorrected sum \cref{eq:uncorrected} plus a correction $\nabla_y\log Z_t(y)$.
+To evaluate the correction they approximate every backward kernel by a Gaussian, with means given by \cref{eq:tweedie1} and covariances $\Sigma_{t,j}$ (observations) and $\Sigma_{t,0}$ (prior).
+Differentiating the resulting closed form gives a leading term
+\begin{equation}\label{eq:gauss-flat}
+  \nabla_y\log p_t(y\mid\X)\approx\Lambda^{-1}\Big[\textstyle\sum_{j}\Sigma_{t,j}^{-1}s_j+(1-n)\,\Sigma_{t,0}^{-1}s_0\Big],
+\end{equation}
+with $\Lambda=\sum_j\Sigma_{t,j}^{-1}+(1-n)\,\Sigma_{t,0}^{-1}$, plus a residual that vanishes when the covariances do not depend on $y$.
+\Cref{eq:gauss-flat} is a precision-weighted average.
+An observation whose backward kernel is narrow, i.e.\ one that is informative at this noise level, receives a large weight.
+Because the rule is a valid approximation of the noised tall score at every $t$, it can be used inside the ordinary reverse process without Langevin steps.
+Two estimators of $\Sigma_{t,j}$ are proposed:
+\begin{itemize}
+  \item \textbf{\gauss} assumes that every single-observation posterior is Gaussian, $p(\theta\mid x_j)=\N(\mu_j,\Sigma_{0,j})$. For a Gaussian, the backward kernel has the closed-form precision $\Sigma_{t,j}^{-1}=\Sigma_{0,j}^{-1}+\lam^{-2}\I$ (product of two Gaussians in $\theta_0$). $\Sigma_{0,j}$ is the empirical covariance of a \emph{pilot} run: one full reverse diffusion per observation, with the same network, before inference starts. The prior uses $\Sigma_{t,0}^{-1}=\Sigma_\mathrm{pr}^{-1}+\lam^{-2}\I$ for a Gaussian prior $\N(\mu_\mathrm{pr},\Sigma_\mathrm{pr})$.
+  \item \textbf{\jac} uses \cref{eq:tweedie2-bg} instead, $\Sigma_{t,j}^{-1}=\lam^{-2}\big(\I+\lam^2\nabla_y s_\psi(y,t,x_j)\big)^{-1}$. This needs no Gaussian assumption and no pilot, but it does need a Jacobian of the network at every step. Its stability is identified as an open problem, since a network Jacobian need not yield a positive-definite covariance.
+\end{itemize}
+Both rules are derived for one parameter block that every observation shares.
+In practice, $\Lambda$ can become indefinite for large $n$, when an estimated observation precision is smaller than the prior precision in some direction.
+
+\paragraph{Damped sum.}
+\citet{arruda2025compositional} keep the plain sum but rescale it with a time-dependent damping factor $d(t)$, optionally using a random mini-batch $B$ of $m\le n$ observations per step.
+In the form we implement (their Eq.~9),
+\begin{equation}\label{eq:damped}
+  s_\mathrm{damp}(y,t)=d(t)\Big[(1-n)(1-t)\,s_0(y)+\frac{n}{m}\sum_{j\in B}s_j(y)\Big],
+\end{equation}
+with $d$ decreasing from $d(0)\approx1$ at the data end to a small value at the noise end; our default interpolates exponentially down to $d(1)=n^{-1/2}$.
+Damping suppresses the $n$-fold growth of the score at high noise, where the sum is most wrong, so the reverse process stays stable.
+It does not correct the bridge: \cref{eq:damped} is not an approximation of the noised tall score, and its accuracy depends on the schedule.
+
+\paragraph{Structured tall data.}
+\citet{gloeckler2025compositional} apply \gauss/\jac-type corrections to Markovian time series, where the factors are overlapping windows of one trajectory.
+The composed parameter is still shared by all factors.
+
+\subsection{Hierarchical models}\label{sec:bg-hier}
+
+In a hierarchical model, a \emph{global} parameter $\g\in\R^{d_\g}$ is shared by $n$ groups (subjects, trials, stars, \dots).
+Every group $j$ also has a \emph{local} parameter $\lj\in\R^{d_\ell}$ and an observation $x_j$:
+\begin{equation}\label{eq:hier-model}
+  p(\g,\ell_{1:n},\X)=p(\g)\prod_{j=1}^{n}p(\lj\mid\g)\,p(x_j\mid\g,\lj).
+\end{equation}
+The local prior may depend on $\g$; partial pooling is the typical case, where $\g$ contains a population mean and scale of the locals.
+We write $\thj=(\g,\lj)\in\R^{D}$, $D=d_\g+d_\ell$, for the block that observation $j$ sees, and $\theta=(\g,\ell_1,\dots,\ell_n)$ for the full latent vector, of dimension $d_\g+nd_\ell$.
+The posterior dimension therefore grows with $n$, while every simulation only ever involves one group.
+A compositional model is trained on single groups ($n=1$).
+For every $j$ it returns the \emph{joint} score of the single-group posterior $p(\thj\mid x_j)$:
+\begin{equation}\label{eq:row-score}
+  s_j(\yj)=\big(\sgj,\slj\big)\approx\nabla_{\yj}\log p_t(\yj\mid x_j),\qquad \yj=(\g_t,\ell_{j,t}).
+\end{equation}
+
+\paragraph{Why flat composition does not apply.}
+All rules of \cref{sec:bg-competitors} compose the scores of a block that every observation shares.
+Here only $\g$ is shared.
+Composing $\g$ alone with \cref{eq:gauss-flat} would require the \emph{marginal} score $\nabla_{\g_t}\log p_t(\g_t\mid x_j)$.
+The network instead provides $\sgj=\partial_{\g_t}\log p_t(\g_t,\ell_{j,t}\mid x_j)$, which is \emph{conditional} on the current local state.
+The two are related by
+\begin{equation}\label{eq:marginal-vs-conditional}
+  \nabla_{\g_t}\log p_t(\g_t\mid x_j)=\E\big[\sgj\mid\g_t,x_j\big],
+\end{equation}
+an expectation over $\ell_{j,t}$ that is not available at sampling time.
+
+\subsection{Competing approaches for hierarchical models}\label{sec:bg-hier-competitors}
+
+\paragraph{Joint amortised estimation.}
+One can train an estimator on whole hierarchical data sets, e.g.\ with an exchangeable set encoder over groups.
+This approach is taken by HNPE \citep{rodrigues2021hnpe}, by amortised multilevel models \citep{habermann2024amortized}, and by all-in-one transformers that condition on every group \citep{gloeckler2024allinone}.
+These methods simulate entire data sets during training, so their training cost grows with $n$.
+Generalising to $n$ outside the training range is not guaranteed.
+
+\paragraph{Plain \gauss{} on the global block.}
+A direct heuristic plugs the network's conditional score $\sgj$ into \cref{eq:gauss-flat} with the marginal pilot precision $([\Sigma_{0,j}]_{\g\g})^{-1}+\lam^{-2}\I$, and leaves the local scores $\slj$ as they are.
+This uses a weight that belongs to the marginal score on the conditional score, and it ignores how the locals should respond when composition moves $\g$.
+It is biased even with exact scores (\cref{sec:exp}).
+
+\paragraph{Two-stage compositional sampling.}
+\citet{arruda2025compositional} split the problem.
+A global network models $p(\g\mid x_j)$, the marginal over the locals, and its scores are composed with the damped sum \cref{eq:damped}.
+A second network models $p(\lj\mid\g,x_j)$ and samples every local conditionally on the sampled global.
+This sidesteps \cref{eq:marginal-vs-conditional} by learning the marginal directly.
+It still inherits the uncorrected bridge of \cref{eq:damped}, and it needs two networks.
+
+\paragraph{Blockwise Gibbs inside the diffusion.}
+\citet{zaballa2026hierarchical} alternate block updates inside the reverse SDE.
+Each local is updated given the current global, and the global given all locals with an \fnpse-type sum, over several re-noised rounds and with an $n$-dependent diffusion coefficient.
+This scheme has no precision weighting and does not marginalise the locals.
+
+\paragraph{Summary of the gap.}
+Precision-weighted rules are the only corrections that approximate the noised tall score at every $t$, but they exist only for a shared block.
+Hierarchical compositional methods use uncorrected or damped sums.
+\Cref{sec:methods} derives the precision-weighted rule for the hierarchical case, using only the conditional scores that a single joint network provides.

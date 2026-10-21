@@ -1,0 +1,330 @@
+[driver] 24 jobs in phase fig4b
+[driver] skip (done) tree_all_cond n=1000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-00-38/local/compass_model
+[driver] 13:58:58 waiting for a free GPU (autocvd)
+[driver] 13:59:01 START fig4b tree_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__tree_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 14:04:59 END   fig4b tree_all_cond n=1000 compass_legacy_full_fixeps rc=0 (6.0 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | **+0.048 ± 0.010** | **+0.070 ± 0.012** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | **-0.015 ± 0.003** | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | — | **+0.153 ± 0.008** | — |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | +0.003 ± 0.003 | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | — | **+0.046 ± 0.007** | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | **+0.069 ± 0.007** | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | **+0.045 ± 0.010** | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — |
+
+[driver] skip (done) marcov_chain_all_cond n=1000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-23-46/local/compass_model
+[driver] 14:05:02 waiting for a free GPU (autocvd)
+[driver] 14:05:06 START fig4b marcov_chain_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__marcov_chain_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 14:14:16 END   fig4b marcov_chain_all_cond n=1000 compass_legacy_full_fixeps rc=0 (9.2 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) |
+|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | **+0.048 ± 0.010** | **+0.070 ± 0.012** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | **-0.015 ± 0.003** | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | **+0.153 ± 0.008** | **+0.164 ± 0.009** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | +0.003 ± 0.003 | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | — | **+0.046 ± 0.007** | — |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | **+0.069 ± 0.007** | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | — | **+0.045 ± 0.010** | — |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — |
+
+[driver] skip (done) two_moons_all_cond n=1000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_07-45-08/local/compass_model
+[driver] 14:14:19 waiting for a free GPU (autocvd)
+[driver] 14:14:22 START fig4b two_moons_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__two_moons_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 24 jobs in phase fig4b
+[driver] skip (done) tree_all_cond n=1000 score_transformer
+[driver] skip (done) tree_all_cond n=1000 compass_legacy_full_fixeps
+[driver] skip (done) marcov_chain_all_cond n=1000 score_transformer
+[driver] skip (done) marcov_chain_all_cond n=1000 compass_legacy_full_fixeps
+[driver] skip (done) two_moons_all_cond n=1000 score_transformer
+[driver] skip (done) two_moons_all_cond n=1000 compass_legacy_full_fixeps
+[driver] skip (done) slcp_all_cond n=1000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_08-07-06/local/compass_model
+[driver] 06:00:25 waiting for a free GPU (autocvd)
+[driver] 06:00:28 START fig4b slcp_all_cond n=1000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__slcp_all_cond__1000__compass_legacy_full_fixeps.log)
+[driver] 06:09:48 END   fig4b slcp_all_cond n=1000 compass_legacy_full_fixeps rc=0 (9.3 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | — | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | — | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | — | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | — | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | — | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] skip (done) tree_all_cond n=10000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_08-39-40/local/compass_model
+[driver] 06:09:51 waiting for a free GPU (autocvd)
+[driver] 06:09:55 START fig4b tree_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__tree_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 06:16:08 END   fig4b tree_all_cond n=10000 compass_legacy_full_fixeps rc=0 (6.2 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | — | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | — | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | — | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | — | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] skip (done) marcov_chain_all_cond n=10000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_09-26-42/local/compass_model
+[driver] 06:16:11 waiting for a free GPU (autocvd)
+[driver] 06:16:14 START fig4b marcov_chain_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__marcov_chain_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 06:25:58 END   fig4b marcov_chain_all_cond n=10000 compass_legacy_full_fixeps rc=0 (9.7 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | — | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | — | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | — | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] skip (done) two_moons_all_cond n=10000 score_transformer
+[driver] resampling checkpoint results/fig4b/2026-09-29_10-18-46/local/compass_model
+[driver] 06:26:01 waiting for a free GPU (autocvd)
+[driver] 06:26:04 START fig4b two_moons_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__two_moons_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 06:31:52 END   fig4b two_moons_all_cond n=10000 compass_legacy_full_fixeps rc=0 (5.8 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | — | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | — | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] skip (done) slcp_all_cond n=10000 score_transformer
+[driver] 06:31:55 waiting for a free GPU (autocvd)
+[driver] 06:31:59 START fig4b slcp_all_cond n=10000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__slcp_all_cond__10000__compass_legacy_full_fixeps.log)
+[driver] 06:58:18 END   fig4b slcp_all_cond n=10000 compass_legacy_full_fixeps rc=0 (26.3 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 06:58:21 waiting for a free GPU (autocvd)
+[driver] 06:58:24 START fig4b tree_all_cond n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4b__tree_all_cond__100000__score_transformer.log)
+[driver] 07:51:00 END   fig4b tree_all_cond n=100000 score_transformer rc=0 (52.6 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | — | — | — | — | — | — | — | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 07:51:03 waiting for a free GPU (autocvd)
+[driver] 07:51:06 START fig4b tree_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__tree_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 08:38:56 END   fig4b tree_all_cond n=100000 compass_legacy_full_fixeps rc=0 (47.8 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 08:38:59 waiting for a free GPU (autocvd)
+[driver] 08:39:02 START fig4b marcov_chain_all_cond n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4b__marcov_chain_all_cond__100000__score_transformer.log)
+[driver] 09:48:12 END   fig4b marcov_chain_all_cond n=100000 score_transformer rc=0 (69.2 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | — | — | — | — | — | — | — | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 09:48:15 waiting for a free GPU (autocvd)
+[driver] 09:48:19 START fig4b marcov_chain_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__marcov_chain_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 11:10:22 END   fig4b marcov_chain_all_cond n=100000 compass_legacy_full_fixeps rc=0 (82.1 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | 0.530 ± 0.007 | — | — | — | — | — | **+0.011 ± 0.002** | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 11:10:25 waiting for a free GPU (autocvd)
+[driver] 11:10:28 START fig4b two_moons_all_cond n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4b__two_moons_all_cond__100000__score_transformer.log)
+[driver] 12:01:05 END   fig4b two_moons_all_cond n=100000 score_transformer rc=0 (50.6 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | 0.530 ± 0.007 | — | — | — | — | — | **+0.011 ± 0.002** | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| Two Moons (all cond.) | 100,000 | 0.513 ± 0.006 | — | — | — | — | — | — | — | — | — | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 12:01:08 waiting for a free GPU (autocvd)
+[driver] 12:01:11 START fig4b two_moons_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__two_moons_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 12:46:30 END   fig4b two_moons_all_cond n=100000 compass_legacy_full_fixeps rc=0 (45.3 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | 0.530 ± 0.007 | — | — | — | — | — | **+0.011 ± 0.002** | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| Two Moons (all cond.) | 100,000 | 0.513 ± 0.006 | — | 0.522 ± 0.006 | — | — | — | — | — | **+0.010 ± 0.002** | — | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+
+[driver] 12:46:33 waiting for a free GPU (autocvd)
+[driver] 12:46:36 START fig4b slcp_all_cond n=100000 score_transformer on physical GPU 9  (log: results/logs/fig4b__slcp_all_cond__100000__score_transformer.log)
+[driver] 13:48:12 END   fig4b slcp_all_cond n=100000 score_transformer rc=0 (61.6 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | 0.530 ± 0.007 | — | — | — | — | — | **+0.011 ± 0.002** | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| Two Moons (all cond.) | 100,000 | 0.513 ± 0.006 | — | 0.522 ± 0.006 | — | — | — | — | — | **+0.010 ± 0.002** | — | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+| SLCP (all cond.) | 100,000 | 0.687 ± 0.019 | — | — | — | — | — | — | — | — | — | — | — | — |
+
+[driver] 13:48:15 waiting for a free GPU (autocvd)
+[driver] 13:48:18 START fig4b slcp_all_cond n=100000 compass_legacy_full_fixeps on physical GPU 9  (log: results/logs/fig4b__slcp_all_cond__100000__compass_legacy_full_fixeps.log)
+[driver] 14:55:49 END   fig4b slcp_all_cond n=100000 compass_legacy_full_fixeps rc=0 (67.5 min)
+[report] fig4b: results/tables/fig4b.md results/figures/fig4b.png
+# fig4b: C2ST (0.5 = indistinguishable from the reference; lower is better)
+
+Mean ± s.e.m. over the evaluated observations/conditionals. Δ = method − Simformer, paired over the same observations; **bold** where |Δ| > 2 s.e.m.
+
+| task | sims | Simformer (official) | COMPASS (legacy, full budget) | COMPASS (eps bug fixed) | COMPASS shared-time (1.0M) | COMPASS shared-time, t64 (0.44M) | compass_upstream_v11 | compass_upstream_v11_fixeps | Δ COMPASS (legacy, full budget) | Δ COMPASS (eps bug fixed) | Δ COMPASS shared-time (1.0M) | Δ COMPASS shared-time, t64 (0.44M) | Δ compass_upstream_v11 | Δ compass_upstream_v11_fixeps |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tree (all cond.) | 1,000 | 0.633 ± 0.008 | 0.681 ± 0.014 | 0.703 ± 0.016 | 0.640 ± 0.008 | 0.641 ± 0.006 | 0.714 ± 0.009 | 0.718 ± 0.010 | **+0.048 ± 0.010** | **+0.070 ± 0.012** | +0.007 ± 0.007 | +0.008 ± 0.007 | **+0.081 ± 0.010** | **+0.085 ± 0.010** |
+| Tree (all cond.) | 10,000 | 0.553 ± 0.006 | 0.539 ± 0.006 | 0.544 ± 0.006 | — | — | 0.638 ± 0.010 | 0.639 ± 0.010 | **-0.015 ± 0.003** | **-0.009 ± 0.003** | — | — | **+0.084 ± 0.010** | **+0.085 ± 0.011** |
+| Tree (all cond.) | 100,000 | 0.522 ± 0.006 | — | 0.527 ± 0.006 | — | — | — | — | — | **+0.005 ± 0.002** | — | — | — | — |
+| HMM (all cond.) | 1,000 | 0.643 ± 0.013 | 0.796 ± 0.012 | 0.807 ± 0.013 | 0.722 ± 0.014 | 0.701 ± 0.014 | 0.844 ± 0.012 | 0.850 ± 0.011 | **+0.153 ± 0.008** | **+0.164 ± 0.009** | **+0.079 ± 0.007** | **+0.058 ± 0.007** | **+0.201 ± 0.010** | **+0.207 ± 0.010** |
+| HMM (all cond.) | 10,000 | 0.561 ± 0.009 | 0.564 ± 0.007 | 0.573 ± 0.008 | — | — | 0.746 ± 0.014 | 0.753 ± 0.014 | +0.003 ± 0.003 | **+0.012 ± 0.003** | — | — | **+0.185 ± 0.014** | **+0.191 ± 0.014** |
+| HMM (all cond.) | 100,000 | 0.520 ± 0.008 | — | 0.530 ± 0.007 | — | — | — | — | — | **+0.011 ± 0.002** | — | — | — | — |
+| Two Moons (all cond.) | 1,000 | 0.597 ± 0.010 | 0.643 ± 0.011 | 0.621 ± 0.009 | 0.699 ± 0.015 | 0.702 ± 0.015 | 0.780 ± 0.013 | 0.777 ± 0.014 | **+0.046 ± 0.007** | **+0.024 ± 0.007** | **+0.101 ± 0.010** | **+0.105 ± 0.010** | **+0.183 ± 0.010** | **+0.179 ± 0.010** |
+| Two Moons (all cond.) | 10,000 | 0.524 ± 0.006 | 0.592 ± 0.009 | 0.537 ± 0.007 | — | — | 0.761 ± 0.012 | 0.748 ± 0.013 | **+0.069 ± 0.007** | **+0.013 ± 0.002** | — | — | **+0.238 ± 0.012** | **+0.225 ± 0.013** |
+| Two Moons (all cond.) | 100,000 | 0.513 ± 0.006 | — | 0.522 ± 0.006 | — | — | — | — | — | **+0.010 ± 0.002** | — | — | — | — |
+| SLCP (all cond.) | 1,000 | 0.804 ± 0.021 | 0.849 ± 0.016 | 0.855 ± 0.016 | 0.874 ± 0.017 | 0.884 ± 0.016 | 0.876 ± 0.009 | 0.875 ± 0.010 | **+0.045 ± 0.010** | **+0.050 ± 0.010** | **+0.069 ± 0.008** | **+0.079 ± 0.009** | **+0.072 ± 0.019** | **+0.071 ± 0.019** |
+| SLCP (all cond.) | 10,000 | 0.729 ± 0.020 | — | 0.652 ± 0.016 | — | — | 0.805 ± 0.013 | 0.802 ± 0.012 | — | **-0.077 ± 0.016** | — | — | **+0.076 ± 0.020** | **+0.073 ± 0.020** |
+| SLCP (all cond.) | 100,000 | 0.687 ± 0.019 | — | 0.588 ± 0.013 | — | — | — | — | — | **-0.099 ± 0.018** | — | — | — | — |
+

@@ -1,0 +1,14 @@
+Device: cpu; exact P(g>0) 0.500, mode s.d. 0.204
+  analytic  churn 8, 100 steps (baseline)   W1/s 0.0469  gap 33  P+ 0.482  width 0.256  calls 594  18s
+  analytic  churn 8, 200 steps              W1/s 0.0328  gap 37  P+ 0.495  width 0.255  calls 1194  31s
+  analytic  churn 8, 400 steps              W1/s 0.0314  gap 36  P+ 0.501  width 0.257  calls 2394  73s
+  analytic  churn 2, 200 steps              W1/s 0.0917  gap 102  P+ 0.487  width 0.317  calls 1194  29s
+  analytic  2 correctors, snr 0.2           W1/s 0.0339  gap 33  P+ 0.498  width 0.254  calls 1236  30s
+  analytic  10 correctors, snr 0.2 (baseline)W1/s 0.0114  gap 2  P+ 0.498  width 0.214  calls 3804  93s
+  analytic  10 correctors, snr 0.05         W1/s 0.0305  gap 16  P+ 0.508  width 0.233  calls 3804  94s
+  analytic  3 correctors, snr 0.7           W1/s 0.0248  gap 26  P+ 0.497  width 0.248  calls 1557  37s
+  analytic  4 correctors, snr 0.5           W1/s 0.0274  gap 9  P+ 0.513  width 0.218  calls 1878  46s
+  analytic  5 correctors, snr 0.4           W1/s 0.0116  gap 16  P+ 0.499  width 0.224  calls 2199  55s
+  analytic  10 correctors, snr 0.4          W1/s 0.0094  gap 5  P+ 0.500  width 0.215  calls 3804  93s
+
+Wrote /export/home/rheinric/COMPASS/tutorials/Compositional_Inference_Fix/bimodal_distribution/artifacts/efficiency_sweep_analytic.csv

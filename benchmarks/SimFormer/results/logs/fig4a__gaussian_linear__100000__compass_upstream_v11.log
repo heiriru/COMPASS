@@ -1,0 +1,72 @@
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - name: fig4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_upstream_v11
+  backend: jax
+  device: gpu
+  compass:
+    compass_src: compass_upstream_v11/src
+    hidden_size: 128
+    depth: 6
+    num_heads: 16
+    mlp_ratio: 4
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    time_sampling: mixture
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    timesteps: 50
+    eps: 0.001
+task:
+  name: gaussian_linear
+  num_simulations: 100000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-30_16-57-33/local
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-30 16:57:33,614][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-09-30 16:57:33,615][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-30 16:57:33,656][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-30 16:57:33,657][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_linear
+[2026-09-30 16:57:33,741][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_upstream_v11
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 9 compass /export/home/rheinric/COMPASS/benchmarks/SimFormer/compass_upstream_v11/src/compass/__init__.py upstream
+[compass-worker] train_eps None
+[compass-worker] train arch=legacy params=26505728 rows=90000 val=10000 steps/epoch=90 max_epochs=1112 patience=11111112
+[compass-worker] trained {'n_params': 26505728, 'train_seconds': 16902.634553432465, 'epochs': 1112, 'steps': 100080, 'best_val': 64.74836250000001, 'max_epochs': 1112, 'patience': 11111112}
+[compass] train info: {'n_params': 26505728, 'train_seconds': 16902.634553432465, 'epochs': 1112, 'steps': 100080, 'best_val': 64.74836250000001, 'max_epochs': 1112, 'patience': 11111112}
+[2026-09-30 21:39:24,484][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_upstream_v11
+[2026-09-30 21:39:24,485][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+Metric value:  0.7356500029563904
+Metric value:  0.6888999938964844
+Metric value:  0.7072499990463257
+Metric value:  0.7541499733924866
+Metric value:  0.634850025177002
+Metric value:  0.6492000222206116
+Metric value:  0.6737499833106995
+Metric value:  0.7513499855995178
+Metric value:  0.6800000071525574
+Metric value:  0.7105500102043152
+[2026-09-30 21:58:25,032][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-30 21:58:25,059][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 62

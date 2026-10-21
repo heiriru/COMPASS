@@ -1,0 +1,746 @@
+{
+  "8": {
+    "TRUE-SCORE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.011749310213079041,
+      "w2_over_sd": 0.05264239956612912,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.012124713560327826,
+        4.8798370361123005e-05
+      ],
+      "weight_tv": 0.004000488810251848,
+      "positive_branch_mass": 0.746,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.016,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.17846795922607214,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.008106953166870753,
+      "width_ratio": 1.0031707014254974,
+      "seconds": 1.9059722311794758,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 0,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.010007953050853668,
+      "w2_over_sd": 0.040423022650608896,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.029557482192619226,
+        0.0005374850951183023
+      ],
+      "weight_tv": 0.00249951118974813,
+      "positive_branch_mass": 0.7525,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.0145,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.17901210575762366,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.0075851792595548724,
+      "width_ratio": 0.9934315102307818,
+      "seconds": 31.058064213953912,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 15968000,
+      "row_jacobian_evaluations": 15968000,
+      "field_diagnostics": {
+        "information_projections": 1412424,
+        "eigenvalue_clips": 817421
+      }
+    },
+    "ORACLE-GAUSS": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.28191098722496305,
+      "w2_over_sd": 0.5539369885693827,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.22558263715708776,
+        0.21606308480938902
+      ],
+      "weight_tv": 0.10849951118974818,
+      "positive_branch_mass": 0.8585,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.0075,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.21272333770307636,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.2819234276716423,
+      "width_ratio": 0.856525285071206,
+      "seconds": 2.7595002544112504,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 15968000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-TOPO-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.07110647689146116,
+      "w2_over_sd": 0.2178967971765894,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.01170745392522995,
+        0.03441506243500677
+      ],
+      "weight_tv": 0.028999511189748167,
+      "positive_branch_mass": 0.779,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.0145,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.1892061549048352,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.07097012192270874,
+      "width_ratio": 0.9654815034419053,
+      "seconds": 31.23703772202134,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 15968000,
+      "row_jacobian_evaluations": 15968000,
+      "field_diagnostics": {
+        "information_projections": 888956,
+        "eigenvalue_clips": 1163819
+      },
+      "schedule": "piecewise5"
+    },
+    "FNPE-FIXED": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.2540642120107409,
+      "w2_over_sd": 0.5466607762905631,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.07290107919991998,
+        0.025068239154554275
+      ],
+      "weight_tv": 0.11249951118974817,
+      "positive_branch_mass": 0.8625,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.0075,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.28891967697690324,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.2538588814263,
+      "width_ratio": 0.8193012496822052,
+      "seconds": 142.3724459935911,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 800000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 35.69651939558332,
+      "max_abs_score": 72.66050121052139
+    },
+    "FNPE-ADAPTIVE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.23549542918664035,
+      "w2_over_sd": 0.5186271798802237,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.014306996937448798,
+        0.007008445770887073
+      ],
+      "weight_tv": 0.10499951118974815,
+      "positive_branch_mass": 0.855,
+      "exact_positive_branch_mass": 0.7500004888102518,
+      "branch_weights": [
+        0.24999999999999975,
+        0.7500000000000002
+      ],
+      "valley_mass": 0.014,
+      "exact_valley_mass": 0.014207988906510649,
+      "dip_ratio": 0.30946265798353806,
+      "exact_dip_ratio": 0.00036192786434967604,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -1.1370325415152938,
+        1.2073437279900523
+      ],
+      "split_point": -0.002038404793180864,
+      "mode_separation_in_within_sd": 8.559268001283588,
+      "mean_error_sd": 0.23513582303524688,
+      "width_ratio": 0.8302066627590944,
+      "seconds": 141.75212999200448,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 800000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 35.69651939558332,
+      "max_abs_score": 83.53260331480215,
+      "schedule": "variance,snr_v=0.05"
+    }
+  },
+  "32": {
+    "TRUE-SCORE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.018924223960209145,
+      "w2_over_sd": 0.023847865906780577,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.021071239543040233,
+        0.031050712278778925
+      ],
+      "weight_tv": 0.0014478873725637526,
+      "positive_branch_mass": 0.752,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.087,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.5228075664306893,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.015623899364099433,
+      "width_ratio": 1.0035346491139776,
+      "seconds": 15.26985740289092,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 0,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.055532955609805326,
+      "w2_over_sd": 0.07700019540609888,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.11566254193898308,
+        0.1162942668382878
+      ],
+      "weight_tv": 0.012052112627436232,
+      "positive_branch_mass": 0.7385,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.0715,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.44323952104189,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.0021861281653077014,
+      "width_ratio": 1.0569824478570815,
+      "seconds": 118.74069417594,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 63872000,
+      "row_jacobian_evaluations": 63872000,
+      "field_diagnostics": {
+        "information_projections": 7324592,
+        "eigenvalue_clips": 8824186
+      }
+    },
+    "ORACLE-GAUSS": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.8163073867975835,
+      "w2_over_sd": 0.8672921187255631,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        1.7854173098275832,
+        1.787333930076943
+      ],
+      "weight_tv": 0.08244788737256373,
+      "positive_branch_mass": 0.833,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.001,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.0511101717535476,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.650300139529533,
+      "width_ratio": 1.3846878846628916,
+      "seconds": 8.69331535184756,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 63872000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-TOPO-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.4291087522036019,
+      "w2_over_sd": 0.4987538218878617,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.5755839651040172,
+        0.8309235155454028
+      ],
+      "weight_tv": 0.07644788737256374,
+      "positive_branch_mass": 0.827,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.0265,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.2981550202479893,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.39725640533672263,
+      "width_ratio": 1.102815466111914,
+      "seconds": 119.58131906809285,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 63872000,
+      "row_jacobian_evaluations": 63872000,
+      "field_diagnostics": {
+        "information_projections": 3427590,
+        "eigenvalue_clips": 9108390
+      },
+      "schedule": "piecewise5"
+    },
+    "FNPE-FIXED": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.2429901839079228,
+      "w2_over_sd": 0.40888379307688116,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.06105882280376248,
+        0.06090535783760591
+      ],
+      "weight_tv": 0.10594788737256378,
+      "positive_branch_mass": 0.8565,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.0625,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.6760343665611784,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.2428744272121832,
+      "width_ratio": 0.8553111830462312,
+      "seconds": 420.2285865591839,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 3200000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 38.20125561346127,
+      "max_abs_score": 211.5247674647536
+    },
+    "FNPE-ADAPTIVE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.12262887570156969,
+      "w2_over_sd": 0.22338126113946774,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.050786167213501945,
+        0.01634136174643751
+      ],
+      "weight_tv": 0.05294788737256374,
+      "positive_branch_mass": 0.8035,
+      "exact_positive_branch_mass": 0.7505521126274363,
+      "branch_weights": [
+        0.24999999999999512,
+        0.7500000000000049
+      ],
+      "valley_mass": 0.0745,
+      "exact_valley_mass": 0.07823227298558227,
+      "dip_ratio": 0.5884179937388405,
+      "exact_dip_ratio": 0.09889564674288857,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.4168411643956152,
+        0.4871523508703742
+      ],
+      "split_point": -0.00582391472758737,
+      "mode_separation_in_within_sd": 5.3150347793385135,
+      "mean_error_sd": 0.12252784549220543,
+      "width_ratio": 0.9258226000853013,
+      "seconds": 419.7790392609313,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 3200000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 38.20125561346127,
+      "max_abs_score": 301.54055546155104,
+      "schedule": "variance,snr_v=0.2"
+    }
+  },
+  "128": {
+    "TRUE-SCORE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.04433608778586242,
+      "w2_over_sd": 0.05451518460259165,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.46677825051283184,
+        0.17289932582796116
+      ],
+      "weight_tv": 0.009799980078033232,
+      "positive_branch_mass": 0.809,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.154,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 1.0403127070605525,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 0.0379491222577764,
+      "width_ratio": 1.0162853222935393,
+      "seconds": 170.7386171161197,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 0,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.28529623125857,
+      "w2_over_sd": 0.3249111152720112,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.892827101018525,
+        0.24202334697460087
+      ],
+      "weight_tv": 0.06179998007803325,
+      "positive_branch_mass": 0.757,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.1245,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 1.0077654116661687,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 0.008632775868270002,
+      "width_ratio": 1.3179429593993917,
+      "seconds": 463.19503218960017,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 31622697,
+        "eigenvalue_clips": 72807311
+      }
+    },
+    "ORACLE-GAUSS": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 3.370398528879366,
+      "w2_over_sd": 3.3818934104806577,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        5.559818680438145,
+        5.381661913561402
+      ],
+      "weight_tv": 0.09829998007803326,
+      "positive_branch_mass": 0.7205,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.001,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 0.6745021914772903,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 1.4072275735220958,
+      "width_ratio": 3.968002030704153,
+      "seconds": 33.03051250986755,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      }
+    },
+    "ORACLE-TOPO-JAC": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 1.374504898704201,
+      "w2_over_sd": 1.446669595007698,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        2.059161199501542,
+        2.2734941246936122
+      ],
+      "weight_tv": 0.04879998007803325,
+      "positive_branch_mass": 0.77,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.038,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 0.9052294910060614,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 0.8384504232697173,
+      "width_ratio": 2.1475471819575995,
+      "seconds": 465.93576833000407,
+      "nfe": 998,
+      "field_calls": 998,
+      "row_score_evaluations": 255488000,
+      "row_jacobian_evaluations": 255488000,
+      "field_diagnostics": {
+        "information_projections": 28841060,
+        "eigenvalue_clips": 39153855
+      },
+      "schedule": "piecewise5"
+    },
+    "FNPE-FIXED": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.14656409245372018,
+      "w2_over_sd": 0.1656067153941115,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.4988805078280348,
+        0.04048983362826203
+      ],
+      "weight_tv": 0.048200019921966736,
+      "positive_branch_mass": 0.867,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.1105,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 1.070770265620573,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 0.14641437871402802,
+      "width_ratio": 0.9574851695554234,
+      "seconds": 1814.9502604142763,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 12800000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 39.6564582784878,
+      "max_abs_score": 526.0732165871058
+    },
+    "FNPE-ADAPTIVE": {
+      "escaped_fraction": 0.0,
+      "diverged": false,
+      "w1_over_sd": 0.15767798584978326,
+      "w2_over_sd": 0.1665217222924751,
+      "mode_recall": 1.0,
+      "mode_location_error_sd": [
+        0.43467322581749007,
+        0.02055435488305997
+      ],
+      "weight_tv": 0.04570001992196676,
+      "positive_branch_mass": 0.8645,
+      "exact_positive_branch_mass": 0.8187999800780332,
+      "branch_weights": [
+        0.2500000000000217,
+        0.7499999999999782
+      ],
+      "valley_mass": 0.1255,
+      "exact_valley_mass": 0.13645230538993464,
+      "dip_ratio": 1.0922255617476655,
+      "exact_dip_ratio": 0.9987450232340358,
+      "exact_num_modes": 2,
+      "exact_mode_locations": [
+        -0.06642852143593188,
+        0.16435612653617346
+      ],
+      "split_point": -0.04859065261410817,
+      "mode_separation_in_within_sd": 2.5231036166075205,
+      "mean_error_sd": 0.15750175440679617,
+      "width_ratio": 0.9696755603974038,
+      "seconds": 1815.4876182749867,
+      "nfe": 50000,
+      "field_calls": 50000,
+      "row_score_evaluations": 12800000000,
+      "row_jacobian_evaluations": 0,
+      "field_diagnostics": {
+        "information_projections": 0,
+        "eigenvalue_clips": 0
+      },
+      "max_abs_state": 39.65645365916605,
+      "max_abs_score": 1383.9638209778627,
+      "schedule": "sigmoid_k=20,tau0=0.5"
+    }
+  }
+}

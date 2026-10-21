@@ -1,0 +1,5 @@
+2026-10-01T09:18:09+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --mode full --method gauss_hierarchical --datasets 30 --tag rerun > logs/rerun_full_gauss_hierarchical.log 2>&1
+2026-10-01T09:57:44+02:00 GPU 8: exit 0
+2026-10-01T09:57:44+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --mode full --method gauss_jacobian_FD --datasets 30 --tag rerun > logs/rerun_full_gauss_jacobian_FD.log 2>&1
+2026-10-01T11:24:22+02:00 GPU 8: exit 0
+2026-10-01T11:24:22+02:00 GPU 8: ../.COMPASS/bin/python -u pp.py infer --mode full --method gauss_jacobian_FD_r1 --datasets 30 --tag rerun > logs/rerun_full_gauss_jacobian_FD_r1.log 2>&1

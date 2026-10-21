@@ -1,0 +1,7 @@
+- name=fig4a
+- method=compass_upstream_v11_fixeps
+- task=gaussian_mixture
+- task.num_simulations=10000
+- eval=c2st_posterior
+- save_model=false
+- ++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-29_21-15-27/local/compass_model

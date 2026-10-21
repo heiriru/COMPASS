@@ -1,0 +1,87 @@
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - name: extra4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-20-10/local/compass_model
+task:
+  name: two_moons
+  num_simulations: 1000
+eval:
+  metric:
+    nll_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      num_steps: 200
+      batch_size: 500
+    cov_likelihood:
+      num_samples: 5000
+      condition_mask_fn: likelihood
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+    nll_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 500
+    cov_posterior:
+      num_samples: 5000
+      condition_mask_fn: posterior
+      batch_size: 500
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a/2026-10-03_03-18-52/local
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4a
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-03 03:18:52,363][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-03 03:18:52,409][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-03 03:18:52,410][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-10-03 03:18:52,441][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_full_fixeps
+[2026-10-03 03:18:59,241][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_full_fixeps
+[2026-10-03 03:18:59,242][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_likelihood
+[2026-10-03 03:20:22,396][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_likelihood
+[2026-10-03 03:57:26,823][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_posterior
+[2026-10-03 03:58:49,564][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_posterior
+[2026-10-03 04:35:53,787][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-03 04:35:54,025][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 24

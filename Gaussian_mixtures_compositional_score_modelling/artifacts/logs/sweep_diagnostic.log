@@ -1,0 +1,131 @@
+INFO Selected physical GPU [7] via autocvd.
+CPU affinity: 3/72 CPUs (4.167%)
+tokenized/h32d3wide 268,545 parameters (six_weighted, log_sigma)
+symmetric      n=1   T=+0.0000  w=(0.500, 0.500)  modes=(-2.190, +2.190)  branch sd=0.374  posterior sd=2.222
+  symmetric      n=1   rep=0 gauss_jacobian                 W1/sd=0.0196 mass=0.508 (exact 0.500) 7.6s
+  symmetric      n=1   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.0196 mass=0.508 (exact 0.500) 4.4s
+  symmetric      n=1   rep=0 marginal_product               W1/sd=0.0514 mass=0.492 (exact 0.500) 8.3s
+  symmetric      n=1   rep=1 gauss_jacobian                 W1/sd=0.0217 mass=0.509 (exact 0.500) 4.3s
+  symmetric      n=1   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.0217 mass=0.509 (exact 0.500) 4.3s
+  symmetric      n=1   rep=1 marginal_product               W1/sd=0.0541 mass=0.491 (exact 0.500) 8.3s
+symmetric      n=2   T=+0.0000  w=(0.500, 0.500)  modes=(-1.948, +1.948)  branch sd=0.353  posterior sd=1.980
+  symmetric      n=2   rep=0 gauss_jacobian                 W1/sd=0.1837 mass=0.462 (exact 0.500) 5.2s
+  symmetric      n=2   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.0967 mass=0.461 (exact 0.500) 5.2s
+  symmetric      n=2   rep=0 marginal_product               W1/sd=0.2819 mass=0.604 (exact 0.500) 16.5s
+  symmetric      n=2   rep=1 gauss_jacobian                 W1/sd=0.1347 mass=0.500 (exact 0.500) 5.2s
+  symmetric      n=2   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.0561 mass=0.513 (exact 0.500) 5.2s
+  symmetric      n=2   rep=1 marginal_product               W1/sd=0.8628 mass=0.757 (exact 0.500) 16.3s
+symmetric      n=4   T=+0.0000  w=(0.500, 0.500)  modes=(-1.596, +1.596)  branch sd=0.320  posterior sd=1.628
+  symmetric      n=4   rep=0 gauss_jacobian                 W1/sd=0.5722 mass=0.626 (exact 0.500) 7.1s
+  symmetric      n=4   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.2428 mass=0.496 (exact 0.500) 7.1s
+  symmetric      n=4   rep=0 marginal_product               W1/sd=0.6204 mass=0.756 (exact 0.500) 33.0s
+  symmetric      n=4   rep=1 gauss_jacobian                 W1/sd=0.4095 mass=0.516 (exact 0.500) 7.2s
+  symmetric      n=4   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.1953 mass=0.479 (exact 0.500) 7.2s
+  symmetric      n=4   rep=1 marginal_product               W1/sd=0.9593 mass=0.667 (exact 0.500) 32.6s
+symmetric      n=8   T=-0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  symmetric      n=8   rep=0 gauss_jacobian                 W1/sd=0.9792 mass=0.421 (exact 0.500) 12.1s
+  symmetric      n=8   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.4600 mass=0.252 (exact 0.500) 12.1s
+  symmetric      n=8   rep=0 marginal_product               W1/sd=0.9334 mass=0.017 (exact 0.500) 66.3s
+  symmetric      n=8   rep=1 gauss_jacobian                 W1/sd=0.9582 mass=0.559 (exact 0.500) 12.1s
+  symmetric      n=8   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.4163 mass=0.351 (exact 0.500) 12.1s
+  symmetric      n=8   rep=1 marginal_product               W1/sd=0.9550 mass=1.000 (exact 0.500) 66.1s
+symmetric      n=16  T=-0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  symmetric      n=16  rep=0 gauss_jacobian                 W1/sd=2.0303 mass=0.346 (exact 0.500) 23.0s
+  symmetric      n=16  rep=0 gauss_jacobian_mixture_prior   W1/sd=0.8661 mass=0.126 (exact 0.500) 23.0s
+  symmetric      n=16  rep=0 marginal_product               W1/sd=0.9441 mass=0.983 (exact 0.500) 132.0s
+  symmetric      n=16  rep=1 gauss_jacobian                 W1/sd=1.8950 mass=0.461 (exact 0.500) 22.9s
+  symmetric      n=16  rep=1 gauss_jacobian_mixture_prior   W1/sd=0.7503 mass=0.161 (exact 0.500) 23.0s
+  symmetric      n=16  rep=1 marginal_product               W1/sd=1.1936 mass=1.000 (exact 0.500) 132.3s
+symmetric      n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  !! gauss_jacobian failed at symmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 91.25 MiB is free. Including non-PyTorch memory, this process has 10.47 GiB memory in use. Of the allocated memory 9.94 GiB is allocated by PyTorch, and 342.41 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at symmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 91.25 MiB is free. Including non-PyTorch memory, this process has 10.47 GiB memory in use. Of the allocated memory 9.94 GiB is allocated by PyTorch, and 341.86 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  symmetric      n=32  rep=0 marginal_product               W1/sd=1.9204 mass=0.000 (exact 0.500) 263.9s
+  !! gauss_jacobian failed at symmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 10.11 GiB is allocated by PyTorch, and 173.69 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at symmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  symmetric      n=32  rep=1 marginal_product               W1/sd=2.8574 mass=0.000 (exact 0.500) 264.4s
+antisymmetric  n=1   T=+0.0000  w=(0.500, 0.500)  modes=(-2.190, +2.190)  branch sd=0.374  posterior sd=2.222
+  antisymmetric  n=1   rep=0 gauss_jacobian                 W1/sd=0.0196 mass=0.508 (exact 0.500) 4.4s
+  antisymmetric  n=1   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.0196 mass=0.508 (exact 0.500) 4.3s
+  antisymmetric  n=1   rep=0 marginal_product               W1/sd=0.0514 mass=0.492 (exact 0.500) 8.3s
+  antisymmetric  n=1   rep=1 gauss_jacobian                 W1/sd=0.0217 mass=0.509 (exact 0.500) 4.3s
+  antisymmetric  n=1   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.0217 mass=0.509 (exact 0.500) 4.3s
+  antisymmetric  n=1   rep=1 marginal_product               W1/sd=0.0541 mass=0.491 (exact 0.500) 8.5s
+antisymmetric  n=2   T=+0.0000  w=(0.500, 0.500)  modes=(-1.948, +1.948)  branch sd=0.353  posterior sd=1.980
+  antisymmetric  n=2   rep=0 gauss_jacobian                 W1/sd=0.3106 mass=0.354 (exact 0.500) 5.3s
+  antisymmetric  n=2   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.2881 mass=0.333 (exact 0.500) 5.2s
+  antisymmetric  n=2   rep=0 marginal_product               W1/sd=0.8710 mass=0.000 (exact 0.500) 16.6s
+  antisymmetric  n=2   rep=1 gauss_jacobian                 W1/sd=0.3107 mass=0.359 (exact 0.500) 5.3s
+  antisymmetric  n=2   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.2713 mass=0.341 (exact 0.500) 5.2s
+  antisymmetric  n=2   rep=1 marginal_product               W1/sd=0.9283 mass=0.898 (exact 0.500) 16.5s
+antisymmetric  n=4   T=+0.0000  w=(0.500, 0.500)  modes=(-1.596, +1.596)  branch sd=0.320  posterior sd=1.628
+  antisymmetric  n=4   rep=0 gauss_jacobian                 W1/sd=0.5145 mass=0.352 (exact 0.500) 7.2s
+  antisymmetric  n=4   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.3450 mass=0.285 (exact 0.500) 7.2s
+  antisymmetric  n=4   rep=0 marginal_product               W1/sd=0.9677 mass=1.000 (exact 0.500) 33.1s
+  antisymmetric  n=4   rep=1 gauss_jacobian                 W1/sd=0.5371 mass=0.341 (exact 0.500) 7.2s
+  antisymmetric  n=4   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.3438 mass=0.279 (exact 0.500) 7.3s
+  antisymmetric  n=4   rep=1 marginal_product               W1/sd=0.9693 mass=0.031 (exact 0.500) 33.2s
+antisymmetric  n=8   T=+0.0000  w=(0.500, 0.500)  modes=(-1.172, +1.172)  branch sd=0.274  posterior sd=1.204
+  antisymmetric  n=8   rep=0 gauss_jacobian                 W1/sd=0.9694 mass=0.347 (exact 0.500) 12.1s
+  antisymmetric  n=8   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.4642 mass=0.210 (exact 0.500) 12.2s
+  antisymmetric  n=8   rep=0 marginal_product               W1/sd=0.9960 mass=0.000 (exact 0.500) 66.9s
+  antisymmetric  n=8   rep=1 gauss_jacobian                 W1/sd=0.9941 mass=0.345 (exact 0.500) 12.1s
+  antisymmetric  n=8   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.4308 mass=0.200 (exact 0.500) 12.1s
+  antisymmetric  n=8   rep=1 marginal_product               W1/sd=1.4533 mass=1.000 (exact 0.500) 66.4s
+antisymmetric  n=16  T=+0.0000  w=(0.500, 0.500)  modes=(-0.766, +0.766)  branch sd=0.221  posterior sd=0.797
+  antisymmetric  n=16  rep=0 gauss_jacobian                 W1/sd=1.8577 mass=0.348 (exact 0.500) 23.0s
+  antisymmetric  n=16  rep=0 gauss_jacobian_mixture_prior   W1/sd=0.6539 mass=0.115 (exact 0.500) 23.0s
+  antisymmetric  n=16  rep=0 marginal_product               W1/sd=0.9571 mass=0.000 (exact 0.500) 133.1s
+  antisymmetric  n=16  rep=1 gauss_jacobian                 W1/sd=1.8833 mass=0.335 (exact 0.500) 22.9s
+  antisymmetric  n=16  rep=1 gauss_jacobian_mixture_prior   W1/sd=0.6638 mass=0.098 (exact 0.500) 22.9s
+  antisymmetric  n=16  rep=1 marginal_product               W1/sd=1.1075 mass=0.000 (exact 0.500) 132.5s
+antisymmetric  n=32  T=-0.0000  w=(0.500, 0.500)  modes=(-0.452, +0.452)  branch sd=0.170  posterior sd=0.483
+  !! gauss_jacobian failed at antisymmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at antisymmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  antisymmetric  n=32  rep=0 marginal_product               W1/sd=2.9842 mass=1.000 (exact 0.500) 263.5s
+  !! gauss_jacobian failed at antisymmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at antisymmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  antisymmetric  n=32  rep=1 marginal_product               W1/sd=1.0552 mass=0.000 (exact 0.500) 264.8s
+asymmetric     n=1   T=+0.2834  w=(0.250, 0.750)  modes=(-2.155, +2.225)  branch sd=0.374  posterior sd=1.933
+  asymmetric     n=1   rep=0 gauss_jacobian                 W1/sd=0.0143 mass=0.750 (exact 0.750) 4.4s
+  asymmetric     n=1   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.0143 mass=0.750 (exact 0.750) 4.3s
+  asymmetric     n=1   rep=0 marginal_product               W1/sd=0.0452 mass=0.754 (exact 0.750) 8.3s
+  asymmetric     n=1   rep=1 gauss_jacobian                 W1/sd=0.0142 mass=0.752 (exact 0.750) 4.3s
+  asymmetric     n=1   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.0142 mass=0.752 (exact 0.750) 4.3s
+  asymmetric     n=1   rep=1 marginal_product               W1/sd=0.0647 mass=0.735 (exact 0.750) 8.3s
+asymmetric     n=2   T=+0.3186  w=(0.250, 0.750)  modes=(-1.913, +1.983)  branch sd=0.353  posterior sd=1.724
+  asymmetric     n=2   rep=0 gauss_jacobian                 W1/sd=0.4744 mass=0.563 (exact 0.750) 5.2s
+  asymmetric     n=2   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.4003 mass=0.567 (exact 0.750) 5.3s
+  asymmetric     n=2   rep=0 marginal_product               W1/sd=0.1525 mass=0.788 (exact 0.750) 16.5s
+  asymmetric     n=2   rep=1 gauss_jacobian                 W1/sd=0.3039 mass=0.657 (exact 0.750) 5.2s
+  asymmetric     n=2   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.1515 mass=0.699 (exact 0.750) 5.2s
+  asymmetric     n=2   rep=1 marginal_product               W1/sd=0.9651 mass=0.519 (exact 0.750) 16.3s
+asymmetric     n=4   T=+0.3889  w=(0.250, 0.750)  modes=(-1.561, +1.631)  branch sd=0.320  posterior sd=1.419
+  asymmetric     n=4   rep=0 gauss_jacobian                 W1/sd=0.6820 mass=0.609 (exact 0.750) 7.2s
+  asymmetric     n=4   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.3758 mass=0.592 (exact 0.750) 7.2s
+  asymmetric     n=4   rep=0 marginal_product               W1/sd=1.0911 mass=0.665 (exact 0.750) 32.7s
+  asymmetric     n=4   rep=1 gauss_jacobian                 W1/sd=0.7440 mass=0.573 (exact 0.750) 7.2s
+  asymmetric     n=4   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.4649 mass=0.539 (exact 0.750) 7.2s
+  asymmetric     n=4   rep=1 marginal_product               W1/sd=1.1201 mass=0.052 (exact 0.750) 32.8s
+asymmetric     n=8   T=+0.5295  w=(0.250, 0.750)  modes=(-1.137, +1.207)  branch sd=0.274  posterior sd=1.051
+  asymmetric     n=8   rep=0 gauss_jacobian                 W1/sd=1.2293 mass=0.612 (exact 0.750) 12.1s
+  asymmetric     n=8   rep=0 gauss_jacobian_mixture_prior   W1/sd=0.7303 mass=0.299 (exact 0.750) 12.2s
+  asymmetric     n=8   rep=0 marginal_product               W1/sd=1.0158 mass=1.000 (exact 0.750) 65.9s
+  asymmetric     n=8   rep=1 gauss_jacobian                 W1/sd=1.3601 mass=0.534 (exact 0.750) 12.1s
+  asymmetric     n=8   rep=1 gauss_jacobian_mixture_prior   W1/sd=0.8431 mass=0.266 (exact 0.750) 12.1s
+  asymmetric     n=8   rep=1 marginal_product               W1/sd=0.6336 mass=0.981 (exact 0.750) 65.9s
+asymmetric     n=16  T=+0.8108  w=(0.250, 0.750)  modes=(-0.730, +0.801)  branch sd=0.221  posterior sd=0.699
+  asymmetric     n=16  rep=0 gauss_jacobian                 W1/sd=2.3582 mass=0.579 (exact 0.750) 23.0s
+  asymmetric     n=16  rep=0 gauss_jacobian_mixture_prior   W1/sd=1.0840 mass=0.128 (exact 0.750) 23.0s
+  asymmetric     n=16  rep=0 marginal_product               W1/sd=0.7378 mass=1.000 (exact 0.750) 131.7s
+  asymmetric     n=16  rep=1 gauss_jacobian                 W1/sd=2.9402 mass=0.289 (exact 0.750) 22.9s
+  asymmetric     n=16  rep=1 gauss_jacobian_mixture_prior   W1/sd=1.5285 mass=0.078 (exact 0.750) 23.0s
+  asymmetric     n=16  rep=1 marginal_product               W1/sd=2.0469 mass=0.000 (exact 0.750) 131.4s
+asymmetric     n=32  T=+1.3733  w=(0.250, 0.750)  modes=(-0.417, +0.487)  branch sd=0.170  posterior sd=0.427
+  !! gauss_jacobian failed at asymmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at asymmetric n=32 replicate 0: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  asymmetric     n=32  rep=0 marginal_product               W1/sd=3.4316 mass=0.000 (exact 0.750) 261.7s
+  !! gauss_jacobian failed at asymmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  !! gauss_jacobian_mixture_prior failed at asymmetric n=32 replicate 1: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 83.25 MiB is free. Including non-PyTorch memory, this process has 10.48 GiB memory in use. Of the allocated memory 9.93 GiB is allocated by PyTorch, and 360.67 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+  asymmetric     n=32  rep=1 marginal_product               W1/sd=2.2077 mass=0.213 (exact 0.750) 264.7s
+
+144 rows in 62.5 minutes -> /export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/artifacts/scaling/diagnostic

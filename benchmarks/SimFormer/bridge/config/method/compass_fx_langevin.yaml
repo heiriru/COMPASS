@@ -1,0 +1,29 @@
+# Sampler test: compass_legacy_full_fixeps checkpoints resampled with Langevin correctors instead of churn.
+name: compass_fx_langevin
+backend: jax
+device: gpu
+compass:
+  arch: legacy
+  hidden_size: 64
+  depth: 6
+  num_heads: 4
+  mlp_ratio: 3
+  sde: vesde
+  sigma: 25.0
+  z_score: true
+  mask_law: simformer        # their five-way structured-random law
+  time_sampling: log_sigma
+  lr: 1.0e-3
+  batch_size: 1000
+  validation_fraction: 0.1
+  patience_steps: 1000000000   # no early stop: full step budget like Simformer
+  sampler: dpm
+  order: 2
+  churn_eta: 0.0
+  corrector_steps: 2          # two Langevin corrector steps after every DPM2 step
+  corrector_steps_interval: 1
+  final_corrector_steps: 3
+  snr: 0.2
+  timesteps: 100
+  eps: 1.0e-5
+  forward_eps: true      # work around SBIm.sample dropping eps

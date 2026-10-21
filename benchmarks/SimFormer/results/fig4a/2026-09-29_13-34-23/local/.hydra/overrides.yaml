@@ -1,0 +1,7 @@
+- name=fig4a
+- method=compass_legacy_full_fixeps
+- task=gaussian_linear
+- task.num_simulations=100000
+- eval=c2st_posterior
+- save_model=false
+- ++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-29_00-28-28/local/compass_model

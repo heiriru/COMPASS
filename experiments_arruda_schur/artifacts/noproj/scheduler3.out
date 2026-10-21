@@ -1,0 +1,46 @@
+12:01:48 scheduler on GPUs ['8', '9']: 22 jobs, skipping ['pp_hierarchical', 'pp_hierarchical_Rg', 'ik_absx1', 'ik_absx1_R', 'ik_flat_fixed', 'ik_reach_sym', 'ik_reach_shift', 'ik_reach_sym_bernoulli']
+12:01:49 start ik_flat_global on GPU 9 cores 9-11 (free 6016 MB, needs 1600 MB); 21 queued, 1 running
+12:03:12 start ik_reach_shift_bernoulli on GPU 9 cores 39-41 (free 4672 MB, needs 1600 MB); 20 queued, 2 running
+12:04:34 start gm_hierarchical on GPU 9 cores 27-29 (free 3354 MB, needs 2000 MB); 19 queued, 3 running
+12:05:57 start toy_abs_hierarchical_noproj on GPU 9 cores 3-5 (free 2824 MB, needs 1500 MB); 18 queued, 4 running
+12:28:25 start gm_none on GPU 8 cores 54-56 (free 5304 MB, needs 2000 MB); 17 queued, 5 running
+12:39:37 start toy_abs_none_noproj on GPU 9 cores 66-68 (free 2814 MB, needs 1500 MB); 16 queued, 6 running
+12:46:51 start gm_oracle on GPU 9 cores 18-20 (free 3386 MB, needs 2000 MB); 15 queued, 7 running
+12:49:04 done  ik_reach_shift_bernoulli exit 0 in 46 min, peak 1318 MB
+12:49:04 start toy_abs_oracle_joint_noproj on GPU 9 cores 39-41 (free 3428 MB, needs 1500 MB); 14 queued, 7 running
+12:51:58 done  ik_flat_global exit 0 in 50 min, peak 1344 MB
+12:51:58 start toy_abs_oracle_hierarchical_noproj on GPU 9 cores 9-11 (free 5338 MB, needs 1500 MB); 13 queued, 7 running
+13:12:44 done  toy_abs_oracle_hierarchical_noproj exit 0 in 21 min, peak 1380 MB
+13:12:44 start toy_square_hierarchical_noproj on GPU 9 cores 9-11 (free 2782 MB, needs 1500 MB); 12 queued, 7 running
+13:25:07 done  toy_abs_oracle_joint_noproj exit 0 in 36 min, peak 1376 MB
+13:25:07 start toy_square_none_noproj on GPU 9 cores 39-41 (free 3332 MB, needs 1500 MB); 11 queued, 7 running
+13:26:29 done  toy_abs_none_noproj exit 0 in 47 min, peak 1978 MB
+13:26:30 start toy_lean_hierarchical_noproj on GPU 9 cores 66-68 (free 4040 MB, needs 1500 MB); 10 queued, 7 running
+13:37:50 done  toy_abs_hierarchical_noproj exit 0 in 92 min, peak 1998 MB
+13:37:50 start toy_lean_none_noproj on GPU 9 cores 3-5 (free 3972 MB, needs 1500 MB); 9 queued, 7 running
+13:45:25 done  toy_square_hierarchical_noproj exit 0 in 33 min, peak 1998 MB
+13:45:25 start toy_lean_oracle_joint_noproj on GPU 9 cores 9-11 (free 4012 MB, needs 1500 MB); 8 queued, 7 running
+13:59:33 done  toy_lean_hierarchical_noproj exit 0 in 33 min, peak 1998 MB
+13:59:34 start toy_lean_oracle_hierarchical_noproj on GPU 9 cores 66-68 (free 3994 MB, needs 1500 MB); 7 queued, 7 running
+14:08:32 done  toy_square_none_noproj exit 0 in 43 min, peak 1978 MB
+14:08:32 start toy_lean_hierarchical_R_noproj on GPU 9 cores 39-41 (free 3952 MB, needs 1500 MB); 6 queued, 7 running
+14:11:38 done  gm_none exit 0 in 103 min, peak 1320 MB
+14:11:39 start toy_lean_hierarchical_T_noproj on GPU 8 cores 54-56 (free 5304 MB, needs 1500 MB); 5 queued, 7 running
+14:18:10 done  toy_lean_oracle_hierarchical_noproj exit 0 in 19 min, peak 1380 MB
+14:18:11 start toy_lean_hierarchical_TF_noproj on GPU 9 cores 66-68 (free 3934 MB, needs 1500 MB); 4 queued, 7 running
+14:19:23 done  toy_lean_oracle_joint_noproj exit 0 in 34 min, peak 1376 MB
+14:19:34 start toy_lean_hierarchical_TFR_noproj on GPU 9 cores 9-11 (free 4040 MB, needs 1500 MB); 3 queued, 7 running
+14:20:46 done  toy_lean_none_noproj exit 0 in 43 min, peak 1978 MB
+14:20:56 start toy_lean_hierarchical_T_e4_noproj on GPU 9 cores 3-5 (free 4740 MB, needs 1500 MB); 2 queued, 7 running
+14:42:51 done  toy_lean_hierarchical_T_noproj exit 0 in 31 min, peak 1998 MB
+14:42:51 start toy_curved_hierarchical_noproj on GPU 8 cores 54-56 (free 5304 MB, needs 1500 MB); 1 queued, 7 running
+14:45:25 done  toy_lean_hierarchical_R_noproj exit 0 in 37 min, peak 1998 MB
+14:56:59 done  toy_lean_hierarchical_TF_noproj exit 0 in 39 min, peak 1998 MB
+14:56:59 start toy_curved_hierarchical_R_noproj on GPU 9 cores 39-41 (free 4610 MB, needs 1500 MB); 0 queued, 6 running
+14:58:31 done  toy_lean_hierarchical_TFR_noproj exit 0 in 39 min, peak 1998 MB
+14:59:22 done  toy_lean_hierarchical_T_e4_noproj exit 0 in 38 min, peak 1998 MB
+15:09:57 done  gm_hierarchical exit 0 in 185 min, peak 1320 MB
+15:10:38 done  toy_curved_hierarchical_R_noproj exit 0 in 14 min, peak 1998 MB
+15:11:29 done  gm_oracle exit 0 in 145 min, peak 1334 MB
+15:13:51 done  toy_curved_hierarchical_noproj exit 0 in 31 min, peak 1998 MB
+15:56:07 all done

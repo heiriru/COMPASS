@@ -1,0 +1,300 @@
+[2026-10-01 13:07:28,908][scoresbibm.scripts.hydra_script][INFO] - name: extra4b
+seed: 0
+model_id: 47
+save_model: true
+save_summary: true
+method:
+  model:
+    token_dim: 40
+    condition_token_dim: 10
+    condition_token_init_scale: 0.1
+    condition_token_init_mean: 0.0
+    condition_mode: concat
+    time_embedding_dim: 128
+    num_heads: 4
+    num_layers: 6
+    attn_size: 10
+    widening_factor: 3
+    num_hidden_layers: 1
+    skip_connection_attn: true
+    skip_connection_mlp: true
+    layer_norm: true
+  train:
+    condition_mask_fn:
+      name: structured_random
+      p_joint: 0.2
+      p_posterior: 0.2
+      p_likelihood: 0.2
+      p_rnd1: 0.2
+      p_rnd2: 0.2
+      rnd1_prob: 0.3
+      rnd2_prob: 0.7
+    edge_mask_fn:
+      name: none
+    max_number_steps: 100000
+    min_number_steps: 5000
+    total_number_steps_scaling: 3
+    training_batch_size: 1000
+    learning_rate: 0.001
+    min_learning_rate: 1.0e-06
+    clip_max_norm: 10.0
+    validation_fraction: 0.05
+    val_repeat: 5
+    val_every: 50
+    stop_early_count: 5
+    rebalance_loss: false
+    z_score_data: false
+  sde:
+    name: vesde
+    sigma_max: 15.0
+    sigma_min: 0.0001
+    T_max: 1.0
+    T_min: 1.0e-05
+    scale_min: 0.001
+  posterior:
+    sampling_method: sde
+    num_steps: 500
+    method: euler_maruyama
+  name: score_transformer
+  backend: jax
+  device: gpu
+task:
+  name: tree_all_cond
+  num_simulations: 100000
+eval:
+  metric:
+    c2st_likelihood:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: likelihood
+      num_samples: 2000
+      num_evaluations: 50
+    c2st_joint:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: joint
+      num_samples: 3000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-01 13:07:28,908][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-01 13:07:28,908][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4b/2026-10-01_13-07-28/local
+[2026-10-01 13:07:28,908][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/extra4b
+[2026-10-01 13:07:28,911][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-01 13:07:28,913][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-01 13:07:28,915][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-01 13:07:28,966][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-01 13:07:28,969][scoresbibm.scripts.hydra_script][INFO] - Loading task for model with id: 47
+[2026-10-01 13:07:28,984][scoresbibm.scripts.hydra_script][INFO] - Task: tree_all_cond
+[2026-10-01 13:07:30,252][scoresbibm.scripts.hydra_script][INFO] - Loading model with id: 47
+[2026-10-01 13:07:31,162][scoresbibm.scripts.hydra_script][INFO] - Model loaded
+[2026-10-01 13:07:31,163][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: score_transformer
+[2026-10-01 13:07:31,163][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_likelihood
+Conditional:  [ True  True  True False False False False] [ 0.354 -0.142  0.347]
+Metric value:  0.5059999823570251
+Conditional:  [ True  True  True False False False False] [-2.451 -1.998 -2.44 ]
+Metric value:  0.5242499709129333
+Conditional:  [ True  True  True False False False False] [0.391 1.429 1.042]
+Metric value:  0.5
+Conditional:  [ True  True  True False False False False] [-0.248 -1.827 -1.044]
+Metric value:  0.5237500071525574
+Conditional:  [ True  True  True False False False False] [-0.647 -2.478  0.225]
+Metric value:  0.48399999737739563
+Conditional:  [ True  True  True False False False False] [-0.052 -1.374 -0.251]
+Metric value:  0.4957500100135803
+Conditional:  [ True  True  True False False False False] [ 0.02   0.522 -0.099]
+Metric value:  0.4932500123977661
+Conditional:  [ True  True  True False False False False] [-0.055 -0.012 -0.762]
+Metric value:  0.5195000171661377
+Conditional:  [ True  True  True False False False False] [-1.456 -1.476  0.771]
+Metric value:  0.5034999847412109
+Conditional:  [ True  True  True False False False False] [-1.187 -2.22  -2.889]
+Metric value:  0.4972499907016754
+Conditional:  [ True  True  True False False False False] [0.025 0.233 0.017]
+Metric value:  0.5049999952316284
+Conditional:  [ True  True  True False False False False] [1.201 1.302 0.056]
+Metric value:  0.48875001072883606
+Conditional:  [ True  True  True False False False False] [0.653 1.905 0.602]
+Metric value:  0.5120000243186951
+Conditional:  [ True  True  True False False False False] [-0.689 -1.201 -1.668]
+Metric value:  0.503000020980835
+Conditional:  [ True  True  True False False False False] [-0.148  0.223 -0.801]
+Metric value:  0.4897499978542328
+Conditional:  [ True  True  True False False False False] [0.85  2.373 1.179]
+Metric value:  0.4907500147819519
+Conditional:  [ True  True  True False False False False] [-0.228  1.181 -0.013]
+Metric value:  0.49799999594688416
+Conditional:  [ True  True  True False False False False] [1.8   2.687 0.535]
+Metric value:  0.5
+Conditional:  [ True  True  True False False False False] [-1.06  -0.132 -0.338]
+Metric value:  0.5040000081062317
+Conditional:  [ True  True  True False False False False] [0.665 1.935 1.222]
+Metric value:  0.49924999475479126
+Conditional:  [ True  True  True False False False False] [ 0.07  -0.318  1.292]
+Metric value:  0.5034999847412109
+Conditional:  [ True  True  True False False False False] [ 0.131 -0.68  -0.327]
+Metric value:  0.5099999904632568
+Conditional:  [ True  True  True False False False False] [ 0.038 -0.507 -0.823]
+Metric value:  0.528249979019165
+Conditional:  [ True  True  True False False False False] [-0.514  0.369 -0.052]
+Metric value:  0.503000020980835
+Conditional:  [ True  True  True False False False False] [ 0.598  0.475 -0.026]
+Metric value:  0.5077499747276306
+Conditional:  [ True  True  True False False False False] [0.309 0.183 0.361]
+Metric value:  0.49399998784065247
+Conditional:  [ True  True  True False False False False] [-0.765  0.464 -2.619]
+Metric value:  0.4975000023841858
+Conditional:  [ True  True  True False False False False] [-1.353 -2.262 -0.601]
+Metric value:  0.4962500035762787
+Conditional:  [ True  True  True False False False False] [-0.478  1.181 -2.285]
+Metric value:  0.4894999861717224
+Conditional:  [ True  True  True False False False False] [-0.399  0.118  0.254]
+Metric value:  0.5047500133514404
+Conditional:  [ True  True  True False False False False] [-0.664 -1.126 -1.441]
+Metric value:  0.5015000104904175
+Conditional:  [ True  True  True False False False False] [-0.481 -0.15  -0.723]
+Metric value:  0.4909999966621399
+Conditional:  [ True  True  True False False False False] [ 0.836 -0.865  1.948]
+Metric value:  0.5047500133514404
+Conditional:  [ True  True  True False False False False] [0.708 0.936 1.832]
+Metric value:  0.49149999022483826
+Conditional:  [ True  True  True False False False False] [0.797 0.806 0.205]
+Metric value:  0.5077499747276306
+Conditional:  [ True  True  True False False False False] [-0.997 -1.385 -2.065]
+Metric value:  0.4932500123977661
+Conditional:  [ True  True  True False False False False] [-0.334 -0.861  1.689]
+Metric value:  0.5007500052452087
+Conditional:  [ True  True  True False False False False] [1.521 0.603 0.369]
+Metric value:  0.5122500061988831
+Conditional:  [ True  True  True False False False False] [1.154 1.212 0.576]
+Metric value:  0.4805000126361847
+Conditional:  [ True  True  True False False False False] [0.743 1.03  1.659]
+Metric value:  0.5177500247955322
+Conditional:  [ True  True  True False False False False] [-0.296 -0.637 -0.519]
+Metric value:  0.5080000162124634
+Conditional:  [ True  True  True False False False False] [1.601 2.269 3.068]
+Metric value:  0.5132499933242798
+Conditional:  [ True  True  True False False False False] [ 0.281 -0.708 -0.711]
+Metric value:  0.48625001311302185
+Conditional:  [ True  True  True False False False False] [-0.772  0.908 -2.25 ]
+Metric value:  0.5132499933242798
+Conditional:  [ True  True  True False False False False] [-1.171 -2.108 -0.228]
+Metric value:  0.5149999856948853
+Conditional:  [ True  True  True False False False False] [ 0.421  0.423 -0.489]
+Metric value:  0.47075000405311584
+Conditional:  [ True  True  True False False False False] [0.062 0.392 0.343]
+Metric value:  0.49900001287460327
+Conditional:  [ True  True  True False False False False] [1.474 1.193 0.951]
+Metric value:  0.5080000162124634
+Conditional:  [ True  True  True False False False False] [1.039 1.065 1.705]
+Metric value:  0.5065000057220459
+Conditional:  [ True  True  True False False False False] [-0.99  -0.117 -1.726]
+Metric value:  0.49125000834465027
+[2026-10-01 13:16:40,230][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_joint
+Conditional:  [False False False False False False False] []
+Metric value:  0.5051666498184204
+Conditional:  [False False False False False False False] []
+Metric value:  0.5081666707992554
+Conditional:  [False False False False False False False] []
+Metric value:  0.49950000643730164
+Conditional:  [False False False False False False False] []
+Metric value:  0.5016666650772095
+Conditional:  [False False False False False False False] []
+Metric value:  0.49950000643730164
+Conditional:  [False False False False False False False] []
+Metric value:  0.49399998784065247
+Conditional:  [False False False False False False False] []
+Metric value:  0.4984999895095825
+Conditional:  [False False False False False False False] []
+Metric value:  0.4945000112056732
+Conditional:  [False False False False False False False] []
+Metric value:  0.5071666836738586
+Conditional:  [False False False False False False False] []
+Metric value:  0.5178333520889282
+Conditional:  [False False False False False False False] []
+Metric value:  0.4908333420753479
+Conditional:  [False False False False False False False] []
+Metric value:  0.5071666836738586
+Conditional:  [False False False False False False False] []
+Metric value:  0.503333330154419
+Conditional:  [False False False False False False False] []
+Metric value:  0.5051666498184204
+Conditional:  [False False False False False False False] []
+Metric value:  0.492000013589859
+Conditional:  [False False False False False False False] []
+Metric value:  0.49966666102409363
+Conditional:  [False False False False False False False] []
+Metric value:  0.5048333406448364
+Conditional:  [False False False False False False False] []
+Metric value:  0.5113333463668823
+Conditional:  [False False False False False False False] []
+Metric value:  0.5066666603088379
+Conditional:  [False False False False False False False] []
+Metric value:  0.49399998784065247
+Conditional:  [False False False False False False False] []
+Metric value:  0.503333330154419
+Conditional:  [False False False False False False False] []
+Metric value:  0.5019999742507935
+Conditional:  [False False False False False False False] []
+Metric value:  0.5061666369438171
+Conditional:  [False False False False False False False] []
+Metric value:  0.5071666836738586
+Conditional:  [False False False False False False False] []
+Metric value:  0.5148333311080933
+Conditional:  [False False False False False False False] []
+Metric value:  0.5019999742507935
+Conditional:  [False False False False False False False] []
+Metric value:  0.5046666860580444
+Conditional:  [False False False False False False False] []
+Metric value:  0.4934999942779541
+Conditional:  [False False False False False False False] []
+Metric value:  0.49300000071525574
+Conditional:  [False False False False False False False] []
+Metric value:  0.49016666412353516
+Conditional:  [False False False False False False False] []
+Metric value:  0.5133333206176758
+Conditional:  [False False False False False False False] []
+Metric value:  0.4970000088214874
+Conditional:  [False False False False False False False] []
+Metric value:  0.5076666474342346
+Conditional:  [False False False False False False False] []
+Metric value:  0.5006666779518127
+Conditional:  [False False False False False False False] []
+Metric value:  0.49950000643730164
+Conditional:  [False False False False False False False] []
+Metric value:  0.5095000267028809
+Conditional:  [False False False False False False False] []
+Metric value:  0.4986666738986969
+Conditional:  [False False False False False False False] []
+Metric value:  0.5023333430290222
+Conditional:  [False False False False False False False] []
+Metric value:  0.5088333487510681
+Conditional:  [False False False False False False False] []
+Metric value:  0.4938333332538605
+Conditional:  [False False False False False False False] []
+Metric value:  0.48766666650772095
+Conditional:  [False False False False False False False] []
+Metric value:  0.5018333196640015
+Conditional:  [False False False False False False False] []
+Metric value:  0.4871666729450226
+Conditional:  [False False False False False False False] []
+Metric value:  0.4906666576862335
+Conditional:  [False False False False False False False] []
+Metric value:  0.4988333284854889
+Conditional:  [False False False False False False False] []
+Metric value:  0.49933332204818726
+Conditional:  [False False False False False False False] []
+Metric value:  0.5034999847412109
+Conditional:  [False False False False False False False] []
+Metric value:  0.5044999718666077
+Conditional:  [False False False False False False False] []
+Metric value:  0.49549999833106995
+Conditional:  [False False False False False False False] []
+Metric value:  0.5019999742507935
+[2026-10-01 13:27:36,103][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-01 13:27:36,147][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 47

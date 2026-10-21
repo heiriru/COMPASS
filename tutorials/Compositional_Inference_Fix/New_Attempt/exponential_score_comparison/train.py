@@ -76,8 +76,28 @@ def batch_for(train_samples):
     return int(min(BATCH_SIZE, max(64, train_samples // MIN_BATCHES_PER_EPOCH)))
 
 
-def model_directory(root, config, train_samples):
-    return Path(root) / "models" / f"{config}_n{train_samples}"
+# COMPASS ships time_sampling="mixture", which spends half its budget uniformly
+# in t and so puts almost nothing near small lambda -- where the sampler needs
+# the score and where essentially all of the error is. Measured against a
+# closed-form row score in ../../bimodal_distribution, "log_sigma" cut the mean
+# relative row-score error 0.166 -> 0.054 and the lambda=0.05 error 0.440 ->
+# 0.088, beating a 9x larger network trained the "mixture" way, at no inference
+# cost. This directory grades composition rules against exact references, so a
+# more accurate row score sharpens exactly the comparison it exists to make.
+DEFAULT_TIME_SAMPLING = "log_sigma"
+
+# The recipe every checkpoint on disk and every number in README.md was trained
+# under; its directories keep their original untagged names so the two recipes
+# can never overwrite one another and then be compared.
+LEGACY_TIME_SAMPLING = "mixture"
+
+
+def model_directory(root, config, train_samples,
+                    time_sampling=DEFAULT_TIME_SAMPLING):
+    name = f"{config}_n{train_samples}"
+    if time_sampling != LEGACY_TIME_SAMPLING:
+        name = f"{name}_{time_sampling}"
+    return Path(root) / "models" / name
 
 
 def parameter_count(config):
@@ -109,7 +129,8 @@ def load_to(checkpoint, device):
 
 
 def train_or_load(directory, config, train_samples, device, seed=7, force=False,
-                  verbose=True, max_epochs=MAX_EPOCHS):
+                  verbose=True, max_epochs=MAX_EPOCHS,
+                  time_sampling=DEFAULT_TIME_SAMPLING):
     """Load ``directory``'s checkpoint, training it with this recipe if absent."""
     from compass import ScoreBasedInferenceModel as SBIm
 
@@ -142,7 +163,7 @@ def train_or_load(directory, config, train_samples, device, seed=7, force=False,
         theta=theta_train, x=x_train, theta_val=theta_validation,
         x_val=x_validation, batch_size=batch_size,
         max_epochs=epochs, early_stopping_patience=patience, lr=LR,
-        time_sampling="mixture", device=device, verbose=verbose,
+        time_sampling=time_sampling, device=device, verbose=verbose,
         path=str(directory),
     )
     seconds = time.perf_counter() - started

@@ -316,6 +316,25 @@ METHODS = {
             "corrector_steps": 10, "snr": 0.2,
         },
     },
+
+    "bp_jac_analytic_predictor_only": {
+        "label": "DPM2 + BP-JAC (K=2, predictor only, exact row score)",
+        "colour": "#8338EC",
+        "sample_kwargs": {
+            "method": "dpm", "order": 2, "correction": "bp_jac",
+            "jacobian_block_size": 2, **compare.PREDICTOR_ONLY,
+        },
+    },
+    "bp_jac_analytic_correctors2": {
+        "label": "DPM2 + BP-JAC (K=2, 2 correctors, exact row score)",
+        "colour": "#8338EC",
+        "sample_kwargs": {
+            "method": "dpm", "order": 2, "correction": "bp_jac",
+            "jacobian_block_size": 2,
+            "corrector_steps_interval": 1, "corrector_steps": 2,
+            "final_corrector_steps": 3, "snr": 0.2, "churn_eta": 0.0,
+        },
+    },
 }
 
 DEFAULT_METHODS = ["gauss_jacobian_analytic_predictor_only",

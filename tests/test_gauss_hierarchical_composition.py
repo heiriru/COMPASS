@@ -174,6 +174,32 @@ def test_gauss_hierarchical_single_observation_returns_model_score():
     torch.testing.assert_close(result, scores)
 
 
+def test_composition_temperature_tempers_only_shared_evidence_score():
+    """beta interpolates from the prior score to the original composition."""
+    covariance = torch.tensor([
+        [[0.55, 0.18], [0.18, 0.75]],
+        [[0.65, -0.12], [-0.12, 0.60]],
+    ], dtype=torch.float64)
+    scores = torch.tensor([[[0.7, -0.3]], [[-0.2, 0.8]]], dtype=torch.float64)
+    state = torch.tensor([[[0.1, -0.2]], [[0.1, 0.3]]], dtype=torch.float64)
+    t = torch.tensor([[0.4]], dtype=torch.float64)
+
+    original = configured_joint_sampler(
+        covariance, "gauss_hierarchical", hierarchy_size=1
+    )
+    original_score = original._compositional_score(scores.clone(), state, t)
+    prior_score = original._diffused_gaussian_prior_score(state[:1, :, :1], t)
+
+    tempered = configured_joint_sampler(
+        covariance, "gauss_hierarchical", hierarchy_size=1
+    )
+    tempered.composition_temperature = 0.6
+    tempered_score = tempered._compositional_score(scores.clone(), state, t)
+
+    expected = prior_score + 0.6 * (original_score[:1, :, :1] - prior_score)
+    torch.testing.assert_close(tempered_score[:1, :, :1], expected)
+
+
 def test_gauss_hierarchical_reduces_to_full_gaussian_without_locals():
     """With no local dimensions, gauss_hierarchical collapses to Algorithm 2."""
     covariances = torch.tensor([

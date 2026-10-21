@@ -1,0 +1,4 @@
+2026-10-01T04:25:04+02:00 GPU 8: ../.COMPASS/bin/python -u ik.py run --layout angle_height --mode global --n 8 --count 30 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct > logs/ik_run_ah_global_n8.log 2>&1
+2026-10-01T05:10:43+02:00 GPU 8: exit 0
+2026-10-01T05:10:43+02:00 GPU 8: ../.COMPASS/bin/python -u ik.py run --layout angle_height --mode hierarchical --n 8 --count 30 --methods gauss_jacobian_FD arruda_direct arruda_gauss_direct > logs/ik_run_ah_hier_n8.log 2>&1
+2026-10-01T05:59:56+02:00 GPU 8: exit 0

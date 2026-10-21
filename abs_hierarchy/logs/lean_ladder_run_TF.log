@@ -1,0 +1,5 @@
+sampling eps 0.0001
+hierarchical_TF gauss_jacobian_FD    n=4   P(g>0)=0.766 E|g|=1.678 sd=1.582  10s
+hierarchical_TF gauss_jacobian_FD    n=16  P(g>0)=0.878 E|g|=1.606 sd=1.228  33s
+hierarchical_TF gauss_jacobian_FD    n=64  P(g>0)=0.769 E|g|=1.404 sd=1.308  129s
+hierarchical_TF gauss_jacobian_FD    n=128 P(g>0)=0.722 E|g|=1.308 sd=1.258  255s

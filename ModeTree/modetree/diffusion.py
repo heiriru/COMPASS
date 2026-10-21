@@ -101,6 +101,14 @@ class DiffusedOracle:
         delta = (g - self.model.prior_mean).unsqueeze(-1)
         return -torch.linalg.solve(cov, delta).squeeze(-1)
 
+    def prior_hessian(self, g, lam):
+        """``grad^2 log p_t(g)``; constant for this module's Gaussian prior."""
+        g = torch.as_tensor(g, dtype=torch.float64)
+        precision = torch.cholesky_inverse(
+            torch.linalg.cholesky(self.prior_covariance_t(lam))
+        )
+        return -precision.expand(g.shape[:-1] + precision.shape)
+
     def prior_backward_precision(self, lam):
         """``Lambda_prior(t) = Sigma_prior^-1 + lambda^-2 I`` (COMPASS's form)."""
         eye = torch.eye(self.d_g, dtype=torch.float64)
@@ -309,3 +317,47 @@ class ComposedField:
 
     def __call__(self, state, t):
         return self.score(state, t).score
+
+
+def admissible_row_hessian(jacobian, lam, curvature_floor=1e-3,
+                           lower_floor=0.0):
+    """Project a row Jacobian onto the Hessians Tweedie's identity permits.
+
+    ``Sigma_t,j = lambda^2 (I + lambda^2 J_j)`` is a conditional covariance, so
+    ``eig(-J_j)`` must lie in ``[0, (1-floor)/lambda^2]`` -- the *same* band
+    ``row_jacobian_factor`` (and ``MultiObsSampler._jacobian_joint_precision``
+    before it) already clamps into for the precision weighting. This applies it
+    to the full row Hessian, which is what the arrowhead blocks are built from.
+
+    For an exact score the projection is the identity and nothing changes; the
+    clamp only bites where the network has produced something that is not the
+    Hessian of any density. Measured on the IK checkpoint, 30% of the spectrum
+    is outside the band at ``lambda = 2`` and 35% at ``lambda = 0.001``.
+
+    Returns ``(hessian, diagnostics)``; ``diagnostics`` carries the clip count
+    and the raw extremes, so the projection is never silent.
+    """
+    curvature = -0.5 * (jacobian + jacobian.mT)
+    ceiling = (1.0 - curvature_floor) / lam ** 2
+    # ``lower_floor > 0`` additionally asks for a *strict* maximum, i.e.
+    # ``Sigma_t <= (1 - lower_floor) lambda^2``.  Zero -- COMPASS's own choice --
+    # admits a perfectly flat direction, which is the honest answer for a
+    # non-identifiable row but leaves ``-C`` singular, so the strict
+    # ``is_local_maximum`` test can never pass on a problem like the arm's
+    # 3-parameter local block against 2 observables.
+    floor = lower_floor / lam ** 2
+    eigenvalues, eigenvectors = torch.linalg.eigh(curvature)
+    clipped = int(((eigenvalues < floor) | (eigenvalues > ceiling)).sum())
+    diagnostics = {
+        "eigenvalue_clips": clipped,
+        "eigenvalue_total": int(eigenvalues.numel()),
+        "min_raw_eigenvalue": float(eigenvalues.min()),
+        "max_raw_eigenvalue": float(eigenvalues.max()),
+        "antisymmetric_norm": float(
+            (torch.linalg.matrix_norm(jacobian - jacobian.mT)
+             / torch.linalg.matrix_norm(jacobian).clamp_min(1e-300)).max()
+        ),
+    }
+    eigenvalues = eigenvalues.clamp(min=floor, max=ceiling)
+    projected = (eigenvectors * eigenvalues.unsqueeze(-2)) @ eigenvectors.mT
+    return -projected, diagnostics

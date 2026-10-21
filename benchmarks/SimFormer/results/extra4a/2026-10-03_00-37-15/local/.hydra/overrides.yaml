@@ -1,0 +1,7 @@
+- name=extra4a
+- method=score_transformer
+- task=gaussian_mixture
+- task.num_simulations=1000
+- eval=nll_cov
+- save_model=true
+- model_id=2

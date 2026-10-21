@@ -1,0 +1,80 @@
+[2026-09-30 17:36:57,706][scoresbibm.scripts.hydra_script][INFO] - name: smoke
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_legacy_full_fixeps
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_22-26-50/local/compass_model
+task:
+  name: two_moons
+  num_simulations: 10000
+eval:
+  metric:
+    nll_posterior:
+      num_samples: 500
+      condition_mask_fn: posterior
+      num_steps: 200
+      batch_size: 250
+    cov_posterior:
+      num_samples: 100
+      condition_mask_fn: posterior
+      batch_size: 50
+      num_bins: 50
+      sample_kwargs:
+        num_steps: 200
+        sampling_method: sde
+      log_prob_kwargs:
+        num_steps: 200
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/smoke/2026-09-30_17-36-57/local
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/smoke
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [CpuDevice(id=0)]
+[2026-09-30 17:36:57,707][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-09-30 17:36:57,756][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-09-30 17:36:57,757][scoresbibm.scripts.hydra_script][INFO] - Task: two_moons
+[2026-09-30 17:36:57,796][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_legacy_full_fixeps
+[compass-worker] device cpu CUDA_VISIBLE_DEVICES  compass /export/home/rheinric/COMPASS/src/compass/__init__.py 
+[compass-worker] loaded /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_22-26-50/local/compass_model
+[compass] train info: {'loaded_from': '/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_22-26-50/local/compass_model'}
+[2026-09-30 17:37:04,589][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_legacy_full_fixeps
+[2026-09-30 17:37:04,589][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: nll_posterior
+[2026-09-30 17:38:06,746][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: cov_posterior
+[compass-worker] forwarding eps 1e-05 to Sampler.sample
+Finished sampling for batch  0
+Finished sampling for batch  1
+Finished computing true log probs
+Finished computing sample log probs for batch  0
+Finished computing sample log probs for batch  1
+Coverage:  ([0.0, 0.02, 0.03959183673469388, 0.05918367346938776, 0.07877551020408163, 0.09836734693877551, 0.11795918367346939, 0.13755102040816325, 0.1571428571428571, 0.176734693877551, 0.1963265306122449, 0.21591836734693876, 0.23551020408163262, 0.25510204081632654, 0.2746938775510204, 0.29428571428571426, 0.31387755102040815, 0.33346938775510204, 0.35306122448979593, 0.3726530612244898, 0.39224489795918366, 0.41183673469387755, 0.43142857142857144, 0.4510204081632653, 0.47061224489795916, 0.49020408163265305, 0.509795918367347, 0.5293877551020408, 0.5489795918367347, 0.5685714285714285, 0.5881632653061224, 0.6077551020408163, 0.6273469387755102, 0.6469387755102041, 0.666530612244898, 0.6861224489795918, 0.7057142857142857, 0.7253061224489796, 0.7448979591836734, 0.7644897959183673, 0.7840816326530612, 0.8036734693877551, 0.823265306122449, 0.8428571428571429, 0.8624489795918368, 0.8820408163265305, 0.9016326530612244, 0.9212244897959183, 0.9408163265306122, 0.9604081632653061, 0.98, 1.0], [0.0, 0.0258, 0.0334, 0.0446, 0.09, 0.106, 0.1326, 0.1548, 0.195, 0.1984, 0.2162, 0.2486, 0.2638, 0.286, 0.2948, 0.305, 0.3096, 0.3204, 0.3616, 0.3706, 0.4056, 0.4256, 0.4418, 0.4608, 0.4646, 0.4868, 0.4966, 0.5208, 0.539, 0.5752, 0.6028, 0.6184, 0.6374, 0.6522, 0.683, 0.6958, 0.7086, 0.7366, 0.747, 0.7544, 0.767, 0.7772, 0.7978, 0.811, 0.8244, 0.8422, 0.8892, 0.9308, 0.9486, 0.958, 0.9716, 1.0])
+[2026-09-30 17:47:22,657][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-09-30 17:47:22,689][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 3

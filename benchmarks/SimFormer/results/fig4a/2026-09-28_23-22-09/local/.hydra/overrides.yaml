@@ -1,0 +1,6 @@
+- name=fig4a
+- method=score_transformer
+- task=gaussian_linear
+- task.num_simulations=100000
+- eval=c2st_posterior
+- save_model=true

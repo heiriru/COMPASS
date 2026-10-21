@@ -1,0 +1,73 @@
+r1                     n=16  s=0 W1/sd 0.097 P+ 0.822 (exact 0.784) rows   25.34M (jac 19.01M, warm 0.000M) refresh 198 43s
+r1                     n=16  s=1 W1/sd 0.082 P+ 0.815 (exact 0.784) rows   25.34M (jac 19.01M, warm 0.000M) refresh 198 43s
+legacy                 n=16  s=0 W1/sd 0.100 P+ 0.822 (exact 0.784) rows   18.34M (jac 12.00M, warm 0.000M) refresh 125 32s
+legacy                 n=16  s=1 W1/sd 0.085 P+ 0.815 (exact 0.784) rows   18.34M (jac 12.00M, warm 0.000M) refresh 125 32s
+r2                     n=16  s=0 W1/sd 0.136 P+ 0.838 (exact 0.784) rows   15.84M (jac 9.50M, warm 0.000M) refresh 99 28s
+r2                     n=16  s=1 W1/sd 0.144 P+ 0.841 (exact 0.784) rows   15.84M (jac 9.50M, warm 0.000M) refresh 99 28s
+r3                     n=16  s=0 W1/sd 0.100 P+ 0.823 (exact 0.784) rows   12.67M (jac 6.34M, warm 0.000M) refresh 66 23s
+r3                     n=16  s=1 W1/sd 0.102 P+ 0.823 (exact 0.784) rows   12.67M (jac 6.34M, warm 0.000M) refresh 66 23s
+r5                     n=16  s=0 W1/sd 0.096 P+ 0.821 (exact 0.784) rows   10.18M (jac 3.84M, warm 0.000M) refresh 40 19s
+r5                     n=16  s=1 W1/sd 0.089 P+ 0.818 (exact 0.784) rows   10.18M (jac 3.84M, warm 0.000M) refresh 40 19s
+lo10@0.3+hi5@3         n=16  s=0 W1/sd 0.106 P+ 0.824 (exact 0.784) rows   15.94M (jac 9.60M, warm 0.000M) refresh 100 28s
+lo10@0.3+hi5@3         n=16  s=1 W1/sd 0.088 P+ 0.816 (exact 0.784) rows   15.94M (jac 9.60M, warm 0.000M) refresh 100 28s
+lo10@0.3+hi20@3        n=16  s=0 W1/sd 0.099 P+ 0.821 (exact 0.784) rows   15.46M (jac 9.12M, warm 0.000M) refresh 95 27s
+lo10@0.3+hi20@3        n=16  s=1 W1/sd 0.087 P+ 0.816 (exact 0.784) rows   15.46M (jac 9.12M, warm 0.000M) refresh 95 27s
+lo1000@0.3             n=16  s=0 W1/sd 0.104 P+ 0.822 (exact 0.784) rows   17.66M (jac 11.33M, warm 0.000M) refresh 118 31s
+lo1000@0.3             n=16  s=1 W1/sd 0.089 P+ 0.815 (exact 0.784) rows   17.66M (jac 11.33M, warm 0.000M) refresh 118 31s
+band1-15               n=16  s=0 W1/sd 0.102 P+ 0.822 (exact 0.784) rows   15.17M (jac 8.83M, warm 0.000M) refresh 92 28s
+band1-15               n=16  s=1 W1/sd 0.089 P+ 0.816 (exact 0.784) rows   15.17M (jac 8.83M, warm 0.000M) refresh 92 28s
+band0.5-30             n=16  s=0 W1/sd 0.103 P+ 0.822 (exact 0.784) rows   16.70M (jac 10.37M, warm 0.000M) refresh 108 30s
+band0.5-30             n=16  s=1 W1/sd 0.089 P+ 0.815 (exact 0.784) rows   16.70M (jac 10.37M, warm 0.000M) refresh 108 30s
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/jacobian_speedup/bench_toy.py", line 203, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/jacobian_speedup/bench_toy.py", line 190, in main
+    np.savez(path, g=g, l=l, cost=json.dumps(cost))
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 673, in savez
+    _savez(file, args, kwds, False, allow_pickle=allow_pickle)
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 779, in _savez
+    zipf = zipfile_factory(file, mode="w", compression=compression)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 112, in zipfile_factory
+    return zipfile.ZipFile(file, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/zipfile/__init__.py", line 1347, in __init__
+    self.fp = io.open(file, filemode)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/export/home/rheinric/COMPASS/jacobian_speedup/artifacts/toy/lean/hierarchical/band1-15/5_n16_s0.npz'
+band1-15/5             n=16  s=0 W1/sd 0.097 P+ 0.822 (exact 0.784) rows   17.18M (jac 10.85M, warm 0.000M) refresh 113 32s
+band1-15/5             n=16  s=1 W1/sd 0.084 P+ 0.816 (exact 0.784) rows   17.18M (jac 10.85M, warm 0.000M) refresh 113 32s
+band0.5-30/5           n=16  s=0 W1/sd 0.097 P+ 0.822 (exact 0.784) rows   18.43M (jac 12.10M, warm 0.000M) refresh 126 33s
+band0.5-30/5           n=16  s=1 W1/sd 0.083 P+ 0.815 (exact 0.784) rows   18.43M (jac 12.10M, warm 0.000M) refresh 126 77s
+r3+lo10@0.3            n=16  s=0 W1/sd 0.102 P+ 0.823 (exact 0.784) rows   10.85M (jac 4.51M, warm 0.000M) refresh 47 56s
+r3+lo10@0.3            n=16  s=1 W1/sd 0.104 P+ 0.823 (exact 0.784) rows   10.85M (jac 4.51M, warm 0.000M) refresh 47 54s
+r2+lo10@0.3            n=16  s=0 W1/sd 0.137 P+ 0.838 (exact 0.784) rows   12.86M (jac 6.53M, warm 0.000M) refresh 68 61s
+r2+lo10@0.3            n=16  s=1 W1/sd 0.145 P+ 0.841 (exact 0.784) rows   12.86M (jac 6.53M, warm 0.000M) refresh 68 53s
+r1                     n=128 s=0 W1/sd 0.107 P+ 0.715 (exact 0.722) rows  202.75M (jac 152.06M, warm 0.000M) refresh 198 450s
+r1                     n=128 s=1 W1/sd 0.111 P+ 0.731 (exact 0.722) rows  202.75M (jac 152.06M, warm 0.000M) refresh 198 348s
+legacy                 n=128 s=0 W1/sd 0.116 P+ 0.715 (exact 0.722) rows  146.69M (jac 96.00M, warm 0.000M) refresh 125 253s
+legacy                 n=128 s=1 W1/sd 0.120 P+ 0.731 (exact 0.722) rows  146.69M (jac 96.00M, warm 0.000M) refresh 125 251s
+r2                     n=128 s=0 W1/sd 0.116 P+ 0.730 (exact 0.722) rows  126.72M (jac 76.03M, warm 0.000M) refresh 99 322s
+r2                     n=128 s=1 W1/sd 0.133 P+ 0.740 (exact 0.722) rows  126.72M (jac 76.03M, warm 0.000M) refresh 99 454s
+r3                     n=128 s=0 W1/sd 0.111 P+ 0.730 (exact 0.722) rows  101.38M (jac 50.69M, warm 0.000M) refresh 66 375s
+r3                     n=128 s=1 W1/sd 0.140 P+ 0.745 (exact 0.722) rows  101.38M (jac 50.69M, warm 0.000M) refresh 66 373s
+r5                     n=128 s=0 W1/sd 0.103 P+ 0.724 (exact 0.722) rows   81.41M (jac 30.72M, warm 0.000M) refresh 40 308s
+r5                     n=128 s=1 W1/sd 0.131 P+ 0.739 (exact 0.722) rows   81.41M (jac 30.72M, warm 0.000M) refresh 40 311s
+lo10@0.3+hi5@3         n=128 s=0 W1/sd 0.117 P+ 0.729 (exact 0.722) rows  127.49M (jac 76.80M, warm 0.000M) refresh 100 453s
+lo10@0.3+hi5@3         n=128 s=1 W1/sd 0.145 P+ 0.744 (exact 0.722) rows  127.49M (jac 76.80M, warm 0.000M) refresh 100 452s
+lo10@0.3+hi20@3        n=128 s=0 W1/sd 0.129 P+ 0.735 (exact 0.722) rows  123.65M (jac 72.96M, warm 0.000M) refresh 95 441s
+lo10@0.3+hi20@3        n=128 s=1 W1/sd 0.140 P+ 0.742 (exact 0.722) rows  123.65M (jac 72.96M, warm 0.000M) refresh 95 434s
+lo1000@0.3             n=128 s=0 W1/sd 0.126 P+ 0.715 (exact 0.722) rows  141.31M (jac 90.62M, warm 0.000M) refresh 118 469s
+lo1000@0.3             n=128 s=1 W1/sd 0.130 P+ 0.731 (exact 0.722) rows  141.31M (jac 90.62M, warm 0.000M) refresh 118 461s
+band1-15               n=128 s=0 W1/sd 0.129 P+ 0.713 (exact 0.722) rows  117.50M (jac 66.82M, warm 0.000M) refresh 87 417s
+band1-15               n=128 s=1 W1/sd 0.121 P+ 0.727 (exact 0.722) rows  118.27M (jac 67.58M, warm 0.000M) refresh 88 420s
+band0.5-30             n=128 s=0 W1/sd 0.124 P+ 0.715 (exact 0.722) rows  132.86M (jac 82.18M, warm 0.000M) refresh 107 467s
+band0.5-30             n=128 s=1 W1/sd 0.128 P+ 0.731 (exact 0.722) rows  132.86M (jac 82.18M, warm 0.000M) refresh 107 468s
+band1-15/5             n=128 s=0 W1/sd 0.115 P+ 0.713 (exact 0.722) rows  134.40M (jac 83.71M, warm 0.000M) refresh 109 473s
+band1-15/5             n=128 s=1 W1/sd 0.108 P+ 0.728 (exact 0.722) rows  135.17M (jac 84.48M, warm 0.000M) refresh 110 475s
+band0.5-30/5           n=128 s=0 W1/sd 0.110 P+ 0.715 (exact 0.722) rows  146.69M (jac 96.00M, warm 0.000M) refresh 125 514s
+band0.5-30/5           n=128 s=1 W1/sd 0.114 P+ 0.731 (exact 0.722) rows  146.69M (jac 96.00M, warm 0.000M) refresh 125 484s
+r3+lo10@0.3            n=128 s=0 W1/sd 0.118 P+ 0.730 (exact 0.722) rows   86.78M (jac 36.10M, warm 0.000M) refresh 47 275s
+r3+lo10@0.3            n=128 s=1 W1/sd 0.147 P+ 0.745 (exact 0.722) rows   86.78M (jac 36.10M, warm 0.000M) refresh 47 274s
+r2+lo10@0.3            n=128 s=0 W1/sd 0.118 P+ 0.730 (exact 0.722) rows  102.91M (jac 52.22M, warm 0.000M) refresh 68 318s
+r2+lo10@0.3            n=128 s=1 W1/sd 0.136 P+ 0.740 (exact 0.722) rows  102.91M (jac 52.22M, warm 0.000M) refresh 68 318s

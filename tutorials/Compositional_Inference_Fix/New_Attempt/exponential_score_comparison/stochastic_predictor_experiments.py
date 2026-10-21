@@ -122,7 +122,12 @@ SAMPLE_KWARGS = {
 }
 
 # Karras et al. (2022) cap the per-step noise-up ratio for stability.
-GAMMA_CAP = math.sqrt(2.0) - 1.0
+from compass.churn import GAMMA_CAP
+
+# Captured at import, before anything can patch it: the wrapper above runs
+# *as* MultiObsSampler._dpm_sampler, so it must call the library body by an
+# alias rather than by attribute lookup, or it recurses into itself.
+_LIBRARY_DPM_SAMPLER = MultiObsSampler._dpm_sampler
 
 NAVY, BLUE, TEAL, CORAL, GOLD = (
     compare.NAVY, compare.BLUE, compare.TEAL, compare.CORAL, compare.GOLD
@@ -135,16 +140,18 @@ MUTED = "#8A8F98"
 # ---------------------------------------------------------------------------
 
 def churned_dpm_sampler(eta, s_noise=1.0, sigma_min=0.0, sigma_max=float("inf")):
-    """Build a ``_dpm_sampler`` replacement: noise-up by ``eta``, then DPM2 down.
+    """Deprecated. Pass ``churn_eta=eta`` to ``sample``; see ``compass.churn``.
 
-    ``eta`` scales the noise-up step in units of the schedule's own step length,
-    so ``eta = 0`` is the stock probability-flow predictor and ``eta = 1`` is the
-    exact reverse SDE (see the module docstring). ``sigma_min`` / ``sigma_max``
-    restrict churn to a band of the schedule, Karras' ``S_tmin`` / ``S_tmax``.
+    Churn has been lifted into the library, where it is the sampler's default
+    (``eta = 2.0``) and where the single-observation ``Sampler`` can use it too.
+    This wrapper is retained so the scripts in this directory keep running
+    unchanged and keep reproducing their published numbers --
+    ``tests/test_churn.py`` pins the library predictor bit-identical to the patch
+    that produced them.
 
-    Correctors are refused rather than ignored: this sampler exists to answer a
-    question about a predictor, and silently dropping a corrector request would
-    make its answers unreadable.
+    Correctors are still refused rather than ignored: this sampler exists to
+    answer a question about a predictor, and silently dropping a corrector
+    request would make its answers unreadable.
     """
     def sampler(self, data, condition_mask, idx, order=2, snr=0.1,
                 corrector_steps_interval=5, corrector_steps=5,
@@ -156,44 +163,24 @@ def churned_dpm_sampler(eta, s_noise=1.0, sigma_min=0.0, sigma_max=float("inf"))
                 f"final_corrector_steps={final_corrector_steps}, "
                 f"terminal_corrector_steps={terminal_corrector_steps}."
             )
-        step = {1: self._dpm_solver_1_step, 2: self._dpm_solver_2_step,
-                3: self._dpm_solver_3_step}[order]
-        latent = 1 - condition_mask
-        # The schedule's largest noise level: churn must never step above it,
-        # because t > 1 is outside the SDE's (and the network's) domain.
-        ceiling = float(self.sde.lambda_t(torch.ones(1, device=data.device)))
-
-        if self.save_trajectory:
-            self.data_t = torch.zeros(data.shape[0], self.timesteps,
-                                      data.shape[1], data.shape[2])
-            self.data_t[:, 0, :, :] = data
-
-        for i in range(self.timesteps - 1):
-            t_now = self.timesteps_list[i].reshape(-1, 1)
-            t_next = self.timesteps_list[i + 1].reshape(-1, 1)
-            sigma_now = float(self.sde.lambda_t(t_now).reshape(-1)[0])
-            sigma_next = float(self.sde.lambda_t(t_next).reshape(-1)[0])
-
-            t_start = t_now
-            if eta > 0.0 and sigma_min <= sigma_now <= sigma_max:
-                gamma = min(eta * (sigma_now - sigma_next) / sigma_now, GAMMA_CAP)
-                sigma_hat = min(sigma_now * (1.0 + gamma), ceiling)
-                spread = math.sqrt(max(sigma_hat**2 - sigma_now**2, 0.0))
-                if spread > 0.0:
-                    # _shared_noise keeps the hierarchy coordinates identical
-                    # across observation rows, as everywhere else in the sampler.
-                    data = data + s_noise * spread * self._shared_noise(data) * latent
-                    t_start = self.sde.time_of_lambda(
-                        torch.as_tensor(sigma_hat, dtype=t_now.dtype,
-                                        device=t_now.device)
-                    ).reshape(1, 1)
-
-            data = step(data, t_start, t_next, condition_mask, idx)
-
-            if self.save_trajectory:
-                self.data_t[:, i + 1] = data
-
-        return data.detach()
+        saved = (getattr(self, "churn_eta", 2.0),
+                 getattr(self, "churn_s_noise", 1.0),
+                 getattr(self, "churn_sigma_min", 0.0),
+                 getattr(self, "churn_sigma_max", float("inf")))
+        self.churn_eta = float(eta)
+        self.churn_s_noise = float(s_noise)
+        self.churn_sigma_min = float(sigma_min)
+        self.churn_sigma_max = float(sigma_max)
+        try:
+            return _LIBRARY_DPM_SAMPLER(
+                self, data, condition_mask, idx, order=order, snr=snr,
+                corrector_steps_interval=corrector_steps_interval,
+                corrector_steps=0, final_corrector_steps=0,
+                terminal_corrector_steps=0,
+            )
+        finally:
+            (self.churn_eta, self.churn_s_noise,
+             self.churn_sigma_min, self.churn_sigma_max) = saved
 
     return sampler
 

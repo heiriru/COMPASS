@@ -1,0 +1,7 @@
+- name=fig4b_sampler
+- method=compass_fx_churn2
+- task=tree_all_cond
+- task.num_simulations=10000
+- eval=c2st
+- save_model=false
+- ++method.compass.load_from=/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4b/2026-09-29_08-39-40/local/compass_model

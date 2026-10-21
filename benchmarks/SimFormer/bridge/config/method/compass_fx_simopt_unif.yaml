@@ -1,0 +1,27 @@
+# COMPASS, legacy ConditionTransformer trunk (dense read-out over all tokens).
+name: compass_fx_simopt_unif
+backend: jax
+device: gpu
+compass:
+  arch: legacy
+  hidden_size: 64
+  depth: 6
+  num_heads: 4
+  mlp_ratio: 3
+  sde: vesde
+  sigma: 25.0
+  z_score: true
+  mask_law: simformer        # their five-way structured-random law
+  time_sampling: uniform     # t ~ U(eps, 1), as Simformer
+  lr: 1.0e-3
+  batch_size: 1000
+  validation_fraction: 0.1
+  patience_steps: 1000000000   # no early stop: full step budget like Simformer
+  sampler: dpm
+  order: 2
+  churn_eta: 2.0
+  timesteps: 100
+  eps: 1.0e-5
+  forward_eps: true      # work around SBIm.sample dropping eps
+  optimizer: simformer
+  checkpoint: final

@@ -1,0 +1,5 @@
+sampling eps 0.001
+hierarchical_R_noproj gauss_jacobian_FD    n=4   P(g>0)=0.636 E|g|=1.209 sd=1.226  81s
+hierarchical_R_noproj gauss_jacobian_FD    n=16  P(g>0)=0.552 E|g|=1.265 sd=1.282  81s
+hierarchical_R_noproj gauss_jacobian_FD    n=64  P(g>0)=0.485 E|g|=1.215 sd=1.209  214s
+hierarchical_R_noproj gauss_jacobian_FD    n=128 P(g>0)=0.614 E|g|=1.134 sd=1.151  434s

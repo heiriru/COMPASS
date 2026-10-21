@@ -305,3 +305,25 @@ def test_local_block_is_checked_before_a_branch_is_called_a_maximum():
     # and the structured Laplace determinant is therefore well defined
     assemble(clean, [b.diagnostics["clean_result"] for b in branches],
              laplace_plus_samples=0)
+
+
+@pytest.mark.parametrize("d_g,d_l,n", [(2, 1, 8), (1, 1, 32), (7, 3, 16)])
+def test_batched_arrowhead_newton_is_the_single_point_solve(d_g, d_l, n):
+    """The batched hierarchical solve must be bit-identical to the loop it
+    replaces -- it exists for speed, not for a different answer."""
+    from modetree.composition import arrow_newton_batched
+
+    model = B.hierarchical(n, d_g=d_g, d_l=d_l, modes=2)
+    composer = make_composer(model)
+    torch.manual_seed(0)
+    states = torch.randn(5, composer.dim, dtype=torch.float64) * 0.3
+    A, Bb, C = composer.blocks_batched(states)
+    score = composer.score(states)
+    step, precision = arrow_newton_batched(A, Bb, C, score, d_g, d_l, n)
+    for k in range(states.shape[0]):
+        blocks = composer.blocks(states[k])
+        assert float((A[k] - blocks.A).abs().max()) == 0.0
+        assert float((C[k] - blocks.C).abs().max()) == 0.0
+        assert float((precision[k] - blocks.global_precision()).abs().max()) == 0.0
+        reference = composer.newton_step(states[k], blocks=blocks)
+        assert float((step[k] - reference).abs().max()) == 0.0

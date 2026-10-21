@@ -1,0 +1,75 @@
+[2026-10-07 11:42:48,530][scoresbibm.scripts.hydra_script][INFO] - name: fig4a_sampler
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_fx_churn2
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    load_from: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-08-39/local/compass_model
+task:
+  name: gaussian_mixture
+  num_simulations: 1000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a_sampler/2026-10-07_11-42-48/local
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a_sampler
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-07 11:42:48,531][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-07 11:42:48,574][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-07 11:42:48,577][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_mixture
+[2026-10-07 11:42:48,627][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_fx_churn2
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 9 compass /export/home/rheinric/COMPASS/src/compass/__init__.py 
+[compass-worker] loaded /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-08-39/local/compass_model
+[compass] train info: {'loaded_from': '/export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-09-28_20-08-39/local/compass_model'}
+[2026-10-07 11:42:55,496][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_fx_churn2
+[2026-10-07 11:42:55,496][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+[compass-worker] forwarding eps 1e-05 to Sampler.sample
+Metric value:  0.6437000036239624
+Metric value:  0.6177999973297119
+Metric value:  0.6450999975204468
+Metric value:  0.6208999752998352
+Metric value:  0.6887000203132629
+Metric value:  0.6721000075340271
+Metric value:  0.6259999871253967
+Metric value:  0.5824499726295471
+Metric value:  0.6566500067710876
+Metric value:  0.6523000001907349
+[2026-10-07 11:50:08,009][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-07 11:50:08,030][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 2

@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 
 import torch
 
+from .composition import arrow_newton_batched
+
 
 @dataclass
 class ModeResult:
@@ -221,7 +223,7 @@ def mahalanobis_residual(score, curvature):
 
 def refine_batch(composer, seeds, tol=1e-9, max_iter=60, radius=1.0,
                  step_tol=1e-9):
-    """Newton-refine many seeds at once on an all-global composed field.
+    """Newton-refine many seeds at once on the composed field.
 
     Mode discovery launches tens of probes per diffusion level, and refining
     them one at a time is what makes the mode tree expensive -- not the score
@@ -230,16 +232,36 @@ def refine_batch(composer, seeds, tol=1e-9, max_iter=60, radius=1.0,
     search (all damping factors are tried simultaneously and the first
     merit-decreasing one is selected per row).
 
-    Requires ``composer.d_l == 0`` and a composer exposing
-    ``global_curvature`` for a batch of states.  Returns
-    ``(theta, score_norms, curvature)``.
+    Handles hierarchical states through the batched arrowhead solve when the
+    composer exposes ``blocks_batched``, and all-global ones through
+    ``global_curvature``.  Returns ``(theta, score_norms, global_precision,
+    residual)``; ``global_precision`` is the Schur-complemented ``P_g`` at the
+    final point, positive definite exactly at a mode.
     """
-    assert composer.d_l == 0, "refine_batch is for all-global states"
     theta = torch.as_tensor(seeds, dtype=torch.float64).clone()
     if theta.dim() == 1:
         theta = theta.unsqueeze(0)
+    arrow = composer.d_l > 0
+    if arrow and not hasattr(composer, "blocks_batched"):
+        raise TypeError(
+            "refine_batch needs blocks_batched for a hierarchical composer"
+        )
     dampings = torch.tensor(DAMPINGS, dtype=torch.float64)
     rows = torch.arange(theta.shape[0])
+
+    def newton(state):
+        score = composer.score(state)
+        if arrow:
+            A, B, C = composer.blocks_batched(state)
+            step, precision = arrow_newton_batched(
+                A, B, C, score, composer.d_g, composer.d_l, composer.n
+            )
+        else:
+            A = composer.global_curvature(state)
+            precision = -0.5 * (A + A.mT)
+            step = torch.linalg.solve(precision, score.unsqueeze(-1)).squeeze(-1)
+        return score, step, precision
+
     # Per-row bookkeeping, not a global break.  Rows converge and stall at very
     # different iterations -- a probe launched four prior standard deviations
     # away is still travelling while its neighbour is already at the root -- and
@@ -248,15 +270,13 @@ def refine_batch(composer, seeds, tol=1e-9, max_iter=60, radius=1.0,
     # acceptance residual exactly proportional to the seed offset, which is what
     # first hid the dominant mode of the map_vs_mass benchmark at n = 100.
     done = torch.zeros(theta.shape[0], dtype=torch.bool)
-    iterations = 0
-    for iterations in range(1, max_iter + 1):
-        score = composer.score(theta)                        # (M, d)
-        norm = torch.linalg.vector_norm(score, dim=-1)       # (M,)
-        A = composer.global_curvature(theta)                 # (M, d, d)
-        done = done | (norm < tol) | (mahalanobis_residual(score, A) < step_tol)
+    for _ in range(max_iter):
+        score, step, precision = newton(theta)
+        norm = torch.linalg.vector_norm(score, dim=-1)
+        residual = mahalanobis_residual(score[..., : composer.d_g], -precision)
+        done = done | (norm < tol) | (residual < step_tol)
         if bool(done.all()):
             break
-        step = torch.linalg.solve(-A, score.unsqueeze(-1)).squeeze(-1)
         cap = (radius / step.abs().amax(-1).clamp_min(1e-300)).clamp(max=1.0)
         step = step * cap.unsqueeze(-1)
         trials = theta.unsqueeze(1) + dampings.reshape(1, -1, 1) * step.unsqueeze(1)
@@ -271,7 +291,8 @@ def refine_batch(composer, seeds, tol=1e-9, max_iter=60, radius=1.0,
         theta = torch.where(any_ok.unsqueeze(-1), chosen, theta)
         done = done | ~any_ok            # a row that cannot improve is finished
 
-    score = composer.score(theta)
-    curvature = composer.global_curvature(theta)
-    return (theta, torch.linalg.vector_norm(score, dim=-1), curvature,
-            mahalanobis_residual(score, curvature))
+    score, _, precision = newton(theta)
+    return (theta, torch.linalg.vector_norm(score, dim=-1), precision,
+            mahalanobis_residual(score[..., : composer.d_g], -precision))
+
+

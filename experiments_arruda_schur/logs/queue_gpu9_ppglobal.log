@@ -1,0 +1,8 @@
+2026-09-30T22:07:34+02:00 GPU 9: ../.COMPASS/bin/python -u pp.py infer --mode global --method gauss_jacobian_FD --datasets 10 --draw-batch 10 > logs/pp_global_gauss_jacobian_FD.log 2>&1
+2026-09-30T23:08:39+02:00 GPU 9: exit 0
+2026-09-30T23:08:39+02:00 GPU 9: ../.COMPASS/bin/python -u pp.py infer --mode global --method arruda_direct --datasets 10 --draw-batch 10 > logs/pp_global_arruda_direct.log 2>&1
+2026-09-30T23:23:22+02:00 GPU 9: exit 0
+2026-09-30T23:23:22+02:00 GPU 9: ../.COMPASS/bin/python -u pp.py infer --mode hierarchical --method gauss_jacobian_FD --datasets 10 --draw-batch 10 > logs/pp_hier_gauss_jacobian_FD.log 2>&1
+2026-10-01T00:08:29+02:00 GPU 9: exit 0
+2026-10-01T00:08:29+02:00 GPU 9: ../.COMPASS/bin/python -u pp.py infer --mode hierarchical --method arruda_direct --datasets 10 --draw-batch 10 > logs/pp_hier_arruda_direct.log 2>&1
+2026-10-01T00:21:23+02:00 GPU 9: exit 0

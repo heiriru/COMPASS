@@ -1,0 +1,79 @@
+[2026-10-01 16:40:22,057][scoresbibm.scripts.hydra_script][INFO] - name: fig4a
+seed: 0
+model_id: null
+save_model: false
+save_summary: true
+method:
+  name: compass_fx_lowrank8
+  backend: jax
+  device: gpu
+  compass:
+    arch: legacy
+    hidden_size: 64
+    depth: 6
+    num_heads: 4
+    mlp_ratio: 3
+    sde: vesde
+    sigma: 25.0
+    z_score: true
+    mask_law: simformer
+    time_sampling: log_sigma
+    lr: 0.001
+    batch_size: 1000
+    validation_fraction: 0.1
+    patience_steps: 1000000000
+    sampler: dpm
+    order: 2
+    churn_eta: 2.0
+    timesteps: 100
+    eps: 1.0e-05
+    forward_eps: true
+    arch_variant: lowrank_time
+    time_rank: 8
+task:
+  name: gaussian_mixture
+  num_simulations: 1000
+eval:
+  metric:
+    c2st_posterior:
+      n_folds: 5
+      metric: accuracy
+      classifier: rf
+      condition_mask_fn: posterior
+      num_samples: 2000
+      num_evaluations: 50
+partition: {}
+sweeper:
+  name: null
+  objective: null
+
+[2026-10-01 16:40:22,057][scoresbibm.scripts.hydra_script][INFO] - Working directory : /export/home/rheinric/COMPASS/benchmarks/SimFormer
+[2026-10-01 16:40:22,057][scoresbibm.scripts.hydra_script][INFO] - Output directory  : /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a/2026-10-01_16-40-21/local
+[2026-10-01 16:40:22,057][scoresbibm.scripts.hydra_script][INFO] - Output super directory: /export/home/rheinric/COMPASS/benchmarks/SimFormer/results/fig4a
+[2026-10-01 16:40:22,058][scoresbibm.scripts.hydra_script][INFO] - Hostname: compgpu5
+[2026-10-01 16:40:22,059][scoresbibm.scripts.hydra_script][INFO] - Jax devices: [cuda(id=0)]
+[2026-10-01 16:40:22,060][scoresbibm.scripts.hydra_script][INFO] - Torch devices: 0
+[2026-10-01 16:40:22,108][scoresbibm.scripts.hydra_script][INFO] - Seed: 0
+[2026-10-01 16:40:22,109][scoresbibm.scripts.hydra_script][INFO] - Task: gaussian_mixture
+[2026-10-01 16:40:22,162][scoresbibm.scripts.hydra_script][INFO] - Running method: compass_fx_lowrank8
+[compass-worker] device cuda CUDA_VISIBLE_DEVICES 9 compass /export/home/rheinric/COMPASS/src/compass/__init__.py 
+[compass-worker] legacy trunk with shared + rank 8 per-node time conditioning
+[compass-worker] train_eps None
+[compass-worker] train arch=legacy params=1067128 rows=900 val=100 steps/epoch=1 max_epochs=5000 patience=1000000000
+[compass-worker] trained {'n_params': 1067128, 'train_seconds': 225.28740906715393, 'epochs': 5000, 'steps': 5000, 'best_val': 2.4907522583007813, 'max_epochs': 5000, 'patience': 1000000000}
+[compass] train info: {'n_params': 1067128, 'train_seconds': 225.28740906715393, 'epochs': 5000, 'steps': 5000, 'best_val': 2.4907522583007813, 'max_epochs': 5000, 'patience': 1000000000}
+[2026-10-01 16:44:14,530][scoresbibm.scripts.hydra_script][INFO] - Evaluating method: compass_fx_lowrank8
+[2026-10-01 16:44:14,531][scoresbibm.scripts.hydra_script][INFO] - Evaluating metric: c2st_posterior
+[compass-worker] forwarding eps 1e-05 to Sampler.sample
+Metric value:  0.6114500164985657
+Metric value:  0.5965499877929688
+Metric value:  0.5893999934196472
+Metric value:  0.6236000061035156
+Metric value:  0.7017999887466431
+Metric value:  0.6243000030517578
+Metric value:  0.5952500104904175
+Metric value:  0.5817000269889832
+Metric value:  0.6102499961853027
+Metric value:  0.6232500076293945
+[2026-10-01 16:47:29,619][scoresbibm.scripts.hydra_script][INFO] - Saving summary
+[2026-10-01 16:47:29,649][scoresbibm.scripts.hydra_script][INFO] - Summary saved with id: 81
