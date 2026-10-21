@@ -1,0 +1,51 @@
+  gauss_jacobian_FD_r5 J=10 [0] kl=0.0866 mean_err=0.0599sd width=1.01 t=28.1s
+  gauss_jacobian_FD_r5 J=10 [1] kl=0.0856 mean_err=0.051sd width=1 t=23.7s
+  gauss_jacobian_FD_r5 J=10 [2] kl=0.0976 mean_err=0.0628sd width=1.01 t=24.1s
+  gauss_jacobian_FD_r5 J=10 [3] kl=0.0821 mean_err=0.0408sd width=1.01 t=26.0s
+  gauss_jacobian_FD_r5 J=10 [4] kl=0.11 mean_err=0.0941sd width=1.01 t=25.0s
+  gauss_jacobian_FD_r5 J=10 [5] kl=0.0699 mean_err=0.0487sd width=0.986 t=25.6s
+  gauss_jacobian_FD_r5 J=10 [6] kl=0.0594 mean_err=0.0542sd width=1.01 t=25.0s
+  gauss_jacobian_FD_r5 J=10 [7] kl=0.0766 mean_err=0.0489sd width=1.01 t=27.7s
+  gauss_jacobian_FD_r5 J=10 [8] kl=0.0856 mean_err=0.0657sd width=1.01 t=26.3s
+  gauss_jacobian_FD_r5 J=10 [9] kl=0.0863 mean_err=0.0668sd width=1.01 t=26.1s
+{"datasets": 10, "failed": 0, "kl": 0.08561340298947394, "rmse": 0.42537287354927045, "contraction": 0.9078272315114457, "mean_error_sd": 0.05701887439010861, "width_ratio": 1.0064011324109914, "seconds": 25.76141032995656, "calibration_error": 0.1355, "method": "gauss_jacobian_FD_r5", "observations": 10, "num_samples": 500}
+  gauss_jacobian_FD_r5 J=100 [0] kl=0.461 mean_err=0.221sd width=0.998 t=270.5s
+  gauss_jacobian_FD_r5 J=100 [1] kl=0.393 mean_err=0.18sd width=1.01 t=319.7s
+  gauss_jacobian_FD_r5 J=100 [2] kl=0.375 mean_err=0.197sd width=0.998 t=287.9s
+  gauss_jacobian_FD_r5 J=100 [3] kl=0.139 mean_err=0.103sd width=0.999 t=289.4s
+  gauss_jacobian_FD_r5 J=100 [4] kl=0.425 mean_err=0.223sd width=1.01 t=289.9s
+  gauss_jacobian_FD_r5 J=100 [5] kl=0.36 mean_err=0.211sd width=1 t=286.7s
+  gauss_jacobian_FD_r5 J=100 [6] kl=0.371 mean_err=0.208sd width=1.01 t=326.7s
+  gauss_jacobian_FD_r5 J=100 [7] kl=0.256 mean_err=0.162sd width=1.01 t=582.5s
+  gauss_jacobian_FD_r5 J=100 [8] kl=0.348 mean_err=0.211sd width=1.01 t=614.9s
+  gauss_jacobian_FD_r5 J=100 [9] kl=0.263 mean_err=0.153sd width=1.01 t=727.9s
+{"datasets": 10, "failed": 0, "kl": 0.3656235363868772, "rmse": 0.13889684672995342, "contraction": 0.9899343746970423, "mean_error_sd": 0.20281301647644043, "width_ratio": 1.0077140621885712, "seconds": 304.7673260900192, "calibration_error": 0.0895, "method": "gauss_jacobian_FD_r5", "observations": 100, "num_samples": 500}
+| J | method | KL | RMSE | contraction | cal. err | |mean err|/sd | width ratio | failed | s/dataset |
+|---|---|---|---|---|---|---|---|---|---|
+| 10 | exact | 0.0708 | 0.424 | 0.909 | 0.130 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 10 | gauss | 0.0926 | 0.427 | 0.906 | 0.135 | 0.0679 | 1.016 | 0/10 | 11.8 |
+| 10 | full_gaussian | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 12.4 |
+| 10 | gauss_hierarchical | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 14.2 |
+| 10 | gauss_jacobian | 0.0856 | 0.425 | 0.908 | 0.136 | 0.057 | 1.006 | 0/10 | 44.7 |
+| 10 | gauss_jacobian_FD | 0.0857 | 0.425 | 0.908 | 0.135 | 0.0572 | 1.005 | 0/10 | 93.5 |
+| 10 | gauss_jacobian_FD_r5 | 0.0856 | 0.425 | 0.908 | 0.136 | 0.057 | 1.006 | 0/10 | 25.8 |
+| 10 | langevin_fnpe | 0.0956 | 0.436 | 0.902 | 0.134 | 0.0568 | 1.038 | 0/10 | 28.2 |
+| 10 | uncorrected | 0.524 | 0.4 | 0.935 | 0.163 | 0.167 | 0.848 | 0/10 | 5.4 |
+| 10 | bayesflow_arruda | 1.22 | 0.356 | 0.952 | 0.162 | 0.206 | 0.729 | 0/10 | 17.5 |
+| 100 | exact | 0.0708 | 0.142 | 0.990 | 0.074 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 100 | gauss | 0.255 | 0.14 | 0.990 | 0.089 | 0.167 | 1.022 | 0/10 | 102.4 |
+| 100 | full_gaussian | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 102.9 |
+| 100 | gauss_hierarchical | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 103.1 |
+| 100 | gauss_jacobian | 0.366 | 0.139 | 0.990 | 0.089 | 0.203 | 1.008 | 0/10 | 441.6 |
+| 100 | gauss_jacobian_FD | 0.366 | 0.139 | 0.990 | 0.089 | 0.203 | 1.007 | 0/10 | 365.9 |
+| 100 | gauss_jacobian_FD_r5 | 0.366 | 0.139 | 0.990 | 0.089 | 0.203 | 1.008 | 0/10 | 304.8 |
+| 100 | langevin_fnpe | 0.242 | 0.141 | 0.989 | 0.076 | 0.151 | 1.035 | 0/10 | 256.7 |
+| 100 | uncorrected | 0.868 | 0.125 | 0.993 | 0.126 | 0.219 | 0.813 | 0/10 | 50.8 |
+| 100 | bayesflow_arruda | 1.75 | 0.124 | 0.993 | 0.130 | 0.42 | 0.828 | 0/10 | 11.3 |
+| 1000 | exact | 0.18 | 0.0425 | 0.999 | 0.118 | 0.0558 | 0.996 | 0/5 | 0.0 |
+| 1000 | gauss | 6.71 | 0.0535 | 0.999 | 0.186 | 0.945 | 1.021 | 0/5 | 2316.3 |
+| 1000 | gauss_hierarchical | 14.7 | 0.0562 | 0.999 | 0.277 | 1.49 | 0.962 | 0/5 | 2321.7 |
+| 1000 | gauss_jacobian | 14.8 | 0.056 | 0.999 | 0.286 | 1.49 | 0.939 | 0/5 | 1690.8 |
+| 1000 | gauss_jacobian_FD | 14.8 | 0.0561 | 0.999 | 0.288 | 1.49 | 0.936 | 0/5 | 2414.7 |
+| 1000 | langevin_fnpe | 1.71 | 0.0464 | 0.999 | 0.131 | 0.476 | 1.028 | 0/5 | 1097.2 |
+| 1000 | bayesflow_arruda | 229 | 0.19 | 0.999 | 0.435 | 5.96 | 0.938 | 0/5 | 4.9 |

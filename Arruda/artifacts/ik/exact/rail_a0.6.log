@@ -1,0 +1,11 @@
+n=  1 exact: peaks [-0.554] P(a1>0) 0.436 mean -0.078 sd 0.369
+n=  2 exact: peaks [-0.692] P(a1>0) 0.396 mean -0.142 sd 0.385
+n=  4 exact: peaks [-0.692] P(a1>0) 0.175 mean -0.384 sd 0.330
+n=  8 exact: peaks [-0.688] P(a1>0) 0.008 mean -0.596 sd 0.114
+n= 16 exact: peaks [-0.652, 0.454] P(a1>0) 0.002 mean -0.602 sd 0.071
+n= 32 exact: peaks [-0.558, 0.53] P(a1>0) 0.005 mean -0.542 sd 0.096
+n= 64 exact: peaks [-0.53, 0.57] P(a1>0) 0.992 mean +0.558 sd 0.102
+n=128 exact: peaks [-0.528, 0.556] P(a1>0) 0.908 mean +0.454 sd 0.314
+reference_a0.6_tol0.05.npz vs exact, W1/sd(exact): n=1:0.11  n=2:0.16  n=4:0.53  n=8:2.01  n=16:3.07  n=32:2.05  n=64:2.69  n=128:1.27
+reference_a0.6_tol0.05_h0.025.npz vs exact, W1/sd(exact): n=1:0.04  n=2:0.05  n=4:0.23  n=8:0.75  n=16:1.17  n=32:0.62  n=64:0.67  n=128:0.35
+reference_a0.6_tol0.05_h0.0125.npz vs exact, W1/sd(exact): n=1:0.01  n=2:0.01  n=4:0.08  n=8:0.27  n=16:0.45  n=32:0.13  n=64:0.13  n=128:0.03

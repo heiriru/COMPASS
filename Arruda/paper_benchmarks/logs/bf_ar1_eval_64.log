@@ -1,0 +1,97 @@
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.72s/batch]Sampling: 100%|██████████| 1/1 [00:51<00:00, 51.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.26s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.26s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.75s/batch]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.75s/batch]
+  tune 64x64 d1=1 s=0 crit=0.7307
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.31s/batch]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.98s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.26s/batch]Sampling: 100%|██████████| 1/1 [00:47<00:00, 47.26s/batch]
+  tune 64x64 d1=1 s=2 crit=0.6184
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.25s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.25s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.15s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.07s/batch]Sampling: 100%|██████████| 1/1 [00:29<00:00, 29.07s/batch]
+  tune 64x64 d1=1 s=5 crit=0.5968
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.02s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.30s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.59s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.59s/batch]
+  tune 64x64 d1=1 s=10 crit=0.5760
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.74s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.74s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.81s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.16s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.16s/batch]
+  tune 64x64 d1=0.1 s=0 crit=0.7291
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.30s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.30s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.15s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.46s/batch]Sampling: 100%|██████████| 1/1 [00:42<00:00, 42.46s/batch]
+  tune 64x64 d1=0.1 s=2 crit=0.4874
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.45s/batch]Sampling: 100%|██████████| 1/1 [00:38<00:00, 38.45s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.38s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.38s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.29s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.29s/batch]
+  tune 64x64 d1=0.1 s=5 crit=0.6056
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.57s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.57s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.50s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.50s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.17s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.17s/batch]
+  tune 64x64 d1=0.1 s=10 crit=0.5445
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.72s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.22s/batch]Sampling: 100%|██████████| 1/1 [00:54<00:00, 54.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.86s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.86s/batch]
+  tune 64x64 d1=0.01 s=0 crit=0.7274
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.65s/batch]Sampling: 100%|██████████| 1/1 [01:03<00:00, 63.66s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.86s/batch]Sampling: 100%|██████████| 1/1 [01:02<00:00, 62.86s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.78s/batch]Sampling: 100%|██████████| 1/1 [00:31<00:00, 31.78s/batch]
+  tune 64x64 d1=0.01 s=2 crit=0.5969
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.22s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.92s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.25s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.25s/batch]
+  tune 64x64 d1=0.01 s=5 crit=0.6180
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.91s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.91s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.79s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.79s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.59s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.59s/batch]
+  tune 64x64 d1=0.01 s=10 crit=0.5926
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.77s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.81s/batch]Sampling: 100%|██████████| 1/1 [00:53<00:00, 53.81s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.59s/batch]Sampling: 100%|██████████| 1/1 [00:45<00:00, 45.59s/batch]
+  tune 64x64 d1=0.001 s=0 crit=0.7257
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.09s/batch]Sampling: 100%|██████████| 1/1 [00:58<00:00, 58.09s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.87s/batch]Sampling: 100%|██████████| 1/1 [00:56<00:00, 56.87s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.78s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.78s/batch]
+  tune 64x64 d1=0.001 s=2 crit=0.6155
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.17s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.83s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.84s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.06s/batch]Sampling: 100%|██████████| 1/1 [00:06<00:00,  6.06s/batch]
+  tune 64x64 d1=0.001 s=5 crit=0.5219
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.72s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.70s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.70s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.77s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.77s/batch]
+  tune 64x64 d1=0.001 s=10 crit=0.5933
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.31s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.55s/batch]Sampling: 100%|██████████| 1/1 [00:46<00:00, 46.55s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.82s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.82s/batch]
+  tune 64x64 d1=1e-05 s=0 crit=0.7217
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.01s/batch]Sampling: 100%|██████████| 1/1 [00:34<00:00, 34.01s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.36s/batch]Sampling: 100%|██████████| 1/1 [00:32<00:00, 32.36s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.57s/batch]Sampling: 100%|██████████| 1/1 [00:11<00:00, 11.57s/batch]
+  tune 64x64 d1=1e-05 s=2 crit=0.5461
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.47s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.47s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.46s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.46s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.32s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.32s/batch]
+  tune 64x64 d1=1e-05 s=5 crit=0.9292
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.33s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.40s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.40s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.35s/batch]Sampling: 100%|██████████| 1/1 [00:02<00:00,  2.35s/batch]
+  tune 64x64 d1=1e-05 s=10 crit=0.8214
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.94s/batch]Sampling: 100%|██████████| 1/1 [00:37<00:00, 37.94s/batch]
+Sampling:   0%|          | 0/9 [00:00<?, ?batch/s]Sampling:  11%|█         | 1/9 [00:05<00:46,  5.84s/batch]Sampling:  22%|██▏       | 2/9 [00:11<00:40,  5.86s/batch]Sampling:  33%|███▎      | 3/9 [00:17<00:34,  5.80s/batch]Sampling:  44%|████▍     | 4/9 [00:23<00:29,  5.83s/batch]Sampling:  56%|█████▌    | 5/9 [00:29<00:23,  5.79s/batch]Sampling:  67%|██████▋   | 6/9 [00:34<00:17,  5.83s/batch]Sampling:  67%|██████▋   | 6/9 [00:40<00:20,  6.75s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]
+{"method": "bayesflow_arruda", "grid": 64, "datasets": 3, "failed": 3, "d1": 0.1, "shift": 2.0}

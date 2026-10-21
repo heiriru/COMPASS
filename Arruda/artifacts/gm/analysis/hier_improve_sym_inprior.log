@@ -1,0 +1,86 @@
+CPU cap: 3/72 logical CPUs; affinity=[3, 4, 5]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from /export/home/rheinric/COMPASS/Arruda/artifacts/gm/sym_inprior/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.26s/batch]Sampling: 100%|██████████| 1/1 [00:20<00:00, 20.26s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.80s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.62s/batch]Sampling: 100%|██████████| 1/1 [00:09<00:00,  9.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.06s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.98s/batch]Sampling: 100%|██████████| 1/1 [00:08<00:00,  8.98s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.15s/batch]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.90s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.19s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.19s/batch]
+{"n": 32, "arm": "baseline", "P_pos": 0.774, "exact_P_pos": 0.846, "w1_over_sd": 0.381, "off": 0.034}
+{"n": 32, "arm": "full_batch", "P_pos": 0.768, "exact_P_pos": 0.846, "w1_over_sd": 0.38, "off": 0.032}
+{"n": 32, "arm": "stop_t0.25", "P_pos": 0.772, "exact_P_pos": 0.846, "w1_over_sd": 0.399, "off": 0.035}
+{"n": 32, "arm": "stop_t0.3", "P_pos": 0.77, "exact_P_pos": 0.846, "w1_over_sd": 0.363, "off": 0.036}
+{"n": 32, "arm": "grid_learned_t0.25", "P_pos": 1.0, "exact_P_pos": 0.846, "w1_over_sd": 0.573, "off": 0.0}
+{"n": 32, "arm": "grid_learned_t0.3", "P_pos": 0.0, "exact_P_pos": 0.846, "w1_over_sd": 2.813, "off": 0.0}
+{"n": 32, "arm": "grid_learned_t0.35", "P_pos": 0.001, "exact_P_pos": 0.846, "w1_over_sd": 2.37, "off": 0.0}
+{"n": 32, "arm": "exact_local", "P_pos": 0.895, "exact_P_pos": 0.846, "w1_over_sd": 0.124, "off": 0.0}
+{"n": 32, "arm": "grid_exact_t0.1", "P_pos": 0.85, "exact_P_pos": 0.846, "w1_over_sd": 0.017, "off": 0.0}
+{"n": 32, "arm": "grid_exact_t0.25", "P_pos": 0.851, "exact_P_pos": 0.846, "w1_over_sd": 0.023, "off": 0.0}
+{"n": 32, "arm": "grid_exact_t0.3", "P_pos": 0.854, "exact_P_pos": 0.846, "w1_over_sd": 0.052, "off": 0.0}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.14s/batch]Sampling: 100%|██████████| 1/1 [00:23<00:00, 23.14s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.31s/batch]Sampling: 100%|██████████| 1/1 [00:16<00:00, 16.31s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.08s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.08s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.89s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.90s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.90s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.97s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.97s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.54s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.54s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.61s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.61s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.96s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.96s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.22s/batch]Sampling: 100%|██████████| 1/1 [00:26<00:00, 26.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.80s/batch]Sampling: 100%|██████████| 1/1 [00:22<00:00, 22.80s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.68s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.68s/batch]
+{"n": 64, "arm": "baseline", "P_pos": 0.699, "exact_P_pos": 0.892, "w1_over_sd": 1.03, "off": 0.067}
+{"n": 64, "arm": "full_batch", "P_pos": 0.729, "exact_P_pos": 0.892, "w1_over_sd": 0.98, "off": 0.078}
+{"n": 64, "arm": "stop_t0.25", "P_pos": 0.7, "exact_P_pos": 0.892, "w1_over_sd": 1.06, "off": 0.07}
+{"n": 64, "arm": "stop_t0.3", "P_pos": 0.708, "exact_P_pos": 0.892, "w1_over_sd": 1.006, "off": 0.07}
+{"n": 64, "arm": "grid_learned_t0.25", "P_pos": 1.0, "exact_P_pos": 0.892, "w1_over_sd": 0.779, "off": 0.0}
+{"n": 64, "arm": "grid_learned_t0.3", "P_pos": 0.0, "exact_P_pos": 0.892, "w1_over_sd": 3.719, "off": 0.0}
+{"n": 64, "arm": "grid_learned_t0.35", "P_pos": 0.0, "exact_P_pos": 0.892, "w1_over_sd": 3.004, "off": 0.0}
+{"n": 64, "arm": "exact_local", "P_pos": 0.917, "exact_P_pos": 0.892, "w1_over_sd": 0.161, "off": 0.0}
+{"n": 64, "arm": "grid_exact_t0.1", "P_pos": 0.893, "exact_P_pos": 0.892, "w1_over_sd": 0.014, "off": 0.0}
+{"n": 64, "arm": "grid_exact_t0.25", "P_pos": 0.895, "exact_P_pos": 0.892, "w1_over_sd": 0.022, "off": 0.0}
+{"n": 64, "arm": "grid_exact_t0.3", "P_pos": 0.902, "exact_P_pos": 0.892, "w1_over_sd": 0.068, "off": 0.0}
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.19s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.19s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.11s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.37s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.37s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.07s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.07s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.33s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.33s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.89s/batch]Sampling: 100%|██████████| 1/1 [00:17<00:00, 17.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.72s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.72s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.22s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.22s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.06s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.06s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.23s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.23s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.17s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.17s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.71s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.44s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.44s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.16s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.16s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.24s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.24s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.77s/batch]Sampling: 100%|██████████| 1/1 [00:18<00:00, 18.77s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.15s/batch]Sampling: 100%|██████████| 1/1 [00:19<00:00, 19.15s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.92s/batch]Sampling: 100%|██████████| 1/1 [00:25<00:00, 25.92s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.11s/batch]Sampling: 100%|██████████| 1/1 [00:24<00:00, 24.11s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.85s/batch]Sampling: 100%|██████████| 1/1 [00:04<00:00,  4.85s/batch]
+{"n": 128, "arm": "baseline", "P_pos": 0.4, "exact_P_pos": 0.767, "w1_over_sd": 1.659, "off": 0.0}
+{"n": 128, "arm": "full_batch", "P_pos": 0.406, "exact_P_pos": 0.767, "w1_over_sd": 1.705, "off": 0.0}
+{"n": 128, "arm": "stop_t0.25", "P_pos": 0.414, "exact_P_pos": 0.767, "w1_over_sd": 1.536, "off": 0.069}
+{"n": 128, "arm": "stop_t0.3", "P_pos": 0.416, "exact_P_pos": 0.767, "w1_over_sd": 1.48, "off": 0.064}
+{"n": 128, "arm": "grid_learned_t0.25", "P_pos": 1.0, "exact_P_pos": 0.767, "w1_over_sd": 0.708, "off": 0.0}
+{"n": 128, "arm": "grid_learned_t0.3", "P_pos": 0.0, "exact_P_pos": 0.767, "w1_over_sd": 2.933, "off": 0.0}
+{"n": 128, "arm": "grid_learned_t0.35", "P_pos": 0.0, "exact_P_pos": 0.767, "w1_over_sd": 2.181, "off": 0.0}
+{"n": 128, "arm": "exact_local", "P_pos": 0.723, "exact_P_pos": 0.767, "w1_over_sd": 0.289, "off": 0.0}
+{"n": 128, "arm": "grid_exact_t0.1", "P_pos": 0.769, "exact_P_pos": 0.767, "w1_over_sd": 0.01, "off": 0.0}
+{"n": 128, "arm": "grid_exact_t0.25", "P_pos": 0.773, "exact_P_pos": 0.767, "w1_over_sd": 0.023, "off": 0.0}
+{"n": 128, "arm": "grid_exact_t0.3", "P_pos": 0.783, "exact_P_pos": 0.767, "w1_over_sd": 0.074, "off": 0.0}
+saved

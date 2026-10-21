@@ -1,0 +1,375 @@
+{
+  "factor_w1": {
+    "mean": 0.04691794069145359,
+    "median": 0.03128027126524806,
+    "max": 0.28446569033036284
+  },
+  "factor_mean_bias": {
+    "mean": 0.008412468636391918,
+    "mean_abs": 0.01194750762257549
+  },
+  "factor_p_positive": {
+    "exact": 0.499594921875,
+    "network": 0.51067109375
+  },
+  "rules": {
+    "exact/gauss": {
+      "1": {
+        "w1_over_sd": 0.065,
+        "p_positive": 0.5,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.02
+      },
+      "2": {
+        "w1_over_sd": 0.078,
+        "p_positive": 0.492,
+        "k_median": 1.0,
+        "outside_support": 0.013,
+        "seconds": 0.0
+      },
+      "4": {
+        "w1_over_sd": 0.252,
+        "p_positive": 0.494,
+        "k_median": 1.0,
+        "outside_support": 0.03,
+        "seconds": 0.0
+      },
+      "8": {
+        "w1_over_sd": 0.395,
+        "p_positive": 0.495,
+        "k_median": 1.0,
+        "outside_support": 0.028,
+        "seconds": 0.01
+      },
+      "16": {
+        "w1_over_sd": 0.629,
+        "p_positive": 0.506,
+        "k_median": 1.0,
+        "outside_support": 0.002,
+        "seconds": 0.01
+      },
+      "32": {
+        "w1_over_sd": 0.735,
+        "p_positive": 0.507,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.02
+      },
+      "64": {
+        "w1_over_sd": 0.797,
+        "p_positive": 0.495,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.04
+      },
+      "128": {
+        "w1_over_sd": 0.833,
+        "p_positive": 0.489,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.09
+      }
+    },
+    "exact/mixture": {
+      "1": {
+        "w1_over_sd": 0.012,
+        "p_positive": 0.502,
+        "k_median": 3.0,
+        "outside_support": 0.003,
+        "seconds": 0.87
+      },
+      "2": {
+        "w1_over_sd": 0.023,
+        "p_positive": 0.488,
+        "k_median": 3.0,
+        "outside_support": 0.002,
+        "seconds": 0.78
+      },
+      "4": {
+        "w1_over_sd": 0.03,
+        "p_positive": 0.487,
+        "k_median": 4.5,
+        "outside_support": 0.009,
+        "seconds": 0.96
+      },
+      "8": {
+        "w1_over_sd": 0.06,
+        "p_positive": 0.474,
+        "k_median": 3.5,
+        "outside_support": 0.017,
+        "seconds": 1.27
+      },
+      "16": {
+        "w1_over_sd": 0.221,
+        "p_positive": 0.57,
+        "k_median": 4.0,
+        "outside_support": 0.0,
+        "seconds": 3.03
+      },
+      "32": {
+        "w1_over_sd": 0.475,
+        "p_positive": 0.291,
+        "k_median": 4.0,
+        "outside_support": 0.0,
+        "seconds": 4.94
+      },
+      "64": {
+        "w1_over_sd": 0.954,
+        "p_positive": 1.0,
+        "k_median": 4.0,
+        "outside_support": 0.0,
+        "seconds": 8.69
+      },
+      "128": {
+        "w1_over_sd": 0.969,
+        "p_positive": 1.0,
+        "k_median": 4.0,
+        "outside_support": 0.0,
+        "seconds": 15.55
+      }
+    },
+    "exact/mixture_bag": {
+      "1": {
+        "w1_over_sd": 0.012,
+        "p_positive": 0.502,
+        "k_median": 3.0,
+        "outside_support": 0.003,
+        "seconds": 0.77
+      },
+      "2": {
+        "w1_over_sd": 0.053,
+        "p_positive": 0.486,
+        "k_median": 3.0,
+        "outside_support": 0.006,
+        "seconds": 0.78
+      },
+      "4": {
+        "w1_over_sd": 0.053,
+        "p_positive": 0.487,
+        "k_median": 4.5,
+        "outside_support": 0.016,
+        "seconds": 0.99
+      },
+      "8": {
+        "w1_over_sd": 0.075,
+        "p_positive": 0.479,
+        "k_median": 3.5,
+        "outside_support": 0.055,
+        "seconds": 1.3
+      },
+      "16": {
+        "w1_over_sd": 0.065,
+        "p_positive": 0.525,
+        "k_median": 4.0,
+        "outside_support": 0.041,
+        "seconds": 2.95
+      },
+      "32": {
+        "w1_over_sd": 0.074,
+        "p_positive": 0.468,
+        "k_median": 4.0,
+        "outside_support": 0.086,
+        "seconds": 4.76
+      },
+      "64": {
+        "w1_over_sd": 0.327,
+        "p_positive": 0.339,
+        "k_median": 4.0,
+        "outside_support": 0.149,
+        "seconds": 8.81
+      },
+      "128": {
+        "w1_over_sd": 0.307,
+        "p_positive": 0.649,
+        "k_median": 4.0,
+        "outside_support": 0.439,
+        "seconds": 15.72
+      }
+    },
+    "network/gauss": {
+      "1": {
+        "w1_over_sd": 0.182,
+        "p_positive": 0.523,
+        "k_median": 1.0,
+        "outside_support": 0.004,
+        "seconds": 0.0
+      },
+      "2": {
+        "w1_over_sd": 0.128,
+        "p_positive": 0.529,
+        "k_median": 1.0,
+        "outside_support": 0.019,
+        "seconds": 0.0
+      },
+      "4": {
+        "w1_over_sd": 0.302,
+        "p_positive": 0.525,
+        "k_median": 1.0,
+        "outside_support": 0.01,
+        "seconds": 0.0
+      },
+      "8": {
+        "w1_over_sd": 0.43,
+        "p_positive": 0.537,
+        "k_median": 1.0,
+        "outside_support": 0.012,
+        "seconds": 0.01
+      },
+      "16": {
+        "w1_over_sd": 0.668,
+        "p_positive": 0.562,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.01
+      },
+      "32": {
+        "w1_over_sd": 0.785,
+        "p_positive": 0.584,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.02
+      },
+      "64": {
+        "w1_over_sd": 0.852,
+        "p_positive": 0.612,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.04
+      },
+      "128": {
+        "w1_over_sd": 0.887,
+        "p_positive": 0.683,
+        "k_median": 1.0,
+        "outside_support": 0.0,
+        "seconds": 0.08
+      }
+    },
+    "network/mixture": {
+      "1": {
+        "w1_over_sd": 0.182,
+        "p_positive": 0.523,
+        "k_median": 1.0,
+        "outside_support": 0.004,
+        "seconds": 0.9
+      },
+      "2": {
+        "w1_over_sd": 0.13,
+        "p_positive": 0.531,
+        "k_median": 2.0,
+        "outside_support": 0.003,
+        "seconds": 0.89
+      },
+      "4": {
+        "w1_over_sd": 0.135,
+        "p_positive": 0.545,
+        "k_median": 3.0,
+        "outside_support": 0.002,
+        "seconds": 0.91
+      },
+      "8": {
+        "w1_over_sd": 0.141,
+        "p_positive": 0.564,
+        "k_median": 3.0,
+        "outside_support": 0.005,
+        "seconds": 1.11
+      },
+      "16": {
+        "w1_over_sd": 0.675,
+        "p_positive": 0.848,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 1.93
+      },
+      "32": {
+        "w1_over_sd": 0.93,
+        "p_positive": 0.004,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 3.49
+      },
+      "64": {
+        "w1_over_sd": 0.952,
+        "p_positive": 1.0,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 6.26
+      },
+      "128": {
+        "w1_over_sd": 0.967,
+        "p_positive": 1.0,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 12.01
+      }
+    },
+    "network/mixture_bag": {
+      "1": {
+        "w1_over_sd": 0.182,
+        "p_positive": 0.523,
+        "k_median": 1.0,
+        "outside_support": 0.004,
+        "seconds": 0.89
+      },
+      "2": {
+        "w1_over_sd": 0.157,
+        "p_positive": 0.533,
+        "k_median": 2.0,
+        "outside_support": 0.011,
+        "seconds": 0.9
+      },
+      "4": {
+        "w1_over_sd": 0.142,
+        "p_positive": 0.553,
+        "k_median": 3.0,
+        "outside_support": 0.009,
+        "seconds": 0.95
+      },
+      "8": {
+        "w1_over_sd": 0.175,
+        "p_positive": 0.574,
+        "k_median": 3.0,
+        "outside_support": 0.042,
+        "seconds": 1.11
+      },
+      "16": {
+        "w1_over_sd": 0.496,
+        "p_positive": 0.766,
+        "k_median": 3.0,
+        "outside_support": 0.001,
+        "seconds": 1.95
+      },
+      "32": {
+        "w1_over_sd": 0.744,
+        "p_positive": 0.899,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 3.56
+      },
+      "64": {
+        "w1_over_sd": 0.932,
+        "p_positive": 0.991,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 6.32
+      },
+      "128": {
+        "w1_over_sd": 0.959,
+        "p_positive": 1.0,
+        "k_median": 3.0,
+        "outside_support": 0.0,
+        "seconds": 12.0
+      }
+    }
+  },
+  "exact_p_positive": {
+    "1": 0.499,
+    "2": 0.499,
+    "4": 0.499,
+    "8": 0.5,
+    "16": 0.5,
+    "32": 0.5,
+    "64": 0.5,
+    "128": 0.5
+  }
+}

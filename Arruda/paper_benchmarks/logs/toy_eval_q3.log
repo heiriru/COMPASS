@@ -1,0 +1,45 @@
+  langevin_fnpe J=1000 [0] kl=2.57 mean_err=0.537sd width=1.03 t=1085.2s
+  langevin_fnpe J=1000 [1] kl=1.03 mean_err=0.298sd width=1.01 t=1097.2s
+  langevin_fnpe J=1000 [2] kl=1.71 mean_err=0.476sd width=1.04 t=1097.8s
+  langevin_fnpe J=1000 [3] kl=2.66 mean_err=0.575sd width=1.03 t=1097.3s
+  langevin_fnpe J=1000 [4] kl=1.25 mean_err=0.358sd width=1.02 t=1096.5s
+{"datasets": 5, "failed": 0, "kl": 1.7103834738440296, "rmse": 0.04643158411083396, "contraction": 0.9989429195992077, "mean_error_sd": 0.4760828298616112, "width_ratio": 1.027630712837786, "seconds": 1097.1886120717973, "calibration_error": 0.13099999999999998, "method": "langevin_fnpe", "observations": 1000, "num_samples": 200}
+  gauss J=1000 [0] kl=6.58 mean_err=0.822sd width=1.02 t=2317.8s
+  gauss J=1000 [1] kl=9.52 mean_err=1.07sd width=0.996 t=2316.0s
+  gauss J=1000 [2] kl=10.3 mean_err=1sd width=1.01 t=2318.6s
+  gauss J=1000 [3] kl=6.71 mean_err=0.945sd width=1.03 t=2315.5s
+  gauss J=1000 [4] kl=3.96 mean_err=0.69sd width=1.02 t=2316.3s
+{"datasets": 5, "failed": 0, "kl": 6.71103317597439, "rmse": 0.05349257277982252, "contraction": 0.9989571718612084, "mean_error_sd": 0.9446948773554261, "width_ratio": 1.0208323150036709, "seconds": 2316.333346982021, "calibration_error": 0.186, "method": "gauss", "observations": 1000, "num_samples": 200}
+  gauss_hierarchical J=1000 [0] kl=14.7 mean_err=1.49sd width=0.97 t=2322.6s
+  gauss_hierarchical J=1000 [1] kl=11 mean_err=1.25sd width=0.916 t=2319.8s
+  gauss_hierarchical J=1000 [2] kl=21.4 mean_err=1.73sd width=0.938 t=2317.9s
+  gauss_hierarchical J=1000 [3] kl=15.4 mean_err=1.61sd width=0.98 t=2321.7s
+  gauss_hierarchical J=1000 [4] kl=9.06 mean_err=1.11sd width=0.962 t=2325.1s
+{"datasets": 5, "failed": 0, "kl": 14.724972464576165, "rmse": 0.05617419796624688, "contraction": 0.999072907550212, "mean_error_sd": 1.4935575939275942, "width_ratio": 0.9616653680879279, "seconds": 2321.740123190917, "calibration_error": 0.277, "method": "gauss_hierarchical", "observations": 1000, "num_samples": 200}
+| J | method | KL | RMSE | contraction | cal. err | |mean err|/sd | width ratio | failed | s/dataset |
+|---|---|---|---|---|---|---|---|---|---|
+| 10 | exact | 0.0708 | 0.424 | 0.909 | 0.130 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 10 | gauss | 0.0926 | 0.427 | 0.906 | 0.135 | 0.0679 | 1.016 | 0/10 | 11.8 |
+| 10 | full_gaussian | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 12.4 |
+| 10 | gauss_hierarchical | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 14.2 |
+| 10 | gauss_jacobian | 0.0856 | 0.425 | 0.908 | 0.136 | 0.057 | 1.006 | 0/10 | 44.7 |
+| 10 | langevin_fnpe | 0.0956 | 0.436 | 0.902 | 0.134 | 0.0568 | 1.038 | 0/10 | 28.2 |
+| 10 | arruda_damping | - | - | - | - | - | - | 10/10 | - |
+| 10 | damping_dpm2 | 0.985 | 0.394 | 0.934 | 0.137 | 0.329 | 0.849 | 0/10 | 1.3 |
+| 10 | uncorrected | 0.524 | 0.4 | 0.935 | 0.163 | 0.167 | 0.848 | 0/10 | 5.4 |
+| 100 | exact | 0.0708 | 0.142 | 0.990 | 0.074 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 100 | gauss | 0.255 | 0.14 | 0.990 | 0.089 | 0.167 | 1.022 | 0/10 | 102.4 |
+| 100 | full_gaussian | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 102.9 |
+| 100 | gauss_hierarchical | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 103.1 |
+| 100 | gauss_jacobian | 0.366 | 0.139 | 0.990 | 0.089 | 0.203 | 1.008 | 0/10 | 441.6 |
+| 100 | langevin_fnpe | 0.242 | 0.141 | 0.989 | 0.076 | 0.151 | 1.035 | 0/10 | 256.7 |
+| 100 | arruda_damping | - | - | - | - | - | - | 10/10 | - |
+| 100 | damping_dpm2 | - | - | - | - | - | - | 10/10 | - |
+| 100 | uncorrected | 0.868 | 0.125 | 0.993 | 0.126 | 0.219 | 0.813 | 0/10 | 50.8 |
+| 1000 | exact | 0.18 | 0.0425 | 0.999 | 0.118 | 0.0558 | 0.996 | 0/5 | 0.0 |
+| 1000 | gauss | 6.71 | 0.0535 | 0.999 | 0.186 | 0.945 | 1.021 | 0/5 | 2316.3 |
+| 1000 | gauss_hierarchical | 14.7 | 0.0562 | 0.999 | 0.277 | 1.49 | 0.962 | 0/5 | 2321.7 |
+| 1000 | gauss_jacobian | 14.8 | 0.056 | 0.999 | 0.286 | 1.49 | 0.939 | 0/5 | 1690.8 |
+| 1000 | langevin_fnpe | 1.71 | 0.0464 | 0.999 | 0.131 | 0.476 | 1.028 | 0/5 | 1097.2 |
+| 1000 | arruda_damping | - | - | - | - | - | - | 5/5 | - |
+| 1000 | damping_dpm2 | - | - | - | - | - | - | 5/5 | - |

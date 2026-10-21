@@ -1,0 +1,93 @@
+INFO Selected physical GPU [6] via autocvd.
+gauss_jacobian                 n=  1:     7.9s  mean +0.127 sd 1.549
+gauss_jacobian                 n=  2:     5.2s  mean +0.002 sd 1.589
+gauss_jacobian                 n=  4:     7.3s  mean +0.092 sd 1.598
+gauss_jacobian                 n=  8:    12.1s  mean -0.096 sd 1.599
+gauss_jacobian                 n= 16:    23.0s  mean +0.502 sd 1.517
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/Arruda/compare_compass_gm.py", line 150, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/Arruda/compare_compass_gm.py", line 146, in main
+    {"train": train, "sample": sample, "plot": plot}[arguments.stage](arguments)
+  File "/export/home/rheinric/COMPASS/Arruda/compare_compass_gm.py", line 73, in sample
+    samples, seconds = methods.draw_score_rule(network, dataset(n), method, run_args, arguments.device, mixture=mixture())
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling/methods.py", line 290, in draw_score_rule
+    samples = sampler.sample(
+              ^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 797, in sample
+    raise ValueError(
+          ^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1808, in _sample_loop
+    one = torch.ones(1, device=device)
+                      ^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4133, in _dpm_sampler
+    sigma_now = self.sde.lambda_t(t)
+                   ^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 4042, in _dpm_solver_2_step
+    controlled_error = max(error, 1e-10)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3331, in _get_score
+    init_method='env://',
+            ^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 3510, in _compositional_score
+    
+    
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2377, in _effective_global_factors
+    mean_score = global_scores[members].mean(dim=0)
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 2225, in _jacobian_joint_precision
+    
+    
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1567, in _row_score_jacobian
+    The shared coordinate is synchronized across rows, so its tangent is
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/_functorch/eager_transforms.py", line 1149, in jvp
+    return _jvp_with_argnums(
+           ^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/_functorch/eager_transforms.py", line 1208, in _jvp_with_argnums
+    result_duals = func(*duals)
+                   ^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1555, in raw_scores
+    self.evaluated_subject_rows += int(rows)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/MultiObsSampler.py", line 1524, in _raw_row_scores
+    #                                        / (lambda_prev^2 - lambda^2)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/TokenizedTransformer.py", line 379, in forward
+    tokens = block(tokens, token_mask, t, False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/TokenizedTransformer.py", line 217, in forward
+    x = x + gate_mlp * self.mlp(modulate(self.norm2(x), shift_mlp, scale_mlp))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/src/compass/ConditionTransformer.py", line 122, in forward
+    x = self.fc1(x)
+        ^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 188.00 MiB. GPU 0 has a total capacity of 10.57 GiB of which 92.12 MiB is free. Including non-PyTorch memory, this process has 10.47 GiB memory in use. Of the allocated memory 9.94 GiB is allocated by PyTorch, and 342.41 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

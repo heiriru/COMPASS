@@ -1,0 +1,39 @@
+  reference J=64x64 [0] ESS=3008 (35s)
+  reference J=64x64 [0] mean_err=[0.01 0.02 0.06]sd width=[1.03 1.03 1.04] local_rmse=0.089 t=0.0s
+  reference J=64x64 [1] ESS=3001 (32s)
+  reference J=64x64 [1] mean_err=[0.06 0.14 0.07]sd width=[0.95 0.95 1.08] local_rmse=0.094 t=0.0s
+  reference J=64x64 [2] ESS=3030 (32s)
+  reference J=64x64 [2] mean_err=[0.04 0.05 0.07]sd width=[1.01 1.   1.06] local_rmse=0.073 t=0.0s
+{"method": "reference", "grid": 64, "datasets": 3, "failed": 0, "global_rmse_norm": 0.008960983146718645, "global_contraction": 0.9998452959445251, "global_mean_error_sd": 0.0523887493291729, "global_width_ratio": 1.026111309557299, "local_rmse": 0.08895617402255962, "local_mean_error_sd": 0.09492719914387843, "local_width_ratio": 1.0007558323942578, "seconds": 0.0}
+  gauss_jacobian J=64x64 [0] mean_err=[ 5.53  6.04 20.89]sd width=[3.08 3.34 1.79] local_rmse=0.097 t=973.9s
+  gauss_jacobian J=64x64 [1] mean_err=[22.9  24.61  6.59]sd width=[4.75 3.49 5.3 ] local_rmse=0.117 t=976.7s
+  gauss_jacobian J=64x64 [2] mean_err=[12.26  3.7  21.47]sd width=[2.2  4.04 1.98] local_rmse=0.080 t=972.8s
+{"method": "gauss_jacobian", "grid": 64, "datasets": 3, "failed": 0, "global_rmse_norm": 0.10018653840437448, "global_contraction": 0.9984949409285608, "global_mean_error_sd": 13.06380975089939, "global_width_ratio": 2.852782521616398, "local_rmse": 0.09693522227588691, "local_mean_error_sd": 0.43241308403390066, "local_width_ratio": 1.071738801767172, "seconds": 973.8716265130788}
+  gauss_hierarchical J=64x64 [0] mean_err=[ 0.77  3.58 17.26]sd width=[2.41 6.61 1.96] local_rmse=0.098 t=4252.9s
+  gauss_hierarchical J=64x64 [1] mean_err=[35.37  6.8  23.41]sd width=[4.03 7.78 6.7 ] local_rmse=0.132 t=4247.6s
+  gauss_hierarchical J=64x64 [2] mean_err=[14.31  8.19 25.05]sd width=[1.9  3.29 1.36] local_rmse=0.088 t=4246.4s
+{"method": "gauss_hierarchical", "grid": 64, "datasets": 3, "failed": 0, "global_rmse_norm": 0.12175532174610133, "global_contraction": 0.998829673627119, "global_mean_error_sd": 14.841819439204295, "global_width_ratio": 3.659694455769038, "local_rmse": 0.09817089402936396, "local_mean_error_sd": 0.4494436933421908, "local_width_ratio": 1.1795002210941161, "seconds": 4247.591508232988}
+  langevin_fnpe J=64x64 [0] mean_err=[ 0.06 17.13 28.51]sd width=[0.95 1.4  1.06] local_rmse=0.110 t=1333.4s
+  langevin_fnpe J=64x64 [1] mean_err=[ 2.06 28.9  25.07]sd width=[0.96 1.24 1.72] local_rmse=0.125 t=1333.3s
+  langevin_fnpe J=64x64 [2] mean_err=[5.04 6.75 4.53]sd width=[1.05 0.78 1.26] local_rmse=0.089 t=1333.6s
+{"method": "langevin_fnpe", "grid": 64, "datasets": 3, "failed": 0, "global_rmse_norm": 0.14860299231906876, "global_contraction": 0.9998702804832043, "global_mean_error_sd": 14.750580329824643, "global_width_ratio": 1.1534870649753848, "local_rmse": 0.11043845680361009, "local_mean_error_sd": 0.4385605376253776, "local_width_ratio": 1.2877315957010773, "seconds": 1333.4081337391399}
+| grid | method | global RMSE (norm) | contraction | |mean err|/ref sd (α, β, logσ) | width ratio (α, β, logσ) | local RMSE θ | local |mean err|/sd | failed | s/dataset |
+|---|---|---|---|---|---|---|---|---|---|
+| 4x4 | reference | 0.062 | 0.935 | 0.04, 0.07, 0.04 | 1.00, 1.00, 1.00 | 0.145 | 0.09 | 0/10 | 0.0 |
+| 4x4 | gauss | 0.075 | 0.901 | 0.71, 0.80, 0.79 | 1.14, 0.87, 1.30 | 0.257 | 0.95 | 0/10 | 8.0 |
+| 4x4 | gauss_hierarchical | 0.055 | 0.928 | 0.44, 0.46, 0.71 | 1.00, 0.87, 1.02 | 0.159 | 0.37 | 0/10 | 8.7 |
+| 4x4 | gauss_jacobian | 0.060 | 0.922 | 0.42, 0.55, 0.59 | 1.14, 1.01, 1.11 | 0.161 | 0.25 | 0/10 | 8.6 |
+| 4x4 | langevin_fnpe | 0.069 | 0.904 | 0.53, 0.49, 0.85 | 1.06, 0.92, 1.29 | 0.205 | 0.45 | 0/10 | 7.7 |
+| 4x4 | arruda_damping | 0.072 | 0.945 | 0.67, 0.78, 0.97 | 0.87, 0.70, 1.20 | 0.269 | 1.14 | 0/10 | 7.7 |
+| 4x4 | uncorrected | 0.083 | 0.908 | 0.82, 0.50, 0.99 | 1.03, 0.79, 1.33 | 0.268 | 1.05 | 0/10 | 1.6 |
+| 16x16 | reference | 0.016 | 0.997 | 0.03, 0.03, 0.03 | 1.00, 1.00, 1.01 | 0.062 | 0.09 | 0/10 | 0.0 |
+| 16x16 | gauss | 0.063 | 0.982 | 1.98, 0.80, 4.38 | 1.53, 2.25, 3.06 | 0.121 | 0.99 | 0/10 | 101.0 |
+| 16x16 | gauss_hierarchical | 0.037 | 0.993 | 1.39, 1.52, 1.00 | 1.05, 1.17, 1.27 | 0.075 | 0.33 | 0/10 | 101.7 |
+| 16x16 | gauss_jacobian | 0.040 | 0.989 | 0.81, 1.97, 2.19 | 1.28, 1.77, 1.63 | 0.065 | 0.30 | 0/10 | 60.4 |
+| 16x16 | langevin_fnpe | 0.026 | 0.995 | 1.39, 1.62, 1.24 | 0.99, 1.01, 1.57 | 0.077 | 0.48 | 0/10 | 85.8 |
+| 16x16 | arruda_damping | 0.035 | 0.996 | 2.14, 0.92, 1.85 | 0.93, 0.81, 1.50 | 0.128 | 1.19 | 0/10 | 473.7 |
+| 16x16 | uncorrected | 0.085 | 0.982 | 13.22, 3.41, 7.16 | 2.84, 2.41, 2.96 | 0.193 | 1.77 | 0/10 | 17.0 |
+| 64x64 | reference | 0.009 | 1.000 | 0.04, 0.05, 0.07 | 1.01, 1.00, 1.06 | 0.089 | 0.09 | 0/3 | 0.0 |
+| 64x64 | gauss_hierarchical | 0.122 | 0.999 | 14.31, 6.80, 23.41 | 2.41, 6.61, 1.96 | 0.098 | 0.45 | 0/3 | 4247.6 |
+| 64x64 | gauss_jacobian | 0.100 | 0.998 | 12.26, 6.04, 20.89 | 3.08, 3.49, 1.98 | 0.097 | 0.43 | 0/3 | 973.9 |
+| 64x64 | langevin_fnpe | 0.149 | 1.000 | 2.06, 17.13, 25.07 | 0.96, 1.24, 1.26 | 0.110 | 0.44 | 0/3 | 1333.4 |

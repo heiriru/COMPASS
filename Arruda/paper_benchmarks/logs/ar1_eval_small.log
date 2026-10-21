@@ -1,0 +1,91 @@
+skip reference_J4x4.json (exists)
+  gauss J=4x4 [0] mean_err=[0.57 0.42 1.62]sd width=[1.77 0.83 1.27] local_rmse=0.305 t=8.6s
+  gauss J=4x4 [1] mean_err=[1.17 0.67 2.24]sd width=[1.25 0.58 1.89] local_rmse=0.357 t=7.2s
+  gauss J=4x4 [2] mean_err=[2.18 0.74 1.36]sd width=[2.11 3.02 0.87] local_rmse=0.395 t=7.2s
+  gauss J=4x4 [3] mean_err=[0.42 0.93 0.09]sd width=[1.15 1.77 1.87] local_rmse=0.271 t=7.2s
+  gauss J=4x4 [4] mean_err=[0.75 0.41 1.38]sd width=[1.73 0.99 2.46] local_rmse=0.360 t=7.2s
+  gauss J=4x4 [5] mean_err=[2.79 2.08 0.93]sd width=[1.17 0.94 0.93] local_rmse=0.576 t=7.2s
+  gauss J=4x4 [6] mean_err=[0.79 1.24 3.37]sd width=[1.38 2.03 4.38] local_rmse=0.185 t=7.3s
+  gauss J=4x4 [7] mean_err=[0.49 0.12 1.96]sd width=[1.47 1.08 1.85] local_rmse=0.450 t=7.3s
+  gauss J=4x4 [8] mean_err=[1.63 6.94 2.9 ]sd width=[1.47 5.52 0.5 ] local_rmse=0.171 t=7.2s
+  gauss J=4x4 [9] mean_err=[1.02 0.83 0.2 ]sd width=[1.52 2.13 1.73] local_rmse=0.397 t=7.3s
+{"method": "gauss", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.11427964897125249, "global_contraction": 0.8449994217306435, "global_mean_error_sd": 1.0639506339818736, "global_width_ratio": 1.561657602330848, "local_rmse": 0.35881397085984257, "local_mean_error_sd": 1.683617316363723, "local_width_ratio": 2.8129183620624465, "seconds": 7.244793497957289}
+  gauss_hierarchical J=4x4 [0] mean_err=[0.44 0.51 0.01]sd width=[1.14 0.8  1.03] local_rmse=0.206 t=7.9s
+  gauss_hierarchical J=4x4 [1] mean_err=[2.06 0.52 0.09]sd width=[0.9  0.53 1.73] local_rmse=0.256 t=7.9s
+  gauss_hierarchical J=4x4 [2] mean_err=[1.39 0.5  1.08]sd width=[1.46 2.49 0.92] local_rmse=0.325 t=7.9s
+  gauss_hierarchical J=4x4 [3] mean_err=[0.41 0.06 0.  ]sd width=[0.88 2.03 1.57] local_rmse=0.237 t=7.8s
+  gauss_hierarchical J=4x4 [4] mean_err=[1.04 0.27 1.07]sd width=[1.54 0.87 2.39] local_rmse=0.327 t=7.9s
+  gauss_hierarchical J=4x4 [5] mean_err=[2.8  1.46 0.73]sd width=[0.86 1.02 0.89] local_rmse=0.558 t=8.2s
+  gauss_hierarchical J=4x4 [6] mean_err=[0.44 0.37 2.65]sd width=[0.87 2.61 3.86] local_rmse=0.155 t=8.0s
+  gauss_hierarchical J=4x4 [7] mean_err=[0.59 0.43 1.06]sd width=[0.88 1.14 1.59] local_rmse=0.399 t=8.0s
+  gauss_hierarchical J=4x4 [8] mean_err=[ 1.37 10.74  2.76]sd width=[0.98 2.94 0.41] local_rmse=0.370 t=8.0s
+  gauss_hierarchical J=4x4 [9] mean_err=[0.83 0.29 0.32]sd width=[1.01 2.48 1.53] local_rmse=0.385 t=7.9s
+{"method": "gauss_hierarchical", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.10709433616015894, "global_contraction": 0.847479700572709, "global_mean_error_sd": 0.7640149813826443, "global_width_ratio": 1.3563031668240602, "local_rmse": 0.3260643711018454, "local_mean_error_sd": 1.0231985838682487, "local_width_ratio": 2.7224981097701653, "seconds": 7.9266481751110405}
+  gauss_jacobian J=4x4 [0] mean_err=[0.24 0.18 0.37]sd width=[1.23 1.15 1.03] local_rmse=0.249 t=10.3s
+  gauss_jacobian J=4x4 [1] mean_err=[1.93 0.3  0.59]sd width=[1.01 0.75 1.6 ] local_rmse=0.236 t=8.2s
+  gauss_jacobian J=4x4 [2] mean_err=[2.87 1.6  1.03]sd width=[1.68 3.14 1.02] local_rmse=0.484 t=8.0s
+  gauss_jacobian J=4x4 [3] mean_err=[0.78 0.22 0.58]sd width=[0.8  2.21 2.01] local_rmse=0.223 t=8.1s
+  gauss_jacobian J=4x4 [4] mean_err=[1.67 0.63 0.43]sd width=[2.18 1.91 2.67] local_rmse=0.415 t=8.2s
+  gauss_jacobian J=4x4 [5] mean_err=[2.72 2.01 1.07]sd width=[0.97 1.43 1.02] local_rmse=0.526 t=8.1s
+  gauss_jacobian J=4x4 [6] mean_err=[0.46 0.3  4.07]sd width=[0.92 1.35 3.18] local_rmse=0.139 t=8.2s
+  gauss_jacobian J=4x4 [7] mean_err=[0.48 0.91 1.3 ]sd width=[1.22 1.92 2.83] local_rmse=0.475 t=8.0s
+  gauss_jacobian J=4x4 [8] mean_err=[1.18 7.8  2.63]sd width=[0.97 4.49 0.47] local_rmse=0.248 t=8.0s
+  gauss_jacobian J=4x4 [9] mean_err=[0.86 0.45 0.1 ]sd width=[1.24 3.55 2.15] local_rmse=0.377 t=8.1s
+{"method": "gauss_jacobian", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.13926078662577107, "global_contraction": 0.6740672719923838, "global_mean_error_sd": 0.789345752553643, "global_width_ratio": 1.6106889309099761, "local_rmse": 0.31318351042231646, "local_mean_error_sd": 1.3708100435324253, "local_width_ratio": 2.6729424349164117, "seconds": 8.142654756084085}
+  langevin_fnpe J=4x4 [0] mean_err=[0.49 0.83 0.67]sd width=[1.23 0.65 1.11] local_rmse=0.215 t=7.1s
+  langevin_fnpe J=4x4 [1] mean_err=[1.94 0.84 1.79]sd width=[1.15 0.57 1.77] local_rmse=0.294 t=7.1s
+  langevin_fnpe J=4x4 [2] mean_err=[2.81 1.16 1.55]sd width=[1.61 2.18 0.81] local_rmse=0.429 t=7.1s
+  langevin_fnpe J=4x4 [3] mean_err=[0.89 0.67 0.08]sd width=[0.69 1.53 1.89] local_rmse=0.182 t=7.1s
+  langevin_fnpe J=4x4 [4] mean_err=[1.6  0.16 0.07]sd width=[1.3  0.99 1.61] local_rmse=0.331 t=7.1s
+  langevin_fnpe J=4x4 [5] mean_err=[2.46 2.67 0.61]sd width=[0.91 0.76 0.98] local_rmse=0.523 t=7.1s
+  langevin_fnpe J=4x4 [6] mean_err=[0.96 0.47 2.19]sd width=[0.72 1.23 2.78] local_rmse=0.118 t=7.1s
+  langevin_fnpe J=4x4 [7] mean_err=[0.79 0.19 0.57]sd width=[0.99 0.89 1.73] local_rmse=0.383 t=7.1s
+  langevin_fnpe J=4x4 [8] mean_err=[1.31 1.41 2.84]sd width=[1.01 2.65 0.56] local_rmse=0.137 t=7.1s
+  langevin_fnpe J=4x4 [9] mean_err=[1.45 1.29 0.67]sd width=[1.09 1.46 1.68] local_rmse=0.332 t=7.1s
+{"method": "langevin_fnpe", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.09040991478539338, "global_contraction": 0.8821292548933025, "global_mean_error_sd": 0.9610065198751568, "global_width_ratio": 1.2684123097144502, "local_rmse": 0.31225520506421023, "local_mean_error_sd": 1.3310485715905709, "local_width_ratio": 2.1441835348215728, "seconds": 7.087629962246865}
+  arruda_damping J=4x4 [0] mean_err=[0.77 0.45 2.42]sd width=[1.01 0.58 1.21] local_rmse=0.297 t=7.6s
+  arruda_damping J=4x4 [1] mean_err=[1.32 0.43 2.54]sd width=[0.87 0.46 1.75] local_rmse=0.360 t=6.9s
+  arruda_damping J=4x4 [2] mean_err=[2.84 1.8  1.56]sd width=[1.26 1.8  0.64] local_rmse=0.416 t=9.2s
+  arruda_damping J=4x4 [3] mean_err=[0.62 1.58 0.44]sd width=[0.63 1.11 1.68] local_rmse=0.249 t=7.1s
+  arruda_damping J=4x4 [4] mean_err=[1.1  0.47 0.99]sd width=[1.32 0.7  1.62] local_rmse=0.348 t=7.1s
+  arruda_damping J=4x4 [5] mean_err=[2.49 2.55 0.9 ]sd width=[0.55 0.54 0.69] local_rmse=0.542 t=9.0s
+  arruda_damping J=4x4 [6] mean_err=[0.97 1.01 2.19]sd width=[0.6  1.08 2.7 ] local_rmse=0.170 t=7.6s
+  arruda_damping J=4x4 [7] mean_err=[0.62 0.11 2.42]sd width=[0.94 0.71 1.83] local_rmse=0.443 t=7.5s
+  arruda_damping J=4x4 [8] mean_err=[1.41 0.77 3.13]sd width=[0.71 2.34 0.5 ] local_rmse=0.202 t=6.2s
+  arruda_damping J=4x4 [9] mean_err=[1.2  1.32 0.38]sd width=[0.74 1.14 1.33] local_rmse=0.361 t=7.1s
+{"method": "arruda_damping", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.10089225331005573, "global_contraction": 0.9204301194624924, "global_mean_error_sd": 1.3055442487442122, "global_width_ratio": 1.0563401606899536, "local_rmse": 0.3543580433180074, "local_mean_error_sd": 1.5729783439513576, "local_width_ratio": 2.8194422920478956, "seconds": 7.281725025037304}
+  uncorrected J=4x4 [0] mean_err=[0.64 0.07 2.09]sd width=[1.18 1.25 1.29] local_rmse=0.348 t=1.4s
+  uncorrected J=4x4 [1] mean_err=[1.74 0.78 2.18]sd width=[1.03 0.59 1.92] local_rmse=0.359 t=1.5s
+  uncorrected J=4x4 [2] mean_err=[1.24 1.46 1.41]sd width=[1.41 3.65 1.  ] local_rmse=0.336 t=1.4s
+  uncorrected J=4x4 [3] mean_err=[0.89 2.54 0.93]sd width=[1.28 4.2  4.7 ] local_rmse=0.399 t=1.4s
+  uncorrected J=4x4 [4] mean_err=[0.72 0.15 1.14]sd width=[1.8  1.83 2.23] local_rmse=0.388 t=1.4s
+  uncorrected J=4x4 [5] mean_err=[2.96 2.5  1.13]sd width=[0.93 1.49 1.49] local_rmse=0.695 t=1.4s
+  uncorrected J=4x4 [6] mean_err=[0.28 0.52 4.95]sd width=[0.84 1.54 3.94] local_rmse=0.184 t=1.4s
+  uncorrected J=4x4 [7] mean_err=[0.56 0.11 2.33]sd width=[1.06 1.17 3.23] local_rmse=0.479 t=1.4s
+  uncorrected J=4x4 [8] mean_err=[ 1.35 10.67  2.73]sd width=[0.68 3.28 0.31] local_rmse=0.178 t=1.4s
+  uncorrected J=4x4 [9] mean_err=[0.1  4.9  0.41]sd width=[1.04 5.98 1.04] local_rmse=0.522 t=1.4s
+{"method": "uncorrected", "grid": 4, "datasets": 10, "failed": 0, "global_rmse_norm": 0.17609003019813793, "global_contraction": 0.6909704470880239, "global_mean_error_sd": 1.2251434367211458, "global_width_ratio": 1.4804123510537153, "local_rmse": 0.37365742080685804, "local_mean_error_sd": 2.1103775494278922, "local_width_ratio": 3.0468892984974247, "seconds": 1.4319874006323516}
+  reference J=16x16 [0] mean_err=[0.01 0.01 0.01]sd width=[0.96 1.05 1.11] local_rmse=0.052 t=0.0s
+  reference J=16x16 [1] mean_err=[0.04 0.06 0.08]sd width=[1.   1.01 1.02] local_rmse=0.035 t=0.0s
+  reference J=16x16 [2] mean_err=[0.05 0.03 0.03]sd width=[1.04 1.   1.03] local_rmse=0.063 t=0.0s
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 521, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 515, in main
+    evaluate(model, name, grid, arguments.datasets, arguments.num_samples,
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 419, in evaluate
+    ref_g, ref_l, ess = reference_for(grid, index, device)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 378, in reference_for
+    globals_, ess = reference.sample(draws, seed=index)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 240, in sample
+    log_w = self.log_marginal(points) - log_q
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 201, in log_marginal
+    total = self._log_lik(alpha) + log_prior_z[:, None, :]
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/export/home/rheinric/COMPASS/Arruda/paper_benchmarks/ar1_grid.py", line 184, in _log_lik
+    quad = (syy - 2 * a * s1 - 2 * th * sxy + (T - 1) * a**2
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.98 GiB. GPU 0 has a total capacity of 10.57 GiB of which 1.39 GiB is free. Including non-PyTorch memory, this process has 9.17 GiB memory in use. Of the allocated memory 5.99 GiB is allocated by PyTorch, and 2.99 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

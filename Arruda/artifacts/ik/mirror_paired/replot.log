@@ -1,0 +1,17 @@
+CPU cap: 3/72 logical CPUs; affinity=[6, 7, 8]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+recomputed reference n=1
+recomputed reference n=2
+recomputed reference n=4
+recomputed reference n=8
+recomputed reference n=16
+recomputed reference n=32
+recomputed reference n=64
+recomputed reference n=128

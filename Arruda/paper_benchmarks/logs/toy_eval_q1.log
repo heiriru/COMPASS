@@ -1,0 +1,74 @@
+  gauss_jacobian J=10 [0] kl=0.0866 mean_err=0.0599sd width=1.01 t=45.4s
+  gauss_jacobian J=10 [1] kl=0.0856 mean_err=0.051sd width=1 t=42.1s
+  gauss_jacobian J=10 [2] kl=0.0976 mean_err=0.0628sd width=1.01 t=44.0s
+  gauss_jacobian J=10 [3] kl=0.0821 mean_err=0.0408sd width=1.01 t=44.7s
+  gauss_jacobian J=10 [4] kl=0.11 mean_err=0.0941sd width=1.01 t=44.5s
+  gauss_jacobian J=10 [5] kl=0.0699 mean_err=0.0488sd width=0.986 t=45.0s
+  gauss_jacobian J=10 [6] kl=0.0594 mean_err=0.0542sd width=1.01 t=44.8s
+  gauss_jacobian J=10 [7] kl=0.0766 mean_err=0.0489sd width=1.01 t=45.0s
+  gauss_jacobian J=10 [8] kl=0.0856 mean_err=0.0657sd width=1.01 t=44.7s
+  gauss_jacobian J=10 [9] kl=0.0863 mean_err=0.0668sd width=1.01 t=44.7s
+{"datasets": 10, "failed": 0, "kl": 0.08561265707387423, "rmse": 0.4253719651163188, "contraction": 0.9078280589682117, "mean_error_sd": 0.05701552855863769, "width_ratio": 1.0063965868163418, "seconds": 44.71836201194674, "calibration_error": 0.1355, "method": "gauss_jacobian", "observations": 10, "num_samples": 500}
+  damping_dpm2 J=10 [0] kl=0.938 mean_err=0.283sd width=0.846 t=1.3s
+  damping_dpm2 J=10 [1] kl=0.633 mean_err=0.218sd width=0.848 t=1.3s
+  damping_dpm2 J=10 [2] kl=0.828 mean_err=0.281sd width=0.86 t=1.3s
+  damping_dpm2 J=10 [3] kl=0.999 mean_err=0.331sd width=0.86 t=1.3s
+  damping_dpm2 J=10 [4] kl=0.624 mean_err=0.213sd width=0.849 t=1.3s
+  damping_dpm2 J=10 [5] kl=1.55 mean_err=0.437sd width=0.845 t=1.3s
+  damping_dpm2 J=10 [6] kl=2.03 mean_err=0.446sd width=0.839 t=1.3s
+  damping_dpm2 J=10 [7] kl=1.14 mean_err=0.365sd width=0.853 t=1.3s
+  damping_dpm2 J=10 [8] kl=1.26 mean_err=0.364sd width=0.836 t=1.3s
+  damping_dpm2 J=10 [9] kl=0.971 mean_err=0.327sd width=0.87 t=1.3s
+{"datasets": 10, "failed": 0, "kl": 0.985100460596271, "rmse": 0.39390739001780467, "contraction": 0.9344383163940709, "mean_error_sd": 0.32876582467054327, "width_ratio": 0.8488882482235126, "seconds": 1.259936960414052, "calibration_error": 0.137, "method": "damping_dpm2", "observations": 10, "num_samples": 500}
+  gauss_jacobian J=100 [0] kl=0.461 mean_err=0.221sd width=0.998 t=438.7s
+  gauss_jacobian J=100 [1] kl=0.393 mean_err=0.18sd width=1.01 t=440.1s
+  gauss_jacobian J=100 [2] kl=0.375 mean_err=0.197sd width=0.998 t=440.3s
+  gauss_jacobian J=100 [3] kl=0.139 mean_err=0.103sd width=0.999 t=441.9s
+  gauss_jacobian J=100 [4] kl=0.425 mean_err=0.223sd width=1.01 t=439.9s
+  gauss_jacobian J=100 [5] kl=0.36 mean_err=0.211sd width=1 t=441.2s
+  gauss_jacobian J=100 [6] kl=0.371 mean_err=0.208sd width=1.01 t=444.6s
+  gauss_jacobian J=100 [7] kl=0.256 mean_err=0.162sd width=1.01 t=442.7s
+  gauss_jacobian J=100 [8] kl=0.348 mean_err=0.211sd width=1.01 t=444.8s
+  gauss_jacobian J=100 [9] kl=0.263 mean_err=0.153sd width=1.01 t=446.5s
+{"datasets": 10, "failed": 0, "kl": 0.3656244988023357, "rmse": 0.13889683549011858, "contraction": 0.98993442903592, "mean_error_sd": 0.20281395153528536, "width_ratio": 1.0077113475551753, "seconds": 441.560546281049, "calibration_error": 0.0895, "method": "gauss_jacobian", "observations": 100, "num_samples": 500}
+  damping_dpm2 J=100 dataset 0: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [0] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 1: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [1] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 2: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [2] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 3: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [3] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 4: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [4] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 5: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [5] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 6: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [6] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 7: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [7] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 8: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [8] kl=inf mean_err=nansd width=nan t=nans
+  damping_dpm2 J=100 dataset 9: RuntimeError('The stabilized damping score became non-finite.')
+  damping_dpm2 J=100 [9] kl=inf mean_err=nansd width=nan t=nans
+{"datasets": 10, "failed": 10, "method": "damping_dpm2", "observations": 100, "num_samples": 500}
+| J | method | KL | RMSE | contraction | cal. err | |mean err|/sd | width ratio | failed | s/dataset |
+|---|---|---|---|---|---|---|---|---|---|
+| 10 | exact | 0.0708 | 0.424 | 0.909 | 0.130 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 10 | gauss | 0.0926 | 0.427 | 0.906 | 0.135 | 0.0679 | 1.016 | 0/10 | 11.8 |
+| 10 | full_gaussian | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 12.4 |
+| 10 | gauss_hierarchical | 0.0952 | 0.43 | 0.907 | 0.132 | 0.0676 | 1.010 | 0/10 | 14.2 |
+| 10 | gauss_jacobian | 0.0856 | 0.425 | 0.908 | 0.136 | 0.057 | 1.006 | 0/10 | 44.7 |
+| 10 | langevin_fnpe | 0.0956 | 0.436 | 0.902 | 0.134 | 0.0568 | 1.038 | 0/10 | 28.2 |
+| 10 | arruda_damping | - | - | - | - | - | - | 10/10 | - |
+| 10 | damping_dpm2 | 0.985 | 0.394 | 0.934 | 0.137 | 0.329 | 0.849 | 0/10 | 1.3 |
+| 10 | uncorrected | 0.524 | 0.4 | 0.935 | 0.163 | 0.167 | 0.848 | 0/10 | 5.4 |
+| 100 | exact | 0.0708 | 0.142 | 0.990 | 0.074 | 0.04 | 1.001 | 0/10 | 0.0 |
+| 100 | gauss | 0.255 | 0.14 | 0.990 | 0.089 | 0.167 | 1.022 | 0/10 | 102.4 |
+| 100 | full_gaussian | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 102.9 |
+| 100 | gauss_hierarchical | 0.39 | 0.141 | 0.990 | 0.084 | 0.201 | 1.024 | 0/10 | 103.1 |
+| 100 | gauss_jacobian | 0.366 | 0.139 | 0.990 | 0.089 | 0.203 | 1.008 | 0/10 | 441.6 |
+| 100 | langevin_fnpe | 0.242 | 0.141 | 0.989 | 0.076 | 0.151 | 1.035 | 0/10 | 256.7 |
+| 100 | arruda_damping | - | - | - | - | - | - | 10/10 | - |
+| 100 | damping_dpm2 | - | - | - | - | - | - | 10/10 | - |
+| 100 | uncorrected | 0.868 | 0.125 | 0.993 | 0.126 | 0.219 | 0.813 | 0/10 | 50.8 |

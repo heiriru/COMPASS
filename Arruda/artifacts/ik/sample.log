@@ -1,0 +1,114 @@
+CPU cap: 4/72 logical CPUs; affinity=[0, 1, 2, 3]
+INFO:bayesflow:Using backend 'torch'
+WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
+INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+Loaded single-observation posterior from /export/home/rheinric/COMPASS/Arruda/artifacts/ik/single_observation.weights.h5
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.39s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.39s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:01<00:00,  1.95s/batch]Sampling: 100%|██████████| 1/1 [00:01<00:00,  1.95s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.78s/batch]Sampling: 100%|██████████| 1/1 [00:10<00:00, 10.78s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.21s/batch]Sampling: 100%|██████████| 1/1 [00:03<00:00,  3.21s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.62s/batch]Sampling: 100%|██████████| 1/1 [00:12<00:00, 12.62s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.12s/batch]Sampling: 100%|██████████| 1/1 [00:05<00:00,  5.12s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.02s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.02s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.89s/batch]Sampling: 100%|██████████| 1/1 [00:07<00:00,  7.89s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.71s/batch]Sampling: 100%|██████████| 1/1 [00:15<00:00, 15.71s/batch]
+Sampling:   0%|          | 0/1 [00:00<?, ?batch/s]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.19s/batch]Sampling: 100%|██████████| 1/1 [00:14<00:00, 14.19s/batch]
+[
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 1.0,
+    "mean": -0.4135172993893793,
+    "std": 0.25034950326312155,
+    "wasserstein_over_reference_std": 1.363013226161696,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n8_bridge1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 8,
+    "bridge": 0.1,
+    "mean": -0.007525940642983187,
+    "std": 0.5633563763145365,
+    "wasserstein_over_reference_std": 0.6060602697474392,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n8_bridge0.1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 16,
+    "bridge": 1.0,
+    "mean": -0.5652080681342632,
+    "std": 0.16285676278782096,
+    "wasserstein_over_reference_std": 1.9979760438263265,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n16_bridge1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 16,
+    "bridge": 0.1,
+    "mean": -0.051707391137169906,
+    "std": 0.42565860993052246,
+    "wasserstein_over_reference_std": 0.5852426836462532,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n16_bridge0.1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 1.0,
+    "mean": -0.7091198473125696,
+    "std": 0.07028817041349121,
+    "wasserstein_over_reference_std": 1.415287318887248,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n32_bridge1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 32,
+    "bridge": 0.1,
+    "mean": -0.17807495694380487,
+    "std": 0.460535496897598,
+    "wasserstein_over_reference_std": 0.35491203942336924,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n32_bridge0.1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 64,
+    "bridge": 1.0,
+    "mean": -0.7383763216584921,
+    "std": 0.01112885563674278,
+    "wasserstein_over_reference_std": 1.5080556841972812,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n64_bridge1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 64,
+    "bridge": 0.1,
+    "mean": -0.35463792075950185,
+    "std": 0.4219609459238826,
+    "wasserstein_over_reference_std": 0.716597514227213,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n64_bridge0.1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 1.0,
+    "mean": -0.8078496792316436,
+    "std": 0.02633684941331402,
+    "wasserstein_over_reference_std": 45.083759590090835,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n128_bridge1.npy"
+  },
+  {
+    "benchmark": "ik",
+    "n": 128,
+    "bridge": 0.1,
+    "mean": -0.5378336541894824,
+    "std": 0.3325004765348269,
+    "wasserstein_over_reference_std": 35.79258396974193,
+    "samples_path": "/export/home/rheinric/COMPASS/Arruda/artifacts/ik/samples_n128_bridge0.1.npy"
+  }
+]

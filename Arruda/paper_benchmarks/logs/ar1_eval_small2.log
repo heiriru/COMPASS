@@ -1,0 +1,32 @@
+  reference J=16x16 [0] mean_err=[0.01 0.01 0.01]sd width=[0.96 1.05 1.11] local_rmse=0.052 t=0.0s
+  reference J=16x16 [1] mean_err=[0.04 0.06 0.08]sd width=[1.   1.01 1.02] local_rmse=0.035 t=0.0s
+  reference J=16x16 [2] mean_err=[0.05 0.03 0.03]sd width=[1.04 1.   1.03] local_rmse=0.063 t=0.0s
+  reference J=16x16 [3] ESS=3002 (6s)
+  reference J=16x16 [3] mean_err=[0.1  0.02 0.05]sd width=[1.   1.   1.02] local_rmse=0.149 t=0.0s
+  reference J=16x16 [4] ESS=2973 (3s)
+  reference J=16x16 [4] mean_err=[0.03 0.01 0.02]sd width=[1.11 1.   0.95] local_rmse=0.062 t=0.0s
+  reference J=16x16 [5] ESS=3003 (4s)
+  reference J=16x16 [5] mean_err=[0.02 0.02 0.03]sd width=[1.   0.99 0.99] local_rmse=0.047 t=0.0s
+  reference J=16x16 [6] ESS=3035 (4s)
+  reference J=16x16 [6] mean_err=[0.12 0.1  0.01]sd width=[0.97 0.98 0.99] local_rmse=0.266 t=0.0s
+  reference J=16x16 [7] ESS=3022 (4s)
+  reference J=16x16 [7] mean_err=[0.06 0.03 0.1 ]sd width=[0.99 1.05 1.  ] local_rmse=0.214 t=0.0s
+  reference J=16x16 [8] ESS=2995 (4s)
+  reference J=16x16 [8] mean_err=[0.02 0.01 0.03]sd width=[0.92 1.01 1.01] local_rmse=0.232 t=0.0s
+  reference J=16x16 [9] ESS=3045 (4s)
+  reference J=16x16 [9] mean_err=[0.01 0.03 0.05]sd width=[1.01 0.9  0.97] local_rmse=0.047 t=0.0s
+{"method": "reference", "grid": 16, "datasets": 10, "failed": 0, "global_rmse_norm": 0.016227453873596063, "global_contraction": 0.9968649936038766, "global_mean_error_sd": 0.02959190315282152, "global_width_ratio": 1.0027538744330686, "local_rmse": 0.06235431100776349, "local_mean_error_sd": 0.09096693224542005, "local_width_ratio": 0.9967394106069258, "seconds": 0.0}
+  gauss J=16x16 [0] mean_err=[ 1.63  2.51 16.88]sd width=[1.5  1.91 8.96] local_rmse=0.227 t=191.0s
+  gauss J=16x16 [1] mean_err=[ 5.2  19.25  8.26]sd width=[1.89 3.85 0.24] local_rmse=0.159 t=148.4s
+  gauss J=16x16 [2] mean_err=[3.27 1.49 3.55]sd width=[1.29 1.65 1.14] local_rmse=0.190 t=147.4s
+  gauss J=16x16 [3] mean_err=[12.31  4.77  0.41]sd width=[1.6  0.9  1.12] local_rmse=0.415 t=146.7s
+  gauss J=16x16 [4] mean_err=[ 5.65 19.32 26.55]sd width=[1.4  8.09 4.01] local_rmse=0.217 t=148.3s
+  gauss J=16x16 [5] mean_err=[5.9  0.65 5.87]sd width=[1.94 0.77 0.89] local_rmse=0.213 t=147.6s
+  gauss J=16x16 [6] mean_err=[6.11 2.74 1.81]sd width=[1.77 2.31 2.01] local_rmse=0.449 t=148.9s
+  gauss J=16x16 [7] mean_err=[6.44 2.11 3.77]sd width=[2.07 1.84 2.09] local_rmse=0.411 t=148.1s
+  gauss J=16x16 [8] mean_err=[4.35 2.37 1.98]sd width=[2.24 3.15 1.66] local_rmse=0.439 t=146.7s
+  gauss J=16x16 [9] mean_err=[2.25 1.88 7.3 ]sd width=[1.44 3.84 5.27] local_rmse=0.205 t=146.9s
+{"method": "gauss", "grid": 16, "datasets": 10, "failed": 0, "global_rmse_norm": 0.06293835777500213, "global_contraction": 0.9882707819660049, "global_mean_error_sd": 4.22687130152163, "global_width_ratio": 1.8768013679863185, "local_rmse": 0.2217338077896811, "local_mean_error_sd": 1.711676069395779, "local_width_ratio": 3.315703354193373, "seconds": 147.89678653236479}
+  gauss_hierarchical J=16x16 [0] mean_err=[ 1.96  2.69 17.15]sd width=[0.85 1.2  7.78] local_rmse=0.190 t=147.2s
+  gauss_hierarchical J=16x16 [1] mean_err=[ 5.35 17.66  9.78]sd width=[0.82 4.99 0.4 ] local_rmse=0.768 t=145.8s
+  gauss_hierarchical J=16x16 [2] mean_err=[2.82 0.99 5.1 ]sd width=[0.37 1.07 1.  ] local_rmse=0.152 t=144.8s
