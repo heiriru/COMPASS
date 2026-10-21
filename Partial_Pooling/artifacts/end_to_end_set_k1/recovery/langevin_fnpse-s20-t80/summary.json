@@ -1,0 +1,21 @@
+{
+  "representation": "end_to_end_k1_conditional_set_encoder",
+  "checkpoint": "/export/home/rheinric/COMPASS/Partial_Pooling/artifacts/end_to_end_set_k1/checkpoints/set-k1-e2e-d64-w64x2s4-h48d2-log_sigma_checkpoint.pt",
+  "method": "langevin_fnpse",
+  "plan": {
+    "name": "langevin_fnpse",
+    "sampler": "langevin",
+    "correction": "fnpe",
+    "order": null,
+    "label": "Langevin + F-NPSE"
+  },
+  "subjects": 20,
+  "dataset_start": 0,
+  "datasets": 5,
+  "draws": 100,
+  "timesteps": 80,
+  "global_std_rmse": 1.007015550136566,
+  "local_std_rmse": 0.3671028077602386,
+  "total_seconds": 282.62649919092655,
+  "finished_at": 1788972173.0650716
+}

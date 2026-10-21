@@ -1,0 +1,43 @@
+{
+  "arch": "tokenized",
+  "checkpoint": {
+    "arm": "mask6mix",
+    "checkpoint": "Partial_Pooling/artifacts/checkpoints/small/sde_joint-tok-trial-h64d2x8m4-mask6b0p25-sub100000-train-400000/sde_joint-tok-trial-h64d2x8m4-mask6b0p25-sub100000-train-400000-checkpoint.pt",
+    "checkpoint_sha256": "fe9646f6cc3f5595aefbfc57726a328fe48596cb88f5d6e4074ac24cb1afc8a1",
+    "data_signature": "f86525da6c731960",
+    "model_signature": "9111cd9249012584",
+    "parameters": 463364,
+    "schema": {
+      "blocks": [
+        {
+          "dim": 10,
+          "name": "theta",
+          "type": "atomic"
+        },
+        {
+          "count": 30,
+          "item_dim": 3,
+          "name": "trials",
+          "representation": "trial_tokens",
+          "type": "iid"
+        }
+      ]
+    },
+    "token_count": 40
+  },
+  "parameter_counts": {
+    "scalar_tiny": 40025,
+    "trial_pph": 38725,
+    "trial_te64": 10804,
+    "trial_tiny": 38644,
+    "winner": 463364
+  },
+  "token_counts": {
+    "scalar_tiny": 100,
+    "trial_pph": 40,
+    "trial_te64": 40,
+    "trial_tiny": 40,
+    "winner": 40
+  },
+  "torch_version": "2.12.0+cu130"
+}

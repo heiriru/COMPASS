@@ -1,0 +1,1518 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 9.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=9 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 9 via autocvd.
+[dpm2_gauss_jacobian_newton] churn eta=2, artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h16d2/artifacts_churn_eta2_refresh20
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 100 starting at 0
+  subjects/draws/steps: 20/256/50
+  inference: DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP
+  sampler/correction: dpm/gauss_jacobian
+  estimated posterior-sampling time: 2.1 hours
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h16d2/artifacts_churn_eta2_refresh20/partial_pooling_recovery/small/dpm2_gauss_jacobian_newton-333d45cc5a2c192c
+[1/100] dataset 0
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 96 seconds
+  draws   60/256 | elapsed 21 seconds | ETA 70 seconds
+  draws   90/256 | elapsed 30 seconds | ETA 56 seconds
+  draws  120/256 | elapsed 39 seconds | ETA 44 seconds
+  draws  150/256 | elapsed 48 seconds | ETA 34 seconds
+  draws  180/256 | elapsed 56 seconds | ETA 24 seconds
+  draws  210/256 | elapsed 65 seconds | ETA 14 seconds
+  draws  240/256 | elapsed 74 seconds | ETA 5 seconds
+  draws  256/256 | elapsed 79 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0000.pt
+  KDE global mode (draw 106) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.853)
+  saved dpm2_gauss_jacobian_newton-dataset-0000.pt; joint MAP candidate 106
+[2/100] dataset 1
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 2 seconds | ETA 73 seconds
+  draws   30/256 | elapsed 9 seconds | ETA 66 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 35 seconds | ETA 40 seconds
+  draws  150/256 | elapsed 44 seconds | ETA 31 seconds
+  draws  180/256 | elapsed 53 seconds | ETA 22 seconds
+  draws  210/256 | elapsed 62 seconds | ETA 13 seconds
+  draws  240/256 | elapsed 70 seconds | ETA 5 seconds
+  draws  256/256 | elapsed 76 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0001.pt
+  KDE global mode (draw 246) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.18)
+  saved dpm2_gauss_jacobian_newton-dataset-0001.pt; joint MAP candidate 246
+[3/100] dataset 2
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 2 seconds | ETA 75 seconds
+  draws   30/256 | elapsed 9 seconds | ETA 69 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 36 seconds | ETA 40 seconds
+  draws  150/256 | elapsed 45 seconds | ETA 32 seconds
+  draws  180/256 | elapsed 54 seconds | ETA 23 seconds
+  draws  210/256 | elapsed 63 seconds | ETA 14 seconds
+  draws  240/256 | elapsed 72 seconds | ETA 5 seconds
+  draws  256/256 | elapsed 77 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0002.pt
+  KDE global mode (draw 190) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.82)
+  saved dpm2_gauss_jacobian_newton-dataset-0002.pt; joint MAP candidate 190
+[4/100] dataset 3
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 2 seconds | ETA 86 seconds
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 22 seconds | ETA 72 seconds
+  draws   90/256 | elapsed 32 seconds | ETA 59 seconds
+  draws  120/256 | elapsed 44 seconds | ETA 50 seconds
+  draws  150/256 | elapsed 53 seconds | ETA 37 seconds
+  draws  180/256 | elapsed 68 seconds | ETA 29 seconds
+  draws  210/256 | elapsed 78 seconds | ETA 17 seconds
+  draws  240/256 | elapsed 90 seconds | ETA 6 seconds
+  draws  256/256 | elapsed 98 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0003.pt
+  KDE global mode (draw 60) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.883)
+  saved dpm2_gauss_jacobian_newton-dataset-0003.pt; joint MAP candidate 60
+[5/100] dataset 4
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 109 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 92 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0004.pt
+  KDE global mode (draw 190) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.939)
+  saved dpm2_gauss_jacobian_newton-dataset-0004.pt; joint MAP candidate 190
+[6/100] dataset 5
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 107 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0005.pt
+  KDE global mode (draw 177) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.964)
+  saved dpm2_gauss_jacobian_newton-dataset-0005.pt; joint MAP candidate 177
+[7/100] dataset 6
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 115 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0006.pt
+  KDE global mode (draw 38) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.974)
+  saved dpm2_gauss_jacobian_newton-dataset-0006.pt; joint MAP candidate 38
+[8/100] dataset 7
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0007.pt
+  KDE global mode (draw 193) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.851)
+  saved dpm2_gauss_jacobian_newton-dataset-0007.pt; joint MAP candidate 193
+[9/100] dataset 8
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0008.pt
+  KDE global mode (draw 214) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.875)
+  saved dpm2_gauss_jacobian_newton-dataset-0008.pt; joint MAP candidate 214
+[10/100] dataset 9
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 106 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 89 seconds
+  draws  120/256 | elapsed 65 seconds | ETA 74 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 96 seconds | ETA 41 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0009.pt
+  KDE global mode (draw 9) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.929)
+  saved dpm2_gauss_jacobian_newton-dataset-0009.pt; joint MAP candidate 9
+[11/100] dataset 10
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 108 seconds
+  draws   90/256 | elapsed 50 seconds | ETA 92 seconds
+  draws  120/256 | elapsed 66 seconds | ETA 74 seconds
+  draws  150/256 | elapsed 81 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 96 seconds | ETA 41 seconds
+  draws  210/256 | elapsed 114 seconds | ETA 25 seconds
+  draws  240/256 | elapsed 2.2 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0010.pt
+  KDE global mode (draw 106) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.978)
+  saved dpm2_gauss_jacobian_newton-dataset-0010.pt; joint MAP candidate 106
+[12/100] dataset 11
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0011.pt
+  KDE global mode (draw 235) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.863)
+  saved dpm2_gauss_jacobian_newton-dataset-0011.pt; joint MAP candidate 235
+[13/100] dataset 12
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 2 seconds | ETA 97 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 97 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0012.pt
+  KDE global mode (draw 177) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.877)
+  saved dpm2_gauss_jacobian_newton-dataset-0012.pt; joint MAP candidate 177
+[14/100] dataset 13
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 50 seconds | ETA 91 seconds
+  draws  120/256 | elapsed 67 seconds | ETA 76 seconds
+  draws  150/256 | elapsed 83 seconds | ETA 59 seconds
+  draws  180/256 | elapsed 100 seconds | ETA 42 seconds
+  draws  210/256 | elapsed 117 seconds | ETA 26 seconds
+  draws  240/256 | elapsed 2.2 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.4 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0013.pt
+  KDE global mode (draw 133) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.953)
+  saved dpm2_gauss_jacobian_newton-dataset-0013.pt; joint MAP candidate 133
+[15/100] dataset 14
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 105 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 99 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0014.pt
+  KDE global mode (draw 178) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.949)
+  saved dpm2_gauss_jacobian_newton-dataset-0014.pt; joint MAP candidate 178
+[16/100] dataset 15
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 34 seconds | ETA 112 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 90 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 96 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 112 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0015.pt
+  KDE global mode (draw 6) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.883)
+  saved dpm2_gauss_jacobian_newton-dataset-0015.pt; joint MAP candidate 6
+[17/100] dataset 16
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0016.pt
+  KDE global mode (draw 36) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.87)
+  saved dpm2_gauss_jacobian_newton-dataset-0016.pt; joint MAP candidate 36
+[18/100] dataset 17
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 105 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 95 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 86 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 118 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0017.pt
+  KDE global mode (draw 74) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.817)
+  saved dpm2_gauss_jacobian_newton-dataset-0017.pt; joint MAP candidate 74
+[19/100] dataset 18
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 103 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0018.pt
+  KDE global mode (draw 139) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.909)
+  saved dpm2_gauss_jacobian_newton-dataset-0018.pt; joint MAP candidate 139
+[20/100] dataset 19
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 118 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0019.pt
+  KDE global mode (draw 147) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.876)
+  saved dpm2_gauss_jacobian_newton-dataset-0019.pt; joint MAP candidate 147
+[21/100] dataset 20
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 107 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 112 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 92 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0020.pt
+  KDE global mode (draw 141) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.833)
+  saved dpm2_gauss_jacobian_newton-dataset-0020.pt; joint MAP candidate 141
+[22/100] dataset 21
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 105 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 65 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0021.pt
+  KDE global mode (draw 90) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.876)
+  saved dpm2_gauss_jacobian_newton-dataset-0021.pt; joint MAP candidate 90
+[23/100] dataset 22
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 119 seconds
+  draws   60/256 | elapsed 33 seconds | ETA 106 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0022.pt
+  KDE global mode (draw 111) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.904)
+  saved dpm2_gauss_jacobian_newton-dataset-0022.pt; joint MAP candidate 111
+[24/100] dataset 23
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 29 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0023.pt
+  KDE global mode (draw 177) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.908)
+  saved dpm2_gauss_jacobian_newton-dataset-0023.pt; joint MAP candidate 177
+[25/100] dataset 24
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 118 seconds
+  draws   30/256 | elapsed 14 seconds | ETA 109 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 92 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 120 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0024.pt
+  KDE global mode (draw 10) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_jacobian_newton-dataset-0024.pt; joint MAP candidate 10
+[26/100] dataset 25
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 103 seconds
+  draws   90/256 | elapsed 43 seconds | ETA 80 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 71 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 86 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 102 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 117 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0025.pt
+  KDE global mode (draw 165) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.848)
+  saved dpm2_gauss_jacobian_newton-dataset-0025.pt; joint MAP candidate 165
+[27/100] dataset 26
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 101 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 97 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0026.pt
+  KDE global mode (draw 52) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.983)
+  saved dpm2_gauss_jacobian_newton-dataset-0026.pt; joint MAP candidate 52
+[28/100] dataset 27
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 115 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 89 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 86 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 101 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 116 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0027.pt
+  KDE global mode (draw 15) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.979)
+  saved dpm2_gauss_jacobian_newton-dataset-0027.pt; joint MAP candidate 15
+[29/100] dataset 28
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 114 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 103 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 89 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0028.pt
+  KDE global mode (draw 197) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.85)
+  saved dpm2_gauss_jacobian_newton-dataset-0028.pt; joint MAP candidate 197
+[30/100] dataset 29
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 110 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 99 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 73 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 118 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0029.pt
+  KDE global mode (draw 38) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.05)
+  saved dpm2_gauss_jacobian_newton-dataset-0029.pt; joint MAP candidate 38
+[31/100] dataset 30
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 114 seconds
+  draws   60/256 | elapsed 26 seconds | ETA 85 seconds
+  draws   90/256 | elapsed 40 seconds | ETA 74 seconds
+  draws  120/256 | elapsed 55 seconds | ETA 62 seconds
+  draws  150/256 | elapsed 70 seconds | ETA 49 seconds
+  draws  180/256 | elapsed 86 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 100 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 116 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0030.pt
+  KDE global mode (draw 185) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.954)
+  saved dpm2_gauss_jacobian_newton-dataset-0030.pt; joint MAP candidate 185
+[32/100] dataset 31
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 109 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0031.pt
+  KDE global mode (draw 165) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.15)
+  saved dpm2_gauss_jacobian_newton-dataset-0031.pt; joint MAP candidate 165
+[33/100] dataset 32
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 112 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0032.pt
+  KDE global mode (draw 6) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.946)
+  saved dpm2_gauss_jacobian_newton-dataset-0032.pt; joint MAP candidate 6
+[34/100] dataset 33
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 110 seconds
+  draws   30/256 | elapsed 13 seconds | ETA 97 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 92 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 116 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0033.pt
+  KDE global mode (draw 164) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.818)
+  saved dpm2_gauss_jacobian_newton-dataset-0033.pt; joint MAP candidate 164
+[35/100] dataset 34
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 94 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0034.pt
+  KDE global mode (draw 251) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.869)
+  saved dpm2_gauss_jacobian_newton-dataset-0034.pt; joint MAP candidate 251
+[36/100] dataset 35
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 100 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 94 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 73 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0035.pt
+  KDE global mode (draw 243) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_jacobian_newton-dataset-0035.pt; joint MAP candidate 243
+[37/100] dataset 36
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 105 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 90 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0036.pt
+  KDE global mode (draw 7) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.988)
+  saved dpm2_gauss_jacobian_newton-dataset-0036.pt; joint MAP candidate 7
+[38/100] dataset 37
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 2 seconds | ETA 92 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 112 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0037.pt
+  KDE global mode (draw 71) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.886)
+  saved dpm2_gauss_jacobian_newton-dataset-0037.pt; joint MAP candidate 71
+[39/100] dataset 38
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 113 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0038.pt
+  KDE global mode (draw 39) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.894)
+  saved dpm2_gauss_jacobian_newton-dataset-0038.pt; joint MAP candidate 39
+[40/100] dataset 39
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 115 seconds
+  draws   30/256 | elapsed 16 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 34 seconds | ETA 110 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0039.pt
+  KDE global mode (draw 235) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.913)
+  saved dpm2_gauss_jacobian_newton-dataset-0039.pt; joint MAP candidate 235
+[41/100] dataset 40
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 118 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 117 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0040.pt
+  KDE global mode (draw 20) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.975)
+  saved dpm2_gauss_jacobian_newton-dataset-0040.pt; joint MAP candidate 20
+[42/100] dataset 41
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 109 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 57 seconds | ETA 64 seconds
+  draws  150/256 | elapsed 69 seconds | ETA 49 seconds
+  draws  180/256 | elapsed 83 seconds | ETA 35 seconds
+  draws  210/256 | elapsed 98 seconds | ETA 21 seconds
+  draws  240/256 | elapsed 114 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0041.pt
+  KDE global mode (draw 53) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.01)
+  saved dpm2_gauss_jacobian_newton-dataset-0041.pt; joint MAP candidate 53
+[43/100] dataset 42
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 81 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0042.pt
+  KDE global mode (draw 82) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.986)
+  saved dpm2_gauss_jacobian_newton-dataset-0042.pt; joint MAP candidate 82
+[44/100] dataset 43
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 112 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 105 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 88 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 102 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 120 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0043.pt
+  KDE global mode (draw 9) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.905)
+  saved dpm2_gauss_jacobian_newton-dataset-0043.pt; joint MAP candidate 9
+[45/100] dataset 44
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0044.pt
+  KDE global mode (draw 18) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.913)
+  saved dpm2_gauss_jacobian_newton-dataset-0044.pt; joint MAP candidate 18
+[46/100] dataset 45
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 108 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 91 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0045.pt
+  KDE global mode (draw 92) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.07)
+  saved dpm2_gauss_jacobian_newton-dataset-0045.pt; joint MAP candidate 92
+[47/100] dataset 46
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 111 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 57 seconds | ETA 65 seconds
+  draws  150/256 | elapsed 71 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 85 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0046.pt
+  KDE global mode (draw 135) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.23)
+  saved dpm2_gauss_jacobian_newton-dataset-0046.pt; joint MAP candidate 135
+[48/100] dataset 47
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 107 seconds
+  draws   60/256 | elapsed 25 seconds | ETA 80 seconds
+  draws   90/256 | elapsed 35 seconds | ETA 65 seconds
+  draws  120/256 | elapsed 45 seconds | ETA 51 seconds
+  draws  150/256 | elapsed 59 seconds | ETA 42 seconds
+  draws  180/256 | elapsed 73 seconds | ETA 31 seconds
+  draws  210/256 | elapsed 87 seconds | ETA 19 seconds
+  draws  240/256 | elapsed 101 seconds | ETA 7 seconds
+  draws  256/256 | elapsed 109 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0047.pt
+  KDE global mode (draw 230) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.885)
+  saved dpm2_gauss_jacobian_newton-dataset-0047.pt; joint MAP candidate 230
+[49/100] dataset 48
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0048.pt
+  KDE global mode (draw 128) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.2)
+  saved dpm2_gauss_jacobian_newton-dataset-0048.pt; joint MAP candidate 128
+[50/100] dataset 49
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.0 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 101 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 120 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0049.pt
+  KDE global mode (draw 153) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.89)
+  saved dpm2_gauss_jacobian_newton-dataset-0049.pt; joint MAP candidate 153
+[51/100] dataset 50
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 119 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 114 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 99 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 92 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0050.pt
+  KDE global mode (draw 83) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.966)
+  saved dpm2_gauss_jacobian_newton-dataset-0050.pt; joint MAP candidate 83
+[52/100] dataset 51
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 118 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0051.pt
+  KDE global mode (draw 234) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.903)
+  saved dpm2_gauss_jacobian_newton-dataset-0051.pt; joint MAP candidate 234
+[53/100] dataset 52
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 112 seconds | ETA 25 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0052.pt
+  KDE global mode (draw 126) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.929)
+  saved dpm2_gauss_jacobian_newton-dataset-0052.pt; joint MAP candidate 126
+[54/100] dataset 53
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 105 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0053.pt
+  KDE global mode (draw 215) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.899)
+  saved dpm2_gauss_jacobian_newton-dataset-0053.pt; joint MAP candidate 215
+[55/100] dataset 54
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 115 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 93 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 88 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 120 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0054.pt
+  KDE global mode (draw 0) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.965)
+  saved dpm2_gauss_jacobian_newton-dataset-0054.pt; joint MAP candidate 0
+[56/100] dataset 55
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 119 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 90 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0055.pt
+  KDE global mode (draw 70) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.03)
+  saved dpm2_gauss_jacobian_newton-dataset-0055.pt; joint MAP candidate 70
+[57/100] dataset 56
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 110 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 43 seconds | ETA 80 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0056.pt
+  KDE global mode (draw 111) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.84)
+  saved dpm2_gauss_jacobian_newton-dataset-0056.pt; joint MAP candidate 111
+[58/100] dataset 57
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 118 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0057.pt
+  KDE global mode (draw 241) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.874)
+  saved dpm2_gauss_jacobian_newton-dataset-0057.pt; joint MAP candidate 241
+[59/100] dataset 58
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 107 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0058.pt
+  KDE global mode (draw 133) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.887)
+  saved dpm2_gauss_jacobian_newton-dataset-0058.pt; joint MAP candidate 133
+[60/100] dataset 59
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 118 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 86 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0059.pt
+  KDE global mode (draw 37) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.893)
+  saved dpm2_gauss_jacobian_newton-dataset-0059.pt; joint MAP candidate 37
+[61/100] dataset 60
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 105 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 111 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 92 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 88 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 118 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0060.pt
+  KDE global mode (draw 44) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.837)
+  saved dpm2_gauss_jacobian_newton-dataset-0060.pt; joint MAP candidate 44
+[62/100] dataset 61
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.0 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 93 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 82 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0061.pt
+  KDE global mode (draw 23) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.05)
+  saved dpm2_gauss_jacobian_newton-dataset-0061.pt; joint MAP candidate 23
+[63/100] dataset 62
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 119 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0062.pt
+  KDE global mode (draw 82) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.831)
+  saved dpm2_gauss_jacobian_newton-dataset-0062.pt; joint MAP candidate 82
+[64/100] dataset 63
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 107 seconds
+  draws   60/256 | elapsed 27 seconds | ETA 87 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 57 seconds | ETA 65 seconds
+  draws  150/256 | elapsed 73 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 101 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 113 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.0 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0063.pt
+  KDE global mode (draw 7) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.11)
+  saved dpm2_gauss_jacobian_newton-dataset-0063.pt; joint MAP candidate 7
+[65/100] dataset 64
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 118 seconds
+  draws   30/256 | elapsed 16 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 94 seconds
+  draws   90/256 | elapsed 41 seconds | ETA 76 seconds
+  draws  120/256 | elapsed 53 seconds | ETA 60 seconds
+  draws  150/256 | elapsed 68 seconds | ETA 48 seconds
+  draws  180/256 | elapsed 84 seconds | ETA 35 seconds
+  draws  210/256 | elapsed 99 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 112 seconds | ETA 7 seconds
+  draws  256/256 | elapsed 118 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0064.pt
+  KDE global mode (draw 162) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.941)
+  saved dpm2_gauss_jacobian_newton-dataset-0064.pt; joint MAP candidate 162
+[66/100] dataset 65
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0065.pt
+  KDE global mode (draw 0) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.866)
+  saved dpm2_gauss_jacobian_newton-dataset-0065.pt; joint MAP candidate 0
+[67/100] dataset 66
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 112 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 95 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 86 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0066.pt
+  KDE global mode (draw 79) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.89)
+  saved dpm2_gauss_jacobian_newton-dataset-0066.pt; joint MAP candidate 79
+[68/100] dataset 67
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 80 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0067.pt
+  KDE global mode (draw 37) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.16)
+  saved dpm2_gauss_jacobian_newton-dataset-0067.pt; joint MAP candidate 37
+[69/100] dataset 68
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 42 seconds | ETA 78 seconds
+  draws  120/256 | elapsed 57 seconds | ETA 64 seconds
+  draws  150/256 | elapsed 73 seconds | ETA 52 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 105 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0068.pt
+  KDE global mode (draw 182) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.928)
+  saved dpm2_gauss_jacobian_newton-dataset-0068.pt; joint MAP candidate 182
+[70/100] dataset 69
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 119 seconds
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0069.pt
+  KDE global mode (draw 31) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.901)
+  saved dpm2_gauss_jacobian_newton-dataset-0069.pt; joint MAP candidate 31
+[71/100] dataset 70
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 101 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 97 seconds | ETA 41 seconds
+  draws  210/256 | elapsed 112 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0070.pt
+  KDE global mode (draw 59) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.97)
+  saved dpm2_gauss_jacobian_newton-dataset-0070.pt; joint MAP candidate 59
+[72/100] dataset 71
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 76 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0071.pt
+  KDE global mode (draw 104) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.985)
+  saved dpm2_gauss_jacobian_newton-dataset-0071.pt; joint MAP candidate 104
+[73/100] dataset 72
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 120 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 102 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0072.pt
+  KDE global mode (draw 162) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.828)
+  saved dpm2_gauss_jacobian_newton-dataset-0072.pt; joint MAP candidate 162
+[74/100] dataset 73
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 102 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 99 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0073.pt
+  KDE global mode (draw 228) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.844)
+  saved dpm2_gauss_jacobian_newton-dataset-0073.pt; joint MAP candidate 228
+[75/100] dataset 74
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 113 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 96 seconds
+  draws   90/256 | elapsed 47 seconds | ETA 87 seconds
+  draws  120/256 | elapsed 61 seconds | ETA 69 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 90 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 105 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 118 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0074.pt
+  KDE global mode (draw 105) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.853)
+  saved dpm2_gauss_jacobian_newton-dataset-0074.pt; joint MAP candidate 105
+[76/100] dataset 75
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 105 seconds
+  draws   30/256 | elapsed 16 seconds | ETA 119 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 70 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 85 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 100 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 115 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0075.pt
+  KDE global mode (draw 42) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.874)
+  saved dpm2_gauss_jacobian_newton-dataset-0075.pt; joint MAP candidate 42
+[77/100] dataset 76
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 72 seconds | ETA 51 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 120 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0076.pt
+  KDE global mode (draw 36) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.944)
+  saved dpm2_gauss_jacobian_newton-dataset-0076.pt; joint MAP candidate 36
+[78/100] dataset 77
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 117 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 94 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 110 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0077.pt
+  KDE global mode (draw 156) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.905)
+  saved dpm2_gauss_jacobian_newton-dataset-0077.pt; joint MAP candidate 156
+[79/100] dataset 78
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 109 seconds
+  draws   60/256 | elapsed 29 seconds | ETA 95 seconds
+  draws   90/256 | elapsed 43 seconds | ETA 80 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 72 seconds | ETA 51 seconds
+  draws  180/256 | elapsed 85 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 98 seconds | ETA 21 seconds
+  draws  240/256 | elapsed 113 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.0 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0078.pt
+  KDE global mode (draw 110) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.924)
+  saved dpm2_gauss_jacobian_newton-dataset-0078.pt; joint MAP candidate 110
+[80/100] dataset 79
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 92 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 107 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0079.pt
+  KDE global mode (draw 142) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.858)
+  saved dpm2_gauss_jacobian_newton-dataset-0079.pt; joint MAP candidate 142
+[81/100] dataset 80
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 18 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 34 seconds | ETA 111 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 89 seconds
+  draws  120/256 | elapsed 65 seconds | ETA 74 seconds
+  draws  150/256 | elapsed 81 seconds | ETA 57 seconds
+  draws  180/256 | elapsed 98 seconds | ETA 41 seconds
+  draws  210/256 | elapsed 114 seconds | ETA 25 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0080.pt
+  KDE global mode (draw 44) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.86)
+  saved dpm2_gauss_jacobian_newton-dataset-0080.pt; joint MAP candidate 44
+[82/100] dataset 81
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.6 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.2 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 107 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 90 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0081.pt
+  KDE global mode (draw 237) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.865)
+  saved dpm2_gauss_jacobian_newton-dataset-0081.pt; joint MAP candidate 237
+[83/100] dataset 82
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 119 seconds
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 79 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 94 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0082.pt
+  KDE global mode (draw 175) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.912)
+  saved dpm2_gauss_jacobian_newton-dataset-0082.pt; joint MAP candidate 175
+[84/100] dataset 83
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 106 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 85 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 71 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0083.pt
+  KDE global mode (draw 100) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.12)
+  saved dpm2_gauss_jacobian_newton-dataset-0083.pt; joint MAP candidate 100
+[85/100] dataset 84
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.0 minutes
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 103 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0084.pt
+  KDE global mode (draw 25) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.85)
+  saved dpm2_gauss_jacobian_newton-dataset-0084.pt; joint MAP candidate 25
+[86/100] dataset 85
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 119 seconds
+  draws   30/256 | elapsed 14 seconds | ETA 105 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 93 seconds
+  draws   90/256 | elapsed 43 seconds | ETA 79 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 65 seconds
+  draws  150/256 | elapsed 72 seconds | ETA 51 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 101 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 115 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0085.pt
+  KDE global mode (draw 72) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.11)
+  saved dpm2_gauss_jacobian_newton-dataset-0085.pt; joint MAP candidate 72
+[87/100] dataset 86
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 116 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 99 seconds
+  draws   90/256 | elapsed 42 seconds | ETA 78 seconds
+  draws  120/256 | elapsed 57 seconds | ETA 64 seconds
+  draws  150/256 | elapsed 73 seconds | ETA 51 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 102 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 119 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0086.pt
+  KDE global mode (draw 31) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.928)
+  saved dpm2_gauss_jacobian_newton-dataset-0086.pt; joint MAP candidate 31
+[88/100] dataset 87
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 32 seconds | ETA 104 seconds
+  draws   90/256 | elapsed 49 seconds | ETA 90 seconds
+  draws  120/256 | elapsed 65 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 82 seconds | ETA 58 seconds
+  draws  180/256 | elapsed 98 seconds | ETA 41 seconds
+  draws  210/256 | elapsed 112 seconds | ETA 25 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 9 seconds
+  draws  256/256 | elapsed 2.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0087.pt
+  KDE global mode (draw 20) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.16)
+  saved dpm2_gauss_jacobian_newton-dataset-0087.pt; joint MAP candidate 20
+[89/100] dataset 88
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.8 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 33 seconds | ETA 109 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 89 seconds
+  draws  120/256 | elapsed 64 seconds | ETA 73 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 95 seconds | ETA 40 seconds
+  draws  210/256 | elapsed 111 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.1 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0088.pt
+  KDE global mode (draw 47) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.844)
+  saved dpm2_gauss_jacobian_newton-dataset-0088.pt; joint MAP candidate 47
+[90/100] dataset 89
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 112 seconds
+  draws   30/256 | elapsed 14 seconds | ETA 105 seconds
+  draws   60/256 | elapsed 27 seconds | ETA 89 seconds
+  draws   90/256 | elapsed 42 seconds | ETA 78 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 75 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 105 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0089.pt
+  KDE global mode (draw 215) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.08)
+  saved dpm2_gauss_jacobian_newton-dataset-0089.pt; joint MAP candidate 215
+[91/100] dataset 90
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 105 seconds
+  draws   30/256 | elapsed 16 seconds | ETA 118 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 103 seconds
+  draws   90/256 | elapsed 48 seconds | ETA 88 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0090.pt
+  KDE global mode (draw 238) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.805)
+  saved dpm2_gauss_jacobian_newton-dataset-0090.pt; joint MAP candidate 238
+[92/100] dataset 91
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.2 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 113 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 78 seconds | ETA 55 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 108 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0091.pt
+  KDE global mode (draw 90) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.905)
+  saved dpm2_gauss_jacobian_newton-dataset-0091.pt; joint MAP candidate 90
+[93/100] dataset 92
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 114 seconds
+  draws   60/256 | elapsed 31 seconds | ETA 100 seconds
+  draws   90/256 | elapsed 46 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 60 seconds | ETA 68 seconds
+  draws  150/256 | elapsed 77 seconds | ETA 54 seconds
+  draws  180/256 | elapsed 92 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0092.pt
+  KDE global mode (draw 71) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.855)
+  saved dpm2_gauss_jacobian_newton-dataset-0092.pt; joint MAP candidate 71
+[94/100] dataset 93
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.3 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 108 seconds
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 84 seconds
+  draws  120/256 | elapsed 63 seconds | ETA 72 seconds
+  draws  150/256 | elapsed 80 seconds | ETA 56 seconds
+  draws  180/256 | elapsed 93 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 109 seconds | ETA 24 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.2 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0093.pt
+  KDE global mode (draw 72) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.954)
+  saved dpm2_gauss_jacobian_newton-dataset-0093.pt; joint MAP candidate 72
+[95/100] dataset 94
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.4 minutes
+  draws   30/256 | elapsed 15 seconds | ETA 111 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 92 seconds
+  draws   90/256 | elapsed 43 seconds | ETA 79 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 38 seconds
+  draws  210/256 | elapsed 102 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 116 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0094.pt
+  KDE global mode (draw 57) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.967)
+  saved dpm2_gauss_jacobian_newton-dataset-0094.pt; joint MAP candidate 57
+[96/100] dataset 95
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 14 seconds | ETA 105 seconds
+  draws   60/256 | elapsed 28 seconds | ETA 91 seconds
+  draws   90/256 | elapsed 44 seconds | ETA 81 seconds
+  draws  120/256 | elapsed 58 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 71 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 101 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 114 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0095.pt
+  KDE global mode (draw 42) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.18)
+  saved dpm2_gauss_jacobian_newton-dataset-0095.pt; joint MAP candidate 42
+[97/100] dataset 96
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 4 seconds | ETA 2.5 minutes
+  draws   30/256 | elapsed 16 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 30 seconds | ETA 98 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 67 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 91 seconds | ETA 39 seconds
+  draws  210/256 | elapsed 106 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 118 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0096.pt
+  KDE global mode (draw 138) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.922)
+  saved dpm2_gauss_jacobian_newton-dataset-0096.pt; joint MAP candidate 138
+[98/100] dataset 97
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 112 seconds
+  draws   30/256 | elapsed 13 seconds | ETA 98 seconds
+  draws   60/256 | elapsed 25 seconds | ETA 80 seconds
+  draws   90/256 | elapsed 41 seconds | ETA 76 seconds
+  draws  120/256 | elapsed 59 seconds | ETA 66 seconds
+  draws  150/256 | elapsed 71 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 87 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 101 seconds | ETA 22 seconds
+  draws  240/256 | elapsed 116 seconds | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0097.pt
+  KDE global mode (draw 141) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.943)
+  saved dpm2_gauss_jacobian_newton-dataset-0097.pt; joint MAP candidate 141
+[99/100] dataset 98
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 114 seconds
+  draws   30/256 | elapsed 14 seconds | ETA 106 seconds
+  draws   60/256 | elapsed 27 seconds | ETA 89 seconds
+  draws   90/256 | elapsed 40 seconds | ETA 74 seconds
+  draws  120/256 | elapsed 54 seconds | ETA 61 seconds
+  draws  150/256 | elapsed 71 seconds | ETA 50 seconds
+  draws  180/256 | elapsed 85 seconds | ETA 36 seconds
+  draws  210/256 | elapsed 95 seconds | ETA 21 seconds
+  draws  240/256 | elapsed 109 seconds | ETA 7 seconds
+  draws  256/256 | elapsed 120 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0098.pt
+  KDE global mode (draw 248) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.933)
+  saved dpm2_gauss_jacobian_newton-dataset-0098.pt; joint MAP candidate 248
+[100/100] dataset 99
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 3 seconds | ETA 2.1 minutes
+  draws   30/256 | elapsed 17 seconds | ETA 2.1 minutes
+  draws   60/256 | elapsed 29 seconds | ETA 94 seconds
+  draws   90/256 | elapsed 45 seconds | ETA 83 seconds
+  draws  120/256 | elapsed 62 seconds | ETA 70 seconds
+  draws  150/256 | elapsed 74 seconds | ETA 53 seconds
+  draws  180/256 | elapsed 89 seconds | ETA 37 seconds
+  draws  210/256 | elapsed 104 seconds | ETA 23 seconds
+  draws  240/256 | elapsed 2.0 minutes | ETA 8 seconds
+  draws  256/256 | elapsed 2.1 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_jacobian_newton-dataset-0099.pt
+  KDE global mode (draw 104) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_jacobian_newton-dataset-0099.pt; joint MAP candidate 104
+Completed 100/100 datasets. Summary: /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h16d2/artifacts_churn_eta2_refresh20/partial_pooling_recovery/small/dpm2_gauss_jacobian_newton-333d45cc5a2c192c/dpm2_gauss_jacobian_newton-summary.json
+Created 7 figures in /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h16d2/artifacts_churn_eta2_refresh20/figures/partial_pooling/small/dpm2_gauss_jacobian_newton-333d45cc5a2c192c
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h16d2/artifacts_churn_eta2_refresh20/churn_manifest.json

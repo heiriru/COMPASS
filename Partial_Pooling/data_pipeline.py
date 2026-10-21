@@ -85,11 +85,20 @@ def _leaves(payload):
 
 
 def _normalizers(training):
+    """Per-feature constants, fitted on the training split.
+
+    Subjects are exchangeable draws from the same population, so a split with
+    several subjects per row pools them rather than fitting on the first: the
+    estimator is the same one, on more samples from the same distribution.
+    """
     sde = training["sde"]
-    sde_obs = sde["observations"][:, 0]
+    subjects = sde["locals"].shape[1]
+    locals_ = sde["locals"].reshape(-1, sde["locals"].shape[-1])
+    globals_ = sde["globals"].repeat_interleave(subjects, dim=0)
+    observations = sde["observations"].reshape(-1, sde["observations"].shape[-1])
     return {
-        "sde_joint_theta": Normalizer.fit(torch.cat((sde["globals"], sde["locals"][:, 0]), 1)).state_dict(),
-        "sde_observations": Normalizer.fit(sde_obs).state_dict(),
+        "sde_joint_theta": Normalizer.fit(torch.cat((globals_, locals_), 1)).state_dict(),
+        "sde_observations": Normalizer.fit(observations).state_dict(),
     }
 
 
@@ -105,11 +114,17 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
         signature_key="data_signature",
     ):
         return index_path
+    if config.train_subjects != 1 and not index_path.exists():
+        print(
+            f"Generating a {config.train_subjects}-subject split "
+            f"({training_tag(config)}); normalization and test data are reused "
+            "from the one-subject split."
+        )
     splits = {}
     training_payload = None
     for split, size in (("train", config.train_size), ("validation", config.validation_size)):
         payload = {
-            "sde": _sde_split(config, split, size, subjects=1),
+            "sde": _sde_split(config, split, size, subjects=config.train_subjects),
         }
         if split == "train":
             training_payload = payload
@@ -117,16 +132,29 @@ def generate_training_data(config, paths=None, force=False, cpu_limit=None):
             training_shard_directory(config, paths),
             split, payload, config, force,
         )
-    normalizer_states = _normalizers(training_payload)
-    atomic_torch(normalizer_path, {
-        "config_signature": config.data_signature,
-        "data_signature": config.data_signature,
-        "fitted_split": "train",
-        "training_method": training_tag(config),
-        "training_samples": config.train_size,
-        "validation_samples": config.validation_size,
-        "normalizers": normalizer_states,
-    })
+    if config.train_subjects != 1:
+        # A grouped split shares the base split's constants rather than fitting
+        # its own; see artifact_names.base_training_tag. Refitting here would
+        # overwrite the file every published arm was trained under.
+        if not normalizer_path.exists():
+            raise RuntimeError(
+                f"A grouped split reuses {normalizer_path.name}, which does not "
+                "exist. Generate the one-subject split for this preset first."
+            )
+        normalizer_states = torch.load(
+            normalizer_path, map_location="cpu", weights_only=False
+        )["normalizers"]
+    else:
+        normalizer_states = _normalizers(training_payload)
+        atomic_torch(normalizer_path, {
+            "config_signature": config.data_signature,
+            "data_signature": config.data_signature,
+            "fitted_split": "train",
+            "training_method": training_tag(config),
+            "training_samples": config.train_size,
+            "validation_samples": config.validation_size,
+            "normalizers": normalizer_states,
+        })
     normalization_json = {
         key: {
             "mean": state["mean"].tolist(), "scale": state["scale"].tolist(),

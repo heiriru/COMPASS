@@ -1,0 +1,64 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 8.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=8 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 8 via autocvd.
+train (100000, 30, 3)  validation (5000, 30, 3)
+item normalization  mean [0.6130626797676086, -0.4948393404483795, 0.0]  scale [0.4870491027832031, 0.4523058831691742, 1.0]  degenerate [False, False, True]
+encoder 185,248 parameters, decoder 21,139 (discarded after)
+epoch   1  train   23.9094  validation   16.4834
+epoch   2  train   23.3481  validation   16.2615
+epoch   3  train   22.8713  validation   16.2303
+epoch   4  train   22.2615  validation   16.2356
+epoch   5  train   22.7506  validation   16.1614
+epoch   6  train   21.7112  validation   16.1815
+epoch   7  train   22.5736  validation   16.1667
+epoch   8  train   22.8622  validation   16.1987
+epoch   9  train   22.1863  validation   16.1334
+epoch  10  train   22.8106  validation   16.1021
+epoch  11  train   23.1582  validation   16.1025
+epoch  12  train   22.8236  validation   16.1175
+epoch  13  train   22.6799  validation   16.0935
+epoch  14  train   22.1023  validation   16.1916
+epoch  15  train   22.4768  validation   16.1124
+epoch  16  train   21.8272  validation   16.0836
+epoch  17  train   21.3156  validation   16.1054
+epoch  18  train   22.3032  validation   16.0894
+epoch  19  train   21.9137  validation   16.1185
+epoch  20  train   22.7823  validation   16.0664
+epoch  21  train   21.8232  validation   16.0514
+epoch  22  train   21.6700  validation   16.0876
+epoch  23  train   22.0549  validation   16.0634
+epoch  24  train   21.4832  validation   16.1541
+epoch  25  train   21.8651  validation   16.1279
+epoch  26  train   22.0511  validation   16.0341
+epoch  27  train   23.0530  validation   16.1303
+epoch  28  train   22.7323  validation   16.0654
+epoch  29  train   22.1663  validation   16.0807
+epoch  30  train   22.9863  validation   16.1054
+epoch  31  train   22.1960  validation   16.0399
+epoch  32  train   21.9911  validation   16.0948
+epoch  33  train   21.4651  validation   16.0301
+epoch  34  train   21.7231  validation   16.0682
+epoch  35  train   22.8272  validation   16.0379
+epoch  36  train   22.3651  validation   16.0123
+epoch  37  train   22.5917  validation   16.0530
+epoch  38  train   22.0089  validation   16.0549
+epoch  39  train   21.5461  validation   16.0355
+epoch  40  train   22.4511  validation   16.0226
+epoch  41  train   22.7647  validation   16.0651
+epoch  42  train   21.7785  validation   16.0043
+epoch  43  train   22.2633  validation   16.0348
+epoch  44  train   21.8040  validation   16.0465
+epoch  45  train   20.8871  validation   16.0639
+epoch  46  train   22.0979  validation   16.0305
+epoch  47  train   22.0679  validation   16.0156
+epoch  48  train   22.3542  validation   16.0274
+epoch  49  train   21.9711  validation   16.0352
+epoch  50  train   22.6928  validation   16.0249
+epoch  51  train   22.3714  validation   16.0703
+epoch  52  train   21.7633  validation   16.0433
+early stopping at epoch 52
+z over the training split: mean |z| 1.210  sd range 0.287-1.622
+
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/artifacts/encoders/setenc-d16-w64x2s4.pt  (4.0 min)

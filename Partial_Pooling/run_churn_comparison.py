@@ -147,7 +147,7 @@ def patched_dpm_sampler(builder):
 
 
 @contextlib.contextmanager
-def forced_jacobian_refresh(refresh):
+def forced_jacobian_refresh(refresh, low_noise=None):
     """Force ``sample(jacobian_refresh=...)``, which the CLI does not expose.
 
     ``correction="gauss_jacobian"`` rebuilds the per-observation curvature with
@@ -171,6 +171,11 @@ def forced_jacobian_refresh(refresh):
 
     def sample(self, *args, **kwargs):
         kwargs["jacobian_refresh"] = int(refresh)
+        # ``refresh`` above jacobian_refresh_lambda, ``low_noise`` below it;
+        # None means one period for the whole trajectory. Always set, so it
+        # overrides the FD arm's own low-noise schedule.
+        kwargs["jacobian_refresh_low_noise"] = (
+            None if low_noise is None else int(low_noise))
         return original(self, *args, **kwargs)
 
     MultiObsSampler.sample = sample
@@ -180,7 +185,7 @@ def forced_jacobian_refresh(refresh):
         MultiObsSampler.sample = original
 
 
-def scratch_root(base, eta, refresh=1):
+def scratch_root(base, eta, refresh=1, low_noise=None):
     """An artifact root that shares data and checkpoints but nothing else.
 
     ``data`` and ``checkpoints`` are symlinked to the real tree so the 400,000
@@ -191,6 +196,8 @@ def scratch_root(base, eta, refresh=1):
     suffix = f"artifacts_churn_eta{eta:g}"
     if int(refresh) != 1:
         suffix += f"_refresh{int(refresh)}"
+    if low_noise is not None:
+        suffix += f"_lowrefresh{int(low_noise)}"
     root = Path(base) / suffix
     root.mkdir(parents=True, exist_ok=True)
     for name in ("data", "checkpoints"):
@@ -204,13 +211,17 @@ def main(argv=None):
     ahead = argparse.ArgumentParser(add_help=False)
     ahead.add_argument("--churn-eta", type=float, default=2.0)
     ahead.add_argument("--jacobian-refresh", type=int, default=1)
+    ahead.add_argument("--jacobian-refresh-low-noise", type=int)
     ahead.add_argument("--scratch-base", type=Path, default=ROOT)
     known, rest = ahead.parse_known_args(argv)
 
     if known.jacobian_refresh < 1:
         raise SystemExit("--jacobian-refresh must be at least 1.")
+    low_noise = known.jacobian_refresh_low_noise
+    if low_noise is not None and low_noise < 1:
+        raise SystemExit("--jacobian-refresh-low-noise must be at least 1.")
     root = scratch_root(known.scratch_base, known.churn_eta,
-                        known.jacobian_refresh)
+                        known.jacobian_refresh, low_noise)
     forwarded = list(rest) + ["--root", str(root)]
     args = infer.parser().parse_args(forwarded)
 
@@ -242,8 +253,9 @@ def main(argv=None):
             stack.enter_context(
                 patched_dpm_sampler(churned_dpm_sampler(known.churn_eta))
             )
-        if known.jacobian_refresh != 1:
-            stack.enter_context(forced_jacobian_refresh(known.jacobian_refresh))
+        if known.jacobian_refresh != 1 or low_noise is not None:
+            stack.enter_context(
+                forced_jacobian_refresh(known.jacobian_refresh, low_noise))
         infer.run(args, cpu_limit)
 
     # Record what produced these artifacts; the run signature cannot see churn.
@@ -252,6 +264,7 @@ def main(argv=None):
     entries[args.inference_method] = {
         "churn_eta": known.churn_eta,
         "jacobian_refresh": known.jacobian_refresh,
+        "jacobian_refresh_low_noise": low_noise,
         "preset": args.preset,
         "datasets": args.datasets,
         "subjects": args.subjects,

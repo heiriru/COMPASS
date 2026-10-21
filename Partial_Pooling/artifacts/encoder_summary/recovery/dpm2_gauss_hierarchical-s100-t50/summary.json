@@ -1,0 +1,23 @@
+{
+  "representation": "frozen_predictive_set_summary",
+  "likelihood": "p(z|theta)",
+  "name": "setenc-d16-w64x2s4-h48d2-log_sigma",
+  "checkpoint": "/export/home/rheinric/COMPASS/Partial_Pooling/artifacts/encoder_summary/checkpoints/setenc-d16-w64x2s4-h48d2-log_sigma_checkpoint.pt",
+  "method": "dpm2_gauss_hierarchical",
+  "plan": {
+    "name": "dpm2_gauss_hierarchical",
+    "sampler": "dpm",
+    "correction": "gauss_hierarchical",
+    "order": 2,
+    "label": "DPM-Solver-2 + hierarchical Gaussian (GAUSS)"
+  },
+  "subjects": 100,
+  "dataset_start": 0,
+  "datasets": 30,
+  "draws": 100,
+  "timesteps": 50,
+  "global_std_rmse": 0.7949656695127487,
+  "local_std_rmse": 0.33851258307695387,
+  "total_seconds": 2698.3493619260844,
+  "finished_at": 1789035981.1850557
+}

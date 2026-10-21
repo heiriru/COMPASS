@@ -1,0 +1,83 @@
+{
+  "completed_datasets": 30,
+  "inference_method": "dpm2_gauss_hierarchical",
+  "summary": {
+    "global": {
+      "beta_raw": {
+        "count": 30,
+        "coverage_95": 0.6666666666666666,
+        "mae": 0.3769412086287048,
+        "mean_posterior_z_error": 0.2615379166964688,
+        "rmse": 0.5123168010807264
+      },
+      "log_sigma_log_alpha": {
+        "count": 30,
+        "coverage_95": 0.5,
+        "mae": 0.9604953567186991,
+        "mean_posterior_z_error": -0.6271766002398281,
+        "rmse": 1.1509868213210643
+      },
+      "log_sigma_log_t0": {
+        "count": 30,
+        "coverage_95": 0.5333333333333333,
+        "mae": 0.2559006134668986,
+        "mean_posterior_z_error": -0.4902036579914417,
+        "rmse": 0.3104892954939535
+      },
+      "log_sigma_nu": {
+        "count": 30,
+        "coverage_95": 0.7,
+        "mae": 0.9752879209816456,
+        "mean_posterior_z_error": 1.118669716761395,
+        "rmse": 1.295611751598817
+      },
+      "mu_log_alpha": {
+        "count": 30,
+        "coverage_95": 0.8666666666666667,
+        "mae": 0.021938875938455265,
+        "mean_posterior_z_error": 0.05521481331578067,
+        "rmse": 0.03334570727263336
+      },
+      "mu_log_t0": {
+        "count": 30,
+        "coverage_95": 0.8333333333333334,
+        "mae": 0.04616063932577769,
+        "mean_posterior_z_error": 0.43121587662434707,
+        "rmse": 0.07008728515054247
+      },
+      "mu_nu": {
+        "count": 30,
+        "coverage_95": 0.4,
+        "mae": 0.20518701548377674,
+        "mean_posterior_z_error": -0.9197922343432706,
+        "rmse": 0.27893639981451773
+      }
+    },
+    "local": {
+      "log_alpha": {
+        "count": 3000,
+        "coverage_95": 0.9443333333333334,
+        "mae": 0.04930469649318881,
+        "mean_posterior_z_error": 0.047923722418292035,
+        "rmse": 0.08271217210493688
+      },
+      "log_t0": {
+        "count": 3000,
+        "coverage_95": 0.9593333333333334,
+        "mae": 0.03381458677366997,
+        "mean_posterior_z_error": 0.259396271764942,
+        "rmse": 0.0522168287750404
+      },
+      "nu": {
+        "count": 3000,
+        "coverage_95": 0.936,
+        "mae": 0.23954083636727105,
+        "mean_posterior_z_error": -0.11750452338849326,
+        "rmse": 0.321505032515719
+      }
+    }
+  },
+  "total_map_runtime_seconds": 6.042065162211657,
+  "total_runtime_seconds": 9158.623134183465,
+  "total_sampling_runtime_seconds": 9152.581069021253
+}

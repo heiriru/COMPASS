@@ -284,6 +284,8 @@ def _plot_combined_error_distributions(
     from matplotlib.lines import Line2D
     from matplotlib.patches import Patch
 
+    from Partial_Pooling.infer_partial_pooling import _error_rmse
+
     fig, axes = plt.subplots(2, 1, figsize=(13, 8.5), constrained_layout=True)
     method_count = len(runs)
     group_width = 0.78
@@ -306,15 +308,17 @@ def _plot_combined_error_distributions(
             ]
             boxes = axis.boxplot(
                 values, positions=positions, widths=box_width * 0.82,
-                patch_artist=True, showmeans=True, manage_ticks=False,
-                meanprops={
-                    "marker": "D", "markerfacecolor": run["color"],
-                    "markeredgecolor": "black", "markersize": 4,
-                },
-                medianprops={"color": "black", "linewidth": 1},
+                patch_artist=True, showmeans=False, manage_ticks=False,
+                medianprops={"linewidth": 0},
             )
             for box in boxes["boxes"]:
                 box.set(facecolor=run["color"], alpha=0.42)
+            axis.scatter(
+                positions,
+                [_error_rmse(parameter_values) for parameter_values in values],
+                marker="D", s=30, color=run["color"], edgecolors="black",
+                linewidths=0.8, zorder=5,
+            )
             for parameter_index, parameter_values in enumerate(values):
                 jitter = [
                     ((index % 11) - 5) * box_width * 0.018
@@ -338,6 +342,10 @@ def _plot_combined_error_distributions(
                 Patch(facecolor=run["color"], alpha=0.42, label=run["label"])
                 for run in runs
             ],
+            Line2D(
+                [0], [0], marker="D", linestyle="none", color="white",
+                markeredgecolor="black", label="RMS error (per method)",
+            ),
             Line2D([0], [0], color="black", ls="--", label="zero error"),
         ],
         loc="center left", bbox_to_anchor=(1.005, 0.5), frameon=True,

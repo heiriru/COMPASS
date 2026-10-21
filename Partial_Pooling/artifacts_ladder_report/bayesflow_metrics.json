@@ -1,0 +1,637 @@
+{
+  "arms": [
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.05026315789473684,
+          "per_parameter": {
+            "beta_raw": 0.016315789473684218,
+            "log_sigma_log_alpha": 0.13421052631578947,
+            "log_sigma_log_t0": 0.03473684210526318,
+            "log_sigma_nu": 0.038157894736842106,
+            "mu_log_alpha": 0.04368421052631577,
+            "mu_log_t0": 0.02578947368421053,
+            "mu_nu": 0.05894736842105261
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.7252525687217712,
+          "per_parameter": {
+            "beta_raw": 1.1069583892822266,
+            "log_sigma_log_alpha": 0.7551787495613098,
+            "log_sigma_log_t0": 0.7533159255981445,
+            "log_sigma_nu": 0.675807535648346,
+            "mu_log_alpha": 0.7274333834648132,
+            "mu_log_t0": 0.31715309619903564,
+            "mu_nu": 0.7409207820892334
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.17838215827941895,
+          "per_parameter": {
+            "beta_raw": 0.262084037065506,
+            "log_sigma_log_alpha": 0.2016800045967102,
+            "log_sigma_log_t0": 0.1826227307319641,
+            "log_sigma_nu": 0.16917642951011658,
+            "mu_log_alpha": 0.18331098556518555,
+            "mu_log_t0": 0.07360924035310745,
+            "mu_nu": 0.1761917620897293
+          }
+        }
+      },
+      "label": "legacy-5.96M/400k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.032223684210526314,
+          "per_parameter": {
+            "log_alpha": 0.02219736842105266,
+            "log_t0": 0.046447368421052626,
+            "nu": 0.02802631578947365
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.42834988236427307,
+          "per_parameter": {
+            "log_alpha": 0.6399906873703003,
+            "log_t0": 0.09380750358104706,
+            "nu": 0.5512515902519226
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.03960428014397621,
+          "per_parameter": {
+            "log_alpha": 0.05210675299167633,
+            "log_t0": 0.013970863074064255,
+            "nu": 0.05273522064089775
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.058721804511278196,
+          "per_parameter": {
+            "beta_raw": 0.10421052631578949,
+            "log_sigma_log_alpha": 0.09000000000000005,
+            "log_sigma_log_t0": 0.009736842105263155,
+            "log_sigma_nu": 0.048684210526315774,
+            "mu_log_alpha": 0.10368421052631578,
+            "mu_log_t0": 0.028947368421052663,
+            "mu_nu": 0.02578947368421053
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.7871397137641907,
+          "per_parameter": {
+            "beta_raw": 1.1357625722885132,
+            "log_sigma_log_alpha": 1.246614933013916,
+            "log_sigma_log_t0": 0.71437668800354,
+            "log_sigma_nu": 0.7373774647712708,
+            "mu_log_alpha": 0.6631073951721191,
+            "mu_log_t0": 0.37817496061325073,
+            "mu_nu": 0.6345634460449219
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.1950533092021942,
+          "per_parameter": {
+            "beta_raw": 0.2689037024974823,
+            "log_sigma_log_alpha": 0.3329242765903473,
+            "log_sigma_log_t0": 0.173182874917984,
+            "log_sigma_nu": 0.18458935618400574,
+            "mu_log_alpha": 0.16710102558135986,
+            "mu_log_t0": 0.08777202665805817,
+            "mu_nu": 0.15089985728263855
+          }
+        }
+      },
+      "label": "legacy-5.96M/100k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.03355263157894738,
+          "per_parameter": {
+            "log_alpha": 0.017342105263157964,
+            "log_t0": 0.0746973684210526,
+            "nu": 0.008618421052631595
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4405353367328644,
+          "per_parameter": {
+            "log_alpha": 0.6817086935043335,
+            "log_t0": 0.09896697103977203,
+            "nu": 0.5409303903579712
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.04066348820924759,
+          "per_parameter": {
+            "log_alpha": 0.05550335347652435,
+            "log_t0": 0.014739269390702248,
+            "nu": 0.051747847348451614
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.14334586466165414,
+          "per_parameter": {
+            "beta_raw": 0.1581578947368421,
+            "log_sigma_log_alpha": 0.0342105263157895,
+            "log_sigma_log_t0": 0.20526315789473687,
+            "log_sigma_nu": 0.12789473684210528,
+            "mu_log_alpha": 0.22026315789473683,
+            "mu_log_t0": 0.15578947368421053,
+            "mu_nu": 0.10184210526315796
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.9507384300231934,
+          "per_parameter": {
+            "beta_raw": 0.7644133567810059,
+            "log_sigma_log_alpha": 1.203500509262085,
+            "log_sigma_log_t0": 1.5476038455963135,
+            "log_sigma_nu": 0.8547048568725586,
+            "mu_log_alpha": 1.1913015842437744,
+            "mu_log_t0": 0.354290634393692,
+            "mu_nu": 0.7393543720245361
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.2356833517551422,
+          "per_parameter": {
+            "beta_raw": 0.18098290264606476,
+            "log_sigma_log_alpha": 0.32141000032424927,
+            "log_sigma_log_t0": 0.37517809867858887,
+            "log_sigma_nu": 0.2139601707458496,
+            "mu_log_alpha": 0.300204336643219,
+            "mu_log_t0": 0.08222862333059311,
+            "mu_nu": 0.1758192777633667
+          }
+        }
+      },
+      "label": "trial-h16d2-98k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.06180263157894735,
+          "per_parameter": {
+            "log_alpha": 0.007078947368421018,
+            "log_t0": 0.12209210526315789,
+            "nu": 0.05623684210526314
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5990825891494751,
+          "per_parameter": {
+            "log_alpha": 0.983283519744873,
+            "log_t0": 0.14236512780189514,
+            "nu": 0.6715991497039795
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.05516926571726799,
+          "per_parameter": {
+            "log_alpha": 0.08005696535110474,
+            "log_t0": 0.021202608942985535,
+            "nu": 0.0642482191324234
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.06781954887218046,
+          "per_parameter": {
+            "beta_raw": 0.03921052631578949,
+            "log_sigma_log_alpha": 0.06368421052631583,
+            "log_sigma_log_t0": 0.14131578947368426,
+            "log_sigma_nu": 0.14815789473684216,
+            "mu_log_alpha": 0.01078947368421053,
+            "mu_log_t0": 0.03789473684210523,
+            "mu_nu": 0.03368421052631579
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.633377194404602,
+          "per_parameter": {
+            "beta_raw": 0.5540378093719482,
+            "log_sigma_log_alpha": 0.8334468603134155,
+            "log_sigma_log_t0": 0.7223720550537109,
+            "log_sigma_nu": 0.6974009275436401,
+            "mu_log_alpha": 0.7465547323226929,
+            "mu_log_t0": 0.29419565200805664,
+            "mu_nu": 0.5856320858001709
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.15701916813850403,
+          "per_parameter": {
+            "beta_raw": 0.1311742663383484,
+            "log_sigma_log_alpha": 0.22258250415325165,
+            "log_sigma_log_t0": 0.17512115836143494,
+            "log_sigma_nu": 0.17458194494247437,
+            "mu_log_alpha": 0.1881295144557953,
+            "mu_log_t0": 0.06828095763921738,
+            "mu_nu": 0.13926394283771515
+          }
+        }
+      },
+      "label": "trial-h48d2-329k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.08153070175438595,
+          "per_parameter": {
+            "log_alpha": 0.038881578947368406,
+            "log_t0": 0.11586842105263156,
+            "nu": 0.08984210526315789
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5350339412689209,
+          "per_parameter": {
+            "log_alpha": 0.82525235414505,
+            "log_t0": 0.11903758347034454,
+            "nu": 0.6608117818832397
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.049378346651792526,
+          "per_parameter": {
+            "log_alpha": 0.06719038635492325,
+            "log_t0": 0.01772841066122055,
+            "nu": 0.06321623921394348
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.045639097744360924,
+          "per_parameter": {
+            "beta_raw": 0.022894736842105273,
+            "log_sigma_log_alpha": 0.04131578947368425,
+            "log_sigma_log_t0": 0.07157894736842108,
+            "log_sigma_nu": 0.06921052631578944,
+            "mu_log_alpha": 0.05421052631578949,
+            "mu_log_t0": 0.025263157894736876,
+            "mu_nu": 0.03500000000000006
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.6947422027587891,
+          "per_parameter": {
+            "beta_raw": 0.5401175022125244,
+            "log_sigma_log_alpha": 0.8383822441101074,
+            "log_sigma_log_t0": 0.8153966665267944,
+            "log_sigma_nu": 0.7791600823402405,
+            "mu_log_alpha": 0.9757735729217529,
+            "mu_log_t0": 0.2807048559188843,
+            "mu_nu": 0.6336605548858643
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.1723182201385498,
+          "per_parameter": {
+            "beta_raw": 0.12787848711013794,
+            "log_sigma_log_alpha": 0.22390055656433105,
+            "log_sigma_log_t0": 0.19767266511917114,
+            "log_sigma_nu": 0.19504889845848083,
+            "mu_log_alpha": 0.24589194357395172,
+            "mu_log_t0": 0.06514982879161835,
+            "mu_nu": 0.1506851613521576
+          }
+        }
+      },
+      "label": "trial-h48d3-431k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.06767105263157895,
+          "per_parameter": {
+            "log_alpha": 0.03110526315789472,
+            "log_t0": 0.08856578947368424,
+            "nu": 0.08334210526315788
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5272512435913086,
+          "per_parameter": {
+            "log_alpha": 0.8226484656333923,
+            "log_t0": 0.12022538483142853,
+            "nu": 0.6388798356056213
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.04866727814078331,
+          "per_parameter": {
+            "log_alpha": 0.06697838008403778,
+            "log_t0": 0.017905309796333313,
+            "nu": 0.06111813336610794
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.09082706766917295,
+          "per_parameter": {
+            "beta_raw": 0.04236842105263161,
+            "log_sigma_log_alpha": 0.06236842105263159,
+            "log_sigma_log_t0": 0.16052631578947374,
+            "log_sigma_nu": 0.12526315789473685,
+            "mu_log_alpha": 0.10552631578947363,
+            "mu_log_t0": 0.03921052631578947,
+            "mu_nu": 0.10052631578947371
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.584323525428772,
+          "per_parameter": {
+            "beta_raw": 0.46785008907318115,
+            "log_sigma_log_alpha": 0.7465128898620605,
+            "log_sigma_log_t0": 0.7174726128578186,
+            "log_sigma_nu": 0.6796948909759521,
+            "mu_log_alpha": 0.7006286382675171,
+            "mu_log_t0": 0.2892974317073822,
+            "mu_nu": 0.4888080656528473
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.1448795050382614,
+          "per_parameter": {
+            "beta_raw": 0.11076842248439789,
+            "log_sigma_log_alpha": 0.19936567544937134,
+            "log_sigma_log_t0": 0.17393341660499573,
+            "log_sigma_nu": 0.1701495498418808,
+            "mu_log_alpha": 0.1765562742948532,
+            "mu_log_t0": 0.06714411079883575,
+            "mu_nu": 0.11623908579349518
+          }
+        }
+      },
+      "label": "trial-h64d2-463k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.04327631578947366,
+          "per_parameter": {
+            "log_alpha": 0.011999999999999983,
+            "log_t0": 0.05348684210526311,
+            "nu": 0.0643421052631579
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.48550236225128174,
+          "per_parameter": {
+            "log_alpha": 0.7547316551208496,
+            "log_t0": 0.09916124492883682,
+            "nu": 0.6026142239570618
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.04462191089987755,
+          "per_parameter": {
+            "log_alpha": 0.061448730528354645,
+            "log_t0": 0.014768202789127827,
+            "nu": 0.05764880031347275
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.1023684210526316,
+          "per_parameter": {
+            "beta_raw": 0.03868421052631582,
+            "log_sigma_log_alpha": 0.14289473684210527,
+            "log_sigma_log_t0": 0.13526315789473686,
+            "log_sigma_nu": 0.12973684210526315,
+            "mu_log_alpha": 0.06342105263157893,
+            "mu_log_t0": 0.06894736842105267,
+            "mu_nu": 0.13763157894736844
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.6496537327766418,
+          "per_parameter": {
+            "beta_raw": 0.49108320474624634,
+            "log_sigma_log_alpha": 0.9699701070785522,
+            "log_sigma_log_t0": 0.8747227191925049,
+            "log_sigma_nu": 0.7553814649581909,
+            "mu_log_alpha": 0.5571510791778564,
+            "mu_log_t0": 0.30588191747665405,
+            "mu_nu": 0.5933852195739746
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.16128060221672058,
+          "per_parameter": {
+            "beta_raw": 0.11626910418272018,
+            "log_sigma_log_alpha": 0.25904276967048645,
+            "log_sigma_log_t0": 0.2120547890663147,
+            "log_sigma_nu": 0.1890963315963745,
+            "mu_log_alpha": 0.14040037989616394,
+            "mu_log_t0": 0.07099325954914093,
+            "mu_nu": 0.14110764861106873
+          }
+        }
+      },
+      "label": "trial-h48d4-534k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.062377192982456114,
+          "per_parameter": {
+            "log_alpha": 0.03907894736842099,
+            "log_t0": 0.08681578947368424,
+            "nu": 0.06123684210526312
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4954433739185333,
+          "per_parameter": {
+            "log_alpha": 0.7590686678886414,
+            "log_t0": 0.10685301572084427,
+            "nu": 0.6204084753990173
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.04568888619542122,
+          "per_parameter": {
+            "log_alpha": 0.06180184334516525,
+            "log_t0": 0.015913747251033783,
+            "nu": 0.059351079165935516
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.09218045112781957,
+          "per_parameter": {
+            "beta_raw": 0.047368421052631615,
+            "log_sigma_log_alpha": 0.057105263157894756,
+            "log_sigma_log_t0": 0.14947368421052634,
+            "log_sigma_nu": 0.14026315789473687,
+            "mu_log_alpha": 0.09921052631578947,
+            "mu_log_t0": 0.0423684210526316,
+            "mu_nu": 0.10947368421052633
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5765439867973328,
+          "per_parameter": {
+            "beta_raw": 0.4718206226825714,
+            "log_sigma_log_alpha": 0.6983299255371094,
+            "log_sigma_log_t0": 0.7444944977760315,
+            "log_sigma_nu": 0.678421139717102,
+            "mu_log_alpha": 0.6771228313446045,
+            "mu_log_t0": 0.2978913486003876,
+            "mu_nu": 0.4677273631095886
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.14278839528560638,
+          "per_parameter": {
+            "beta_raw": 0.11170848459005356,
+            "log_sigma_log_alpha": 0.18649782240390778,
+            "log_sigma_log_t0": 0.18048420548439026,
+            "log_sigma_nu": 0.16983067989349365,
+            "mu_log_alpha": 0.17063286900520325,
+            "mu_log_t0": 0.06913870573043823,
+            "mu_nu": 0.11122606694698334
+          }
+        }
+      },
+      "label": "trial-h64d2-463k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.04366228070175437,
+          "per_parameter": {
+            "log_alpha": 0.0101052631578947,
+            "log_t0": 0.0532894736842105,
+            "nu": 0.0675921052631579
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.48467040061950684,
+          "per_parameter": {
+            "log_alpha": 0.7536813616752625,
+            "log_t0": 0.0985131710767746,
+            "nu": 0.6018167734146118
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.0445358045399189,
+          "per_parameter": {
+            "log_alpha": 0.06136322021484375,
+            "log_t0": 0.014671684242784977,
+            "nu": 0.057572513818740845
+          }
+        }
+      },
+      "method": "dpm2_gauss_hierarchical",
+      "subject_units": 2000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.14838345864661656,
+          "per_parameter": {
+            "beta_raw": 0.05026315789473687,
+            "log_sigma_log_alpha": 0.20552631578947372,
+            "log_sigma_log_t0": 0.2078947368421053,
+            "log_sigma_nu": 0.22526315789473683,
+            "mu_log_alpha": 0.18789473684210528,
+            "mu_log_t0": 0.016052631578947388,
+            "mu_nu": 0.14578947368421055
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5480047464370728,
+          "per_parameter": {
+            "beta_raw": 0.4714580774307251,
+            "log_sigma_log_alpha": 0.6666714549064636,
+            "log_sigma_log_t0": 0.673426628112793,
+            "log_sigma_nu": 0.5674429535865784,
+            "mu_log_alpha": 0.6619458794593811,
+            "mu_log_t0": 0.31170564889907837,
+            "mu_nu": 0.4833827316761017
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.13558180630207062,
+          "per_parameter": {
+            "beta_raw": 0.111622653901577,
+            "log_sigma_log_alpha": 0.17804302275180817,
+            "log_sigma_log_t0": 0.16325555741786957,
+            "log_sigma_nu": 0.14204926788806915,
+            "mu_log_alpha": 0.1668083369731903,
+            "mu_log_t0": 0.07234491407871246,
+            "mu_nu": 0.11494892835617065
+          }
+        }
+      },
+      "label": "trial-h64d2-463k",
+      "local": {
+        "calibration_error": {
+          "mean": 0.06934649122807017,
+          "per_parameter": {
+            "log_alpha": 0.0364605263157895,
+            "log_t0": 0.07348684210526316,
+            "nu": 0.09809210526315787
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.5208582878112793,
+          "per_parameter": {
+            "log_alpha": 0.8020961880683899,
+            "log_t0": 0.11215206235647202,
+            "nu": 0.6483266353607178
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.048009950667619705,
+          "per_parameter": {
+            "log_alpha": 0.06530505418777466,
+            "log_t0": 0.016702942550182343,
+            "nu": 0.062021851539611816
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 2000
+    }
+  ],
+  "metric_source": "bayesflow==2.0.13 diagnostics.metrics",
+  "note": "Computed on COMPASS test datasets and COMPASS checkpoints. The paper's own values are published only as a figure and are not reproduced here.",
+  "reference": "arXiv:2512.20685 case_study4"
+}

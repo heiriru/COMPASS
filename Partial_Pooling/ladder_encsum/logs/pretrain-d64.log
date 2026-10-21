@@ -1,0 +1,71 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) /0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) -0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) \0 / 1 GPU(s) available (waiting indefinitely, querying every 1s) |INFO Selected GPU(s): 6.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=6 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 6 via autocvd.
+train (100000, 30, 3)  validation (5000, 30, 3)
+item normalization  mean [0.6130626797676086, -0.4948393404483795, 0.0]  scale [0.4870491027832031, 0.4523058831691742, 1.0]  degenerate [False, False, True]
+encoder 197,632 parameters, decoder 27,283 (discarded after)
+epoch   1  train   23.7846  validation   16.3153
+epoch   2  train   23.3111  validation   16.2494
+epoch   3  train   22.8554  validation   16.3107
+epoch   4  train   22.2250  validation   16.1909
+epoch   5  train   22.7224  validation   16.1723
+epoch   6  train   21.6678  validation   16.1598
+epoch   7  train   22.5476  validation   16.1676
+epoch   8  train   22.8363  validation   16.1988
+epoch   9  train   22.1405  validation   16.0875
+epoch  10  train   22.7566  validation   16.0932
+epoch  11  train   23.1246  validation   16.0852
+epoch  12  train   22.7646  validation   16.1358
+epoch  13  train   22.6325  validation   16.1668
+epoch  14  train   22.0481  validation   16.1033
+epoch  15  train   22.4168  validation   16.0689
+epoch  16  train   21.7806  validation   16.0552
+epoch  17  train   21.2792  validation   16.0778
+epoch  18  train   22.2633  validation   16.0377
+epoch  19  train   21.8837  validation   16.0818
+epoch  20  train   22.7441  validation   16.0565
+epoch  21  train   21.7937  validation   16.0390
+epoch  22  train   21.6439  validation   16.0658
+epoch  23  train   22.0318  validation   16.0328
+epoch  24  train   21.4717  validation   16.0755
+epoch  25  train   21.8316  validation   16.0798
+epoch  26  train   22.0436  validation   16.0416
+epoch  27  train   23.0408  validation   16.0719
+epoch  28  train   22.7274  validation   16.0416
+epoch  29  train   22.1608  validation   16.0737
+epoch  30  train   22.9788  validation   16.1505
+epoch  31  train   22.1958  validation   16.0626
+epoch  32  train   21.9807  validation   16.1186
+epoch  33  train   21.4584  validation   16.0292
+epoch  34  train   21.7210  validation   16.0662
+epoch  35  train   22.8243  validation   16.0586
+epoch  36  train   22.3645  validation   16.0314
+epoch  37  train   22.5984  validation   16.0368
+epoch  38  train   22.0061  validation   16.0486
+epoch  39  train   21.5482  validation   16.0282
+epoch  40  train   22.4527  validation   16.1217
+epoch  41  train   22.7676  validation   16.0432
+epoch  42  train   21.7773  validation   16.1664
+epoch  43  train   22.2761  validation   16.0997
+epoch  44  train   21.8031  validation   16.0621
+epoch  45  train   20.8956  validation   16.0637
+epoch  46  train   22.1074  validation   16.0324
+epoch  47  train   22.0697  validation   16.0478
+epoch  48  train   22.3655  validation   16.0125
+epoch  49  train   21.9765  validation   16.0516
+epoch  50  train   22.6986  validation   16.0672
+epoch  51  train   22.3710  validation   16.0802
+epoch  52  train   21.7619  validation   16.0488
+epoch  53  train   22.9097  validation   16.0647
+epoch  54  train   22.4488  validation   16.0176
+epoch  55  train   21.4858  validation   16.0494
+epoch  56  train   21.5685  validation   16.0298
+epoch  57  train   21.5800  validation   16.0198
+epoch  58  train   21.0752  validation   16.0096
+epoch  59  train   22.7770  validation   16.0449
+epoch  60  train   22.4501  validation   16.0312
+z over the training split: mean |z| 0.690  sd range 0.077-1.594
+
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/artifacts/encoders/setenc-d64-w64x2s4.pt  (5.6 min)

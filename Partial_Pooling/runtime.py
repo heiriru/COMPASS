@@ -31,10 +31,18 @@ def configure_cpu_limit(max_threads=3):
     if not hasattr(os, "sched_getaffinity") or not hasattr(os, "sched_setaffinity"):
         raise RuntimeError("This benchmark requires Linux CPU-affinity support.")
     available = sorted(os.sched_getaffinity(0))
-    active = available[: min(permitted, len(available))]
-    if not active:
+    if not available:
         raise RuntimeError("The current affinity mask exposes no CPUs.")
-    os.sched_setaffinity(0, active)
+    permitted = min(permitted, len(available))
+    # Offset the block by PID rather than always taking available[:permitted].
+    # Taking the first CPUs pinned *every* concurrently running script to the
+    # same three logical CPUs, so a handful of jobs saturated CPUs 0-2 at 100%
+    # while the other 69 cores sat ~90% idle and the run-queue climbed past 50.
+    # The cap is per process, not machine-wide, so the blocks must be spread.
+    start = (os.getpid() * permitted) % len(available)
+    active = [available[(start + offset) % len(available)]
+              for offset in range(permitted)]
+    os.sched_setaffinity(0, sorted(set(active)))
     for name in (
         "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
         "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",

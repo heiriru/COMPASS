@@ -1,0 +1,26 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 7.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=7 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 7 via autocvd.
+[dpm2_gauss_jacobian_newton] churn eta=4, artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder_paper/tok_trial_h64d2/artifacts_churn_eta4_refresh20
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 100 starting at 0
+  subjects/draws/steps: 100/100/50
+  inference: DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP
+  sampler/correction: dpm/gauss_jacobian
+  estimated posterior-sampling time: 4.1 hours
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_paper/tok_trial_h64d2/artifacts_churn_eta4_refresh20/partial_pooling_recovery/small/dpm2_gauss_jacobian_newton-878d3f63803c42c2
+[1/100] dataset 0
+  DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 19 seconds | ETA 31.5 minutes
+  draws    5/100 | elapsed 47 seconds | ETA 15.0 minutes
+  draws   10/100 | elapsed 99 seconds | ETA 14.8 minutes
+  draws   15/100 | elapsed 2.4 minutes | ETA 13.3 minutes
+  draws   20/100 | elapsed 3.5 minutes | ETA 14.1 minutes
+  draws   25/100 | elapsed 6.0 minutes | ETA 17.9 minutes
+  draws   30/100 | elapsed 8.5 minutes | ETA 19.9 minutes
+  draws   35/100 | elapsed 9.1 minutes | ETA 17.0 minutes
+  draws   40/100 | elapsed 10.0 minutes | ETA 15.0 minutes

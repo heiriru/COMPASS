@@ -1,0 +1,1518 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 7.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=7 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 7 via autocvd.
+[dpm2_gauss_hierarchical] churn eta=2, artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h48d2/artifacts_churn_eta2
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 100 starting at 0
+  subjects/draws/steps: 20/256/50
+  inference: DPM-Solver-2 + hierarchical Gaussian (GAUSS)
+  sampler/correction: dpm/gauss_hierarchical
+  estimated posterior-sampling time: 2.1 hours
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h48d2/artifacts_churn_eta2/partial_pooling_recovery/small/dpm2_gauss_hierarchical-e87f74177d61c6e9
+[1/100] dataset 0
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 7 seconds | ETA 4.6 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 73 seconds
+  draws   60/256 | elapsed 14 seconds | ETA 45 seconds
+  draws   90/256 | elapsed 18 seconds | ETA 32 seconds
+  draws  120/256 | elapsed 21 seconds | ETA 24 seconds
+  draws  150/256 | elapsed 25 seconds | ETA 18 seconds
+  draws  180/256 | elapsed 29 seconds | ETA 12 seconds
+  draws  210/256 | elapsed 33 seconds | ETA 7 seconds
+  draws  240/256 | elapsed 37 seconds | ETA 2 seconds
+  draws  256/256 | elapsed 39 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0000.pt
+  KDE global mode (draw 84) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.984)
+  saved dpm2_gauss_hierarchical-dataset-0000.pt; joint MAP candidate 84
+[2/100] dataset 1
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 5 seconds | ETA 3.6 minutes
+  draws   30/256 | elapsed 8 seconds | ETA 62 seconds
+  draws   60/256 | elapsed 12 seconds | ETA 40 seconds
+  draws   90/256 | elapsed 16 seconds | ETA 30 seconds
+  draws  120/256 | elapsed 20 seconds | ETA 23 seconds
+  draws  150/256 | elapsed 24 seconds | ETA 17 seconds
+  draws  180/256 | elapsed 28 seconds | ETA 12 seconds
+  draws  210/256 | elapsed 32 seconds | ETA 7 seconds
+  draws  240/256 | elapsed 36 seconds | ETA 2 seconds
+  draws  256/256 | elapsed 38 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0001.pt
+  KDE global mode (draw 137) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.777)
+  saved dpm2_gauss_hierarchical-dataset-0001.pt; joint MAP candidate 137
+[3/100] dataset 2
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 5 seconds | ETA 3.8 minutes
+  draws   30/256 | elapsed 9 seconds | ETA 70 seconds
+  draws   60/256 | elapsed 15 seconds | ETA 48 seconds
+  draws   90/256 | elapsed 19 seconds | ETA 35 seconds
+  draws  120/256 | elapsed 24 seconds | ETA 27 seconds
+  draws  150/256 | elapsed 29 seconds | ETA 20 seconds
+  draws  180/256 | elapsed 35 seconds | ETA 15 seconds
+  draws  210/256 | elapsed 39 seconds | ETA 9 seconds
+  draws  240/256 | elapsed 46 seconds | ETA 3 seconds
+  draws  256/256 | elapsed 48 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0002.pt
+  KDE global mode (draw 184) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.73)
+  saved dpm2_gauss_hierarchical-dataset-0002.pt; joint MAP candidate 184
+[4/100] dataset 3
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 9 seconds | ETA 69 seconds
+  draws   60/256 | elapsed 14 seconds | ETA 46 seconds
+  draws   90/256 | elapsed 18 seconds | ETA 33 seconds
+  draws  120/256 | elapsed 24 seconds | ETA 27 seconds
+  draws  150/256 | elapsed 28 seconds | ETA 20 seconds
+  draws  180/256 | elapsed 32 seconds | ETA 13 seconds
+  draws  210/256 | elapsed 38 seconds | ETA 8 seconds
+  draws  240/256 | elapsed 42 seconds | ETA 3 seconds
+  draws  256/256 | elapsed 45 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0003.pt
+  KDE global mode (draw 29) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.42)
+  saved dpm2_gauss_hierarchical-dataset-0003.pt; joint MAP candidate 29
+[5/100] dataset 4
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 83 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0004.pt
+  KDE global mode (draw 142) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.94)
+  saved dpm2_gauss_hierarchical-dataset-0004.pt; joint MAP candidate 142
+[6/100] dataset 5
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0005.pt
+  KDE global mode (draw 85) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.803)
+  saved dpm2_gauss_hierarchical-dataset-0005.pt; joint MAP candidate 85
+[7/100] dataset 6
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 94 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 65 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0006.pt
+  KDE global mode (draw 58) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.17)
+  saved dpm2_gauss_hierarchical-dataset-0006.pt; joint MAP candidate 58
+[8/100] dataset 7
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 87 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 49 seconds | ETA 21 seconds
+  draws  210/256 | elapsed 56 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 62 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0007.pt
+  KDE global mode (draw 66) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.26)
+  saved dpm2_gauss_hierarchical-dataset-0007.pt; joint MAP candidate 66
+[9/100] dataset 8
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0008.pt
+  KDE global mode (draw 252) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.838)
+  saved dpm2_gauss_hierarchical-dataset-0008.pt; joint MAP candidate 252
+[10/100] dataset 9
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 77 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 52 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0009.pt
+  KDE global mode (draw 86) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.922)
+  saved dpm2_gauss_hierarchical-dataset-0009.pt; joint MAP candidate 86
+[11/100] dataset 10
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 87 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 55 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0010.pt
+  KDE global mode (draw 127) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.3)
+  saved dpm2_gauss_hierarchical-dataset-0010.pt; joint MAP candidate 127
+[12/100] dataset 11
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 77 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 52 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 39 seconds
+  draws  120/256 | elapsed 28 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0011.pt
+  KDE global mode (draw 128) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.754)
+  saved dpm2_gauss_hierarchical-dataset-0011.pt; joint MAP candidate 128
+[13/100] dataset 12
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 97 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0012.pt
+  KDE global mode (draw 60) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.09)
+  saved dpm2_gauss_hierarchical-dataset-0012.pt; joint MAP candidate 60
+[14/100] dataset 13
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 7 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0013.pt
+  KDE global mode (draw 63) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.07)
+  saved dpm2_gauss_hierarchical-dataset-0013.pt; joint MAP candidate 63
+[15/100] dataset 14
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 3.8 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 78 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0014.pt
+  KDE global mode (draw 47) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.13)
+  saved dpm2_gauss_hierarchical-dataset-0014.pt; joint MAP candidate 47
+[16/100] dataset 15
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 66 seconds
+  draws   90/256 | elapsed 28 seconds | ETA 51 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0015.pt
+  KDE global mode (draw 82) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.29)
+  saved dpm2_gauss_hierarchical-dataset-0015.pt; joint MAP candidate 82
+[17/100] dataset 16
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 78 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 52 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 39 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 35 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0016.pt
+  KDE global mode (draw 132) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.811)
+  saved dpm2_gauss_hierarchical-dataset-0016.pt; joint MAP candidate 132
+[18/100] dataset 17
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 87 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0017.pt
+  KDE global mode (draw 33) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.928)
+  saved dpm2_gauss_hierarchical-dataset-0017.pt; joint MAP candidate 33
+[19/100] dataset 18
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 81 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 42 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 41 seconds | ETA 17 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0018.pt
+  KDE global mode (draw 39) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.49)
+  saved dpm2_gauss_hierarchical-dataset-0018.pt; joint MAP candidate 39
+[20/100] dataset 19
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 79 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 55 seconds
+  draws   90/256 | elapsed 22 seconds | ETA 41 seconds
+  draws  120/256 | elapsed 28 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 35 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 41 seconds | ETA 17 seconds
+  draws  210/256 | elapsed 47 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 52 seconds | ETA 3 seconds
+  draws  256/256 | elapsed 56 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0019.pt
+  KDE global mode (draw 164) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.881)
+  saved dpm2_gauss_hierarchical-dataset-0019.pt; joint MAP candidate 164
+[21/100] dataset 20
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0020.pt
+  KDE global mode (draw 229) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.935)
+  saved dpm2_gauss_hierarchical-dataset-0020.pt; joint MAP candidate 229
+[22/100] dataset 21
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 95 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 65 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 38 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0021.pt
+  KDE global mode (draw 128) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1)
+  saved dpm2_gauss_hierarchical-dataset-0021.pt; joint MAP candidate 128
+[23/100] dataset 22
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 90 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 61 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 48 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 55 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 63 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 67 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0022.pt
+  KDE global mode (draw 73) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.788)
+  saved dpm2_gauss_hierarchical-dataset-0022.pt; joint MAP candidate 73
+[24/100] dataset 23
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 78 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 53 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0023.pt
+  KDE global mode (draw 26) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.67)
+  saved dpm2_gauss_hierarchical-dataset-0023.pt; joint MAP candidate 26
+[25/100] dataset 24
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 85 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0024.pt
+  KDE global mode (draw 172) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.849)
+  saved dpm2_gauss_hierarchical-dataset-0024.pt; joint MAP candidate 172
+[26/100] dataset 25
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 38 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0025.pt
+  KDE global mode (draw 182) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.7)
+  saved dpm2_gauss_hierarchical-dataset-0025.pt; joint MAP candidate 182
+[27/100] dataset 26
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0026.pt
+  KDE global mode (draw 135) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.679)
+  saved dpm2_gauss_hierarchical-dataset-0026.pt; joint MAP candidate 135
+[28/100] dataset 27
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0027.pt
+  KDE global mode (draw 197) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.808)
+  saved dpm2_gauss_hierarchical-dataset-0027.pt; joint MAP candidate 197
+[29/100] dataset 28
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0028.pt
+  KDE global mode (draw 142) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.802)
+  saved dpm2_gauss_hierarchical-dataset-0028.pt; joint MAP candidate 142
+[30/100] dataset 29
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 49 seconds | ETA 21 seconds
+  draws  210/256 | elapsed 55 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0029.pt
+  KDE global mode (draw 72) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.01)
+  saved dpm2_gauss_hierarchical-dataset-0029.pt; joint MAP candidate 72
+[31/100] dataset 30
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 64 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0030.pt
+  KDE global mode (draw 250) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.961)
+  saved dpm2_gauss_hierarchical-dataset-0030.pt; joint MAP candidate 250
+[32/100] dataset 31
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 3.9 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 85 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0031.pt
+  KDE global mode (draw 56) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.35)
+  saved dpm2_gauss_hierarchical-dataset-0031.pt; joint MAP candidate 56
+[33/100] dataset 32
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 80 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 55 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 42 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0032.pt
+  KDE global mode (draw 100) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.04)
+  saved dpm2_gauss_hierarchical-dataset-0032.pt; joint MAP candidate 100
+[34/100] dataset 33
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0033.pt
+  KDE global mode (draw 233) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.804)
+  saved dpm2_gauss_hierarchical-dataset-0033.pt; joint MAP candidate 233
+[35/100] dataset 34
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 80 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0034.pt
+  KDE global mode (draw 191) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.887)
+  saved dpm2_gauss_hierarchical-dataset-0034.pt; joint MAP candidate 191
+[36/100] dataset 35
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 97 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 66 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 62 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 66 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0035.pt
+  KDE global mode (draw 149) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.14)
+  saved dpm2_gauss_hierarchical-dataset-0035.pt; joint MAP candidate 149
+[37/100] dataset 36
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 97 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 64 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0036.pt
+  KDE global mode (draw 139) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.706)
+  saved dpm2_gauss_hierarchical-dataset-0036.pt; joint MAP candidate 139
+[38/100] dataset 37
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 50 seconds
+  draws  120/256 | elapsed 35 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 42 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 48 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 55 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 62 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 66 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0037.pt
+  KDE global mode (draw 10) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.943)
+  saved dpm2_gauss_hierarchical-dataset-0037.pt; joint MAP candidate 10
+[39/100] dataset 38
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 55 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 42 seconds
+  draws  120/256 | elapsed 28 seconds | ETA 31 seconds
+  draws  150/256 | elapsed 34 seconds | ETA 24 seconds
+  draws  180/256 | elapsed 41 seconds | ETA 17 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 54 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0038.pt
+  KDE global mode (draw 92) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.75)
+  saved dpm2_gauss_hierarchical-dataset-0038.pt; joint MAP candidate 92
+[40/100] dataset 39
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 50 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 38 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 49 seconds | ETA 21 seconds
+  draws  210/256 | elapsed 55 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0039.pt
+  KDE global mode (draw 241) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.829)
+  saved dpm2_gauss_hierarchical-dataset-0039.pt; joint MAP candidate 241
+[41/100] dataset 40
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 94 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 66 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 51 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 48 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 56 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 64 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 68 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0040.pt
+  KDE global mode (draw 105) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.603)
+  saved dpm2_gauss_hierarchical-dataset-0040.pt; joint MAP candidate 105
+[42/100] dataset 41
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 80 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 53 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0041.pt
+  KDE global mode (draw 239) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.58)
+  saved dpm2_gauss_hierarchical-dataset-0041.pt; joint MAP candidate 239
+[43/100] dataset 42
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 95 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 35 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0042.pt
+  KDE global mode (draw 19) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.24)
+  saved dpm2_gauss_hierarchical-dataset-0042.pt; joint MAP candidate 19
+[44/100] dataset 43
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 94 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0043.pt
+  KDE global mode (draw 37) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.26)
+  saved dpm2_gauss_hierarchical-dataset-0043.pt; joint MAP candidate 37
+[45/100] dataset 44
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 79 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 51 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 40 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0044.pt
+  KDE global mode (draw 147) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.93)
+  saved dpm2_gauss_hierarchical-dataset-0044.pt; joint MAP candidate 147
+[46/100] dataset 45
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 75 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 52 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 38 seconds
+  draws  120/256 | elapsed 28 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 35 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0045.pt
+  KDE global mode (draw 63) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.802)
+  saved dpm2_gauss_hierarchical-dataset-0045.pt; joint MAP candidate 63
+[47/100] dataset 46
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 82 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0046.pt
+  KDE global mode (draw 196) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.28)
+  saved dpm2_gauss_hierarchical-dataset-0046.pt; joint MAP candidate 196
+[48/100] dataset 47
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 87 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0047.pt
+  KDE global mode (draw 200) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.875)
+  saved dpm2_gauss_hierarchical-dataset-0047.pt; joint MAP candidate 200
+[49/100] dataset 48
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 95 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0048.pt
+  KDE global mode (draw 202) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.08)
+  saved dpm2_gauss_hierarchical-dataset-0048.pt; joint MAP candidate 202
+[50/100] dataset 49
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0049.pt
+  KDE global mode (draw 64) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.06)
+  saved dpm2_gauss_hierarchical-dataset-0049.pt; joint MAP candidate 64
+[51/100] dataset 50
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 90 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 39 seconds
+  draws  150/256 | elapsed 41 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 48 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0050.pt
+  KDE global mode (draw 104) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.9)
+  saved dpm2_gauss_hierarchical-dataset-0050.pt; joint MAP candidate 104
+[52/100] dataset 51
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 95 seconds
+  draws   60/256 | elapsed 21 seconds | ETA 68 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 51 seconds
+  draws  120/256 | elapsed 34 seconds | ETA 38 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 29 seconds
+  draws  180/256 | elapsed 48 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0051.pt
+  KDE global mode (draw 68) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.683)
+  saved dpm2_gauss_hierarchical-dataset-0051.pt; joint MAP candidate 68
+[53/100] dataset 52
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0052.pt
+  KDE global mode (draw 56) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.18)
+  saved dpm2_gauss_hierarchical-dataset-0052.pt; joint MAP candidate 56
+[54/100] dataset 53
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 5 seconds | ETA 3.8 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 86 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0053.pt
+  KDE global mode (draw 168) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.26)
+  saved dpm2_gauss_hierarchical-dataset-0053.pt; joint MAP candidate 168
+[55/100] dataset 54
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0054.pt
+  KDE global mode (draw 220) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.797)
+  saved dpm2_gauss_hierarchical-dataset-0054.pt; joint MAP candidate 220
+[56/100] dataset 55
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 90 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0055.pt
+  KDE global mode (draw 99) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.75)
+  saved dpm2_gauss_hierarchical-dataset-0055.pt; joint MAP candidate 99
+[57/100] dataset 56
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 96 seconds
+  draws   60/256 | elapsed 20 seconds | ETA 66 seconds
+  draws   90/256 | elapsed 28 seconds | ETA 51 seconds
+  draws  120/256 | elapsed 36 seconds | ETA 41 seconds
+  draws  150/256 | elapsed 43 seconds | ETA 31 seconds
+  draws  180/256 | elapsed 51 seconds | ETA 21 seconds
+  draws  210/256 | elapsed 58 seconds | ETA 13 seconds
+  draws  240/256 | elapsed 65 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 69 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0056.pt
+  KDE global mode (draw 225) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_hierarchical-dataset-0056.pt; joint MAP candidate 225
+[58/100] dataset 57
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 5 seconds | ETA 3.8 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 82 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 53 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 39 seconds
+  draws  120/256 | elapsed 26 seconds | ETA 29 seconds
+  draws  150/256 | elapsed 31 seconds | ETA 22 seconds
+  draws  180/256 | elapsed 39 seconds | ETA 16 seconds
+  draws  210/256 | elapsed 46 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 53 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 57 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0057.pt
+  KDE global mode (draw 181) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.912)
+  saved dpm2_gauss_hierarchical-dataset-0057.pt; joint MAP candidate 181
+[59/100] dataset 58
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 74 seconds
+  draws   60/256 | elapsed 15 seconds | ETA 50 seconds
+  draws   90/256 | elapsed 22 seconds | ETA 41 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 57 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0058.pt
+  KDE global mode (draw 9) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.782)
+  saved dpm2_gauss_hierarchical-dataset-0058.pt; joint MAP candidate 9
+[60/100] dataset 59
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0059.pt
+  KDE global mode (draw 183) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.53)
+  saved dpm2_gauss_hierarchical-dataset-0059.pt; joint MAP candidate 183
+[61/100] dataset 60
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 83 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0060.pt
+  KDE global mode (draw 40) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.01)
+  saved dpm2_gauss_hierarchical-dataset-0060.pt; joint MAP candidate 40
+[62/100] dataset 61
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 80 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 54 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0061.pt
+  KDE global mode (draw 148) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.847)
+  saved dpm2_gauss_hierarchical-dataset-0061.pt; joint MAP candidate 148
+[63/100] dataset 62
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 90 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 40 seconds | ETA 17 seconds
+  draws  210/256 | elapsed 47 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0062.pt
+  KDE global mode (draw 237) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.899)
+  saved dpm2_gauss_hierarchical-dataset-0062.pt; joint MAP candidate 237
+[64/100] dataset 63
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 73 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 52 seconds
+  draws   90/256 | elapsed 22 seconds | ETA 41 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0063.pt
+  KDE global mode (draw 54) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.06)
+  saved dpm2_gauss_hierarchical-dataset-0063.pt; joint MAP candidate 54
+[65/100] dataset 64
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0064.pt
+  KDE global mode (draw 25) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.766)
+  saved dpm2_gauss_hierarchical-dataset-0064.pt; joint MAP candidate 25
+[66/100] dataset 65
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 3.9 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 75 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0065.pt
+  KDE global mode (draw 189) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_hierarchical-dataset-0065.pt; joint MAP candidate 189
+[67/100] dataset 66
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 84 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 54 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0066.pt
+  KDE global mode (draw 135) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.77)
+  saved dpm2_gauss_hierarchical-dataset-0066.pt; joint MAP candidate 135
+[68/100] dataset 67
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 5 seconds | ETA 3.8 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 75 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0067.pt
+  KDE global mode (draw 61) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.97)
+  saved dpm2_gauss_hierarchical-dataset-0067.pt; joint MAP candidate 61
+[69/100] dataset 68
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 94 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0068.pt
+  KDE global mode (draw 14) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.53)
+  saved dpm2_gauss_hierarchical-dataset-0068.pt; joint MAP candidate 14
+[70/100] dataset 69
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 60 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0069.pt
+  KDE global mode (draw 124) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.652)
+  saved dpm2_gauss_hierarchical-dataset-0069.pt; joint MAP candidate 124
+[71/100] dataset 70
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 79 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 54 seconds
+  draws   90/256 | elapsed 22 seconds | ETA 41 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 55 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0070.pt
+  KDE global mode (draw 189) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.65)
+  saved dpm2_gauss_hierarchical-dataset-0070.pt; joint MAP candidate 189
+[72/100] dataset 71
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 72 seconds
+  draws   60/256 | elapsed 15 seconds | ETA 50 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 40 seconds
+  draws  120/256 | elapsed 28 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 53 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0071.pt
+  KDE global mode (draw 125) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.926)
+  saved dpm2_gauss_hierarchical-dataset-0071.pt; joint MAP candidate 125
+[73/100] dataset 72
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 83 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0072.pt
+  KDE global mode (draw 219) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.04)
+  saved dpm2_gauss_hierarchical-dataset-0072.pt; joint MAP candidate 219
+[74/100] dataset 73
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 91 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0073.pt
+  KDE global mode (draw 178) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.789)
+  saved dpm2_gauss_hierarchical-dataset-0073.pt; joint MAP candidate 178
+[75/100] dataset 74
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 82 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0074.pt
+  KDE global mode (draw 23) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.824)
+  saved dpm2_gauss_hierarchical-dataset-0074.pt; joint MAP candidate 23
+[76/100] dataset 75
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 93 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 61 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0075.pt
+  KDE global mode (draw 251) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.04)
+  saved dpm2_gauss_hierarchical-dataset-0075.pt; joint MAP candidate 251
+[77/100] dataset 76
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 79 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0076.pt
+  KDE global mode (draw 142) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1)
+  saved dpm2_gauss_hierarchical-dataset-0076.pt; joint MAP candidate 142
+[78/100] dataset 77
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 38 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0077.pt
+  KDE global mode (draw 177) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.05)
+  saved dpm2_gauss_hierarchical-dataset-0077.pt; joint MAP candidate 177
+[79/100] dataset 78
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0078.pt
+  KDE global mode (draw 106) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.873)
+  saved dpm2_gauss_hierarchical-dataset-0078.pt; joint MAP candidate 106
+[80/100] dataset 79
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 86 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 61 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0079.pt
+  KDE global mode (draw 237) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.05)
+  saved dpm2_gauss_hierarchical-dataset-0079.pt; joint MAP candidate 237
+[81/100] dataset 80
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 80 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0080.pt
+  KDE global mode (draw 224) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.707)
+  saved dpm2_gauss_hierarchical-dataset-0080.pt; joint MAP candidate 224
+[82/100] dataset 81
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 86 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 54 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 61 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0081.pt
+  KDE global mode (draw 47) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.26)
+  saved dpm2_gauss_hierarchical-dataset-0081.pt; joint MAP candidate 47
+[83/100] dataset 82
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 48 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0082.pt
+  KDE global mode (draw 25) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.682)
+  saved dpm2_gauss_hierarchical-dataset-0082.pt; joint MAP candidate 25
+[84/100] dataset 83
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 63 seconds
+  draws   90/256 | elapsed 26 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 46 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 62 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0083.pt
+  KDE global mode (draw 130) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.25)
+  saved dpm2_gauss_hierarchical-dataset-0083.pt; joint MAP candidate 130
+[85/100] dataset 84
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 13 seconds | ETA 95 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0084.pt
+  KDE global mode (draw 65) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.04)
+  saved dpm2_gauss_hierarchical-dataset-0084.pt; joint MAP candidate 65
+[86/100] dataset 85
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.0 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 82 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0085.pt
+  KDE global mode (draw 228) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.24)
+  saved dpm2_gauss_hierarchical-dataset-0085.pt; joint MAP candidate 228
+[87/100] dataset 86
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 27 seconds | ETA 49 seconds
+  draws  120/256 | elapsed 33 seconds | ETA 37 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0086.pt
+  KDE global mode (draw 128) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.02)
+  saved dpm2_gauss_hierarchical-dataset-0086.pt; joint MAP candidate 128
+[88/100] dataset 87
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 7 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 81 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 59 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 41 seconds | ETA 17 seconds
+  draws  210/256 | elapsed 48 seconds | ETA 10 seconds
+  draws  240/256 | elapsed 54 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 58 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0087.pt
+  KDE global mode (draw 56) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.26)
+  saved dpm2_gauss_hierarchical-dataset-0087.pt; joint MAP candidate 56
+[89/100] dataset 88
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 91 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 47 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0088.pt
+  KDE global mode (draw 219) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.878)
+  saved dpm2_gauss_hierarchical-dataset-0088.pt; joint MAP candidate 219
+[90/100] dataset 89
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0089.pt
+  KDE global mode (draw 145) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.17)
+  saved dpm2_gauss_hierarchical-dataset-0089.pt; joint MAP candidate 145
+[91/100] dataset 90
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 37 seconds | ETA 26 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 51 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 64 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0090.pt
+  KDE global mode (draw 248) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.892)
+  saved dpm2_gauss_hierarchical-dataset-0090.pt; joint MAP candidate 248
+[92/100] dataset 91
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 82 seconds
+  draws   60/256 | elapsed 18 seconds | ETA 58 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 45 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0091.pt
+  KDE global mode (draw 165) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.781)
+  saved dpm2_gauss_hierarchical-dataset-0091.pt; joint MAP candidate 165
+[93/100] dataset 92
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.5 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 88 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 62 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 40 seconds | ETA 28 seconds
+  draws  180/256 | elapsed 47 seconds | ETA 20 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 59 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 63 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0092.pt
+  KDE global mode (draw 21) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.7)
+  saved dpm2_gauss_hierarchical-dataset-0092.pt; joint MAP candidate 21
+[94/100] dataset 93
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 92 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 42 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 35 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0093.pt
+  KDE global mode (draw 186) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.67)
+  saved dpm2_gauss_hierarchical-dataset-0093.pt; joint MAP candidate 186
+[95/100] dataset 94
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 3.9 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 72 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 54 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 30 seconds | ETA 34 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 43 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0094.pt
+  KDE global mode (draw 208) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.79)
+  saved dpm2_gauss_hierarchical-dataset-0094.pt; joint MAP candidate 208
+[96/100] dataset 95
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.1 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 77 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 54 seconds
+  draws   90/256 | elapsed 21 seconds | ETA 39 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 32 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 42 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 49 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 59 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0095.pt
+  KDE global mode (draw 106) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.21)
+  saved dpm2_gauss_hierarchical-dataset-0095.pt; joint MAP candidate 106
+[97/100] dataset 96
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 89 seconds
+  draws   60/256 | elapsed 19 seconds | ETA 61 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 44 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 56 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 60 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0096.pt
+  KDE global mode (draw 133) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.706)
+  saved dpm2_gauss_hierarchical-dataset-0096.pt; joint MAP candidate 133
+[98/100] dataset 97
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.2 minutes
+  draws   30/256 | elapsed 11 seconds | ETA 86 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 56 seconds
+  draws   90/256 | elapsed 23 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 29 seconds | ETA 33 seconds
+  draws  150/256 | elapsed 36 seconds | ETA 25 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 18 seconds
+  draws  210/256 | elapsed 50 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 57 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0097.pt
+  KDE global mode (draw 7) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.976)
+  saved dpm2_gauss_hierarchical-dataset-0097.pt; joint MAP candidate 7
+[99/100] dataset 98
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.3 minutes
+  draws   30/256 | elapsed 10 seconds | ETA 77 seconds
+  draws   60/256 | elapsed 16 seconds | ETA 54 seconds
+  draws   90/256 | elapsed 24 seconds | ETA 43 seconds
+  draws  120/256 | elapsed 31 seconds | ETA 35 seconds
+  draws  150/256 | elapsed 38 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 44 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 52 seconds | ETA 11 seconds
+  draws  240/256 | elapsed 58 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 61 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0098.pt
+  KDE global mode (draw 122) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=1.03)
+  saved dpm2_gauss_hierarchical-dataset-0098.pt; joint MAP candidate 122
+[100/100] dataset 99
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 256 draws in 43 batches (draw batch=6, subjects=20)
+  draws    6/256 | elapsed 6 seconds | ETA 4.4 minutes
+  draws   30/256 | elapsed 12 seconds | ETA 91 seconds
+  draws   60/256 | elapsed 17 seconds | ETA 57 seconds
+  draws   90/256 | elapsed 25 seconds | ETA 46 seconds
+  draws  120/256 | elapsed 32 seconds | ETA 36 seconds
+  draws  150/256 | elapsed 39 seconds | ETA 27 seconds
+  draws  180/256 | elapsed 45 seconds | ETA 19 seconds
+  draws  210/256 | elapsed 53 seconds | ETA 12 seconds
+  draws  240/256 | elapsed 60 seconds | ETA 4 seconds
+  draws  256/256 | elapsed 65 seconds | ETA 0 seconds
+  checkpointed posterior in dpm2_gauss_hierarchical-dataset-0099.pt
+  KDE global mode (draw 215) fixed; ascending 3 local coordinates for 20 subjects (20 levels, sigma_start=0.811)
+  saved dpm2_gauss_hierarchical-dataset-0099.pt; joint MAP candidate 215
+Completed 100/100 datasets. Summary: /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h48d2/artifacts_churn_eta2/partial_pooling_recovery/small/dpm2_gauss_hierarchical-e87f74177d61c6e9/dpm2_gauss_hierarchical-summary.json
+Created 7 figures in /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h48d2/artifacts_churn_eta2/figures/partial_pooling/small/dpm2_gauss_hierarchical-e87f74177d61c6e9
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/ladder/tok_trial_h48d2/artifacts_churn_eta2/churn_manifest.json

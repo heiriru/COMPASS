@@ -1,0 +1,798 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 9.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=9 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 9 via autocvd.
+[langevin_fnpse] stock sampler (no churn), artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK5/artifacts_churn_eta0
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 30 starting at 0
+  subjects/draws/steps: 100/100/50
+  inference: Langevin + F-NPSE
+  sampler/correction: langevin/fnpe
+  estimated posterior-sampling time: 73.4 minutes
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK5/artifacts_churn_eta0/partial_pooling_recovery/small/langevin_fnpse-1d570900fe7493ba
+[1/30] dataset 0
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 5 seconds | ETA 7.9 minutes
+  draws    5/100 | elapsed 18 seconds | ETA 5.6 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 98 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 114 seconds | ETA 3.5 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.4 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.4 minutes
+  draws   60/100 | elapsed 3.2 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 114 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 97 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 81 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0000.pt
+  KDE global mode (draw 7) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.736)
+  saved langevin_fnpse-dataset-0000.pt; joint MAP candidate 7
+[2/30] dataset 1
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 99 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 115 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 116 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 99 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0001.pt
+  KDE global mode (draw 47) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.711)
+  saved langevin_fnpse-dataset-0001.pt; joint MAP candidate 47
+[3/30] dataset 2
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.6 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 117 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 117 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 100 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.3 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0002.pt
+  KDE global mode (draw 48) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.612)
+  saved langevin_fnpse-dataset-0002.pt; joint MAP candidate 48
+[4/30] dataset 3
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 84 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 117 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 117 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 100 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.3 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0003.pt
+  KDE global mode (draw 66) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.17)
+  saved langevin_fnpse-dataset-0003.pt; joint MAP candidate 66
+[5/30] dataset 4
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.6 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.4 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.1 minutes
+  draws   15/100 | elapsed 51 seconds | ETA 4.8 minutes
+  draws   20/100 | elapsed 68 seconds | ETA 4.5 minutes
+  draws   25/100 | elapsed 85 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 102 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 119 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0004.pt
+  KDE global mode (draw 9) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.762)
+  saved langevin_fnpse-dataset-0004.pt; joint MAP candidate 9
+[6/30] dataset 5
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 117 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 117 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 100 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0005.pt
+  KDE global mode (draw 74) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.608)
+  saved langevin_fnpse-dataset-0005.pt; joint MAP candidate 74
+[7/30] dataset 6
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 84 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 117 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 117 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 101 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 84 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0006.pt
+  KDE global mode (draw 76) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.12)
+  saved langevin_fnpse-dataset-0006.pt; joint MAP candidate 76
+[8/30] dataset 7
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.6 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.4 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 70 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 87 seconds | ETA 4.4 minutes
+  draws   30/100 | elapsed 104 seconds | ETA 4.1 minutes
+  draws   35/100 | elapsed 2.0 minutes | ETA 3.8 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.5 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.2 minutes
+  draws   50/100 | elapsed 2.9 minutes | ETA 2.9 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 101 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 84 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.3 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0007.pt
+  KDE global mode (draw 88) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1)
+  saved langevin_fnpse-dataset-0007.pt; joint MAP candidate 88
+[9/30] dataset 8
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 98 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 114 seconds | ETA 3.5 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.4 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.4 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 114 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 98 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0008.pt
+  KDE global mode (draw 72) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.721)
+  saved langevin_fnpse-dataset-0008.pt; joint MAP candidate 72
+[10/30] dataset 9
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.6 minutes
+  draws   20/100 | elapsed 65 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 98 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 115 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 115 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 99 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0009.pt
+  KDE global mode (draw 80) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.987)
+  saved langevin_fnpse-dataset-0009.pt; joint MAP candidate 80
+[11/30] dataset 10
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 99 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 116 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 118 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 101 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0010.pt
+  KDE global mode (draw 48) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.03)
+  saved langevin_fnpse-dataset-0010.pt; joint MAP candidate 48
+[12/30] dataset 11
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 4 seconds | ETA 6.0 minutes
+  draws    5/100 | elapsed 18 seconds | ETA 5.6 minutes
+  draws   10/100 | elapsed 36 seconds | ETA 5.4 minutes
+  draws   15/100 | elapsed 54 seconds | ETA 5.1 minutes
+  draws   20/100 | elapsed 71 seconds | ETA 4.7 minutes
+  draws   25/100 | elapsed 88 seconds | ETA 4.4 minutes
+  draws   30/100 | elapsed 105 seconds | ETA 4.1 minutes
+  draws   35/100 | elapsed 2.0 minutes | ETA 3.8 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.5 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.2 minutes
+  draws   50/100 | elapsed 2.9 minutes | ETA 2.9 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 120 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0011.pt
+  KDE global mode (draw 33) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.647)
+  saved langevin_fnpse-dataset-0011.pt; joint MAP candidate 33
+[13/30] dataset 12
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.6 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 98 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 115 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 115 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 98 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0012.pt
+  KDE global mode (draw 64) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.869)
+  saved langevin_fnpse-dataset-0012.pt; joint MAP candidate 64
+[14/30] dataset 13
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.7 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.5 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 69 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 85 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 102 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 118 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 117 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 100 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.3 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0013.pt
+  KDE global mode (draw 49) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.875)
+  saved langevin_fnpse-dataset-0013.pt; joint MAP candidate 49
+[15/30] dataset 14
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 116 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 116 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 99 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0014.pt
+  KDE global mode (draw 38) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.992)
+  saved langevin_fnpse-dataset-0014.pt; joint MAP candidate 38
+[16/30] dataset 15
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.3 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.5 minutes
+  draws   25/100 | elapsed 84 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 101 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 118 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0015.pt
+  KDE global mode (draw 34) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.946)
+  saved langevin_fnpse-dataset-0015.pt; joint MAP candidate 34
+[17/30] dataset 16
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.7 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.5 minutes
+  draws   10/100 | elapsed 35 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 69 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 86 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 104 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 2.0 minutes | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 118 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 101 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 84 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 67 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.3 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0016.pt
+  KDE global mode (draw 82) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.628)
+  saved langevin_fnpse-dataset-0016.pt; joint MAP candidate 82
+[18/30] dataset 17
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.3 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.1 minutes
+  draws   10/100 | elapsed 32 seconds | ETA 4.8 minutes
+  draws   15/100 | elapsed 48 seconds | ETA 4.5 minutes
+  draws   20/100 | elapsed 64 seconds | ETA 4.3 minutes
+  draws   25/100 | elapsed 81 seconds | ETA 4.0 minutes
+  draws   30/100 | elapsed 97 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 113 seconds | ETA 3.5 minutes
+  draws   40/100 | elapsed 2.1 minutes | ETA 3.2 minutes
+  draws   45/100 | elapsed 2.4 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.4 minutes
+  draws   60/100 | elapsed 3.2 minutes | ETA 2.1 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 113 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 97 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 81 seconds
+  draws   80/100 | elapsed 4.3 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0017.pt
+  KDE global mode (draw 21) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.744)
+  saved langevin_fnpse-dataset-0017.pt; joint MAP candidate 21
+[19/30] dataset 18
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.3 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 100 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 116 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 115 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 98 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.4 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0018.pt
+  KDE global mode (draw 71) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.33)
+  saved langevin_fnpse-dataset-0018.pt; joint MAP candidate 71
+[20/30] dataset 19
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.3 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 99 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 115 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 114 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 98 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 65 seconds
+  draws   85/100 | elapsed 4.6 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0019.pt
+  KDE global mode (draw 95) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.673)
+  saved langevin_fnpse-dataset-0019.pt; joint MAP candidate 95
+[21/30] dataset 20
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.6 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 98 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 114 seconds | ETA 3.5 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.7 minutes | ETA 2.7 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.4 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.5 minutes | ETA 114 seconds
+  draws   70/100 | elapsed 3.8 minutes | ETA 98 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 82 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0020.pt
+  KDE global mode (draw 25) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.893)
+  saved langevin_fnpse-dataset-0020.pt; joint MAP candidate 25
+[22/30] dataset 21
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 16 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 4.9 minutes
+  draws   15/100 | elapsed 49 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 82 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 99 seconds | ETA 3.8 minutes
+  draws   35/100 | elapsed 116 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 116 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 100 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 50 seconds
+  draws   90/100 | elapsed 5.0 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0021.pt
+  KDE global mode (draw 58) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.854)
+  saved langevin_fnpse-dataset-0021.pt; joint MAP candidate 58
+[23/30] dataset 22
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.2 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 66 seconds | ETA 4.4 minutes
+  draws   25/100 | elapsed 83 seconds | ETA 4.1 minutes
+  draws   30/100 | elapsed 99 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 116 seconds | ETA 3.6 minutes
+  draws   40/100 | elapsed 2.2 minutes | ETA 3.3 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.0 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.0 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.3 minutes | ETA 2.2 minutes
+  draws   65/100 | elapsed 3.6 minutes | ETA 116 seconds
+  draws   70/100 | elapsed 3.9 minutes | ETA 99 seconds
+  draws   75/100 | elapsed 4.1 minutes | ETA 83 seconds
+  draws   80/100 | elapsed 4.4 minutes | ETA 66 seconds
+  draws   85/100 | elapsed 4.7 minutes | ETA 49 seconds
+  draws   90/100 | elapsed 4.9 minutes | ETA 33 seconds
+  draws   95/100 | elapsed 5.2 minutes | ETA 16 seconds
+  draws  100/100 | elapsed 5.5 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0022.pt
+  KDE global mode (draw 28) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.753)
+  saved langevin_fnpse-dataset-0022.pt; joint MAP candidate 28
+[24/30] dataset 23
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.7 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.5 minutes
+  draws   10/100 | elapsed 35 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 69 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 87 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 104 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 2.0 minutes | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.5 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.2 minutes
+  draws   50/100 | elapsed 2.9 minutes | ETA 2.9 minutes
+  draws   55/100 | elapsed 3.2 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 2.0 minutes
+  draws   70/100 | elapsed 4.0 minutes | ETA 103 seconds
+  draws   75/100 | elapsed 4.3 minutes | ETA 86 seconds
+  draws   80/100 | elapsed 4.6 minutes | ETA 69 seconds
+  draws   85/100 | elapsed 4.9 minutes | ETA 52 seconds
+  draws   90/100 | elapsed 5.2 minutes | ETA 35 seconds
+  draws   95/100 | elapsed 5.5 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.8 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0023.pt
+  KDE global mode (draw 43) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.13)
+  saved langevin_fnpse-dataset-0023.pt; joint MAP candidate 43
+[25/30] dataset 24
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 4 seconds | ETA 5.9 minutes
+  draws    5/100 | elapsed 18 seconds | ETA 5.6 minutes
+  draws   10/100 | elapsed 35 seconds | ETA 5.3 minutes
+  draws   15/100 | elapsed 53 seconds | ETA 5.0 minutes
+  draws   20/100 | elapsed 70 seconds | ETA 4.7 minutes
+  draws   25/100 | elapsed 87 seconds | ETA 4.4 minutes
+  draws   30/100 | elapsed 104 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 120 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.2 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.6 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0024.pt
+  KDE global mode (draw 33) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.884)
+  saved langevin_fnpse-dataset-0024.pt; joint MAP candidate 33
+[26/30] dataset 25
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.8 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.4 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.1 minutes
+  draws   15/100 | elapsed 51 seconds | ETA 4.8 minutes
+  draws   20/100 | elapsed 68 seconds | ETA 4.5 minutes
+  draws   25/100 | elapsed 84 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 102 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 119 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 2.0 minutes
+  draws   70/100 | elapsed 4.0 minutes | ETA 103 seconds
+  draws   75/100 | elapsed 4.3 minutes | ETA 86 seconds
+  draws   80/100 | elapsed 4.6 minutes | ETA 69 seconds
+  draws   85/100 | elapsed 4.9 minutes | ETA 52 seconds
+  draws   90/100 | elapsed 5.2 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.5 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0025.pt
+  KDE global mode (draw 21) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.541)
+  saved langevin_fnpse-dataset-0025.pt; joint MAP candidate 21
+[27/30] dataset 26
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.7 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.5 minutes
+  draws   10/100 | elapsed 35 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 69 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 86 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 104 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 2.0 minutes | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.5 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.2 minutes
+  draws   50/100 | elapsed 2.9 minutes | ETA 2.9 minutes
+  draws   55/100 | elapsed 3.2 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.5 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.8 minutes | ETA 2.0 minutes
+  draws   70/100 | elapsed 4.1 minutes | ETA 105 seconds
+  draws   75/100 | elapsed 4.4 minutes | ETA 87 seconds
+  draws   80/100 | elapsed 4.6 minutes | ETA 70 seconds
+  draws   85/100 | elapsed 4.9 minutes | ETA 52 seconds
+  draws   90/100 | elapsed 5.2 minutes | ETA 35 seconds
+  draws   95/100 | elapsed 5.5 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.8 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0026.pt
+  KDE global mode (draw 4) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.679)
+  saved langevin_fnpse-dataset-0026.pt; joint MAP candidate 4
+[28/30] dataset 27
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.4 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.4 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.2 minutes
+  draws   15/100 | elapsed 52 seconds | ETA 4.9 minutes
+  draws   20/100 | elapsed 68 seconds | ETA 4.6 minutes
+  draws   25/100 | elapsed 85 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 102 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 120 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.3 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0027.pt
+  KDE global mode (draw 8) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.754)
+  saved langevin_fnpse-dataset-0027.pt; joint MAP candidate 8
+[29/30] dataset 28
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.5 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.3 minutes
+  draws   10/100 | elapsed 33 seconds | ETA 5.0 minutes
+  draws   15/100 | elapsed 50 seconds | ETA 4.7 minutes
+  draws   20/100 | elapsed 67 seconds | ETA 4.5 minutes
+  draws   25/100 | elapsed 84 seconds | ETA 4.2 minutes
+  draws   30/100 | elapsed 101 seconds | ETA 3.9 minutes
+  draws   35/100 | elapsed 118 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.5 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.5 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.3 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0028.pt
+  KDE global mode (draw 45) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.816)
+  saved langevin_fnpse-dataset-0028.pt; joint MAP candidate 45
+[30/30] dataset 29
+  Langevin + F-NPSE: sampling 100 draws in 100 batches (draw batch=1, subjects=100, composing 20 groups of 5 subjects)
+  draws    1/100 | elapsed 3 seconds | ETA 5.6 minutes
+  draws    5/100 | elapsed 17 seconds | ETA 5.4 minutes
+  draws   10/100 | elapsed 34 seconds | ETA 5.1 minutes
+  draws   15/100 | elapsed 51 seconds | ETA 4.8 minutes
+  draws   20/100 | elapsed 68 seconds | ETA 4.5 minutes
+  draws   25/100 | elapsed 85 seconds | ETA 4.3 minutes
+  draws   30/100 | elapsed 102 seconds | ETA 4.0 minutes
+  draws   35/100 | elapsed 119 seconds | ETA 3.7 minutes
+  draws   40/100 | elapsed 2.3 minutes | ETA 3.4 minutes
+  draws   45/100 | elapsed 2.6 minutes | ETA 3.1 minutes
+  draws   50/100 | elapsed 2.8 minutes | ETA 2.8 minutes
+  draws   55/100 | elapsed 3.1 minutes | ETA 2.6 minutes
+  draws   60/100 | elapsed 3.4 minutes | ETA 2.3 minutes
+  draws   65/100 | elapsed 3.7 minutes | ETA 119 seconds
+  draws   70/100 | elapsed 4.0 minutes | ETA 102 seconds
+  draws   75/100 | elapsed 4.3 minutes | ETA 85 seconds
+  draws   80/100 | elapsed 4.5 minutes | ETA 68 seconds
+  draws   85/100 | elapsed 4.8 minutes | ETA 51 seconds
+  draws   90/100 | elapsed 5.1 minutes | ETA 34 seconds
+  draws   95/100 | elapsed 5.4 minutes | ETA 17 seconds
+  draws  100/100 | elapsed 5.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_fnpse-dataset-0029.pt
+  KDE global mode (draw 4) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.882)
+  saved langevin_fnpse-dataset-0029.pt; joint MAP candidate 4
+Completed 30/30 datasets. Summary: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK5/artifacts_churn_eta0/partial_pooling_recovery/small/langevin_fnpse-1d570900fe7493ba/langevin_fnpse-summary.json
+Created 7 figures in /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK5/artifacts_churn_eta0/figures/partial_pooling/small/langevin_fnpse-1d570900fe7493ba
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK5/artifacts_churn_eta0/churn_manifest.json

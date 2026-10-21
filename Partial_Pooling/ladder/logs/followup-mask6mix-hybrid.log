@@ -1,0 +1,124 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 7.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=7 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 7 via autocvd.
+[dpm2_hybrid] churn eta=2, artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta2
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 30 starting at 0
+  subjects/draws/steps: 100/100/50
+  inference: DPM-Solver-2 + hybrid Gaussian
+  sampler/correction: dpm/hybrid
+  estimated posterior-sampling time: 73.4 minutes
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta2/partial_pooling_recovery/small/dpm2_hybrid-e2f91d2c14145d64
+[1/30] dataset 0
+  DPM-Solver-2 + hybrid Gaussian: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 62 seconds | ETA 103.0 minutes
+  draws    5/100 | elapsed 5.3 minutes | ETA 101.1 minutes
+  draws   10/100 | elapsed 10.7 minutes | ETA 96.5 minutes
+  draws   15/100 | elapsed 16.1 minutes | ETA 91.3 minutes
+  draws   20/100 | elapsed 21.5 minutes | ETA 86.0 minutes
+  draws   25/100 | elapsed 26.9 minutes | ETA 80.7 minutes
+  draws   30/100 | elapsed 32.3 minutes | ETA 75.4 minutes
+  draws   35/100 | elapsed 37.7 minutes | ETA 70.0 minutes
+  draws   40/100 | elapsed 43.1 minutes | ETA 64.6 minutes
+  draws   45/100 | elapsed 48.5 minutes | ETA 59.2 minutes
+  draws   50/100 | elapsed 53.9 minutes | ETA 53.9 minutes
+  draws   55/100 | elapsed 59.8 minutes | ETA 48.9 minutes
+  draws   60/100 | elapsed 65.2 minutes | ETA 43.4 minutes
+  draws   65/100 | elapsed 70.6 minutes | ETA 38.0 minutes
+  draws   70/100 | elapsed 76.0 minutes | ETA 32.6 minutes
+  draws   75/100 | elapsed 81.4 minutes | ETA 27.1 minutes
+  draws   80/100 | elapsed 86.8 minutes | ETA 21.7 minutes
+  draws   85/100 | elapsed 92.2 minutes | ETA 16.3 minutes
+  draws   90/100 | elapsed 97.6 minutes | ETA 10.8 minutes
+  draws   95/100 | elapsed 103.0 minutes | ETA 5.4 minutes
+  draws  100/100 | elapsed 108.4 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_hybrid-dataset-0000.pt
+  KDE global mode (draw 65) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.729)
+  saved dpm2_hybrid-dataset-0000.pt; joint MAP candidate 65
+[2/30] dataset 1
+  DPM-Solver-2 + hybrid Gaussian: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 65 seconds | ETA 106.8 minutes
+  draws    5/100 | elapsed 5.4 minutes | ETA 101.9 minutes
+  draws   10/100 | elapsed 10.7 minutes | ETA 96.5 minutes
+  draws   15/100 | elapsed 16.1 minutes | ETA 91.2 minutes
+  draws   20/100 | elapsed 21.5 minutes | ETA 85.8 minutes
+  draws   25/100 | elapsed 26.8 minutes | ETA 80.5 minutes
+  draws   30/100 | elapsed 32.2 minutes | ETA 75.1 minutes
+  draws   35/100 | elapsed 37.6 minutes | ETA 69.8 minutes
+  draws   40/100 | elapsed 42.9 minutes | ETA 64.4 minutes
+  draws   45/100 | elapsed 48.3 minutes | ETA 59.0 minutes
+  draws   50/100 | elapsed 53.7 minutes | ETA 53.7 minutes
+  draws   55/100 | elapsed 59.1 minutes | ETA 48.3 minutes
+  draws   60/100 | elapsed 64.5 minutes | ETA 43.0 minutes
+  draws   65/100 | elapsed 69.9 minutes | ETA 37.6 minutes
+  draws   70/100 | elapsed 75.2 minutes | ETA 32.2 minutes
+  draws   75/100 | elapsed 80.6 minutes | ETA 26.9 minutes
+  draws   80/100 | elapsed 86.0 minutes | ETA 21.5 minutes
+  draws   85/100 | elapsed 91.4 minutes | ETA 16.1 minutes
+  draws   90/100 | elapsed 96.8 minutes | ETA 10.8 minutes
+  draws   95/100 | elapsed 102.2 minutes | ETA 5.4 minutes
+  draws  100/100 | elapsed 107.6 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_hybrid-dataset-0001.pt
+  KDE global mode (draw 26) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.851)
+  saved dpm2_hybrid-dataset-0001.pt; joint MAP candidate 26
+[3/30] dataset 2
+  DPM-Solver-2 + hybrid Gaussian: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 65 seconds | ETA 107.3 minutes
+  draws    5/100 | elapsed 5.4 minutes | ETA 102.7 minutes
+  draws   10/100 | elapsed 10.8 minutes | ETA 97.1 minutes
+  draws   15/100 | elapsed 16.1 minutes | ETA 91.5 minutes
+  draws   20/100 | elapsed 21.5 minutes | ETA 86.0 minutes
+  draws   25/100 | elapsed 26.9 minutes | ETA 80.6 minutes
+  draws   30/100 | elapsed 32.2 minutes | ETA 75.2 minutes
+  draws   35/100 | elapsed 37.6 minutes | ETA 69.8 minutes
+  draws   40/100 | elapsed 42.9 minutes | ETA 64.4 minutes
+  draws   45/100 | elapsed 48.3 minutes | ETA 59.0 minutes
+  draws   50/100 | elapsed 53.7 minutes | ETA 53.7 minutes
+  draws   55/100 | elapsed 59.0 minutes | ETA 48.3 minutes
+  draws   60/100 | elapsed 64.4 minutes | ETA 42.9 minutes
+  draws   65/100 | elapsed 69.7 minutes | ETA 37.6 minutes
+  draws   70/100 | elapsed 75.1 minutes | ETA 32.2 minutes
+  draws   75/100 | elapsed 80.5 minutes | ETA 26.8 minutes
+  draws   80/100 | elapsed 85.8 minutes | ETA 21.5 minutes
+  draws   85/100 | elapsed 91.2 minutes | ETA 16.1 minutes
+  draws   90/100 | elapsed 96.6 minutes | ETA 10.7 minutes
+  draws   95/100 | elapsed 101.9 minutes | ETA 5.4 minutes
+  draws  100/100 | elapsed 107.3 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_hybrid-dataset-0002.pt
+  KDE global mode (draw 94) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.643)
+  saved dpm2_hybrid-dataset-0002.pt; joint MAP candidate 94
+[4/30] dataset 3
+  DPM-Solver-2 + hybrid Gaussian: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 65 seconds | ETA 106.8 minutes
+  draws    5/100 | elapsed 5.4 minutes | ETA 102.2 minutes
+  draws   10/100 | elapsed 10.8 minutes | ETA 97.0 minutes
+  draws   15/100 | elapsed 16.2 minutes | ETA 91.5 minutes
+  draws   20/100 | elapsed 21.5 minutes | ETA 86.0 minutes
+  draws   25/100 | elapsed 26.9 minutes | ETA 80.6 minutes
+  draws   30/100 | elapsed 32.2 minutes | ETA 75.2 minutes
+  draws   35/100 | elapsed 37.6 minutes | ETA 69.8 minutes
+  draws   40/100 | elapsed 42.9 minutes | ETA 64.4 minutes
+  draws   45/100 | elapsed 48.3 minutes | ETA 59.0 minutes
+  draws   50/100 | elapsed 53.6 minutes | ETA 53.6 minutes
+  draws   55/100 | elapsed 59.0 minutes | ETA 48.3 minutes
+  draws   60/100 | elapsed 64.3 minutes | ETA 42.9 minutes
+  draws   65/100 | elapsed 69.7 minutes | ETA 37.5 minutes
+  draws   70/100 | elapsed 75.6 minutes | ETA 32.4 minutes
+  draws   75/100 | elapsed 81.3 minutes | ETA 27.1 minutes
+  draws   80/100 | elapsed 87.3 minutes | ETA 21.8 minutes
+  draws   85/100 | elapsed 92.6 minutes | ETA 16.3 minutes
+  draws   90/100 | elapsed 98.1 minutes | ETA 10.9 minutes
+  draws   95/100 | elapsed 103.7 minutes | ETA 5.5 minutes
+  draws  100/100 | elapsed 109.5 minutes | ETA 0 seconds
+  checkpointed posterior in dpm2_hybrid-dataset-0003.pt
+  KDE global mode (draw 19) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.32)
+  saved dpm2_hybrid-dataset-0003.pt; joint MAP candidate 19
+[5/30] dataset 4
+  DPM-Solver-2 + hybrid Gaussian: sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 65 seconds | ETA 106.8 minutes
+  draws    5/100 | elapsed 5.4 minutes | ETA 102.8 minutes
+  draws   10/100 | elapsed 10.8 minutes | ETA 97.2 minutes

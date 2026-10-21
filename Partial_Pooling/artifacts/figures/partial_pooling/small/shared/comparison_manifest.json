@@ -33,9 +33,24 @@
       "error_distributions_langevin_fnpse.png"
     ]
   },
-  "output_signature": "a1a823fc7f09e730",
+  "output_signature": "6dc80a088b683d32",
   "preset": "small",
   "runs": [
+    {
+      "completed_datasets": 5,
+      "label": "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + Newton MAP",
+      "method": "dpm2_gauss_jacobian_newton",
+      "observation_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        20
+      ],
+      "point_estimator": "kde_global_then_local_score_ascent",
+      "signature": "6dc80a088b683d32"
+    },
     {
       "completed_datasets": 5,
       "label": "DPM-Solver-2 + hierarchical Gaussian (GAUSS) + Tweedie MAP",
@@ -65,21 +80,6 @@
       ],
       "point_estimator": "kde_global_then_local_score_ascent",
       "signature": "ab32e8737eb0ed51"
-    },
-    {
-      "completed_datasets": 5,
-      "label": "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + Newton MAP",
-      "method": "dpm2_gauss_jacobian_newton",
-      "observation_counts": [
-        1,
-        2,
-        4,
-        8,
-        16,
-        20
-      ],
-      "point_estimator": "kde_global_then_local_score_ascent",
-      "signature": "6dc80a088b683d32"
     }
   ]
 }

@@ -1,0 +1,13 @@
+  DPM-Solver-2 + hierarchical Gaussian (GAUSS): sampling 100 draws in 17 batches (draw batch=6, subjects=20, composing 20 subjects)
+  draws    6/100 | elapsed 6 seconds | ETA 89 seconds
+  draws   30/100 | elapsed 11 seconds | ETA 25 seconds
+  draws   60/100 | elapsed 17 seconds | ETA 11 seconds
+  draws   90/100 | elapsed 23 seconds | ETA 3 seconds
+  draws  100/100 | elapsed 26 seconds | ETA 0 seconds
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/infer_encoder_summary.py", line 87, in <module>
+    main()
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/infer_encoder_summary.py", line 70, in main
+    local_errors.append(float((((local_estimate - local_truth) / theta_norm.scale[7:]) ** 2).mean().sqrt()))
+                                 ~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+RuntimeError: The size of tensor a (100) must match the size of tensor b (20) at non-singleton dimension 0

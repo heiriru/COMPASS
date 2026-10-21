@@ -39,7 +39,18 @@ INFERENCE_METHODS = (
     "dpm2_gauss_global_local", "dpm2_gauss_global_local_moment",
     "dpm2_gauss_hierarchical",
     "dpm2_gauss_jacobian_newton",
+    "dpm2_gauss_jacobian_FD_newton",
     "langevin_fnpse",
+    # Damped composition. MultiObsSampler has carried these rules all along but
+    # never exposed them here, and they additionally could not run at all until
+    # the shared-path AttributeError in MultiObsSampler.__init__ was fixed.
+    # "damping" is the error-damped estimator of Arruda et al. 2026 itself --
+    # the same idea as the reference implementation's compositional_bridge_d0 --
+    # so these are the arms that test the paper's own composition fix.
+    "langevin_damping",
+    "dpm2_gauss_damping",
+    "dpm2_hybrid",
+    "dpm2_hybrid_damping",
 )
 
 
@@ -99,6 +110,27 @@ def inference_plan(name):
                 "+ arrow-Newton MAP"
             ),
         }
+    if name == "dpm2_gauss_jacobian_FD_newton":
+        # gauss_jacobian with a finite-difference Jacobian (one batched network
+        # call instead of D forward-mode JVPs), refreshed at every evaluation
+        # while lambda >= 0.3 and every 20th below it. Measured against exact
+        # gauss_jacobian at 20 and 100 subjects, this stays within Monte-Carlo
+        # noise at ~6x less wall clock.
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "gauss_jacobian_FD",
+            "order": 2,
+            "map_method": "newton",
+            "sampler_kwargs": {
+                "jacobian_refresh_low_noise": 20,
+                "jacobian_refresh_lambda": 0.3,
+            },
+            "label": (
+                "DPM-Solver-2 + finite-difference Jacobian-Gaussian "
+                "(pilot-free) + arrow-Newton MAP"
+            ),
+        }
     if name == "langevin_fnpse":
         return {
             "name": name,
@@ -106,6 +138,40 @@ def inference_plan(name):
             "correction": "fnpe",
             "order": None,
             "label": "Langevin + F-NPSE",
+        }
+    if name == "langevin_damping":
+        # Like "fnpe", "damping" is a bridging-density estimator rather than a
+        # diffusion marginal, so it is only consistent with annealed Langevin.
+        return {
+            "name": name,
+            "sampler": "langevin",
+            "correction": "damping",
+            "order": None,
+            "label": "Langevin + error-damped composition (Arruda et al.)",
+        }
+    if name == "dpm2_gauss_damping":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "gauss_damping",
+            "order": 2,
+            "label": "DPM-Solver-2 + damped Gaussian",
+        }
+    if name == "dpm2_hybrid":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "hybrid",
+            "order": 2,
+            "label": "DPM-Solver-2 + hybrid Gaussian",
+        }
+    if name == "dpm2_hybrid_damping":
+        return {
+            "name": name,
+            "sampler": "dpm",
+            "correction": "hybrid_damping",
+            "order": 2,
+            "label": "DPM-Solver-2 + damped hybrid Gaussian",
         }
     raise ValueError(
         f"Unknown inference method {name!r}; choose one of "
@@ -168,7 +234,7 @@ def parser():
             "precision. This estimate is a covariance in dim(theta) "
             "dimensions, so its eigenvalues spread by roughly "
             "sqrt(dim/samples) (Marchenko-Pastur). At 256 draws and 10 "
-            "latent dimensions that is ~20%, enough to make a subject's "
+            "latent dimensions that is ~20%%, enough to make a subject's "
             "estimated information about the shared parameters come out "
             "negative -- outside the model class, and the direct cause of "
             "an indefinite composed precision. Raising it is the cheapest "
@@ -238,6 +304,116 @@ def parser():
         "--skip-observation-sweep", action="store_true",
         help="Skip the 1, 2, 4, ... subject recovery experiment.",
     )
+    result.add_argument(
+        "--train-subset", type=int,
+        help=(
+            "Train on only the first N rows of the preset's training split "
+            "(and the matching fraction of its validation split). The "
+            "simulations, normalization constants and test datasets are the "
+            "preset's own, so a subset run is directly comparable with the "
+            "full-size run."
+        ),
+    )
+    result.add_argument(
+        "--arch", choices=("legacy", "tokenized"), default="legacy",
+        help=(
+            "legacy: one token per scalar with per-node adaLN modulation and a "
+            "flattened output matmul (the historical network). tokenized: the "
+            "schema-driven network with a token-count-agnostic trunk."
+        ),
+    )
+    result.add_argument(
+        "--tokenization", choices=("scalar", "trial", "group"), default="scalar",
+        help=(
+            "arch=tokenized only. scalar: 100 scalar tokens (isolates the trunk "
+            "change). trial: 10 theta tokens plus 30 trial tokens through one "
+            "shared (choice, log RT, censored) embedder -- lossless, the "
+            "diffusion state stays the 90 raw scalars."
+        ),
+    )
+    result.add_argument(
+        "--trunk", choices=("shared", "position"), default="shared",
+        help="arch=tokenized only; 'position' reproduces the legacy trunk.",
+    )
+    result.add_argument(
+        "--token-offset", action="store_true",
+        help="arch=tokenized ablation: per-token offset on the shared modulation.",
+    )
+    result.add_argument(
+        "--time-embedding-size", type=int,
+        help=(
+            "arch=tokenized only. Width of the diffusion-time embedding, which "
+            "also sets the input width of every adaLN modulation."
+        ),
+    )
+    result.add_argument(
+        "--per-position-head", action="store_true",
+        help=(
+            "arch=tokenized only. Per-scalar output readout for atomic blocks; "
+            "IID blocks stay shared so trials remain exchangeable."
+        ),
+    )
+    result.add_argument(
+        "--mask-menu", choices=("bernoulli", "six", "six_mixed"),
+        default="bernoulli",
+        help="Which conditionals the arm was trained on; selects the checkpoint.",
+    )
+    result.add_argument(
+        "--time-sampling", choices=("mixture", "uniform", "log_sigma"),
+        help=(
+            "How diffusion times are drawn in training. 'log_sigma' is "
+            "log-uniform in the noise scale; 'mixture' (the default every arm "
+            "so far used) is 50/50 with uniform-in-t."
+        ),
+    )
+    result.add_argument(
+        "--init-seed", type=int,
+        help="Weight-initialisation seed; identifies a seed-repeat arm.",
+    )
+    result.add_argument(
+        "--train-subjects", type=int,
+        help=(
+            "tokenization=group only. Subjects per composed factor: the "
+            "recovery run's --subjects test subjects become "
+            "subjects/train_subjects composed units. Must match the arm's "
+            "checkpoint."
+        ),
+    )
+    result.add_argument(
+        "--train-size", type=int,
+        help="Rows in the grouped arm's own training split; identifies the arm.",
+    )
+    result.add_argument("--validation-size", type=int)
+    result.add_argument("--depth-readout", type=int)
+    result.add_argument("--group-pool", choices=("mean", "pma"))
+    result.add_argument("--group-slot", choices=("learned", "sinusoidal", "none"))
+    result.add_argument(
+        "--grouping-seed", type=int,
+        help=(
+            "tokenization=group only. Re-assign the test subjects to composed "
+            "groups under this seed instead of grouping them contiguously. The "
+            "exact posterior does not depend on which subjects share a group, "
+            "so varying this measures how much the representation's "
+            "approximation does -- run it before quoting any headline number."
+        ),
+    )
+    result.add_argument(
+        "--mask-bernoulli-fraction", type=float,
+        help="mask-menu=six_mixed only: probability a training draw is Bernoulli.",
+    )
+    result.add_argument(
+        "--mask-posterior-weight", type=float,
+        help=(
+            "mask-menu six/six_mixed only. Relative weight of the three "
+            "observation-conditioned entries p(g,l|x), p(g|l,x), p(l|g,x) "
+            "against the three that generate x. Uniform (1.0) spends most of "
+            "the gradient on the harder x-latent conditionals."
+        ),
+    )
+    result.add_argument("--hidden-size", type=int)
+    result.add_argument("--depth", type=int)
+    result.add_argument("--num-heads", type=int)
+    result.add_argument("--mlp-ratio", type=int)
     result.add_argument(
         "--estimate-only", action="store_true",
         help="Print the workload estimate without loading PyTorch or a checkpoint.",
@@ -352,6 +528,15 @@ def inference_signature(config_signature, args, plan):
         # signature published before this option existed still hashes to the
         # same value and its completed artifacts stay reusable.
         payload["map_estimator"] = args.map_estimator
+    # Added only when a grouping is actually requested, so the key's mere
+    # existence does not change the signature of every run recorded before
+    # grouped arms did. The partition-sensitivity study's re-runs then land in
+    # separate directories instead of overwriting one another.
+    if getattr(args, "grouping_seed", None) is not None:
+        payload["grouping_seed"] = args.grouping_seed
+    # Same rule: only plans that carry extra sampler settings hash them.
+    if plan.get("sampler_kwargs"):
+        payload["sampler_kwargs"] = plan["sampler_kwargs"]
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(encoded.encode()).hexdigest()[:16]
 
@@ -392,17 +577,40 @@ def _normalized_local_prior(normalizer, torch):
 
 
 def _sample_dataset(model, observations, normalizers, args, config, device, torch):
+    from Partial_Pooling import group_layout
     from Partial_Pooling.schema import GLOBAL_INDICES
 
     plan = inference_plan(args.inference_method)
     normalized_observations = normalizers["observations"].transform(observations)
     theta_normalizer = normalizers["theta"]
-    condition_mask = torch.cat((
-        torch.zeros(model.nodes_size - normalized_observations.shape[-1]),
-        torch.ones(normalized_observations.shape[-1]),
-    )).to(device)
     prior = _normalized_global_prior(theta_normalizer, torch)
     local_prior = _normalized_local_prior(theta_normalizer, torch)
+
+    # A grouped arm composes 100/K factors of K subjects instead of 100 factors
+    # of one. Only the shapes between here and the sampler change: the recovery
+    # report below is still per subject, produced by the same code.
+    per_group = group_layout.subjects_per_group(model)
+    assignment = None
+    if per_group > 1:
+        observation_dim = normalized_observations.shape[-1]
+        assignment = group_layout.grouping(
+            observations.shape[0], per_group,
+            seed=getattr(args, "grouping_seed", None),
+        )
+        normalized_observations = group_layout.group_observations(
+            normalized_observations, assignment,
+        )
+        # Built explicitly: each repeat's latent locals sit inside its observed
+        # trials, so there is no contiguous [theta, x] split to infer from.
+        condition_mask = group_layout.condition_mask(
+            per_group, observation_dim,
+        ).to(device)
+        local_prior = group_layout.tile_local_prior(local_prior, per_group)
+    else:
+        condition_mask = torch.cat((
+            torch.zeros(model.nodes_size - normalized_observations.shape[-1]),
+            torch.ones(normalized_observations.shape[-1]),
+        )).to(device)
     batch_size = draw_batch_size(args.draws, config.batch_size, args.subjects)
     batch_count = math.ceil(args.draws / batch_size)
     chunks = []
@@ -434,9 +642,13 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             )
         )
 
+    composed = "subjects" if per_group == 1 else (
+        f"groups of {per_group} subjects"
+    )
     print(
         f"  {plan['label']}: sampling {args.draws} draws in {batch_count} batches "
-        f"(draw batch={batch_size}, subjects={args.subjects})",
+        f"(draw batch={batch_size}, subjects={args.subjects}, "
+        f"composing {normalized_observations.shape[0]} {composed})",
         flush=True,
     )
     for batch_index, start in enumerate(range(0, args.draws, batch_size), start=1):
@@ -475,6 +687,7 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             verbose=False,
             method=plan["sampler"],
             capture_attention=False,
+            **plan.get("sampler_kwargs", {}),
         ).cpu()
         if plan["correction"] == "gauss" and posterior_precision is None:
             posterior_precision = (
@@ -520,16 +733,31 @@ def _sample_dataset(model, observations, normalizers, args, config, device, torc
             "Partial-pooling inference returned unsynchronized globals "
             f"(maximum absolute difference {sync_error:.3e})."
         )
-    raw = theta_normalizer.inverse(
-        normalized.reshape(-1, normalized.shape[-1])
-    ).reshape_as(normalized)
-    posterior = {
-        "globals": raw[0, :, :len(GLOBAL_INDICES)],
-        "locals": raw[:, :, len(GLOBAL_INDICES):].permute(1, 0, 2),
+    if per_group > 1:
+        # Un-group back into the test file's own subject order, so everything
+        # downstream is the existing per-subject code with no knowledge that
+        # grouping happened.
+        shared, locals_ = group_layout.split_latents(normalized, per_group)
+        shared, locals_ = group_layout.inverse_transform(
+            shared, locals_, theta_normalizer,
+        )
+        posterior = {
+            "globals": shared[0],
+            "locals": group_layout.ungroup_locals(locals_, assignment),
+        }
+    else:
+        raw = theta_normalizer.inverse(
+            normalized.reshape(-1, normalized.shape[-1])
+        ).reshape_as(normalized)
+        posterior = {
+            "globals": raw[0, :, :len(GLOBAL_INDICES)],
+            "locals": raw[:, :, len(GLOBAL_INDICES):].permute(1, 0, 2),
+        }
+    posterior.update({
         "posterior_precision": posterior_precision,
         "posterior_covariance": posterior_covariance,
         "posterior_mean": posterior_mean,
-    }
+    })
     totals["score_evaluations"] = totals["score_network_calls"]
     return posterior, totals, time.perf_counter() - started
 
@@ -765,6 +993,7 @@ def _kde_global_then_local_ascent_map(
     instead of bounding the denoised prediction the way
     ``hierarchical_map_estimate`` does.
     """
+    from Partial_Pooling import group_layout
     from Partial_Pooling.schema import GLOBAL_INDICES
 
     started = time.perf_counter()
@@ -787,12 +1016,31 @@ def _kde_global_then_local_ascent_map(
     ), dim=1)
     latent_width = int(raw_theta.shape[1])
     normalized_theta = theta_normalizer.transform(raw_theta)
-    rows = torch.cat((normalized_theta, normalized_observations), dim=1)
-    condition_mask = torch.cat((
-        torch.ones(global_count),
-        torch.zeros(latent_width - global_count),
-        torch.ones(normalized_observations.shape[-1]),
-    ))
+    # Stage 2 is a single-observation problem -- once the globals are fixed the
+    # subjects are conditionally independent -- so a grouped arm only has to
+    # present the same rows in its own nested layout.
+    per_group = group_layout.subjects_per_group(model)
+    observation_dim = int(normalized_observations.shape[-1])
+    assignment = None
+    if per_group > 1:
+        assignment = group_layout.grouping(
+            subjects, per_group, seed=getattr(args, "grouping_seed", None),
+        )
+        rows = group_layout.build_rows(
+            normalized_theta[0, :global_count],
+            normalized_theta[:, global_count:],
+            normalized_observations, assignment,
+        )
+        condition_mask = group_layout.map_condition_mask(
+            per_group, observation_dim,
+        )
+    else:
+        rows = torch.cat((normalized_theta, normalized_observations), dim=1)
+        condition_mask = torch.cat((
+            torch.ones(global_count),
+            torch.zeros(latent_width - global_count),
+            torch.ones(observation_dim),
+        ))
 
     # Anneal from the posterior spread of the local draws, in the normalized
     # coordinates the ascent actually moves in.
@@ -816,7 +1064,16 @@ def _kde_global_then_local_ascent_map(
         sigma_start=sigma_start, timesteps=args.map_timesteps,
         iterations_per_level=args.map_iterations, device=device,
     )
-    raw_map = theta_normalizer.inverse(refined[:, :latent_width].cpu())
+    if per_group > 1:
+        normalized_locals = group_layout.extract_locals(
+            refined.cpu(), per_group, observation_dim, assignment,
+        )
+        normalized_globals = refined[:1, :global_count].cpu().expand(subjects, -1)
+        raw_map = theta_normalizer.inverse(
+            torch.cat((normalized_globals, normalized_locals), dim=1)
+        )
+    else:
+        raw_map = theta_normalizer.inverse(refined[:, :latent_width].cpu())
 
     # The globals were conditioned, so they must come back bit-for-bit.
     clamp_error = float((raw_map[:, :global_count] - globals_hat).abs().max())
@@ -865,6 +1122,19 @@ def _joint_map_dataset(
             model, observations, posterior, normalizers, args, config,
             device, torch,
         )
+
+    # The joint-score MAP path reuses the sampler's per-observation covariance
+    # (shape (subjects, 10, 10)) and a flat [theta, x] row layout, neither of
+    # which survives grouping. The paper protocol uses
+    # --map-estimator kde_global_then_local_ascent, which is adapted above;
+    # refuse here rather than produce a silently wrong MAP.
+    from Partial_Pooling import group_layout as _group_layout
+    if _group_layout.subjects_per_group(model) > 1:
+        raise NotImplementedError(
+            "map_estimator='joint_score' is not implemented for a grouped arm; "
+            "use --map-estimator kde_global_then_local_ascent, which is what "
+            "the paper-matched protocol runs."
+        )
     if plan["correction"] == "fnpe":
         return _fnpse_kde_map(posterior, args, torch)
 
@@ -881,10 +1151,11 @@ def _joint_map_dataset(
         )
         if plan.get("moment_projection", False):
             gaussian_state["posterior_mean"] = posterior.get("posterior_mean")
-    # "gauss_jacobian" is pilot-free by construction (its covariance comes from
-    # the network's own Jacobian at each step, not a saved pilot estimate), so
-    # it never populates -- and must never require -- gaussian_state.
-    if plan["correction"] != "gauss_jacobian" and (
+    # "gauss_jacobian" (and its finite-difference variant) is pilot-free by
+    # construction (its covariance comes from the network's own Jacobian at
+    # each step, not a saved pilot estimate), so it never populates -- and
+    # must never require -- gaussian_state.
+    if plan["correction"] not in {"gauss_jacobian", "gauss_jacobian_FD"} and (
         not gaussian_state
         or any(value is None for value in gaussian_state.values())
     ):
@@ -1718,6 +1989,13 @@ def _plot_local_shrinkage(
     return _finish_figure(fig, output, plt)
 
 
+def _error_rmse(values):
+    """Root-mean-square error: a magnitude that cannot cancel across signs."""
+    if not values:
+        return float("nan")
+    return float(sum(value * value for value in values) / len(values)) ** 0.5
+
+
 def _plot_error_distributions(
     global_rows, local_rows, global_names, local_names, output, plt,
     method_label=None,
@@ -1738,14 +2016,17 @@ def _plot_error_distributions(
             for name in names
         ]
         boxes = axis.boxplot(
-            values, labels=names, patch_artist=True, showmeans=True,
-            meanprops={
-                "marker": "D", "markerfacecolor": "#009E73",
-                "markeredgecolor": "black",
-            },
+            values, labels=names, patch_artist=True, showmeans=False,
+            medianprops={"linewidth": 0},
         )
         for box in boxes["boxes"]:
             box.set(facecolor="#56B4E9", alpha=0.55)
+        axis.scatter(
+            range(1, len(values) + 1),
+            [_error_rmse(parameter_values) for parameter_values in values],
+            marker="D", s=42, color="#009E73", edgecolors="black",
+            linewidths=0.8, zorder=5,
+        )
         for parameter_index, parameter_values in enumerate(values, start=1):
             offsets = [((index % 9) - 4) * 0.012 for index in range(len(parameter_values))]
             axis.scatter(
@@ -1768,7 +2049,7 @@ def _plot_error_distributions(
             ),
             Line2D(
                 [0], [0], marker="D", linestyle="none", color="#009E73",
-                markeredgecolor="black", label="mean joint MAP error",
+                markeredgecolor="black", label="RMS joint MAP error",
             ),
             Line2D([0], [0], color="black", linestyle="--", label="zero error"),
         ],
@@ -2019,6 +2300,24 @@ def run(args, cpu_limit):
     config = get_config(
         args.preset, args.seed, args.sde_type,
         args.beta_min, args.beta_max,
+        train_subset=args.train_subset,
+        arch=args.arch, tokenization=args.tokenization, trunk=args.trunk,
+        token_offset=args.token_offset or None,
+        time_embedding_size=args.time_embedding_size,
+        per_position_head=args.per_position_head or None,
+        mask_menu=args.mask_menu,
+        mask_bernoulli_fraction=args.mask_bernoulli_fraction,
+        mask_posterior_weight=args.mask_posterior_weight,
+        hidden_size=args.hidden_size, depth=args.depth,
+        num_heads=args.num_heads, mlp_ratio=args.mlp_ratio,
+        init_seed=args.init_seed,
+        time_sampling=args.time_sampling,
+        train_subjects=args.train_subjects,
+        train_size=args.train_size,
+        validation_size=args.validation_size,
+        depth_readout=args.depth_readout,
+        group_pool=args.group_pool,
+        group_slot=args.group_slot,
     )
     for name in (
         "datasets", "subjects", "draws", "timesteps", "progress_every",

@@ -1,0 +1,527 @@
+{
+  "arms": [
+    {
+      "datasets": 30,
+      "global": {
+        "calibration_error": {
+          "mean": 0.2909398496240602,
+          "per_parameter": {
+            "beta_raw": 0.2563157894736843,
+            "log_sigma_log_alpha": 0.3593859649122807,
+            "log_sigma_log_t0": 0.3500000000000001,
+            "log_sigma_nu": 0.4000000000000001,
+            "mu_log_alpha": 0.31666666666666676,
+            "mu_log_t0": 0.0875438596491228,
+            "mu_nu": 0.2666666666666667
+          }
+        },
+        "coverage_95": {
+          "mean": 0.5000000000000001,
+          "per_parameter": {
+            "beta_raw": 0.7333333333333333,
+            "log_sigma_log_alpha": 0.3333333333333333,
+            "log_sigma_log_t0": 0.36666666666666664,
+            "log_sigma_nu": 0.23333333333333334,
+            "mu_log_alpha": 0.43333333333333335,
+            "mu_log_t0": 0.8666666666666667,
+            "mu_nu": 0.5333333333333333
+          }
+        },
+        "median_correlation": {
+          "mean": 0.790068659635774,
+          "per_parameter": {
+            "beta_raw": 0.9228533772392069,
+            "log_sigma_log_alpha": 0.6374378167268829,
+            "log_sigma_log_t0": 0.46087416760002475,
+            "log_sigma_nu": 0.6846205287727267,
+            "mu_log_alpha": 0.9352188384194621,
+            "mu_log_t0": 0.9859029931286037,
+            "mu_nu": 0.9035728955635103
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.37381964921951294,
+          "per_parameter": {
+            "beta_raw": 0.21674257516860962,
+            "log_sigma_log_alpha": 0.44096100330352783,
+            "log_sigma_log_t0": 0.6265327334403992,
+            "log_sigma_nu": 0.4065433442592621,
+            "mu_log_alpha": 0.479328989982605,
+            "mu_log_t0": 0.20148363709449768,
+            "mu_nu": 0.24514545500278473
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.11004046350717545,
+          "per_parameter": {
+            "beta_raw": 0.04949929565191269,
+            "log_sigma_log_alpha": 0.1420689970254898,
+            "log_sigma_log_t0": 0.18051093816757202,
+            "log_sigma_nu": 0.1310441642999649,
+            "mu_log_alpha": 0.14418815076351166,
+            "mu_log_t0": 0.05232181027531624,
+            "mu_nu": 0.07064992189407349
+          }
+        },
+        "width_95": {
+          "mean": 0.7425718412287993,
+          "per_parameter": {
+            "beta_raw": 0.6470327814222993,
+            "log_sigma_log_alpha": 0.7882007604260521,
+            "log_sigma_log_t0": 1.1035638351459358,
+            "log_sigma_nu": 0.6766616784752149,
+            "mu_log_alpha": 0.7691552956908667,
+            "mu_log_t0": 0.6181464940290957,
+            "mu_nu": 0.5952420434121299
+          }
+        }
+      },
+      "label": "mask6mix-fnpse",
+      "local": {
+        "calibration_error": {
+          "mean": 0.03319590643274851,
+          "per_parameter": {
+            "log_alpha": 0.022377192982456134,
+            "log_t0": 0.05714912280701753,
+            "nu": 0.020061403508771863
+          }
+        },
+        "coverage_95": {
+          "mean": 0.9611111111111111,
+          "per_parameter": {
+            "log_alpha": 0.963,
+            "log_t0": 0.9703333333333334,
+            "nu": 0.95
+          }
+        },
+        "median_correlation": {
+          "mean": 0.8738128304670517,
+          "per_parameter": {
+            "log_alpha": 0.7990843572231503,
+            "log_t0": 0.9944995477898836,
+            "nu": 0.8278545863881215
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4507363736629486,
+          "per_parameter": {
+            "log_alpha": 0.6658384203910828,
+            "log_t0": 0.09504197537899017,
+            "nu": 0.5913286805152893
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.03836553916335106,
+          "per_parameter": {
+            "log_alpha": 0.04582499712705612,
+            "log_t0": 0.013014858588576317,
+            "nu": 0.05625676363706589
+          }
+        },
+        "width_95": {
+          "mean": 1.7093847216773064,
+          "per_parameter": {
+            "log_alpha": 2.5089296653704416,
+            "log_t0": 0.39150306701616394,
+            "nu": 2.227721432645313
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 3000
+    },
+    {
+      "datasets": 30,
+      "global": {
+        "calibration_error": {
+          "mean": 0.15897243107769427,
+          "per_parameter": {
+            "beta_raw": 0.21666666666666673,
+            "log_sigma_log_alpha": 0.20000000000000007,
+            "log_sigma_log_t0": 0.17087719298245616,
+            "log_sigma_nu": 0.15517543859649124,
+            "mu_log_alpha": 0.14903508771929827,
+            "mu_log_t0": 0.06473684210526312,
+            "mu_nu": 0.15631578947368427
+          }
+        },
+        "coverage_95": {
+          "mean": 0.7476190476190475,
+          "per_parameter": {
+            "beta_raw": 0.6333333333333333,
+            "log_sigma_log_alpha": 0.6666666666666666,
+            "log_sigma_log_t0": 0.8,
+            "log_sigma_nu": 0.7666666666666667,
+            "mu_log_alpha": 0.8,
+            "mu_log_t0": 0.8333333333333334,
+            "mu_nu": 0.7333333333333333
+          }
+        },
+        "median_correlation": {
+          "mean": 0.8494609919731994,
+          "per_parameter": {
+            "beta_raw": 0.7165725092430976,
+            "log_sigma_log_alpha": 0.6431516668399421,
+            "log_sigma_log_t0": 0.8524079722418438,
+            "log_sigma_nu": 0.8971901558333887,
+            "mu_log_alpha": 0.9158595810637582,
+            "mu_log_t0": 0.9887354380851194,
+            "mu_nu": 0.9323096205052458
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.37924450635910034,
+          "per_parameter": {
+            "beta_raw": 0.5450670719146729,
+            "log_sigma_log_alpha": 0.5683709383010864,
+            "log_sigma_log_t0": 0.4557105600833893,
+            "log_sigma_nu": 0.3034534454345703,
+            "mu_log_alpha": 0.3665226995944977,
+            "mu_log_t0": 0.18008621037006378,
+            "mu_nu": 0.2355005145072937
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.10879989713430405,
+          "per_parameter": {
+            "beta_raw": 0.12448148429393768,
+            "log_sigma_log_alpha": 0.18311800062656403,
+            "log_sigma_log_t0": 0.13129520416259766,
+            "log_sigma_nu": 0.09781442582607269,
+            "mu_log_alpha": 0.11025460064411163,
+            "mu_log_t0": 0.046765267848968506,
+            "mu_nu": 0.06787028908729553
+          }
+        },
+        "width_95": {
+          "mean": 1.0814259166636586,
+          "per_parameter": {
+            "beta_raw": 1.364969481452845,
+            "log_sigma_log_alpha": 1.439879487653997,
+            "log_sigma_log_t0": 1.4526464393660659,
+            "log_sigma_nu": 0.8368529175770775,
+            "mu_log_alpha": 1.1180769981186456,
+            "mu_log_t0": 0.6369160880771674,
+            "mu_nu": 0.7206400043998119
+          }
+        }
+      },
+      "label": "gK5-fnpse",
+      "local": {
+        "calibration_error": {
+          "mean": 0.035409356725146175,
+          "per_parameter": {
+            "log_alpha": 0.01369298245614034,
+            "log_t0": 0.06692105263157891,
+            "nu": 0.025614035087719284
+          }
+        },
+        "coverage_95": {
+          "mean": 0.9575555555555555,
+          "per_parameter": {
+            "log_alpha": 0.9473333333333334,
+            "log_t0": 0.97,
+            "nu": 0.9553333333333334
+          }
+        },
+        "median_correlation": {
+          "mean": 0.8864406689479137,
+          "per_parameter": {
+            "log_alpha": 0.8147214327116666,
+            "log_t0": 0.9947802902415345,
+            "nu": 0.8498202838905399
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4105205833911896,
+          "per_parameter": {
+            "log_alpha": 0.5838125944137573,
+            "log_t0": 0.09120212495326996,
+            "nu": 0.5565470457077026
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.03520551323890686,
+          "per_parameter": {
+            "log_alpha": 0.04017973691225052,
+            "log_t0": 0.012489035725593567,
+            "nu": 0.052947767078876495
+          }
+        },
+        "width_95": {
+          "mean": 1.5690409467809505,
+          "per_parameter": {
+            "log_alpha": 2.2241139322060106,
+            "log_t0": 0.3817728726332843,
+            "nu": 2.1012360355035566
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 3000
+    },
+    {
+      "datasets": 30,
+      "global": {
+        "calibration_error": {
+          "mean": 0.18645363408521304,
+          "per_parameter": {
+            "beta_raw": 0.09175438596491228,
+            "log_sigma_log_alpha": 0.46666666666666673,
+            "log_sigma_log_t0": 0.0571052631578947,
+            "log_sigma_nu": 0.32605263157894737,
+            "mu_log_alpha": 0.16473684210526313,
+            "mu_log_t0": 0.027982456140350886,
+            "mu_nu": 0.17087719298245616
+          }
+        },
+        "coverage_95": {
+          "mean": 0.7095238095238094,
+          "per_parameter": {
+            "beta_raw": 0.8,
+            "log_sigma_log_alpha": 0.3,
+            "log_sigma_log_t0": 1.0,
+            "log_sigma_nu": 0.5,
+            "mu_log_alpha": 0.7,
+            "mu_log_t0": 0.9333333333333333,
+            "mu_nu": 0.7333333333333333
+          }
+        },
+        "median_correlation": {
+          "mean": 0.9241222859594646,
+          "per_parameter": {
+            "beta_raw": 0.9693755321807471,
+            "log_sigma_log_alpha": 0.7931026622879007,
+            "log_sigma_log_t0": 0.949590845206909,
+            "log_sigma_nu": 0.8562428303133807,
+            "mu_log_alpha": 0.937610187650524,
+            "mu_log_t0": 0.9898681895230175,
+            "mu_nu": 0.9730657545537728
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.25087621808052063,
+          "per_parameter": {
+            "beta_raw": 0.2149539589881897,
+            "log_sigma_log_alpha": 0.33956992626190186,
+            "log_sigma_log_t0": 0.37217435240745544,
+            "log_sigma_nu": 0.2267005741596222,
+            "mu_log_alpha": 0.232889324426651,
+            "mu_log_t0": 0.1840011328458786,
+            "mu_nu": 0.18584419786930084
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.07288466393947601,
+          "per_parameter": {
+            "beta_raw": 0.04909081757068634,
+            "log_sigma_log_alpha": 0.10940277576446533,
+            "log_sigma_log_t0": 0.10722750425338745,
+            "log_sigma_nu": 0.0730740875005722,
+            "mu_log_alpha": 0.0700560212135315,
+            "mu_log_t0": 0.04778190702199936,
+            "mu_nu": 0.05355954170227051
+          }
+        },
+        "width_95": {
+          "mean": 0.7229191909896361,
+          "per_parameter": {
+            "beta_raw": 0.6688193245897763,
+            "log_sigma_log_alpha": 0.5079869304601127,
+            "log_sigma_log_t0": 1.3522851343302023,
+            "log_sigma_nu": 0.480309255818153,
+            "mu_log_alpha": 0.8319370228847863,
+            "mu_log_t0": 0.6532149579700575,
+            "mu_nu": 0.5658817108743645
+          }
+        }
+      },
+      "label": "gK10-fnpse",
+      "local": {
+        "calibration_error": {
+          "mean": 0.033900584795321605,
+          "per_parameter": {
+            "log_alpha": 0.023043859649122783,
+            "log_t0": 0.06140350877192979,
+            "nu": 0.017254385964912244
+          }
+        },
+        "coverage_95": {
+          "mean": 0.9593333333333334,
+          "per_parameter": {
+            "log_alpha": 0.957,
+            "log_t0": 0.9706666666666667,
+            "nu": 0.9503333333333334
+          }
+        },
+        "median_correlation": {
+          "mean": 0.9138669320148454,
+          "per_parameter": {
+            "log_alpha": 0.8646159530389875,
+            "log_t0": 0.9952811088963217,
+            "nu": 0.8817037341092269
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.35602083802223206,
+          "per_parameter": {
+            "log_alpha": 0.5011863708496094,
+            "log_t0": 0.08545688539743423,
+            "nu": 0.48141932487487793
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.030665287747979164,
+          "per_parameter": {
+            "log_alpha": 0.034493155777454376,
+            "log_t0": 0.011702295392751694,
+            "nu": 0.04580041021108627
+          }
+        },
+        "width_95": {
+          "mean": 1.3916685160829543,
+          "per_parameter": {
+            "log_alpha": 1.9900202074785383,
+            "log_t0": 0.3612094233939869,
+            "nu": 1.8237759173763375
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 3000
+    },
+    {
+      "datasets": 30,
+      "global": {
+        "calibration_error": {
+          "mean": 0.14343358395989977,
+          "per_parameter": {
+            "beta_raw": 0.041754385964912266,
+            "log_sigma_log_alpha": 0.31666666666666676,
+            "log_sigma_log_t0": 0.05921052631578948,
+            "log_sigma_nu": 0.31666666666666676,
+            "mu_log_alpha": 0.03026315789473686,
+            "mu_log_t0": 0.03122807017543866,
+            "mu_nu": 0.20824561403508773
+          }
+        },
+        "coverage_95": {
+          "mean": 0.7904761904761904,
+          "per_parameter": {
+            "beta_raw": 0.8333333333333334,
+            "log_sigma_log_alpha": 0.4666666666666667,
+            "log_sigma_log_t0": 0.9666666666666667,
+            "log_sigma_nu": 0.4666666666666667,
+            "mu_log_alpha": 0.9333333333333333,
+            "mu_log_t0": 0.9333333333333333,
+            "mu_nu": 0.9333333333333333
+          }
+        },
+        "median_correlation": {
+          "mean": 0.9360879775747336,
+          "per_parameter": {
+            "beta_raw": 0.9732749992585311,
+            "log_sigma_log_alpha": 0.8342675848548384,
+            "log_sigma_log_t0": 0.9607905925793687,
+            "log_sigma_nu": 0.8492051403515221,
+            "mu_log_alpha": 0.9673227912969592,
+            "mu_log_t0": 0.9900194792655657,
+            "mu_nu": 0.9777352554163501
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.2569945156574249,
+          "per_parameter": {
+            "beta_raw": 0.20771831274032593,
+            "log_sigma_log_alpha": 0.3768928349018097,
+            "log_sigma_log_t0": 0.3553400933742523,
+            "log_sigma_nu": 0.23533204197883606,
+            "mu_log_alpha": 0.22104376554489136,
+            "mu_log_t0": 0.2047780454158783,
+            "mu_nu": 0.19785645604133606
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.07482727617025375,
+          "per_parameter": {
+            "beta_raw": 0.047438353300094604,
+            "log_sigma_log_alpha": 0.1214274913072586,
+            "log_sigma_log_t0": 0.10237736999988556,
+            "log_sigma_nu": 0.07585634291172028,
+            "mu_log_alpha": 0.0664927214384079,
+            "mu_log_t0": 0.05317731201648712,
+            "mu_nu": 0.05702142044901848
+          }
+        },
+        "width_95": {
+          "mean": 0.7870406734226061,
+          "per_parameter": {
+            "beta_raw": 0.7511134460158786,
+            "log_sigma_log_alpha": 0.6445280132278359,
+            "log_sigma_log_t0": 1.414400877701428,
+            "log_sigma_nu": 0.5015796963768401,
+            "mu_log_alpha": 0.8794503109957694,
+            "mu_log_t0": 0.70936556979588,
+            "mu_nu": 0.6088467998446108
+          }
+        }
+      },
+      "label": "gK20-fnpse",
+      "local": {
+        "calibration_error": {
+          "mean": 0.03478947368421051,
+          "per_parameter": {
+            "log_alpha": 0.050175438596491206,
+            "log_t0": 0.04684210526315788,
+            "nu": 0.007350877192982441
+          }
+        },
+        "coverage_95": {
+          "mean": 0.9572222222222222,
+          "per_parameter": {
+            "log_alpha": 0.9636666666666667,
+            "log_t0": 0.963,
+            "nu": 0.945
+          }
+        },
+        "median_correlation": {
+          "mean": 0.9218832658460986,
+          "per_parameter": {
+            "log_alpha": 0.8797320802936858,
+            "log_t0": 0.9953861486682342,
+            "nu": 0.8905315685763756
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.3374588191509247,
+          "per_parameter": {
+            "log_alpha": 0.4880709648132324,
+            "log_t0": 0.08249698579311371,
+            "nu": 0.44180843234062195
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.028973154723644257,
+          "per_parameter": {
+            "log_alpha": 0.03359051048755646,
+            "log_t0": 0.011296972632408142,
+            "nu": 0.04203198105096817
+          }
+        },
+        "width_95": {
+          "mean": 1.3349950643733497,
+          "per_parameter": {
+            "log_alpha": 1.9712940814934405,
+            "log_t0": 0.3451546176693238,
+            "nu": 1.6885364939572847
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 3000
+    }
+  ],
+  "metric_source": "bayesflow==2.0.13 diagnostics.metrics",
+  "note": "Computed on COMPASS test datasets and COMPASS checkpoints. The paper's own values are published only as a figure and are not reproduced here.",
+  "reference": "arXiv:2512.20685 case_study4"
+}

@@ -1,5 +1,14 @@
 # Hierarchical Partial-Pooling Benchmark
 
+> **Sampler and training-recipe change.** Churn now lives in `compass.churn` and
+> is the sampler default (`churn_eta=2.0`, corrector-free); `time_sampling` and
+> the training condition-mask law are chosen through the COMPASS API. The
+> defaults used by the commands below are no longer the ones the tables in this
+> file were produced under. See [`docs/unified_method.md`](../docs/unified_method.md)
+> for what changed, what is pinned to reproduce the old numbers, and which
+> checkpoints are now stale.
+
+
 This directory contains a reproducible native-COMPASS benchmark for hierarchical
 partial pooling. It has no BayesFlow dependency. The scientific DDM equations,
 priors, transforms, constants, and plotting palette were copied and adapted from

@@ -1,0 +1,798 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 8.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=8 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 8 via autocvd.
+[langevin_damping] stock sampler (no churn), artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta0
+Focused partial-pooling recovery
+  diffusion: vesde
+  datasets: 30 starting at 0
+  subjects/draws/steps: 100/100/50
+  inference: Langevin + error-damped composition (Arruda et al.)
+  sampler/correction: langevin/damping
+  estimated posterior-sampling time: 73.4 minutes
+  output: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta0/partial_pooling_recovery/small/langevin_damping-9e73c00a15ad373e
+[1/30] dataset 0
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 3 seconds | ETA 5.7 minutes
+  draws    5/100 | elapsed 66 seconds | ETA 20.8 minutes
+  draws   10/100 | elapsed 2.4 minutes | ETA 21.6 minutes
+  draws   15/100 | elapsed 3.7 minutes | ETA 21.0 minutes
+  draws   20/100 | elapsed 5.1 minutes | ETA 20.2 minutes
+  draws   25/100 | elapsed 6.4 minutes | ETA 19.2 minutes
+  draws   30/100 | elapsed 7.7 minutes | ETA 18.0 minutes
+  draws   35/100 | elapsed 9.1 minutes | ETA 16.8 minutes
+  draws   40/100 | elapsed 10.4 minutes | ETA 15.6 minutes
+  draws   45/100 | elapsed 11.8 minutes | ETA 14.4 minutes
+  draws   50/100 | elapsed 13.1 minutes | ETA 13.1 minutes
+  draws   55/100 | elapsed 14.5 minutes | ETA 11.9 minutes
+  draws   60/100 | elapsed 15.8 minutes | ETA 10.6 minutes
+  draws   65/100 | elapsed 17.1 minutes | ETA 9.2 minutes
+  draws   70/100 | elapsed 18.5 minutes | ETA 7.9 minutes
+  draws   75/100 | elapsed 19.9 minutes | ETA 6.6 minutes
+  draws   80/100 | elapsed 21.2 minutes | ETA 5.3 minutes
+  draws   85/100 | elapsed 22.6 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.0 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.3 minutes | ETA 80 seconds
+  draws  100/100 | elapsed 26.7 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0000.pt
+  KDE global mode (draw 96) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.992)
+  saved langevin_damping-dataset-0000.pt; joint MAP candidate 96
+[2/30] dataset 1
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 15 seconds | ETA 24.3 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 26.0 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.7 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.2 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.7 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 15.0 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 15.0 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.9 minutes
+  draws   65/100 | elapsed 17.7 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.0 minutes | ETA 8.2 minutes
+  draws   75/100 | elapsed 20.4 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.8 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.1 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.8 minutes | ETA 82 seconds
+  draws  100/100 | elapsed 27.2 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0001.pt
+  KDE global mode (draw 97) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.993)
+  saved langevin_damping-dataset-0001.pt; joint MAP candidate 97
+[3/30] dataset 2
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 28.9 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.5 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.4 minutes | ETA 19.6 minutes
+  draws   35/100 | elapsed 9.8 minutes | ETA 18.1 minutes
+  draws   40/100 | elapsed 11.1 minutes | ETA 16.7 minutes
+  draws   45/100 | elapsed 12.5 minutes | ETA 15.2 minutes
+  draws   50/100 | elapsed 13.8 minutes | ETA 13.8 minutes
+  draws   55/100 | elapsed 15.2 minutes | ETA 12.4 minutes
+  draws   60/100 | elapsed 16.5 minutes | ETA 11.0 minutes
+  draws   65/100 | elapsed 17.9 minutes | ETA 9.6 minutes
+  draws   70/100 | elapsed 19.3 minutes | ETA 8.3 minutes
+  draws   75/100 | elapsed 20.6 minutes | ETA 6.9 minutes
+  draws   80/100 | elapsed 22.0 minutes | ETA 5.5 minutes
+  draws   85/100 | elapsed 23.4 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.7 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 26.0 minutes | ETA 82 seconds
+  draws  100/100 | elapsed 27.4 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0002.pt
+  KDE global mode (draw 76) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.748)
+  saved langevin_damping-dataset-0002.pt; joint MAP candidate 76
+[4/30] dataset 3
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.9 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.6 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.2 minutes
+  draws   20/100 | elapsed 5.5 minutes | ETA 21.8 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.2 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.7 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0003.pt
+  KDE global mode (draw 86) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.41)
+  saved langevin_damping-dataset-0003.pt; joint MAP candidate 86
+[5/30] dataset 4
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.5 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.9 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.5 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.2 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0004.pt
+  KDE global mode (draw 65) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.87)
+  saved langevin_damping-dataset-0004.pt; joint MAP candidate 65
+[6/30] dataset 5
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.5 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.8 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.2 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.7 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 15.0 minutes | ETA 12.3 minutes
+  draws   60/100 | elapsed 16.4 minutes | ETA 10.9 minutes
+  draws   65/100 | elapsed 17.8 minutes | ETA 9.6 minutes
+  draws   70/100 | elapsed 19.2 minutes | ETA 8.2 minutes
+  draws   75/100 | elapsed 20.5 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.9 minutes | ETA 5.5 minutes
+  draws   85/100 | elapsed 23.2 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.6 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 26.0 minutes | ETA 82 seconds
+  draws  100/100 | elapsed 27.3 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0005.pt
+  KDE global mode (draw 82) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.735)
+  saved langevin_damping-dataset-0005.pt; joint MAP candidate 82
+[7/30] dataset 6
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 15 seconds | ETA 24.0 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.9 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.5 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.8 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0006.pt
+  KDE global mode (draw 30) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.41)
+  saved langevin_damping-dataset-0006.pt; joint MAP candidate 30
+[8/30] dataset 7
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.7 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.9 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.6 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.1 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.8 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0007.pt
+  KDE global mode (draw 77) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.16)
+  saved langevin_damping-dataset-0007.pt; joint MAP candidate 77
+[9/30] dataset 8
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.9 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.5 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.2 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.7 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.9 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.0 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0008.pt
+  KDE global mode (draw 2) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.759)
+  saved langevin_damping-dataset-0008.pt; joint MAP candidate 2
+[10/30] dataset 9
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 16 seconds | ETA 25.6 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.5 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0009.pt
+  KDE global mode (draw 4) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.25)
+  saved langevin_damping-dataset-0009.pt; joint MAP candidate 4
+[11/30] dataset 10
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.9 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.0 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0010.pt
+  KDE global mode (draw 5) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.973)
+  saved langevin_damping-dataset-0010.pt; joint MAP candidate 5
+[12/30] dataset 11
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0011.pt
+  KDE global mode (draw 37) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.805)
+  saved langevin_damping-dataset-0011.pt; joint MAP candidate 37
+[13/30] dataset 12
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 79 seconds | ETA 25.0 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.0 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.9 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.6 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0012.pt
+  KDE global mode (draw 91) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.847)
+  saved langevin_damping-dataset-0012.pt; joint MAP candidate 91
+[14/30] dataset 13
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 16 seconds | ETA 26.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.0 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0013.pt
+  KDE global mode (draw 3) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.893)
+  saved langevin_damping-dataset-0013.pt; joint MAP candidate 3
+[15/30] dataset 14
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0014.pt
+  KDE global mode (draw 26) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.26)
+  saved langevin_damping-dataset-0014.pt; joint MAP candidate 26
+[16/30] dataset 15
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 17 seconds | ETA 27.9 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 26.0 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.6 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.2 minutes
+  draws   20/100 | elapsed 5.5 minutes | ETA 21.9 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.5 minutes
+  draws   30/100 | elapsed 8.2 minutes | ETA 19.1 minutes
+  draws   35/100 | elapsed 9.6 minutes | ETA 17.8 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.3 minutes | ETA 15.0 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 15.0 minutes | ETA 12.3 minutes
+  draws   60/100 | elapsed 16.6 minutes | ETA 11.1 minutes
+  draws   65/100 | elapsed 18.1 minutes | ETA 9.7 minutes
+  draws   70/100 | elapsed 19.7 minutes | ETA 8.4 minutes
+  draws   75/100 | elapsed 21.2 minutes | ETA 7.1 minutes
+  draws   80/100 | elapsed 22.8 minutes | ETA 5.7 minutes
+  draws   85/100 | elapsed 24.4 minutes | ETA 4.3 minutes
+  draws   90/100 | elapsed 25.9 minutes | ETA 2.9 minutes
+  draws   95/100 | elapsed 27.5 minutes | ETA 87 seconds
+  draws  100/100 | elapsed 29.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0015.pt
+  KDE global mode (draw 39) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.02)
+  saved langevin_damping-dataset-0015.pt; joint MAP candidate 39
+[17/30] dataset 16
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 20 seconds | ETA 32.6 minutes
+  draws    5/100 | elapsed 92 seconds | ETA 29.0 minutes
+  draws   10/100 | elapsed 3.2 minutes | ETA 28.4 minutes
+  draws   15/100 | elapsed 4.7 minutes | ETA 26.8 minutes
+  draws   20/100 | elapsed 6.3 minutes | ETA 25.2 minutes
+  draws   25/100 | elapsed 7.9 minutes | ETA 23.6 minutes
+  draws   30/100 | elapsed 9.5 minutes | ETA 22.1 minutes
+  draws   35/100 | elapsed 11.0 minutes | ETA 20.5 minutes
+  draws   40/100 | elapsed 12.6 minutes | ETA 18.9 minutes
+  draws   45/100 | elapsed 13.9 minutes | ETA 17.0 minutes
+  draws   50/100 | elapsed 15.3 minutes | ETA 15.3 minutes
+  draws   55/100 | elapsed 16.7 minutes | ETA 13.6 minutes
+  draws   60/100 | elapsed 18.0 minutes | ETA 12.0 minutes
+  draws   65/100 | elapsed 19.3 minutes | ETA 10.4 minutes
+  draws   70/100 | elapsed 20.7 minutes | ETA 8.9 minutes
+  draws   75/100 | elapsed 22.1 minutes | ETA 7.4 minutes
+  draws   80/100 | elapsed 23.4 minutes | ETA 5.9 minutes
+  draws   85/100 | elapsed 24.8 minutes | ETA 4.4 minutes
+  draws   90/100 | elapsed 26.1 minutes | ETA 2.9 minutes
+  draws   95/100 | elapsed 27.5 minutes | ETA 87 seconds
+  draws  100/100 | elapsed 28.8 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0016.pt
+  KDE global mode (draw 27) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.737)
+  saved langevin_damping-dataset-0016.pt; joint MAP candidate 27
+[18/30] dataset 17
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.4 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0017.pt
+  KDE global mode (draw 55) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.981)
+  saved langevin_damping-dataset-0017.pt; joint MAP candidate 55
+[19/30] dataset 18
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0018.pt
+  KDE global mode (draw 3) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.65)
+  saved langevin_damping-dataset-0018.pt; joint MAP candidate 3
+[20/30] dataset 19
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 17 seconds | ETA 28.3 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.7 minutes | ETA 16.1 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0019.pt
+  KDE global mode (draw 74) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.917)
+  saved langevin_damping-dataset-0019.pt; joint MAP candidate 74
+[21/30] dataset 20
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.5 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.1 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.7 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.4 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.1 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.8 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0020.pt
+  KDE global mode (draw 69) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.863)
+  saved langevin_damping-dataset-0020.pt; joint MAP candidate 69
+[22/30] dataset 21
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0021.pt
+  KDE global mode (draw 26) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.04)
+  saved langevin_damping-dataset-0021.pt; joint MAP candidate 26
+[23/30] dataset 22
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.6 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.0 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.8 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.5 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.2 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0022.pt
+  KDE global mode (draw 37) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.848)
+  saved langevin_damping-dataset-0022.pt; joint MAP candidate 37
+[24/30] dataset 23
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.1 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.8 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.0 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.4 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.1 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.5 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.8 minutes | ETA 82 seconds
+  draws  100/100 | elapsed 27.2 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0023.pt
+  KDE global mode (draw 83) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=1.19)
+  saved langevin_damping-dataset-0023.pt; joint MAP candidate 83
+[25/30] dataset 24
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.3 minutes
+  draws    5/100 | elapsed 82 seconds | ETA 26.0 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.6 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.9 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.7 minutes
+  draws   40/100 | elapsed 10.9 minutes | ETA 16.3 minutes
+  draws   45/100 | elapsed 12.3 minutes | ETA 15.0 minutes
+  draws   50/100 | elapsed 13.6 minutes | ETA 13.6 minutes
+  draws   55/100 | elapsed 15.0 minutes | ETA 12.3 minutes
+  draws   60/100 | elapsed 16.3 minutes | ETA 10.9 minutes
+  draws   65/100 | elapsed 17.7 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 19.1 minutes | ETA 8.2 minutes
+  draws   75/100 | elapsed 20.4 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.7 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.1 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.4 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.8 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0024.pt
+  KDE global mode (draw 71) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.963)
+  saved langevin_damping-dataset-0024.pt; joint MAP candidate 71
+[26/30] dataset 25
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.1 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.6 minutes | ETA 9.5 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.1 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0025.pt
+  KDE global mode (draw 22) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.743)
+  saved langevin_damping-dataset-0025.pt; joint MAP candidate 22
+[27/30] dataset 26
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.5 minutes
+  draws    5/100 | elapsed 80 seconds | ETA 25.2 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 23.9 minutes
+  draws   15/100 | elapsed 4.0 minutes | ETA 22.7 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.5 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.2 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.8 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.1 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.5 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.2 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 26.9 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0026.pt
+  KDE global mode (draw 1) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.983)
+  saved langevin_damping-dataset-0026.pt; joint MAP candidate 1
+[28/30] dataset 27
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.3 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.6 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.9 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.1 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.3 minutes | ETA 6.8 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 23.0 minutes | ETA 4.1 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.7 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0027.pt
+  KDE global mode (draw 49) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.897)
+  saved langevin_damping-dataset-0027.pt; joint MAP candidate 49
+[29/30] dataset 28
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 18 seconds | ETA 29.0 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.7 minutes
+  draws   25/100 | elapsed 6.8 minutes | ETA 20.3 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 19.0 minutes
+  draws   35/100 | elapsed 9.5 minutes | ETA 17.6 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.2 minutes | ETA 14.9 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.9 minutes | ETA 12.2 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.6 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 26.9 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0028.pt
+  KDE global mode (draw 59) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.924)
+  saved langevin_damping-dataset-0028.pt; joint MAP candidate 59
+[30/30] dataset 29
+  Langevin + error-damped composition (Arruda et al.): sampling 100 draws in 100 batches (draw batch=1, subjects=100)
+  draws    1/100 | elapsed 14 seconds | ETA 23.5 minutes
+  draws    5/100 | elapsed 81 seconds | ETA 25.7 minutes
+  draws   10/100 | elapsed 2.7 minutes | ETA 24.4 minutes
+  draws   15/100 | elapsed 4.1 minutes | ETA 23.0 minutes
+  draws   20/100 | elapsed 5.4 minutes | ETA 21.5 minutes
+  draws   25/100 | elapsed 6.7 minutes | ETA 20.2 minutes
+  draws   30/100 | elapsed 8.1 minutes | ETA 18.8 minutes
+  draws   35/100 | elapsed 9.4 minutes | ETA 17.5 minutes
+  draws   40/100 | elapsed 10.8 minutes | ETA 16.2 minutes
+  draws   45/100 | elapsed 12.1 minutes | ETA 14.8 minutes
+  draws   50/100 | elapsed 13.5 minutes | ETA 13.5 minutes
+  draws   55/100 | elapsed 14.8 minutes | ETA 12.1 minutes
+  draws   60/100 | elapsed 16.2 minutes | ETA 10.8 minutes
+  draws   65/100 | elapsed 17.5 minutes | ETA 9.4 minutes
+  draws   70/100 | elapsed 18.9 minutes | ETA 8.1 minutes
+  draws   75/100 | elapsed 20.2 minutes | ETA 6.7 minutes
+  draws   80/100 | elapsed 21.5 minutes | ETA 5.4 minutes
+  draws   85/100 | elapsed 22.9 minutes | ETA 4.0 minutes
+  draws   90/100 | elapsed 24.3 minutes | ETA 2.7 minutes
+  draws   95/100 | elapsed 25.6 minutes | ETA 81 seconds
+  draws  100/100 | elapsed 27.0 minutes | ETA 0 seconds
+  checkpointed posterior in langevin_damping-dataset-0029.pt
+  KDE global mode (draw 29) fixed; ascending 3 local coordinates for 100 subjects (20 levels, sigma_start=0.804)
+  saved langevin_damping-dataset-0029.pt; joint MAP candidate 29
+Completed 30/30 datasets. Summary: /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta0/partial_pooling_recovery/small/langevin_damping-9e73c00a15ad373e/langevin_damping-summary.json
+Created 7 figures in /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta0/figures/partial_pooling/small/langevin_damping-9e73c00a15ad373e
+Wrote /export/home/rheinric/COMPASS/Partial_Pooling/ladder_followup/mask6mix/artifacts_churn_eta0/churn_manifest.json

@@ -1,0 +1,287 @@
+{
+  "arms": [
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.1679699248120301,
+          "per_parameter": {
+            "beta_raw": 0.30052631578947375,
+            "log_sigma_log_alpha": 0.23500000000000004,
+            "log_sigma_log_t0": 0.0907894736842105,
+            "log_sigma_nu": 0.05078947368421055,
+            "mu_log_alpha": 0.2794736842105264,
+            "mu_log_t0": 0.09789473684210528,
+            "mu_nu": 0.12131578947368421
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.7296224236488342,
+          "per_parameter": {
+            "beta_raw": 1.3472881317138672,
+            "log_sigma_log_alpha": 1.0208353996276855,
+            "log_sigma_log_t0": 0.5315563678741455,
+            "log_sigma_nu": 0.6192514896392822,
+            "mu_log_alpha": 0.6136196851730347,
+            "mu_log_t0": 0.2981475591659546,
+            "mu_nu": 0.6766581535339355
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.17973001301288605,
+          "per_parameter": {
+            "beta_raw": 0.31798040866851807,
+            "log_sigma_log_alpha": 0.2722225785255432,
+            "log_sigma_log_t0": 0.12857578694820404,
+            "log_sigma_nu": 0.15432444214820862,
+            "mu_log_alpha": 0.15415045619010925,
+            "mu_log_t0": 0.06982450932264328,
+            "mu_nu": 0.16103176772594452
+          }
+        }
+      },
+      "label": "legacy-5.96M @100subj",
+      "local": {
+        "calibration_error": {
+          "mean": 0.05632192982456144,
+          "per_parameter": {
+            "log_alpha": 0.027300000000000074,
+            "log_t0": 0.07119736842105262,
+            "nu": 0.07046842105263162
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.41967836022377014,
+          "per_parameter": {
+            "log_alpha": 0.6170851588249207,
+            "log_t0": 0.09954358637332916,
+            "nu": 0.5424063205718994
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.02564856968820095,
+          "per_parameter": {
+            "log_alpha": 0.03172561153769493,
+            "log_t0": 0.012812178581953049,
+            "nu": 0.032407909631729126
+          }
+        }
+      },
+      "method": "dpm2_gauss_hierarchical",
+      "subject_units": 10000
+    },
+    {
+      "datasets": 97,
+      "global": {
+        "calibration_error": {
+          "mean": 0.2733156344469422,
+          "per_parameter": {
+            "beta_raw": 0.231958762886598,
+            "log_sigma_log_alpha": 0.2726370048833424,
+            "log_sigma_log_t0": 0.3247422680412372,
+            "log_sigma_nu": 0.2550922409115573,
+            "mu_log_alpha": 0.2984102007596311,
+            "mu_log_t0": 0.16954422137818778,
+            "mu_nu": 0.3608247422680413
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4501062035560608,
+          "per_parameter": {
+            "beta_raw": 0.3506643772125244,
+            "log_sigma_log_alpha": 0.6219437122344971,
+            "log_sigma_log_t0": 0.5708041191101074,
+            "log_sigma_nu": 0.5106711387634277,
+            "mu_log_alpha": 0.6095491051673889,
+            "mu_log_t0": 0.15364840626716614,
+            "mu_nu": 0.3334626853466034
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.1126457080245018,
+          "per_parameter": {
+            "beta_raw": 0.08227355033159256,
+            "log_sigma_log_alpha": 0.17028696835041046,
+            "log_sigma_log_t0": 0.13971108198165894,
+            "log_sigma_nu": 0.12891653180122375,
+            "mu_log_alpha": 0.15154238045215607,
+            "mu_log_t0": 0.03608018904924393,
+            "mu_nu": 0.07970930635929108
+          }
+        }
+      },
+      "label": "trial-463k  @100subj",
+      "local": {
+        "calibration_error": {
+          "mean": 0.041085187194791095,
+          "per_parameter": {
+            "log_alpha": 0.0053960933260987776,
+            "log_t0": 0.0674091155724362,
+            "nu": 0.05045035268583831
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.45312026143074036,
+          "per_parameter": {
+            "log_alpha": 0.6850975751876831,
+            "log_t0": 0.0988968163728714,
+            "nu": 0.5753663778305054
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.027532845735549927,
+          "per_parameter": {
+            "log_alpha": 0.035426318645477295,
+            "log_t0": 0.012709420174360275,
+            "nu": 0.03446279093623161
+          }
+        }
+      },
+      "method": "dpm2_gauss_hierarchical",
+      "subject_units": 9700
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.13263157894736846,
+          "per_parameter": {
+            "beta_raw": 0.11078947368421052,
+            "log_sigma_log_alpha": 0.3128947368421053,
+            "log_sigma_log_t0": 0.031578947368421095,
+            "log_sigma_nu": 0.0721052631578947,
+            "mu_log_alpha": 0.16973684210526319,
+            "mu_log_t0": 0.06184210526315792,
+            "mu_nu": 0.1694736842105264
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.7004522085189819,
+          "per_parameter": {
+            "beta_raw": 1.301537036895752,
+            "log_sigma_log_alpha": 0.6934500932693481,
+            "log_sigma_log_t0": 0.4660201966762543,
+            "log_sigma_nu": 0.49787023663520813,
+            "mu_log_alpha": 0.6823288202285767,
+            "mu_log_t0": 0.19653582572937012,
+            "mu_nu": 1.0654230117797852
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.17141284048557281,
+          "per_parameter": {
+            "beta_raw": 0.3071824312210083,
+            "log_sigma_log_alpha": 0.18491990864276886,
+            "log_sigma_log_t0": 0.11272353678941727,
+            "log_sigma_nu": 0.12407487630844116,
+            "mu_log_alpha": 0.17141121625900269,
+            "mu_log_t0": 0.04602760076522827,
+            "mu_nu": 0.2535504102706909
+          }
+        }
+      },
+      "label": "legacy-5.96M/400k @100subj",
+      "local": {
+        "calibration_error": {
+          "mean": 0.029577192982456157,
+          "per_parameter": {
+            "log_alpha": 0.033950000000000036,
+            "log_t0": 0.04169736842105262,
+            "nu": 0.01308421052631581
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.4171624481678009,
+          "per_parameter": {
+            "log_alpha": 0.5797598361968994,
+            "log_t0": 0.09424996376037598,
+            "nu": 0.5774775743484497
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.025480279698967934,
+          "per_parameter": {
+            "log_alpha": 0.02980664186179638,
+            "log_t0": 0.012130839750170708,
+            "nu": 0.034503355622291565
+          }
+        }
+      },
+      "method": "dpm2_gauss_jacobian_newton",
+      "subject_units": 10000
+    },
+    {
+      "datasets": 100,
+      "global": {
+        "calibration_error": {
+          "mean": 0.2972932330827068,
+          "per_parameter": {
+            "beta_raw": 0.24000000000000005,
+            "log_sigma_log_alpha": 0.3950000000000001,
+            "log_sigma_log_t0": 0.36500000000000005,
+            "log_sigma_nu": 0.39000000000000007,
+            "mu_log_alpha": 0.30000000000000004,
+            "mu_log_t0": 0.06500000000000006,
+            "mu_nu": 0.32605263157894737
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.41285088658332825,
+          "per_parameter": {
+            "beta_raw": 0.31043553352355957,
+            "log_sigma_log_alpha": 0.5540506839752197,
+            "log_sigma_log_t0": 0.5361850261688232,
+            "log_sigma_nu": 0.4495992660522461,
+            "mu_log_alpha": 0.5483728647232056,
+            "mu_log_t0": 0.15139023959636688,
+            "mu_nu": 0.3399226665496826
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.10240917652845383,
+          "per_parameter": {
+            "beta_raw": 0.07326748222112656,
+            "log_sigma_log_alpha": 0.147746741771698,
+            "log_sigma_log_t0": 0.12969538569450378,
+            "log_sigma_nu": 0.11204520612955093,
+            "mu_log_alpha": 0.1377594918012619,
+            "mu_log_t0": 0.035454753786325455,
+            "mu_nu": 0.08089512586593628
+          }
+        }
+      },
+      "label": "trial-463k  @100subj",
+      "local": {
+        "calibration_error": {
+          "mean": 0.05900526315789472,
+          "per_parameter": {
+            "log_alpha": 0.01868157894736841,
+            "log_t0": 0.07944210526315787,
+            "nu": 0.07889210526315787
+          }
+        },
+        "nrmse_prior": {
+          "mean": 0.48960864543914795,
+          "per_parameter": {
+            "log_alpha": 0.7339127659797668,
+            "log_t0": 0.11163824051618576,
+            "nu": 0.6232750415802002
+          }
+        },
+        "nrmse_range": {
+          "mean": 0.029780171811580658,
+          "per_parameter": {
+            "log_alpha": 0.03773196041584015,
+            "log_t0": 0.014368871226906776,
+            "nu": 0.0372396856546402
+          }
+        }
+      },
+      "method": "langevin_fnpse",
+      "subject_units": 10000
+    }
+  ],
+  "metric_source": "bayesflow==2.0.13 diagnostics.metrics",
+  "note": "Computed on COMPASS test datasets and COMPASS checkpoints. The paper's own values are published only as a figure and are not reproduced here.",
+  "reference": "arXiv:2512.20685 case_study4"
+}

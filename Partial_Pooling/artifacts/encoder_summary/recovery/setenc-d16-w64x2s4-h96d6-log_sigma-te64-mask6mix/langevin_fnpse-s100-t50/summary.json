@@ -1,0 +1,23 @@
+{
+  "representation": "frozen_predictive_set_summary",
+  "likelihood": "p(z|theta)",
+  "name": "setenc-d16-w64x2s4-h96d6-log_sigma-te64-mask6mix",
+  "checkpoint": "/export/home/rheinric/COMPASS/Partial_Pooling/artifacts/encoder_summary/checkpoints/setenc-d16-w64x2s4-h96d6-log_sigma-te64-mask6mix_checkpoint.pt",
+  "method": "langevin_fnpse",
+  "plan": {
+    "name": "langevin_fnpse",
+    "sampler": "langevin",
+    "correction": "fnpe",
+    "order": null,
+    "label": "Langevin + F-NPSE"
+  },
+  "subjects": 100,
+  "dataset_start": 0,
+  "datasets": 30,
+  "draws": 100,
+  "timesteps": 50,
+  "global_std_rmse": 0.655053440729777,
+  "local_std_rmse": 0.3392342368761698,
+  "total_seconds": 11497.157709236257,
+  "finished_at": 1789476713.3855705
+}

@@ -1,0 +1,16 @@
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO CPU affinity: 3/72 CPUs (4.167%)
+INFO Selecting 1 free GPU(s).
+INFO Selected GPU(s): 9.
+INFO Set environment variables CUDA_VISIBLE_DEVICES=9 and CUDA_DEVICE_ORDER=PCI_BUS_ID.
+INFO Selected physical GPU 9 via autocvd.
+[dpm2_gauss_hierarchical] churn eta=2, artifacts under /export/home/rheinric/COMPASS/Partial_Pooling/ladder_group/gK10_seed20250720/artifacts_churn_eta2
+Traceback (most recent call last):
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/run_churn_comparison.py", line 269, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/run_churn_comparison.py", line 247, in main
+    infer.run(args, cpu_limit)
+  File "/export/home/rheinric/COMPASS/Partial_Pooling/infer_partial_pooling.py", line 2319, in run
+    raise RuntimeError("Test-data configuration does not match the selected preset.")
+RuntimeError: Test-data configuration does not match the selected preset.

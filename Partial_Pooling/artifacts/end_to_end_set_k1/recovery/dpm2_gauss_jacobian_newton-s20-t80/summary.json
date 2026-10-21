@@ -1,0 +1,22 @@
+{
+  "representation": "end_to_end_k1_conditional_set_encoder",
+  "checkpoint": "/export/home/rheinric/COMPASS/Partial_Pooling/artifacts/end_to_end_set_k1/checkpoints/set-k1-e2e-d64-w64x2s4-h48d2-log_sigma_checkpoint.pt",
+  "method": "dpm2_gauss_jacobian_newton",
+  "plan": {
+    "name": "dpm2_gauss_jacobian_newton",
+    "sampler": "dpm",
+    "correction": "gauss_jacobian",
+    "order": 2,
+    "map_method": "newton",
+    "label": "DPM-Solver-2 + Jacobian-Gaussian (pilot-free) + arrow-Newton MAP"
+  },
+  "subjects": 20,
+  "dataset_start": 0,
+  "datasets": 5,
+  "draws": 100,
+  "timesteps": 80,
+  "global_std_rmse": 1.0126280546188355,
+  "local_std_rmse": 0.36386088728904725,
+  "total_seconds": 3084.79832564597,
+  "finished_at": 1788974849.330941
+}
