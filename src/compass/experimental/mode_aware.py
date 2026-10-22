@@ -77,8 +77,8 @@ def fit_gmm(points, max_components=3, iterations=200, seed=0, min_weight=0.02):
 def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
                       discovery_samples=1000, max_modes=3, discovery_temperature=1.0,
                       start_fraction=1.0 / 6.0, draws_per_mode=None, prior=None,
-                      certify_kwargs=None, log_prior_fn=None, generator_seed=0, verbose=False,
-                      **sample_kwargs):
+                      certify_kwargs=None, log_prior_fn=None, mode_prior_fn=None,
+                      discovery_context=None, generator_seed=0, verbose=False, **sample_kwargs):
     """Mode-aware composition (see module docstring).
 
     Args:
@@ -91,6 +91,13 @@ def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
         start_fraction: ``start_lambda = start_fraction x`` (smallest distance between
             mode centres, in prior-standardised shared units x prior std).
         draws_per_mode: draws per within-mode run (default ``num_samples``).
+        mode_prior_fn: ``f(centre (d,)) -> prior`` -- compose *within a prior component*:
+            the within-mode run of a mode centred at ``centre`` uses this (Gaussian) prior
+            instead of ``prior``. For a mixture prior, return the component the mode sits
+            in: inside its basin the mixture equals that component up to a constant, and
+            the component's Gaussian precision is exact, unlike the moment-matched one.
+        discovery_context: zero-argument factory of a context manager wrapped around the
+            discovery run only (e.g. an exact mixture prior score patch).
         log_prior_fn: ``f(shared (M, d)) -> (M,)`` log prior density of the shared block,
             replacing ``certify_composition``'s Gaussian prior term (needed when the
             prior is not Gaussian, e.g. a mixture).
@@ -103,17 +110,20 @@ def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
     discovery_kwargs = dict(sample_kwargs)
     if discovery_temperature != 1.0:
         discovery_kwargs["composition_temperature"] = discovery_temperature
-    discovery = sampler.sample(world_size=1, data=data, condition_mask=condition_mask,
-                               hierarchy=hierarchy, prior=prior,
-                               num_samples=discovery_samples, verbose=verbose,
-                               **discovery_kwargs).detach().cpu()
+    from contextlib import nullcontext
+    with (discovery_context or nullcontext)():
+        discovery = sampler.sample(world_size=1, data=data, condition_mask=condition_mask,
+                                   hierarchy=hierarchy, prior=prior,
+                                   num_samples=discovery_samples, verbose=verbose,
+                                   **discovery_kwargs).detach().cpu()
     shared = discovery[0][:, hierarchy].to(torch.float64)
     labels, means, covs, weights = fit_gmm(shared, max_modes, seed=generator_seed)
     K = means.shape[0]
     info = {"modes": K, "centres": means, "discovery_fraction": weights}
     if K == 1:
+        single_prior = prior if mode_prior_fn is None else mode_prior_fn(means[0])
         out = sampler.sample(world_size=1, data=data, condition_mask=condition_mask,
-                             hierarchy=hierarchy, prior=prior, num_samples=num_samples,
+                             hierarchy=hierarchy, prior=single_prior, num_samples=num_samples,
                              verbose=verbose, **sample_kwargs)
         info["masses"] = torch.ones(1, dtype=torch.float64)
         return out, info
@@ -136,8 +146,9 @@ def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
         noise = torch.randn(init.shape, generator=generator)
         noise[:, :, hierarchy] = noise[:1, :, hierarchy]          # shared noise is shared
         init[:, :, latent] = init[:, :, latent] + start_lambda * noise[:, :, latent]
+        mode_prior = prior if mode_prior_fn is None else mode_prior_fn(means[k])
         draws = sampler.sample(world_size=1, data=data, condition_mask=condition_mask,
-                               hierarchy=hierarchy, prior=prior, num_samples=M,
+                               hierarchy=hierarchy, prior=mode_prior, num_samples=M,
                                start_lambda=start_lambda, init_state=init,
                                verbose=verbose, **sample_kwargs).detach().cpu()
         cert = sampler.certify_composition(draws, data, condition_mask, hierarchy=hierarchy,

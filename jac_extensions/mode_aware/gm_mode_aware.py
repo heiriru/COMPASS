@@ -2,8 +2,9 @@
 """Mode-aware JAC on the GM benchmark (bimodal tall posterior, exact branch masses).
 
 Networks: ``oracle`` (exact score), ``hierarchical`` / ``none`` (production GM nets).
-Arms: ``jac`` (gauss_jacobian_FD, run_scaling settings), ``mode`` (mode-aware JAC),
-``mode_t05`` (mode-aware with a discovery run tempered at beta = 0.5).
+Arms: ``jac`` (gauss_jacobian_FD, run_scaling settings), ``mode`` (mode-aware JAC with
+the moment-matched Gaussian prior inside modes), ``mode_comp`` (mode-aware JAC composed
+within the prior component each mode sits in).
 
     python gm_mode_aware.py run --net oracle --observations 8 16 32 64
     python gm_mode_aware.py report
@@ -69,6 +70,16 @@ def log_prior_fn(mixture):
     return f
 
 
+def component_prior(mixture):
+    """Within-component composition: the Gaussian prior component nearest a mode centre."""
+    centres = torch.as_tensor(mixture.components, dtype=torch.float32)
+
+    def f(centre):
+        c = centres[int((centres - float(centre.reshape(-1)[0])).abs().argmin())]
+        return (c.reshape(1), torch.tensor([float(mixture.tau_g)]))
+    return f
+
+
 def run(net_name, observations, regimes, replicates, draws):
     import datasets
     import methods
@@ -91,7 +102,7 @@ def run(net_name, observations, regimes, replicates, draws):
                 rng = np.random.default_rng([2026, n, rep, regimes.index(regime)])
                 x = datasets.make_dataset(regime, n, rng, mixture)["x"]
                 data = torch.as_tensor(np.asarray(x).reshape(-1, 1), dtype=torch.float32)
-                for arm in ("jac", "mode", "mode_t05"):
+                for arm in ("jac", "mode", "mode_comp"):
                     if (regime, n, rep, arm) in done:
                         continue
                     sampler = MultiObsSampler(net)
@@ -99,7 +110,7 @@ def run(net_name, observations, regimes, replicates, draws):
                     common = dict(local_prior=local_prior, device=DEVICE, **SETTINGS)
                     started = time.perf_counter()
                     info = {}
-                    with methods.mixture_prior_score(mixture, enabled=True):
+                    with methods.mixture_prior_score(mixture, enabled=(arm != "mode_comp")):
                         if arm == "jac":
                             out = sampler.sample(world_size=1, data=data, condition_mask=mask,
                                                  hierarchy=[0], prior=prior, num_samples=draws,
@@ -108,8 +119,11 @@ def run(net_name, observations, regimes, replicates, draws):
                             out, info = mode_aware_sample(
                                 sampler, data, mask, [0], draws, prior=prior,
                                 discovery_samples=1000,
-                                discovery_temperature=0.5 if arm == "mode_t05" else 1.0,
                                 draws_per_mode=1000, log_prior_fn=log_prior_fn(mixture),
+                                mode_prior_fn=(component_prior(mixture) if arm == "mode_comp"
+                                               else None),
+                                discovery_context=((lambda: methods.mixture_prior_score(mixture))
+                                                   if arm == "mode_comp" else None),
                                 **common)
                     seconds = time.perf_counter() - started
                     samples = out.detach().cpu().numpy()
