@@ -363,7 +363,7 @@ class SBIMPathModel:
                 out.append(alpha * s[:, self.path_nodes])
                 self.calls += 1
         self.rows += B
-        return torch.cat(out, 0).to(torch.float64)
+        return torch.cat(out, 0).to(paths.device, torch.float64)
 
 
 # --------------------------------------------------------------------------------------
@@ -638,3 +638,31 @@ def _drop_internal(tree, prior_scores, prior_precisions):
     if tree.depth > 2 and n_root != 1:
         out_p[0] = out_p[0] * ((1.0 - L) / (1.0 - n_root))
     return out_s, out_p
+
+
+def single_observation_draws(score_fn, n_leaves, D, num_samples, lam_max, lam_min=1e-3,
+                             steps=50, churn_eta=2.0, gamma_cap=math.sqrt(2.0) - 1.0,
+                             generator=None, device="cpu"):
+    """Independent draws from every leaf's single-observation path posterior (no
+    composition), with the same Heun + churn sampler. Returns ``(n_leaves, S, D)``.
+    Used for the pilot covariance of the multi-level ``gauss_hierarchical`` arm."""
+    lams = torch.logspace(math.log10(lam_max), math.log10(lam_min), steps, dtype=torch.float64)
+    leaf_index = torch.arange(n_leaves).repeat_interleave(num_samples)
+
+    def score(y, lam):
+        return score_fn(y.reshape(-1, D), lam, leaf_index).reshape(n_leaves, num_samples, D)
+
+    y = lam_max * torch.randn(n_leaves, num_samples, D, dtype=torch.float64,
+                              generator=generator).to(device)
+    for i in range(steps - 1):
+        lam, lam_next = float(lams[i]), float(lams[i + 1])
+        gamma = min(churn_eta * (lam - lam_next) / lam, gamma_cap) if churn_eta > 0 else 0.0
+        lam_hat = lam * (1.0 + gamma)
+        if gamma > 0:
+            y = y + math.sqrt(lam_hat ** 2 - lam ** 2) * torch.randn(
+                y.shape, dtype=y.dtype, generator=generator).to(device)
+        d1 = -lam_hat * score(y, lam_hat)
+        trial = y + (lam_next - lam_hat) * d1
+        d2 = -lam_next * score(trial, lam_next)
+        y = y + (lam_next - lam_hat) * 0.5 * (d1 + d2)
+    return y + float(lams[-1]) ** 2 * score(y, float(lams[-1]))
