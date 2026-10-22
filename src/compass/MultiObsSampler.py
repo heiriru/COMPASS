@@ -2747,6 +2747,8 @@ class MultiObsSampler():
         """
         variance = float(torch.as_tensor(var_t, dtype=torch.float64).reshape(()))
         feature_order = list(self.full_gaussian_features)
+        if self._covariance_head() is not None:      # experimental, opt-in
+            return self._head_joint_precision(state, t, condition_mask, variance)
         # torch.func.jvp propagates tangents only with grad mode enabled, and
         # the composition runs inside `_get_score`'s no_grad block.
         with torch.enable_grad():
@@ -2765,6 +2767,39 @@ class MultiObsSampler():
         eigenvalues = eigenvalues.clamp(min=lower, max=(1.0 - floor) / variance)
         precision = 1.0 / (variance * (1.0 - variance * eigenvalues))
         return (eigenvectors * precision.unsqueeze(-2)) @ eigenvectors.mT
+
+    def set_covariance_head(self, head):
+        """Use a learned covariance head (``compass.experimental.covariance_head``)
+        instead of the score Jacobian for the Jacobian corrections; None turns it off.
+        Env ``COMPASS_COVARIANCE_HEAD=<path to torch.save'd head>`` does the same."""
+        self.covariance_head = head
+
+    def _covariance_head(self):
+        head = getattr(self, "covariance_head", None)
+        if head is None and os.environ.get("COMPASS_COVARIANCE_HEAD"):
+            head = torch.load(os.environ["COMPASS_COVARIANCE_HEAD"], weights_only=False)
+            self.covariance_head = head
+        return head
+
+    def _head_joint_precision(self, state, t, condition_mask, variance):
+        """Row precisions ``K(y, x, lam) + lam^-2 I`` from the covariance head, with the
+        production upper clamp ``Lambda <= (floor lam^2)^-1``."""
+        head = self._covariance_head().to(state.device)
+        order = list(self.full_gaussian_features)
+        if list(head.latent_nodes) != order:
+            raise ValueError(f"covariance head latent_nodes {head.latent_nodes} != "
+                             f"composition order {order}")
+        rows, samples, _ = state.shape
+        lam = torch.full((rows * samples,), variance ** 0.5, device=state.device)
+        with torch.no_grad():
+            precision = head.precision(state[..., order].reshape(rows * samples, -1),
+                                       state[..., head.observed_nodes].reshape(rows * samples, -1),
+                                       lam)
+        cap = 1.0 / (float(self.jacobian_curvature_floor) * variance)
+        values, vectors = torch.linalg.eigh(precision)
+        precision = (vectors * values.clamp(max=cap).unsqueeze(-2)) @ vectors.mT
+        self._jacobian_evaluations += 1
+        return precision.reshape(rows, samples, len(order), len(order))
 
     def _bp_jacobian_score(self, scores, state, t, condition_mask, var_t):
         """Pool scores/Jacobians by block, then form the BP-JAC precision ratio."""
