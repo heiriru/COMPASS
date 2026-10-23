@@ -35,3 +35,18 @@ def test_unimodal_posterior_falls_through_to_the_plain_rule():
                                   discovery_samples=400, prior=(torch.zeros(2), torch.ones(2)),
                                   correction="gauss_jacobian_FD", timesteps=15)
     assert info["modes"] == 1 and out.shape == (4, 64, 5)
+
+
+def test_spuriously_split_mode_is_merged():
+    from compass.experimental.mode_aware import merge_close_components
+    g = torch.Generator().manual_seed(2)
+    one = torch.randn(600, 1, generator=g) * 0.3 - 1.0
+    two = torch.randn(400, 1, generator=g) * 0.3 + 1.5
+    points = torch.cat([one, two]).double()
+    labels = torch.cat([torch.zeros(300), torch.ones(300), torch.full((400,), 2)]).long()
+    means = torch.tensor([[-1.05], [-0.95], [1.5]], dtype=torch.float64)
+    covs = torch.full((3, 1, 1), 0.09, dtype=torch.float64)
+    weights = torch.tensor([0.3, 0.3, 0.4], dtype=torch.float64)
+    labels, means, covs, weights = merge_close_components(labels, means, covs, weights)
+    assert means.shape[0] == 2 and set(labels.tolist()) == {0, 1}
+    torch.testing.assert_close(weights, torch.tensor([0.6, 0.4], dtype=torch.float64))

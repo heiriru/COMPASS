@@ -74,11 +74,42 @@ def fit_gmm(points, max_components=3, iterations=200, seed=0, min_weight=0.02):
     return labels, means, covs, weights
 
 
+def merge_close_components(labels, means, covs, weights, merge_sd=3.0):
+    """Merge mixture components whose centres are within ``merge_sd`` standard deviations
+    (largest of the pair, along the line between them): a spuriously split mode would
+    otherwise fix ``start_lambda`` at a fraction of a width and disable the warm start."""
+    labels, means, covs, weights = labels.clone(), means.clone(), covs.clone(), weights.clone()
+    while means.shape[0] > 1:
+        best = None
+        for a in range(means.shape[0]):
+            for b in range(a + 1, means.shape[0]):
+                delta = means[a] - means[b]
+                direction = delta / delta.norm().clamp_min(1e-12)
+                sd = max(float(direction @ covs[a] @ direction), float(direction @ covs[b] @ direction)) ** 0.5
+                ratio = float(delta.norm()) / max(sd, 1e-12)
+                if ratio < merge_sd and (best is None or ratio < best[0]):
+                    best = (ratio, a, b)
+        if best is None:
+            break
+        _, a, b = best
+        wa, wb = float(weights[a]), float(weights[b])
+        mean = (wa * means[a] + wb * means[b]) / (wa + wb)
+        cov = (wa * (covs[a] + torch.outer(means[a] - mean, means[a] - mean))
+               + wb * (covs[b] + torch.outer(means[b] - mean, means[b] - mean))) / (wa + wb)
+        keep = [k for k in range(means.shape[0]) if k != b]
+        means[a], covs[a], weights[a] = mean, cov, wa + wb
+        labels[labels == b] = a
+        labels = torch.searchsorted(torch.tensor(keep), labels)
+        means, covs, weights = means[keep], covs[keep], weights[keep]
+    return labels, means, covs, weights
+
+
 def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
                       discovery_samples=1000, max_modes=3, discovery_temperature=1.0,
                       start_fraction=1.0 / 6.0, draws_per_mode=None, prior=None,
                       certify_kwargs=None, log_prior_fn=None, mode_prior_fn=None,
-                      discovery_context=None, generator_seed=0, verbose=False, **sample_kwargs):
+                      discovery_context=None, merge_sd=3.0, generator_seed=0, verbose=False,
+                      **sample_kwargs):
     """Mode-aware composition (see module docstring).
 
     Args:
@@ -96,6 +127,8 @@ def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
             instead of ``prior``. For a mixture prior, return the component the mode sits
             in: inside its basin the mixture equals that component up to a constant, and
             the component's Gaussian precision is exact, unlike the moment-matched one.
+        merge_sd: clusters closer than this many SDs are one mode (see
+            :func:`merge_close_components`).
         discovery_context: zero-argument factory of a context manager wrapped around the
             discovery run only (e.g. an exact mixture prior score patch).
         log_prior_fn: ``f(shared (M, d)) -> (M,)`` log prior density of the shared block,
@@ -117,7 +150,8 @@ def mode_aware_sample(sampler, data, condition_mask, hierarchy, num_samples,
                                    num_samples=discovery_samples, verbose=verbose,
                                    **discovery_kwargs).detach().cpu()
     shared = discovery[0][:, hierarchy].to(torch.float64)
-    labels, means, covs, weights = fit_gmm(shared, max_modes, seed=generator_seed)
+    labels, means, covs, weights = merge_close_components(
+        *fit_gmm(shared, max_modes, seed=generator_seed), merge_sd=merge_sd)
     K = means.shape[0]
     info = {"modes": K, "centres": means, "discovery_fraction": weights}
     if K == 1:
