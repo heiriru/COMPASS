@@ -1,0 +1,378 @@
+22:58:29 run_pd on GPUs ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']: 168 jobs (default, lams, lamsrow, gloeckler, consistent, clampmetric)
+23:26:07 done  adopted-3638621 (adopted) on GPU 9
+23:26:12 start default_gm_oracle on GPU 9 cores 30-32 (free 3984 MB); 167 queued, 4 running
+23:32:33 done  adopted-3656431 (adopted) on GPU 9
+23:32:38 start default_toy_abs_hierarchical_default on GPU 9 cores 33-35 (free 3990 MB); 166 queued, 4 running
+23:50:28 start default_toy_abs_none_default on GPU 9 cores 36-38 (free 3306 MB); 165 queued, 5 running
+23:50:43 done  default_gm_oracle exit 0 in 25 min on GPU 9
+00:03:02 done  default_toy_abs_hierarchical_default exit 0 in 30 min on GPU 9
+00:03:06 start default_toy_abs_oracle_joint_default on GPU 9 cores 39-41 (free 3306 MB); 164 queued, 4 running
+00:03:21 done  default_toy_abs_oracle_joint_default exit 0 in 0 min on GPU 9
+00:04:24 start default_toy_abs_oracle_hierarchical_default on GPU 9 cores 42-44 (free 3306 MB); 163 queued, 4 running
+00:04:39 done  default_toy_abs_oracle_hierarchical_default exit 0 in 0 min on GPU 9
+00:05:44 start default_toy_square_hierarchical_default on GPU 9 cores 45-47 (free 3306 MB); 162 queued, 4 running
+00:24:08 done  default_toy_abs_none_default exit 0 in 34 min on GPU 9
+00:24:13 start default_toy_square_none_default on GPU 9 cores 48-50 (free 3306 MB); 161 queued, 4 running
+00:24:28 done  default_toy_square_none_default exit 0 in 0 min on GPU 9
+00:25:30 start default_toy_lean_hierarchical_default on GPU 9 cores 51-53 (free 3306 MB); 160 queued, 4 running
+00:40:00 done  default_toy_square_hierarchical_default exit 0 in 34 min on GPU 9
+00:40:04 start default_toy_lean_none_default on GPU 9 cores 60-62 (free 3306 MB); 159 queued, 4 running
+01:00:12 done  default_toy_lean_hierarchical_default exit 0 in 35 min on GPU 9
+01:00:17 start default_toy_lean_oracle_joint_default on GPU 9 cores 63-65 (free 3306 MB); 158 queued, 4 running
+01:12:10 done  default_toy_lean_none_default exit 0 in 32 min on GPU 9
+01:12:15 start default_toy_lean_oracle_hierarchical_default on GPU 9 cores 66-68 (free 3892 MB); 157 queued, 4 running
+01:12:30 done  default_toy_lean_oracle_hierarchical_default exit 0 in 0 min on GPU 9
+01:13:08 done  default_toy_lean_oracle_joint_default exit 0 in 13 min on GPU 9
+01:13:32 start default_toy_lean_hierarchical_R_default on GPU 9 cores 69-71 (free 5304 MB); 156 queued, 3 running
+01:14:51 start default_toy_lean_hierarchical_T_default on GPU 9 cores 54-56 (free 3266 MB); 155 queued, 4 running
+01:33:03 done  adopted-3299240 (adopted) on GPU 9
+01:33:08 start default_toy_lean_hierarchical_TF_default on GPU 9 cores 57-59 (free 4246 MB); 154 queued, 4 running
+01:35:27 start default_toy_lean_hierarchical_TFR_default on GPU 9 cores 30-32 (free 4986 MB); 153 queued, 5 running
+01:35:42 done  default_toy_lean_hierarchical_R_default exit 0 in 22 min on GPU 9
+01:36:45 start default_toy_lean_hierarchical_T_e4_default on GPU 9 cores 33-35 (free 3688 MB); 152 queued, 5 running
+01:37:59 done  adopted-3302920 (adopted) on GPU 9
+01:38:04 start default_toy_curved_hierarchical_default on GPU 9 cores 39-41 (free 5376 MB); 151 queued, 5 running
+01:39:20 start default_toy_curved_hierarchical_R_default on GPU 9 cores 42-44 (free 4078 MB); 150 queued, 6 running
+01:50:38 done  default_toy_lean_hierarchical_T_default exit 0 in 36 min on GPU 9
+01:50:44 start lams_ik_absx1 on GPU 9 cores 36-38 (free 3970 MB); 149 queued, 6 running
+02:02:31 OOM   default_toy_curved_hierarchical_R_default after 23 min; requeued needing 2400 MB
+02:17:54 done  default_toy_lean_hierarchical_TF_default exit 0 in 45 min on GPU 9
+02:17:59 start default_toy_curved_hierarchical_R_default on GPU 9 cores 48-50 (free 3922 MB); 149 queued, 5 running
+02:20:31 done  default_toy_lean_hierarchical_TFR_default exit 0 in 45 min on GPU 9
+02:20:36 start lams_ik_absx1_R on GPU 9 cores 45-47 (free 3882 MB); 148 queued, 5 running
+02:24:08 done  default_toy_lean_hierarchical_T_e4_default exit 0 in 47 min on GPU 9
+02:24:12 start lams_ik_flat_fixed on GPU 9 cores 51-53 (free 4536 MB); 147 queued, 5 running
+02:25:29 start lams_ik_flat_global on GPU 9 cores 60-62 (free 3242 MB); 146 queued, 6 running
+02:25:44 done  default_toy_curved_hierarchical_default exit 0 in 48 min on GPU 9
+02:26:46 start lams_ik_reach_sym on GPU 9 cores 66-68 (free 3924 MB); 145 queued, 6 running
+02:28:43 start lams_ik_reach_shift on GPU 9 cores 63-65 (free 3224 MB); 144 queued, 7 running
+02:45:17 start lams_ik_reach_sym_bernoulli on GPU 9 cores 24-26 (free 3274 MB); 143 queued, 8 running
+02:45:32 OOM   default_toy_curved_hierarchical_R_default after 28 min; requeued needing 3840 MB
+02:45:51 done  lams_ik_absx1 exit 0 in 55 min on GPU 9
+02:46:34 start lams_ik_reach_shift_bernoulli on GPU 9 cores 69-71 (free 3322 MB); 143 queued, 7 running
+03:14:40 done  lams_ik_flat_fixed exit 0 in 50 min on GPU 9
+03:14:45 start lams_toy_abs_hierarchical_lams on GPU 9 cores 27-29 (free 3302 MB); 142 queued, 7 running
+03:15:37 done  lams_ik_reach_sym exit 0 in 49 min on GPU 9
+03:16:02 start lams_toy_abs_none_lams on GPU 9 cores 54-56 (free 3348 MB); 141 queued, 7 running
+03:16:36 done  lams_ik_absx1_R exit 0 in 56 min on GPU 9
+03:17:14 done  lams_ik_reach_shift exit 0 in 49 min on GPU 9
+03:17:19 start lams_gm_hierarchical on GPU 9 cores 42-44 (free 4732 MB); 140 queued, 6 running
+03:18:36 start lams_toy_abs_oracle_joint_lams on GPU 9 cores 57-59 (free 3432 MB); 139 queued, 7 running
+03:19:53 start lams_toy_abs_oracle_hierarchical_lams on GPU 9 cores 30-32 (free 3218 MB); 138 queued, 8 running
+03:21:45 done  lams_ik_flat_global exit 0 in 56 min on GPU 9
+03:30:01 done  lams_ik_reach_sym_bernoulli exit 0 in 45 min on GPU 9
+03:30:07 start lams_toy_square_hierarchical_lams on GPU 9 cores 33-35 (free 3288 MB); 137 queued, 7 running
+03:31:20 done  lams_ik_reach_shift_bernoulli exit 0 in 45 min on GPU 9
+03:31:26 start lams_toy_square_none_lams on GPU 9 cores 39-41 (free 3316 MB); 136 queued, 7 running
+03:43:26 done  lams_toy_abs_oracle_joint_lams exit 0 in 25 min on GPU 9
+03:49:27 done  lams_toy_abs_oracle_hierarchical_lams exit 0 in 30 min on GPU 9
+03:49:32 start lams_toy_lean_hierarchical_lams on GPU 9 cores 48-50 (free 3308 MB); 135 queued, 6 running
+04:00:14 done  lams_toy_abs_hierarchical_lams exit 0 in 45 min on GPU 9
+04:01:15 done  lams_toy_abs_none_lams exit 0 in 45 min on GPU 9
+04:01:20 start lams_gm_none on GPU 9 cores 36-38 (free 4626 MB); 134 queued, 5 running
+04:02:38 start lams_toy_lean_none_lams on GPU 9 cores 51-53 (free 3334 MB); 133 queued, 6 running
+04:17:14 done  lams_gm_hierarchical exit 0 in 60 min on GPU 9
+04:18:55 done  lams_toy_square_hierarchical_lams exit 0 in 49 min on GPU 9
+04:19:00 start lams_gm_oracle on GPU 9 cores 66-68 (free 4626 MB); 132 queued, 5 running
+04:19:53 done  lams_toy_square_none_lams exit 0 in 48 min on GPU 9
+04:20:18 start default_toy_curved_hierarchical_R_default on GPU 9 cores 45-47 (free 5348 MB); 131 queued, 5 running
+04:20:33 OOM   default_toy_curved_hierarchical_R_default after 0 min; requeued needing 6144 MB
+04:21:36 start lams_toy_lean_oracle_joint_lams on GPU 9 cores 63-65 (free 5338 MB); 131 queued, 5 running
+04:22:52 start lams_toy_lean_oracle_hierarchical_lams on GPU 9 cores 60-62 (free 3354 MB); 130 queued, 6 running
+04:31:46 done  lams_toy_lean_hierarchical_lams exit 0 in 42 min on GPU 9
+04:31:50 start lams_toy_lean_hierarchical_R_lams on GPU 9 cores 24-26 (free 3850 MB); 129 queued, 6 running
+04:38:43 done  lams_toy_lean_oracle_joint_lams exit 0 in 17 min on GPU 9
+04:38:48 start lams_toy_lean_hierarchical_T_lams on GPU 9 cores 69-71 (free 3890 MB); 128 queued, 6 running
+04:39:23 done  lams_toy_lean_none_lams exit 0 in 37 min on GPU 9
+04:40:06 start lams_toy_lean_hierarchical_TF_lams on GPU 9 cores 57-59 (free 4618 MB); 127 queued, 6 running
+04:41:22 start lams_toy_lean_hierarchical_TFR_lams on GPU 9 cores 30-32 (free 3340 MB); 126 queued, 7 running
+04:42:35 done  lams_gm_oracle exit 0 in 24 min on GPU 9
+04:42:40 start lams_toy_lean_hierarchical_T_e4_lams on GPU 9 cores 27-29 (free 3396 MB); 125 queued, 7 running
+04:43:14 done  lams_toy_lean_oracle_hierarchical_lams exit 0 in 20 min on GPU 9
+04:43:57 start lams_toy_curved_hierarchical_lams on GPU 9 cores 54-56 (free 3518 MB); 124 queued, 7 running
+04:48:27 done  lams_gm_none exit 0 in 47 min on GPU 9
+05:06:23 OOM   lams_toy_lean_hierarchical_T_e4_lams after 24 min; requeued needing 2400 MB
+05:15:42 done  lams_toy_lean_hierarchical_R_lams exit 0 in 44 min on GPU 9
+05:15:46 start lams_toy_curved_hierarchical_R_lams on GPU 9 cores 42-44 (free 3268 MB); 124 queued, 5 running
+05:25:56 done  lams_toy_lean_hierarchical_T_lams exit 0 in 47 min on GPU 9
+05:26:00 start lams_toy_lean_hierarchical_T_e4_lams on GPU 9 cores 33-35 (free 3948 MB); 123 queued, 5 running
+05:28:10 done  lams_toy_lean_hierarchical_TF_lams exit 0 in 48 min on GPU 9
+05:28:14 start lamsrow_ik_absx1 on GPU 9 cores 39-41 (free 3908 MB); 122 queued, 5 running
+05:29:47 start lamsrow_ik_absx1_R on GPU 9 cores 45-47 (free 4590 MB); 121 queued, 6 running
+05:30:02 done  lams_toy_lean_hierarchical_TFR_lams exit 0 in 49 min on GPU 9
+05:31:20 start lamsrow_ik_flat_fixed on GPU 9 cores 48-50 (free 3270 MB); 120 queued, 6 running
+05:32:49 done  lams_toy_curved_hierarchical_lams exit 0 in 49 min on GPU 9
+05:32:54 start lamsrow_ik_flat_global on GPU 9 cores 63-65 (free 4574 MB); 119 queued, 6 running
+05:52:37 start lamsrow_ik_reach_sym on GPU 9 cores 51-53 (free 3908 MB); 118 queued, 7 running
+05:52:52 OOM   lams_toy_lean_hierarchical_T_e4_lams after 27 min; requeued needing 3840 MB
+06:02:50 done  lams_toy_curved_hierarchical_R_lams exit 0 in 47 min on GPU 9
+06:02:55 start lamsrow_ik_reach_shift on GPU 9 cores 66-68 (free 4588 MB); 118 queued, 6 running
+06:04:27 start lamsrow_ik_reach_sym_bernoulli on GPU 9 cores 60-62 (free 3298 MB); 117 queued, 7 running
+06:20:07 done  lamsrow_ik_flat_fixed exit 0 in 49 min on GPU 9
+06:20:11 start lamsrow_ik_reach_shift_bernoulli on GPU 9 cores 36-38 (free 3276 MB); 116 queued, 7 running
+06:22:56 done  lamsrow_ik_absx1 exit 0 in 55 min on GPU 9
+06:23:00 start lamsrow_toy_abs_hierarchical_lamsrow on GPU 9 cores 27-29 (free 3324 MB); 115 queued, 7 running
+06:24:27 done  lamsrow_ik_absx1_R exit 0 in 55 min on GPU 9
+06:24:31 start lamsrow_toy_abs_none_lamsrow on GPU 9 cores 24-26 (free 3376 MB); 114 queued, 7 running
+06:28:33 done  lamsrow_ik_flat_global exit 0 in 56 min on GPU 9
+06:28:37 start lamsrow_toy_abs_oracle_joint_lamsrow on GPU 9 cores 69-71 (free 3436 MB); 113 queued, 7 running
+06:38:07 start lamsrow_toy_abs_oracle_hierarchical_lamsrow on GPU 9 cores 57-59 (free 3316 MB); 112 queued, 8 running
+06:38:22 done  lamsrow_ik_reach_sym exit 0 in 46 min on GPU 9
+06:47:35 done  lamsrow_ik_reach_shift exit 0 in 45 min on GPU 9
+06:48:36 start lamsrow_toy_square_hierarchical_lamsrow on GPU 9 cores 30-32 (free 3188 MB); 111 queued, 7 running
+06:48:51 done  lamsrow_ik_reach_sym_bernoulli exit 0 in 44 min on GPU 9
+06:52:05 done  lamsrow_toy_abs_oracle_joint_lamsrow exit 0 in 23 min on GPU 9
+06:52:09 start lamsrow_toy_square_none_lamsrow on GPU 9 cores 54-56 (free 3310 MB); 110 queued, 6 running
+07:01:04 done  lamsrow_ik_reach_shift_bernoulli exit 0 in 41 min on GPU 9
+07:01:09 start lamsrow_toy_lean_hierarchical_lamsrow on GPU 9 cores 33-35 (free 3228 MB); 109 queued, 6 running
+07:05:19 start lamsrow_toy_lean_none_lamsrow on GPU 9 cores 42-44 (free 3350 MB); 108 queued, 7 running
+07:05:34 done  lamsrow_toy_abs_hierarchical_lamsrow exit 0 in 43 min on GPU 9
+07:05:34 done  lamsrow_toy_abs_oracle_hierarchical_lamsrow exit 0 in 27 min on GPU 9
+07:06:30 done  lamsrow_toy_abs_none_lamsrow exit 0 in 42 min on GPU 9
+07:06:52 start lams_toy_lean_hierarchical_T_e4_lams on GPU 9 cores 48-50 (free 6076 MB); 107 queued, 5 running
+07:07:07 OOM   lams_toy_lean_hierarchical_T_e4_lams after 0 min; requeued needing 6144 MB
+07:08:25 start lamsrow_gm_hierarchical on GPU 9 cores 39-41 (free 5348 MB); 107 queued, 5 running
+07:09:57 start lamsrow_gm_none on GPU 9 cores 45-47 (free 4056 MB); 106 queued, 6 running
+07:34:35 done  lamsrow_toy_square_hierarchical_lamsrow exit 0 in 46 min on GPU 9
+07:38:40 done  lamsrow_toy_square_none_lamsrow exit 0 in 47 min on GPU 9
+07:38:44 start lamsrow_gm_oracle on GPU 9 cores 63-65 (free 4624 MB); 105 queued, 5 running
+07:40:15 start lamsrow_toy_lean_oracle_joint_lamsrow on GPU 9 cores 51-53 (free 3348 MB); 104 queued, 6 running
+07:46:10 done  lamsrow_toy_lean_hierarchical_lamsrow exit 0 in 45 min on GPU 9
+07:46:14 start lamsrow_toy_lean_oracle_hierarchical_lamsrow on GPU 9 cores 66-68 (free 3950 MB); 103 queued, 6 running
+07:48:39 done  lamsrow_toy_lean_none_lamsrow exit 0 in 43 min on GPU 9
+07:48:42 start lamsrow_toy_lean_hierarchical_R_lamsrow on GPU 9 cores 60-62 (free 4624 MB); 102 queued, 6 running
+07:50:14 start lamsrow_toy_lean_hierarchical_T_lamsrow on GPU 9 cores 69-71 (free 3292 MB); 101 queued, 7 running
+07:59:05 start lamsrow_toy_lean_hierarchical_TF_lamsrow on GPU 9 cores 36-38 (free 3290 MB); 100 queued, 8 running
+07:59:20 done  lamsrow_toy_lean_oracle_joint_lamsrow exit 0 in 19 min on GPU 9
+08:01:49 done  lamsrow_gm_hierarchical exit 0 in 53 min on GPU 9
+08:01:53 start lamsrow_toy_lean_hierarchical_TFR_lamsrow on GPU 9 cores 27-29 (free 3292 MB); 99 queued, 7 running
+08:02:26 done  lamsrow_gm_none exit 0 in 52 min on GPU 9
+08:03:25 start lamsrow_toy_lean_hierarchical_T_e4_lamsrow on GPU 9 cores 57-59 (free 3342 MB); 98 queued, 7 running
+08:05:49 done  lamsrow_gm_oracle exit 0 in 27 min on GPU 9
+08:10:53 done  lamsrow_toy_lean_oracle_hierarchical_lamsrow exit 0 in 25 min on GPU 9
+08:10:58 start lamsrow_toy_curved_hierarchical_lamsrow on GPU 9 cores 24-26 (free 3310 MB); 97 queued, 6 running
+08:25:24 OOM   lamsrow_toy_lean_hierarchical_T_e4_lamsrow after 22 min; requeued needing 2400 MB
+08:32:23 start lamsrow_toy_lean_hierarchical_T_e4_lamsrow on GPU 9 cores 48-50 (free 3948 MB); 97 queued, 6 running
+08:32:38 done  lamsrow_toy_lean_hierarchical_R_lamsrow exit 0 in 44 min on GPU 9
+08:35:10 start lamsrow_toy_curved_hierarchical_R_lamsrow on GPU 9 cores 30-32 (free 3228 MB); 96 queued, 6 running
+08:35:25 done  lamsrow_toy_lean_hierarchical_T_lamsrow exit 0 in 45 min on GPU 9
+08:45:27 done  lamsrow_toy_lean_hierarchical_TF_lamsrow exit 0 in 46 min on GPU 9
+08:45:31 start gloeckler_ik_absx1 on GPU 9 cores 54-56 (free 3908 MB); 95 queued, 5 running
+08:48:13 done  lamsrow_toy_lean_hierarchical_TFR_lamsrow exit 0 in 46 min on GPU 9
+08:48:17 start gloeckler_ik_absx1_R on GPU 9 cores 33-35 (free 4590 MB); 94 queued, 5 running
+08:49:48 start gloeckler_ik_flat_fixed on GPU 9 cores 42-44 (free 3248 MB); 93 queued, 6 running
+08:57:55 OOM   lamsrow_toy_lean_hierarchical_T_e4_lamsrow after 26 min; requeued needing 3840 MB
+08:57:59 start gloeckler_ik_flat_global on GPU 9 cores 51-53 (free 3254 MB); 93 queued, 6 running
+08:58:50 done  lamsrow_toy_curved_hierarchical_lamsrow exit 0 in 48 min on GPU 9
+08:59:30 start gloeckler_ik_reach_sym on GPU 9 cores 39-41 (free 3938 MB); 92 queued, 6 running
+09:16:36 start gloeckler_ik_reach_shift on GPU 9 cores 45-47 (free 3234 MB); 91 queued, 7 running
+09:22:31 done  lamsrow_toy_curved_hierarchical_R_lamsrow exit 0 in 47 min on GPU 9
+09:22:35 start gloeckler_ik_reach_sym_bernoulli on GPU 9 cores 63-65 (free 3272 MB); 90 queued, 7 running
+09:24:07 start gloeckler_toy_abs_hierarchical_gloeckler on GPU 9 cores 66-68 (free 3092 MB); 89 queued, 8 running
+09:40:59 done  gloeckler_ik_flat_fixed exit 0 in 51 min on GPU 9
+09:42:35 done  gloeckler_ik_absx1 exit 0 in 57 min on GPU 9
+09:42:39 start gloeckler_ik_reach_shift_bernoulli on GPU 9 cores 57-59 (free 3300 MB); 88 queued, 7 running
+09:45:46 start gloeckler_toy_abs_none_gloeckler on GPU 9 cores 60-62 (free 3350 MB); 87 queued, 8 running
+09:46:01 done  gloeckler_ik_absx1_R exit 0 in 58 min on GPU 9
+09:49:08 done  gloeckler_ik_reach_sym exit 0 in 50 min on GPU 9
+09:54:16 start gloeckler_toy_abs_oracle_joint_gloeckler on GPU 9 cores 69-71 (free 3434 MB); 86 queued, 7 running
+09:56:03 done  gloeckler_ik_flat_global exit 0 in 58 min on GPU 9
+09:58:01 start gloeckler_toy_abs_oracle_hierarchical_gloeckler on GPU 9 cores 36-38 (free 3460 MB); 85 queued, 7 running
+10:04:54 done  gloeckler_ik_reach_shift exit 0 in 48 min on GPU 9
+10:08:43 done  gloeckler_ik_reach_sym_bernoulli exit 0 in 46 min on GPU 9
+10:08:46 start gloeckler_toy_square_hierarchical_gloeckler on GPU 9 cores 27-29 (free 3188 MB); 84 queued, 6 running
+10:11:30 done  gloeckler_toy_abs_hierarchical_gloeckler exit 0 in 47 min on GPU 9
+10:11:34 start gloeckler_gm_hierarchical on GPU 9 cores 48-50 (free 3910 MB); 83 queued, 6 running
+10:15:34 done  gloeckler_toy_abs_oracle_joint_gloeckler exit 0 in 21 min on GPU 9
+10:15:38 start gloeckler_gm_none on GPU 9 cores 24-26 (free 3930 MB); 82 queued, 6 running
+10:21:32 done  gloeckler_ik_reach_shift_bernoulli exit 0 in 39 min on GPU 9
+10:21:36 start gloeckler_gm_oracle on GPU 9 cores 30-32 (free 3946 MB); 81 queued, 6 running
+10:23:03 done  gloeckler_toy_abs_oracle_hierarchical_gloeckler exit 0 in 25 min on GPU 9
+10:23:07 start gloeckler_toy_square_none_gloeckler on GPU 9 cores 42-44 (free 4068 MB); 80 queued, 6 running
+10:25:31 done  gloeckler_toy_abs_none_gloeckler exit 0 in 40 min on GPU 9
+10:25:35 start gloeckler_toy_lean_hierarchical_gloeckler on GPU 9 cores 54-56 (free 4098 MB); 79 queued, 6 running
+10:49:33 done  gloeckler_toy_square_hierarchical_gloeckler exit 0 in 41 min on GPU 9
+10:49:38 start gloeckler_toy_lean_none_gloeckler on GPU 9 cores 33-35 (free 3290 MB); 78 queued, 6 running
+10:54:04 done  gloeckler_gm_oracle exit 0 in 32 min on GPU 9
+10:54:08 start gloeckler_toy_lean_oracle_joint_gloeckler on GPU 9 cores 39-41 (free 3346 MB); 77 queued, 6 running
+11:05:31 done  gloeckler_gm_hierarchical exit 0 in 54 min on GPU 9
+11:05:34 start gloeckler_toy_lean_oracle_hierarchical_gloeckler on GPU 9 cores 51-53 (free 3268 MB); 76 queued, 6 running
+11:06:27 done  gloeckler_toy_square_none_gloeckler exit 0 in 43 min on GPU 9
+11:07:08 start gloeckler_toy_lean_hierarchical_R_gloeckler on GPU 9 cores 45-47 (free 3962 MB); 75 queued, 6 running
+11:08:38 done  gloeckler_gm_none exit 0 in 53 min on GPU 9
+11:08:38 done  gloeckler_toy_lean_hierarchical_gloeckler exit 0 in 43 min on GPU 9
+11:08:43 start gloeckler_toy_lean_hierarchical_T_gloeckler on GPU 9 cores 63-65 (free 5276 MB); 74 queued, 5 running
+11:10:17 start gloeckler_toy_lean_hierarchical_TF_gloeckler on GPU 9 cores 66-68 (free 3990 MB); 73 queued, 6 running
+11:15:39 done  gloeckler_toy_lean_oracle_joint_gloeckler exit 0 in 22 min on GPU 9
+11:15:43 start gloeckler_toy_lean_hierarchical_TFR_gloeckler on GPU 9 cores 69-71 (free 3988 MB); 72 queued, 6 running
+11:30:32 done  gloeckler_toy_lean_none_gloeckler exit 0 in 41 min on GPU 9
+11:31:29 done  gloeckler_toy_lean_oracle_hierarchical_gloeckler exit 0 in 26 min on GPU 9
+11:31:33 start gloeckler_toy_lean_hierarchical_T_e4_gloeckler on GPU 9 cores 57-59 (free 3948 MB); 71 queued, 5 running
+11:49:06 done  gloeckler_toy_lean_hierarchical_R_gloeckler exit 0 in 42 min on GPU 9
+11:49:10 start gloeckler_toy_curved_hierarchical_gloeckler on GPU 9 cores 36-38 (free 3948 MB); 70 queued, 5 running
+11:51:16 done  gloeckler_toy_lean_hierarchical_T_gloeckler exit 0 in 43 min on GPU 9
+11:51:19 start gloeckler_toy_curved_hierarchical_R_gloeckler on GPU 9 cores 60-62 (free 4676 MB); 69 queued, 5 running
+11:53:44 done  gloeckler_toy_lean_hierarchical_TF_gloeckler exit 0 in 43 min on GPU 9
+11:53:48 start consistent_ik_absx1 on GPU 9 cores 27-29 (free 4708 MB); 68 queued, 5 running
+11:55:19 start consistent_ik_absx1_R on GPU 9 cores 30-32 (free 3352 MB); 67 queued, 6 running
+12:00:53 done  gloeckler_toy_lean_hierarchical_TFR_gloeckler exit 0 in 45 min on GPU 9
+12:00:57 start consistent_ik_flat_fixed on GPU 9 cores 48-50 (free 3940 MB); 66 queued, 6 running
+12:02:48 start consistent_ik_flat_global on GPU 9 cores 42-44 (free 3288 MB); 65 queued, 7 running
+12:13:50 OOM   gloeckler_toy_curved_hierarchical_R_gloeckler after 23 min; requeued needing 2400 MB
+12:18:55 done  gloeckler_toy_lean_hierarchical_T_e4_gloeckler exit 0 in 47 min on GPU 9
+12:18:59 start gloeckler_toy_curved_hierarchical_R_gloeckler on GPU 9 cores 24-26 (free 3908 MB); 65 queued, 6 running
+12:37:33 done  gloeckler_toy_curved_hierarchical_gloeckler exit 0 in 48 min on GPU 9
+12:37:37 start consistent_ik_reach_sym on GPU 9 cores 54-56 (free 3868 MB); 64 queued, 6 running
+12:42:00 start consistent_ik_reach_shift on GPU 9 cores 39-41 (free 3196 MB); 63 queued, 7 running
+12:45:22 OOM   gloeckler_toy_curved_hierarchical_R_gloeckler after 26 min; requeued needing 3840 MB
+12:45:27 start consistent_ik_reach_sym_bernoulli on GPU 9 cores 33-35 (free 3272 MB); 63 queued, 7 running
+12:53:00 done  consistent_ik_absx1 exit 0 in 59 min on GPU 9
+12:53:04 start consistent_ik_reach_shift_bernoulli on GPU 9 cores 51-53 (free 3300 MB); 62 queued, 7 running
+12:53:56 done  consistent_ik_flat_fixed exit 0 in 53 min on GPU 9
+12:54:33 done  consistent_ik_absx1_R exit 0 in 59 min on GPU 9
+12:54:37 start consistent_gm_hierarchical on GPU 9 cores 45-47 (free 4672 MB); 61 queued, 6 running
+12:56:08 start consistent_toy_abs_hierarchical_consistent on GPU 9 cores 63-65 (free 3356 MB); 60 queued, 7 running
+13:01:30 start consistent_toy_abs_none_consistent on GPU 9 cores 66-68 (free 3412 MB); 59 queued, 8 running
+13:01:45 done  consistent_ik_flat_global exit 0 in 59 min on GPU 9
+13:04:37 start gloeckler_toy_curved_hierarchical_R_gloeckler on GPU 8 cores 69-71 (free 11263 MB); 58 queued, 8 running
+13:04:53 OOM   gloeckler_toy_curved_hierarchical_R_gloeckler after 0 min; requeued needing 6144 MB
+13:05:53 start gloeckler_toy_curved_hierarchical_R_gloeckler on GPU 8 cores 60-62 (free 11263 MB); 58 queued, 8 running
+13:06:09 done  gloeckler_toy_curved_hierarchical_R_gloeckler exit 0 in 0 min on GPU 8
+13:07:09 start lamsrow_toy_lean_hierarchical_T_e4_lamsrow on GPU 8 cores 57-59 (free 11263 MB); 57 queued, 8 running
+13:07:25 OOM   lamsrow_toy_lean_hierarchical_T_e4_lamsrow after 0 min; requeued needing 6144 MB
+13:08:24 start lamsrow_toy_lean_hierarchical_T_e4_lamsrow on GPU 8 cores 36-38 (free 11263 MB); 57 queued, 8 running
+13:08:40 done  lamsrow_toy_lean_hierarchical_T_e4_lamsrow exit 0 in 0 min on GPU 8
+13:09:40 start lams_toy_lean_hierarchical_T_e4_lams on GPU 8 cores 24-26 (free 11263 MB); 56 queued, 8 running
+13:09:56 done  lams_toy_lean_hierarchical_T_e4_lams exit 0 in 0 min on GPU 8
+13:10:55 start default_toy_curved_hierarchical_R_default on GPU 8 cores 27-29 (free 11263 MB); 55 queued, 8 running
+13:11:12 done  default_toy_curved_hierarchical_R_default exit 0 in 0 min on GPU 8
+13:12:11 start lams_pp_hierarchical on GPU 8 cores 48-50 (free 11263 MB); 54 queued, 8 running
+13:13:45 start lams_pp_hierarchical_Rg on GPU 8 cores 30-32 (free 8282 MB); 53 queued, 9 running
+13:15:19 start consistent_gm_none on GPU 8 cores 42-44 (free 5304 MB); 52 queued, 10 running
+13:16:35 start consistent_gm_oracle on GPU 8 cores 69-71 (free 4012 MB); 51 queued, 11 running
+13:26:38 done  consistent_ik_reach_sym exit 0 in 49 min on GPU 9
+13:30:33 done  consistent_ik_reach_shift exit 0 in 49 min on GPU 9
+13:30:37 start consistent_toy_abs_oracle_joint_consistent on GPU 9 cores 60-62 (free 3306 MB); 50 queued, 10 running
+13:33:04 done  consistent_ik_reach_sym_bernoulli exit 0 in 48 min on GPU 9
+13:33:08 start consistent_toy_abs_oracle_hierarchical_consistent on GPU 9 cores 57-59 (free 3320 MB); 49 queued, 10 running
+13:38:17 start consistent_toy_square_hierarchical_consistent on GPU 9 cores 36-38 (free 3264 MB); 48 queued, 11 running
+13:38:32 done  consistent_ik_reach_shift_bernoulli exit 0 in 45 min on GPU 9
+13:40:24 done  consistent_gm_oracle exit 0 in 24 min on GPU 8
+13:40:27 start consistent_toy_square_none_consistent on GPU 8 cores 24-26 (free 3984 MB); 47 queued, 10 running
+13:42:56 done  consistent_toy_abs_hierarchical_consistent exit 0 in 47 min on GPU 9
+13:43:00 start consistent_toy_lean_hierarchical_consistent on GPU 9 cores 27-29 (free 3904 MB); 46 queued, 10 running
+13:46:05 done  consistent_toy_abs_none_consistent exit 0 in 45 min on GPU 9
+13:46:09 start consistent_toy_lean_none_consistent on GPU 9 cores 54-56 (free 4584 MB); 45 queued, 10 running
+13:47:42 start consistent_toy_lean_oracle_joint_consistent on GPU 9 cores 39-41 (free 3274 MB); 44 queued, 11 running
+13:51:46 done  consistent_gm_hierarchical exit 0 in 57 min on GPU 9
+13:51:46 done  consistent_toy_abs_oracle_joint_consistent exit 0 in 21 min on GPU 9
+13:51:51 start consistent_toy_lean_oracle_hierarchical_consistent on GPU 9 cores 33-35 (free 4582 MB); 43 queued, 10 running
+13:53:24 start consistent_toy_lean_hierarchical_R_consistent on GPU 9 cores 51-53 (free 3278 MB); 42 queued, 11 running
+13:57:28 done  consistent_toy_abs_oracle_hierarchical_consistent exit 0 in 24 min on GPU 9
+13:58:30 start consistent_toy_lean_hierarchical_T_consistent on GPU 8 cores 69-71 (free 3304 MB); 41 queued, 11 running
+13:58:46 done  consistent_gm_none exit 0 in 43 min on GPU 8
+14:10:22 done  consistent_toy_lean_oracle_joint_consistent exit 0 in 23 min on GPU 9
+14:18:26 done  consistent_toy_square_hierarchical_consistent exit 0 in 40 min on GPU 9
+14:18:26 done  consistent_toy_lean_oracle_hierarchical_consistent exit 0 in 27 min on GPU 9
+14:18:30 start consistent_toy_lean_hierarchical_TF_consistent on GPU 9 cores 63-65 (free 5260 MB); 40 queued, 8 running
+14:20:02 start consistent_toy_lean_hierarchical_TFR_consistent on GPU 9 cores 66-68 (free 3990 MB); 39 queued, 9 running
+14:20:36 done  consistent_toy_square_none_consistent exit 0 in 40 min on GPU 8
+14:20:39 start consistent_toy_lean_hierarchical_T_e4_consistent on GPU 8 cores 45-47 (free 3304 MB); 38 queued, 9 running
+14:21:12 done  consistent_toy_lean_hierarchical_consistent exit 0 in 38 min on GPU 9
+14:21:33 start consistent_toy_curved_hierarchical_consistent on GPU 9 cores 60-62 (free 4712 MB); 37 queued, 9 running
+14:23:05 start consistent_toy_curved_hierarchical_R_consistent on GPU 9 cores 57-59 (free 3434 MB); 36 queued, 10 running
+14:24:15 done  consistent_toy_lean_none_consistent exit 0 in 38 min on GPU 9
+14:24:38 start clampmetric_ik_absx1 on GPU 9 cores 42-44 (free 4114 MB); 35 queued, 10 running
+14:34:47 done  consistent_toy_lean_hierarchical_R_consistent exit 0 in 41 min on GPU 9
+14:34:51 start clampmetric_ik_absx1_R on GPU 9 cores 39-41 (free 4628 MB); 34 queued, 10 running
+14:36:24 start clampmetric_ik_flat_fixed on GPU 9 cores 36-38 (free 3312 MB); 33 queued, 11 running
+14:37:15 done  consistent_toy_lean_hierarchical_T_consistent exit 0 in 39 min on GPU 8
+14:37:19 start clampmetric_ik_flat_global on GPU 8 cores 33-35 (free 3984 MB); 32 queued, 11 running
+14:44:38 OOM   consistent_toy_curved_hierarchical_consistent after 23 min; requeued needing 2400 MB
+14:59:26 done  consistent_toy_lean_hierarchical_T_e4_consistent exit 0 in 39 min on GPU 8
+14:59:30 start consistent_toy_curved_hierarchical_consistent on GPU 8 cores 24-26 (free 3950 MB); 32 queued, 10 running
+15:08:05 done  consistent_toy_lean_hierarchical_TF_consistent exit 0 in 50 min on GPU 9
+15:08:09 start clampmetric_ik_reach_sym on GPU 9 cores 27-29 (free 3232 MB); 31 queued, 10 running
+15:10:36 done  consistent_toy_lean_hierarchical_TFR_consistent exit 0 in 51 min on GPU 9
+15:10:40 start clampmetric_ik_reach_shift on GPU 9 cores 54-56 (free 3932 MB); 30 queued, 10 running
+15:15:04 done  consistent_toy_curved_hierarchical_R_consistent exit 0 in 52 min on GPU 9
+15:15:08 start clampmetric_ik_reach_sym_bernoulli on GPU 9 cores 51-53 (free 4578 MB); 29 queued, 10 running
+15:16:41 start clampmetric_ik_reach_shift_bernoulli on GPU 9 cores 69-71 (free 3282 MB); 28 queued, 11 running
+15:21:44 done  clampmetric_ik_absx1 exit 0 in 57 min on GPU 9
+15:21:44 OOM   consistent_toy_curved_hierarchical_consistent after 22 min; requeued needing 3840 MB
+15:21:48 start clampmetric_gm_hierarchical on GPU 8 cores 60-62 (free 3950 MB); 28 queued, 10 running
+15:21:49 start clampmetric_toy_abs_hierarchical_clampmetric on GPU 9 cores 45-47 (free 3278 MB); 27 queued, 11 running
+15:22:39 done  clampmetric_ik_flat_global exit 0 in 45 min on GPU 8
+15:23:18 start clampmetric_gm_none on GPU 8 cores 63-65 (free 4012 MB); 26 queued, 11 running
+15:26:27 done  clampmetric_ik_flat_fixed exit 0 in 50 min on GPU 9
+15:26:31 start clampmetric_toy_abs_none_clampmetric on GPU 9 cores 66-68 (free 3328 MB); 25 queued, 11 running
+15:30:56 done  clampmetric_ik_absx1_R exit 0 in 56 min on GPU 9
+15:31:01 start clampmetric_toy_abs_oracle_joint_clampmetric on GPU 9 cores 57-59 (free 3342 MB); 24 queued, 11 running
+15:53:45 done  clampmetric_ik_reach_sym exit 0 in 46 min on GPU 9
+15:55:47 done  clampmetric_ik_reach_shift exit 0 in 45 min on GPU 9
+15:55:52 start clampmetric_toy_abs_oracle_hierarchical_clampmetric on GPU 9 cores 42-44 (free 3188 MB); 23 queued, 10 running
+15:56:46 done  clampmetric_toy_abs_oracle_joint_clampmetric exit 0 in 26 min on GPU 9
+15:57:11 start clampmetric_toy_square_hierarchical_clampmetric on GPU 9 cores 24-26 (free 3280 MB); 22 queued, 10 running
+15:59:25 done  clampmetric_ik_reach_sym_bernoulli exit 0 in 44 min on GPU 9
+15:59:30 start clampmetric_toy_square_none_clampmetric on GPU 9 cores 33-35 (free 3314 MB); 21 queued, 10 running
+16:00:49 start clampmetric_toy_lean_hierarchical_clampmetric on GPU 9 cores 36-38 (free 3370 MB); 20 queued, 11 running
+16:01:04 done  clampmetric_ik_reach_shift_bernoulli exit 0 in 44 min on GPU 9
+16:05:53 start clampmetric_gm_oracle on GPU 9 cores 39-41 (free 3952 MB); 19 queued, 11 running
+16:06:08 done  clampmetric_toy_abs_hierarchical_clampmetric exit 0 in 44 min on GPU 9
+16:08:14 done  clampmetric_gm_hierarchical exit 0 in 46 min on GPU 8
+16:08:18 start clampmetric_toy_lean_none_clampmetric on GPU 8 cores 27-29 (free 3984 MB); 18 queued, 10 running
+16:09:14 done  clampmetric_gm_none exit 0 in 46 min on GPU 8
+16:09:35 done  clampmetric_toy_abs_none_clampmetric exit 0 in 43 min on GPU 9
+16:09:39 start clampmetric_toy_lean_oracle_joint_clampmetric on GPU 8 cores 54-56 (free 3494 MB); 17 queued, 9 running
+16:09:40 start clampmetric_toy_lean_oracle_hierarchical_clampmetric on GPU 9 cores 57-59 (free 4630 MB); 16 queued, 10 running
+16:10:57 start clampmetric_toy_lean_hierarchical_R_clampmetric on GPU 9 cores 51-53 (free 3286 MB); 15 queued, 11 running
+16:18:28 OOM   clampmetric_toy_lean_hierarchical_clampmetric after 18 min; requeued needing 2400 MB
+16:20:37 start clampmetric_toy_lean_hierarchical_T_clampmetric on GPU 9 cores 69-71 (free 3224 MB); 15 queued, 11 running
+16:20:52 done  clampmetric_toy_abs_oracle_hierarchical_clampmetric exit 0 in 25 min on GPU 9
+16:30:07 done  clampmetric_toy_lean_oracle_joint_clampmetric exit 0 in 20 min on GPU 8
+16:35:10 done  clampmetric_toy_lean_oracle_hierarchical_clampmetric exit 0 in 25 min on GPU 9
+16:35:30 done  clampmetric_toy_square_hierarchical_clampmetric exit 0 in 38 min on GPU 9
+16:35:37 start clampmetric_toy_lean_hierarchical_clampmetric on GPU 9 cores 45-47 (free 5916 MB); 14 queued, 8 running
+16:35:52 done  clampmetric_gm_oracle exit 0 in 30 min on GPU 9
+16:37:01 start clampmetric_toy_lean_hierarchical_TF_clampmetric on GPU 9 cores 60-62 (free 3878 MB); 13 queued, 8 running
+16:37:16 done  clampmetric_toy_square_none_clampmetric exit 0 in 38 min on GPU 9
+16:38:23 start clampmetric_toy_lean_hierarchical_TFR_clampmetric on GPU 9 cores 63-65 (free 3928 MB); 12 queued, 8 running
+16:43:08 done  clampmetric_toy_lean_none_clampmetric exit 0 in 35 min on GPU 8
+16:43:13 start clampmetric_toy_lean_hierarchical_T_e4_clampmetric on GPU 8 cores 66-68 (free 4726 MB); 11 queued, 8 running
+16:44:33 start clampmetric_toy_curved_hierarchical_clampmetric on GPU 8 cores 36-38 (free 3456 MB); 10 queued, 9 running
+16:50:39 done  clampmetric_toy_lean_hierarchical_R_clampmetric exit 0 in 40 min on GPU 9
+16:50:45 start clampmetric_toy_curved_hierarchical_R_clampmetric on GPU 9 cores 42-44 (free 4546 MB); 9 queued, 9 running
+16:59:03 OOM   clampmetric_toy_lean_hierarchical_clampmetric after 23 min; requeued needing 3840 MB
+17:01:32 start clampmetric_toy_lean_hierarchical_clampmetric on GPU 9 cores 54-56 (free 5904 MB); 9 queued, 9 running
+17:01:47 done  clampmetric_toy_lean_hierarchical_T_clampmetric exit 0 in 41 min on GPU 9
+17:01:47 OOM   clampmetric_toy_lean_hierarchical_clampmetric after 0 min; requeued needing 6144 MB
+17:02:50 start consistent_toy_curved_hierarchical_consistent on GPU 9 cores 57-59 (free 5904 MB); 9 queued, 8 running
+17:03:05 OOM   consistent_toy_curved_hierarchical_consistent after 0 min; requeued needing 6144 MB
+17:19:35 done  clampmetric_toy_lean_hierarchical_TF_clampmetric exit 0 in 43 min on GPU 9
+17:21:00 start consistent_toy_curved_hierarchical_consistent on GPU 9 cores 24-26 (free 7832 MB); 9 queued, 7 running
+17:21:15 done  clampmetric_toy_lean_hierarchical_TFR_clampmetric exit 0 in 43 min on GPU 9
+17:21:15 done  consistent_toy_curved_hierarchical_consistent exit 0 in 0 min on GPU 9
+17:22:19 start clampmetric_toy_lean_hierarchical_clampmetric on GPU 9 cores 39-41 (free 7832 MB); 8 queued, 6 running
+17:22:34 done  clampmetric_toy_lean_hierarchical_clampmetric exit 0 in 0 min on GPU 9
+17:23:37 start lamsrow_pp_hierarchical on GPU 9 cores 33-35 (free 7832 MB); 7 queued, 6 running
+17:25:53 done  clampmetric_toy_lean_hierarchical_T_e4_clampmetric exit 0 in 43 min on GPU 8
+17:27:14 done  clampmetric_toy_curved_hierarchical_clampmetric exit 0 in 43 min on GPU 8
+17:29:35 done  clampmetric_toy_curved_hierarchical_R_clampmetric exit 0 in 39 min on GPU 9
+17:29:40 start lamsrow_pp_hierarchical_Rg on GPU 9 cores 27-29 (free 6866 MB); 6 queued, 4 running
+18:24:59 done  lams_pp_hierarchical exit 0 in 313 min on GPU 8
+18:28:16 done  lams_pp_hierarchical_Rg exit 0 in 315 min on GPU 8
+18:28:19 start gloeckler_pp_hierarchical on GPU 8 cores 51-53 (free 7126 MB); 5 queued, 3 running
+22:08:12 done  gloeckler_pp_hierarchical exit 0 in 220 min on GPU 8
+22:18:45 done  lamsrow_pp_hierarchical exit 0 in 295 min on GPU 9
+22:22:53 done  lamsrow_pp_hierarchical_Rg exit 0 in 293 min on GPU 9
+22:22:58 start gloeckler_pp_hierarchical_Rg on GPU 9 cores 45-47 (free 6352 MB); 4 queued, 1 running
+23:03:01 start consistent_pp_hierarchical on GPU 9 cores 69-71 (free 7508 MB); 3 queued, 2 running
+03:13:41 start consistent_pp_hierarchical_Rg on GPU 8 cores 54-56 (free 7856 MB); 2 queued, 3 running
+03:18:59 done  gloeckler_pp_hierarchical_Rg exit 0 in 296 min on GPU 9
+03:19:05 start clampmetric_pp_hierarchical on GPU 9 cores 57-59 (free 8050 MB); 1 queued, 3 running
+03:36:16 start clampmetric_pp_hierarchical_Rg on GPU 8 cores 60-62 (free 6728 MB); 0 queued, 4 running
+04:00:16 done  consistent_pp_hierarchical exit 0 in 297 min on GPU 9
+05:19:01 done  clampmetric_pp_hierarchical exit 0 in 120 min on GPU 9
+06:20:01 done  consistent_pp_hierarchical_Rg exit 0 in 186 min on GPU 8
+06:37:01 done  clampmetric_pp_hierarchical_Rg exit 0 in 181 min on GPU 8
+06:37:16 run_pd all done

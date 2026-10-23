@@ -136,4 +136,65 @@ raw Lambda_S and clamp activity on the published trajectories.
 **Scoring.** W1 to the exact posterior in exact sd, versus the stored run. "Same" means within
 15% + 0.02. PP is scored by mean r, RMSE and collapses.
 
-**Status:** pending GPUs (see `artifacts/noproj/run_pd.out`).
+**Status:** finished on 2026-10-23. All 180 jobs ran on GPUs no other user was on.
+- Some jobs on the curved and lean_T_e4 toys ran out of memory at n = 128. Every one finished on a later retry, so no output is missing.
+- Tables: `artifacts/noproj/comparison_pd.{txt,json}`. Figure: `artifacts/figures/17_pd_strategies.png`.
+
+### 3.1 The default path is unchanged
+
+`default` reproduces the stored draws **bit for bit**: max |diff| = 0 on all 112 rows, and PP mean r, RMSE and collapses are identical.
+
+A few `default` diagnostics are missing (`nan`) for toy rows whose `n` was drawn during an aborted shared-GPU attempt. Those draws are bit-identical; their jsonl is in `diagnostics/killed_shared/`.
+
+### 3.2 How often the raw Lambda_S is not PD (default trajectories)
+
+| family | samples non-PD (max / median) | score calls with ≥1 non-PD sample (max / median) |
+|---|---|---|
+| GM (trained) | 0.3% / 0.1% | 18% / 8% |
+| GM oracle | 0 / 0 | 0.3% / 0 |
+| IK (all) | **80%** / 11% | 100% / 59% |
+| toys (trained) | 15% / 10% | 67% / 51% |
+| toys (oracle scores) | 20% / 20% | 50% / 50% |
+| PP (baseline / Rg) | 22% / 23% | — |
+
+The worst case is IK flat global, at 67–80% of samples.
+
+So "only check Lambda_S" fails often, even with exact scores. Without per-row projection, Sum I_j is regularly indefinite: one row's negative curvature is not covered by the others.
+
+### 3.3 Accuracy
+
+W1 to the exact posterior, in exact sd, is compared with the stored row-projection run.
+- **Geometric-mean ratio:** below 1 means the variant is better.
+- **Tally:** better / same / worse over 112 rows, where "same" = within 15% + 0.02.
+- **PP:** mean r, global RMSE and collapses over 30 datasets. Stored: baseline 0.869 / 0.628 / 5; Rg 0.868 / 0.608 / 3.
+
+| variant | GM | GM oracle | IK | toys | toy oracle | tally | PP baseline | PP Rg |
+|---|---|---|---|---|---|---|---|---|
+| `lams` (check, then composed spectral repair) | 1.01 | 1.00 | 1.73 | 1.44 | 1.34 | 2/70/40 | 0.779 / 1.052 / 7 | 0.847 / 0.802 / 7 |
+| `lamsrow` (check, row projection only if not PD) | 1.01 | 1.00 | 1.13 | 1.10 | 1.11 | 2/90/20 | 0.857 / 0.749 / 6 | 0.849 / 0.789 / 7 |
+| `gloeckler` (nugget 0.1) | 1.01 | 1.00 | 1.24 | **0.93** | 0.98 | 17/76/19 | 0.878 / 0.566 / 4 | 0.888 / 0.492 / **1** |
+| `consistent` | 1.51 | 1.00 | 1.73 | 4.60 | 1.65 | 5/22/85 | **0.895 / 0.478 / 0** | **0.909 / 0.476 / 0** |
+| `clampmetric` | 1.00 | 1.00 | 0.98 | 1.00 | 1.00 | 1/111/0 | 0.869 / 0.628 / 5 | 0.868 / 0.607 / 3 |
+
+**Reading:**
+- **Check-only is worse than the current rule, and the fallback matters.**
+  - `lams` repairs the composed Lambda_S on ~50% of calls. It loses badly on IK, the toys and PP: mean r 0.869 → 0.779.
+  - `lamsrow` projects rows only where Lambda_S fails. It is closer to the current rule, but still worse everywhere (PP 0.857 / 0.849).
+  - So projecting every row, even when the sum would be PD, is not what costs accuracy. Rows with negative curvature hurt even when the others compensate.
+- **Gloeckler is the only drop-in that is never clearly worse on average.**
+  - It is slightly better on the trained toys (0.93) and better on PP: mean r 0.878 / 0.888, global RMSE −10% / −19%, Rg collapses 3 → 1.
+  - It is worse on IK (1.24, mostly IK flat global at n = 8–32: W1 0.19 → 0.93).
+- **`consistent` splits by regime.**
+  - It is the **best result on partial pooling we have**: mean r 0.895 / 0.909, global RMSE −24% / −22%, **zero collapses**. That is above the 0.904 of the TSM-trained nets (different training), here with the untouched nets.
+  - It is also the best on IK flat global (n = 8: 0.19 → 0.04; n = 128: 3.27 → 1.68).
+  - But it is much worse on the GM and toy problems (×1.5 and ×4.6), with W1 ≈ 0.5–0.7 sd on every curved and lean toy (0.1–0.45 on abs and square).
+  - Likely cause: the `K_j^-1` amplification where a row is almost uninformative (section 1.1). On the toys most rows say little about g individually, so the floored `K_j^-1` turns a small projection into a large mean shift. In PP each row is informative about the globals, so the consistent mean is the better one.
+  - Before using it outside PP, it needs a better treatment of uninformative rows (e.g. shrink `Delta_j` with `K_j`, or fall back to the default where `K_j` is near the floor).
+
+### 3.4 The metric (conservative) clamp
+
+On every experiment the clamp is almost never active: median 0%, max 0.4–0.9% of predictions. So `clampmetric` equals the default within noise (111/112 "same", PP identical).
+
+The one exception is IK flat global n = 128: W1 3.27 → 2.53. There the clamp is active most often, and the conservative version helps.
+
+This matches the 2-D study (section 2.1). The choice of clamp matters only where the network extrapolates, and there the metric clamp is the better one. It costs nothing elsewhere, so it is a safe default candidate. It just does not change results on the current benchmarks.

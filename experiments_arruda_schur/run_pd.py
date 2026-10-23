@@ -25,6 +25,7 @@ os.sched_setaffinity(0, sorted(os.sched_getaffinity(0))[:1])
 import argparse  # noqa: E402
 import subprocess  # noqa: E402
 import time  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 import run_noproj as rn  # noqa: E402
 
@@ -61,22 +62,53 @@ def foreign_users(gpu):
     return users - {ME}
 
 
+HOST_RAM_RESERVE_GB = 64
+
+
+def host_available_gb():
+    for line in Path("/proc/meminfo").read_text().splitlines():
+        if line.startswith("MemAvailable:"):
+            return int(line.split()[1]) / 2**20
+    return float("inf")
+
+
+class Adopted:
+    """A job started by an earlier scheduler: poll() is None while its pid is alive."""
+    def __init__(self, pid):
+        self.pid = pid
+
+    def poll(self):
+        return None if Path(f"/proc/{self.pid}").exists() else 0
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--variants", nargs="+", default=list(PD_VARIANTS), choices=sorted(PD_VARIANTS))
     parser.add_argument("--gpus", default=",".join(str(i) for i in range(10)))
     parser.add_argument("--only", nargs="*", default=None, help="job-name substrings to keep")
     parser.add_argument("--max-jobs-per-gpu", type=int, default=MAX_JOBS_PER_GPU)
+    parser.add_argument("--share-gpus", default="", help="GPUs where other users' processes are tolerated")
+    parser.add_argument("--skip-started", default=None, help="log of a previous run_pd: skip jobs it started")
+    parser.add_argument("--adopt", nargs="*", default=[], help="pid:gpu:cores of jobs left running by a previous run_pd")
     args = parser.parse_args()
     for d in (rn.LOGS, rn.DIAG):
         d.mkdir(parents=True, exist_ok=True)
     queue = [job for v in args.variants for job in rn.jobs(v)]
     if args.only:
         queue = [j for j in queue if any(s in j["name"] for s in args.only)]
+    if args.skip_started:
+        started = {line.split()[2] for line in Path(args.skip_started).read_text().splitlines()
+                   if len(line.split()) > 2 and line.split()[1] == "start"}
+        queue = [j for j in queue if j["name"] not in started]
+    shared = set(filter(None, args.share_gpus.split(",")))
     gpus = args.gpus.split(",")
     # three cores per job
     free_cores = [f"{c}-{c + 2}" for c in range(24, 72, 3)]
     running = {}
+    for entry in args.adopt:
+        pid, gpu, slot = entry.split(":")
+        free_cores.remove(slot)
+        running[slot] = (dict(name=f"adopted-{pid}"), Adopted(int(pid)), time.time(), gpu)
     last_launch = {g: 0.0 for g in gpus}
     rn.log(f"run_pd on GPUs {gpus}: {len(queue)} jobs ({', '.join(args.variants)})")
     while queue or running:
@@ -87,6 +119,9 @@ def main():
             running.pop(slot)
             free_cores.append(slot)
             minutes = (time.time() - started) / 60
+            if isinstance(process, Adopted):
+                rn.log(f"done  {job['name']} (adopted) on GPU {gpu}")
+                continue
             if rn.failed_oom(job) and job.get("tries", 0) < 3:
                 job["need"] = int(job["need"] * 1.6)
                 job["tries"] = job.get("tries", 0) + 1
@@ -99,7 +134,9 @@ def main():
                 continue
             if sum(1 for r in running.values() if r[3] == gpu) >= args.max_jobs_per_gpu:
                 continue
-            if foreign_users(gpu):
+            if gpu not in shared and foreign_users(gpu):
+                continue
+            if host_available_gb() < HOST_RAM_RESERVE_GB:
                 continue
             free = rn.gpu_free_mb(gpu)
             fits = [j for j in queue if free >= j["need"] + MARGIN_MB]

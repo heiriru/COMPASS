@@ -1,0 +1,42 @@
+12:10:37 run_pd on GPUs ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']: 180 jobs (default, lams, lamsrow, gloeckler, consistent, clampmetric)
+20:08:52 start default_pp_hierarchical on GPU 9 cores 24-26 (free 11263 MB); 179 queued, 1 running
+20:10:10 start default_pp_hierarchical_Rg on GPU 9 cores 27-29 (free 8282 MB); 178 queued, 2 running
+20:11:28 start default_ik_absx1 on GPU 9 cores 30-32 (free 5304 MB); 177 queued, 3 running
+20:12:46 start default_ik_absx1_R on GPU 9 cores 33-35 (free 3988 MB); 176 queued, 4 running
+20:53:25 done  default_ik_absx1 exit 0 in 42 min on GPU 9
+20:53:30 start default_ik_flat_fixed on GPU 9 cores 36-38 (free 3958 MB); 175 queued, 4 running
+20:55:01 done  default_ik_absx1_R exit 0 in 42 min on GPU 9
+20:55:07 start default_ik_flat_global on GPU 9 cores 39-41 (free 4010 MB); 174 queued, 4 running
+21:30:06 done  default_ik_flat_fixed exit 0 in 37 min on GPU 9
+21:30:11 start default_ik_reach_sym on GPU 9 cores 42-44 (free 3960 MB); 173 queued, 4 running
+21:37:27 done  default_ik_flat_global exit 0 in 42 min on GPU 9
+21:37:32 start default_ik_reach_shift on GPU 9 cores 45-47 (free 3986 MB); 172 queued, 4 running
+22:04:17 done  default_ik_reach_sym exit 0 in 34 min on GPU 9
+22:04:22 start default_ik_reach_sym_bernoulli on GPU 9 cores 48-50 (free 3988 MB); 171 queued, 4 running
+22:11:42 done  default_ik_reach_shift exit 0 in 34 min on GPU 9
+22:11:47 start default_ik_reach_shift_bernoulli on GPU 9 cores 51-53 (free 3986 MB); 170 queued, 4 running
+22:38:13 done  default_ik_reach_sym_bernoulli exit 0 in 34 min on GPU 9
+22:38:18 start default_gm_hierarchical on GPU 9 cores 54-56 (free 3988 MB); 169 queued, 4 running
+22:45:59 done  default_ik_reach_shift_bernoulli exit 0 in 34 min on GPU 9
+22:46:04 start default_gm_none on GPU 9 cores 57-59 (free 4004 MB); 168 queued, 4 running
+22:47:01 run_pd on GPUs ['0', '1', '2', '3', '4', '5', '7', '9']: 168 jobs (default, lams, lamsrow, gloeckler, consistent, clampmetric)
+22:47:02 start default_gm_oracle on GPU 0 cores 30-32 (free 9452 MB); 167 queued, 5 running
+22:47:02 start default_toy_abs_hierarchical_default on GPU 1 cores 33-35 (free 9516 MB); 166 queued, 6 running
+22:47:02 start default_toy_abs_none_default on GPU 2 cores 36-38 (free 9484 MB); 165 queued, 7 running
+22:47:02 start default_toy_abs_oracle_joint_default on GPU 3 cores 39-41 (free 10780 MB); 164 queued, 8 running
+22:47:02 start default_toy_abs_oracle_hierarchical_default on GPU 4 cores 42-44 (free 10780 MB); 163 queued, 9 running
+22:47:02 start default_toy_square_hierarchical_default on GPU 5 cores 45-47 (free 9304 MB); 162 queued, 10 running
+22:47:02 start default_toy_square_none_default on GPU 7 cores 48-50 (free 8936 MB); 161 queued, 11 running
+22:48:18 start default_toy_lean_hierarchical_default on GPU 0 cores 51-53 (free 8176 MB); 160 queued, 12 running
+22:48:18 start default_toy_lean_none_default on GPU 1 cores 60-62 (free 8246 MB); 159 queued, 13 running
+22:48:18 start default_toy_lean_oracle_joint_default on GPU 2 cores 63-65 (free 8214 MB); 158 queued, 14 running
+22:48:18 start default_toy_lean_oracle_hierarchical_default on GPU 3 cores 66-68 (free 9402 MB); 157 queued, 15 running
+22:48:18 start default_toy_lean_hierarchical_R_default on GPU 4 cores 69-71 (free 9420 MB); 156 queued, 16 running
+22:49:33 done  default_toy_abs_oracle_joint_default exit 0 in 3 min on GPU 3
+22:49:33 start default_toy_lean_hierarchical_T_default on GPU 0 cores 39-41 (free 6896 MB); 155 queued, 16 running
+22:51:33 done  default_toy_lean_oracle_hierarchical_default exit 0 in 3 min on GPU 3
+22:51:33 start default_toy_lean_hierarchical_TF_default on GPU 1 cores 66-68 (free 6960 MB); 154 queued, 16 running
+22:52:48 done  default_toy_abs_oracle_hierarchical_default exit 0 in 6 min on GPU 4
+22:52:49 start default_toy_lean_hierarchical_TFR_default on GPU 2 cores 42-44 (free 6848 MB); 153 queued, 16 running
+22:57:49 done  default_toy_square_none_default exit 0 in 11 min on GPU 7
+22:57:49 start default_toy_lean_hierarchical_T_e4_default on GPU 3 cores 48-50 (free 10780 MB); 152 queued, 16 running

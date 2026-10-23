@@ -114,11 +114,11 @@ def main():
     lines.append("partial pooling C2 (mean r, global RMSE, collapses):")
     for v, table in pp.items():
         for t in table:
-            if t["arm"].startswith("with") and v != variants[0]:
+            if t["arm"].startswith("with (") and v != variants[0]:
                 continue
             d = diag.get((f"{v}_pp_" + ("hierarchical" if t["net"] == "baseline" else "hierarchical_Rg"),
                           cn.JAC, 100), {})
-            extra = f"  nonPD {d['nonpd']:.3f} repair {d['repair']:.3f} clamp {d['clamp']:.4f}" if d and not t["arm"].startswith("with") else ""
+            extra = f"  nonPD {d['nonpd']:.3f} repair {d['repair']:.3f} clamp {d['clamp']:.4f}" if d and not t["arm"].startswith("with (") else ""
             lines.append(f"  {t['net']:8s} {t['arm']:22s} mean r {t['mean_r']:.3f}  global RMSE {t['global_rmse']:.3f}  "
                          f"local {t['local_rmse']:.3f}  collapses {t['collapses']}  ({t['datasets']} datasets){extra}")
     text = "\n".join(lines)
