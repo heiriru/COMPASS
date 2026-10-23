@@ -99,6 +99,18 @@ preconditioned):
   the group factor. The production sampler's default `denoise_clamp=5`, applied to
   row and composed denoisers, is now in `MultiLevelSampler`. Clamped results:
   `multilevel/artifacts/bench3/results_clamp5_report.md`.
+- With the clamp, 4×16 (3 datasets) is finite for every arm. g/h/l mean RMSE:
+
+  | arm | g | h | l |
+  |---|---|---|---|
+  | JAC-FD | 0.19 | 0.31 | 0.28 |
+  | JAC-FD r9 | 0.22 | 0.18 | 0.16 |
+  | GH-pilot | 0.20 | 0.39 | 0.35 |
+  | exact-score floor | 0.08 | 0.23 | 0.22 |
+
+- Global width errors are large (log-sd 0.2-0.5 vs 0.03 for exact scores). With
+  bigger groups the network, not the rule, is the limit.
+- 16×16 and 4×64 (clamped) were still running when this was written.
 
 ### 1.9 Covariance head
 
@@ -135,6 +147,10 @@ Exact for Gaussian rows (test). Arruda toy, J = 1000, 5 datasets:
 | full JAC-FD r9 | 14.6 | 1.49 sd | 1564 | 6.1 GB |
 | rb20 | 6.9 | 0.94 sd | 683 | 3.6 GB |
 | rb100 | 1.7 | 0.50 sd | 889 | 3.9 GB |
+
+J = 10,000, rb100 (1 dataset so far): 5,321 s/dataset at 3.9 GB peak, the same memory
+as J = 1000. Width ratio 1.02, mean error 3.1 sd. Full JAC was not run: extrapolated it
+would take ~4-5 h per dataset, and it is network-limited from J = 1000 on.
 
 The accuracy gain is most likely the stale Gaussian cache filtering the network's
 low-noise error, which is harmless only because this toy is Gaussian. The robust
