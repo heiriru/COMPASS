@@ -147,6 +147,10 @@ def compose(arm, seed, extra, tag="jac", head=None):
         train.load_to = common.load_with_latent_attention(train.load_to)
     else:
         patch_train(arm)
+    if arm == "cons":
+        # the energy gradient keeps a backward graph per FD copy: smaller network batches
+        from compass.MultiObsSampler import MultiObsSampler
+        MultiObsSampler.FD_JACOBIAN_MAX_ROWS = int(os.environ.get("FD_MAX_ROWS", 4096))
     if head is not None:
         os.environ["COMPASS_COVARIANCE_HEAD"] = str(head)
     argv = ["--artifacts", str(artifacts), "--tag", tag,

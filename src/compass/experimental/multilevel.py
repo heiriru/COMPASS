@@ -118,11 +118,32 @@ class NestedTree:
         return out
 
 
+def _safe_eigh(matrix, chunk=4096):
+    """Batched symmetric eigh, chunked (CUDA workspace grows with the batch), with a CPU
+    float64 retry plus a 1e-12-relative jitter for chunks the GPU kernel fails to converge."""
+    shape = matrix.shape
+    flat = matrix.reshape(-1, shape[-2], shape[-1])
+    values, vectors = [], []
+    for start in range(0, flat.shape[0], chunk):
+        block = flat[start:start + chunk]
+        try:
+            v, w = torch.linalg.eigh(block)
+        except RuntimeError:
+            cpu = block.detach().to("cpu", torch.float64)
+            scale = cpu.diagonal(dim1=-2, dim2=-1).abs().amax(-1).clamp_min(1e-30)
+            cpu = cpu + 1e-12 * scale.reshape(-1, 1, 1) * torch.eye(shape[-1], dtype=torch.float64)
+            v, w = torch.linalg.eigh(cpu)
+            v, w = v.to(block.device, block.dtype), w.to(block.device, block.dtype)
+        values.append(v)
+        vectors.append(w)
+    return torch.cat(values).reshape(shape[:-1]), torch.cat(vectors).reshape(shape)
+
+
 def _psd_project(matrix):
     """Nearest PSD matrix (eigenvalues clipped at 0) and how many matrices had an
     eigenvalue below rounding level (-1e-10 x their largest magnitude)."""
     sym = 0.5 * (matrix + matrix.mT)
-    values, vectors = torch.linalg.eigh(sym)
+    values, vectors = _safe_eigh(sym)
     scale = values.abs().amax(-1, keepdim=True).clamp_min(1e-300)
     clipped = values < -1e-10 * scale
     if not bool(clipped.any()):
@@ -309,7 +330,7 @@ def jacobian_precision(jacobian, lam, floor=1e-3, lower_clip=True):
     eigenvalues of ``H = -grad s`` (symmetrised) clipped into ``[0, (1-floor)/lam^2]``."""
     var = lam ** 2
     H = -0.5 * (jacobian + jacobian.mT)
-    values, vectors = torch.linalg.eigh(H.to(torch.float64))
+    values, vectors = _safe_eigh(torch.nan_to_num(H.to(torch.float64)))
     values = values.clamp(min=0.0 if lower_clip else None, max=(1.0 - floor) / var)
     precision = 1.0 / (var * (1.0 - var * values))
     return (vectors * precision.unsqueeze(-2)) @ vectors.mT

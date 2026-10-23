@@ -42,6 +42,8 @@ def claim(need_mb, allowed=None, interval=60, verbose=True):
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
         return None
     while True:
+        if allowed is None and os.environ.get("JACEXT_GPU"):
+            allowed = [int(v) for v in os.environ["JACEXT_GPU"].split(",")]
         candidates = [(free, index) for index, free, foreign in _query()
                       if not foreign and free >= need_mb + MARGIN_MB
                       and (allowed is None or index in allowed)]

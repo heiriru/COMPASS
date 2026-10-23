@@ -26,7 +26,24 @@ class ConservativeScore(nn.Module):
         self.base = base
         self.sde = sde
 
+    # rows per energy-gradient pass at inference (bounds the backward-graph memory)
+    INFERENCE_CHUNK = 16384
+
     def forward(self, x, t, c, return_attn_weights=False, **kwargs):
+        create_graph = torch.is_grad_enabled() and (self.training or x.requires_grad)
+        if not create_graph and x.shape[0] > self.INFERENCE_CHUNK:
+            step = self.INFERENCE_CHUNK
+            t_rows = t.expand(x.shape[0], *t.shape[1:]) if t.dim() and t.shape[0] == x.shape[0] else None
+            c_rows = c if c.dim() > 1 and c.shape[0] == x.shape[0] else None
+            out = torch.cat([self._forward(x[i:i + step],
+                                           t_rows[i:i + step] if t_rows is not None else t,
+                                           c_rows[i:i + step] if c_rows is not None else c,
+                                           **kwargs) for i in range(0, x.shape[0], step)])
+        else:
+            out = self._forward(x, t, c, **kwargs)
+        return (out, None) if return_attn_weights else out
+
+    def _forward(self, x, t, c, **kwargs):
         sigma = self.sde.marginal_prob_std(t).to(x.device)
         sigma = sigma.reshape(-1, 1) if sigma.numel() > 1 else sigma.reshape(1, 1)
         # a graph through the score is needed when training, or when the caller
@@ -46,7 +63,7 @@ class ConservativeScore(nn.Module):
         out = sigma * grad * latent                     # raw convention: sigma * score
         if not create_graph:
             out = out.detach()
-        return (out, None) if return_attn_weights else out
+        return out
 
 
 def _attention_backend(double_backward):
