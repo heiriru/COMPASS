@@ -55,6 +55,8 @@ SDE_KWARGS = {"sde_type": "vesde", "sigma": 8.0}
 NETWORK = {"hidden_size": 64, "depth": 4, "num_heads": 4, "mlp_ratio": 2}
 TRAIN = int(os.environ.get("TRAIN", 200_000))
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# production-style denoise clamp (prior sds); env CLAMP=none disables it
+CLAMP = None if os.environ.get("CLAMP", "5") == "none" else float(os.environ.get("CLAMP", "5"))
 
 
 def make_model(K, n):
@@ -123,7 +125,7 @@ def metrics(flat, mean, cov, tree):
 def run(configs, datasets, samples, steps):
     net = load()
     rows = []
-    path = OUT / "results.jsonl"
+    path = OUT / os.environ.get("RESULTS", "results.jsonl")
     done = set()
     if path.exists():
         for line in path.read_text().splitlines():
@@ -163,6 +165,9 @@ def run(configs, datasets, samples, steps):
                 t0 = time.time()
                 if arm == "gh_pilot":
                     kw["pilot_covariance"] = pilot()
+                if CLAMP is not None:
+                    kw.update(denoise_clamp=CLAMP, clamp_center=torch.zeros(D, dtype=torch.float64),
+                              clamp_scale=model.path_cov[-1].diagonal().sqrt())
                 sampler = MultiLevelSampler(tree, prior=model.prior(), **kw)
                 lam_min = float(net.sde.lambda_t(torch.tensor([EPS])))
                 out = sampler.sample(samples, lam_max=lam_max, lam_min=lam_min, steps=steps,
@@ -179,7 +184,7 @@ def run(configs, datasets, samples, steps):
 
 def report():
     import collections
-    rows = [json.loads(line) for line in (OUT / "results.jsonl").read_text().splitlines()]
+    rows = [json.loads(line) for line in (OUT / os.environ.get("RESULTS", "results.jsonl")).read_text().splitlines()]
     keys = ["g_mean_rmse", "h_mean_rmse", "l_mean_rmse", "g_logsd", "h_logsd", "l_logsd",
             "gh_corr_err", "seconds"]
     table = collections.defaultdict(list)
@@ -191,7 +196,7 @@ def report():
         vals = [np.mean([r[k] for r in rs]) for k in keys]
         lines.append(f"| {config} | {arm} | {len(rs)} | " + " | ".join(f"{v:.3f}" for v in vals) + " |")
     text = "\n".join(lines)
-    (OUT / "report.md").write_text(text + "\n")
+    (OUT / (os.environ.get("RESULTS", "results.jsonl").replace(".jsonl", "") + "_report.md")).write_text(text + "\n")
     print(text)
 
 

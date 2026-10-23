@@ -533,6 +533,9 @@ class MultiLevelSampler:
         precision: ``"jacobian_fd"`` (JAC with finite differences), ``"jacobian"`` (needs
             ``jacobian_fn``), or ``"pilot"`` (constant ``pilot_covariance`` (n_leaves, D, D),
             i.e. the multi-level ``gauss_hierarchical``).
+        denoise_clamp, clamp_center, clamp_scale: as the production ``denoise_clamp``: the
+            row (leaf path) denoiser and the composed denoiser of every level are clipped to
+            ``clamp_center +- denoise_clamp * clamp_scale`` (per path coordinate). None = off.
         drop_internal_priors: ablation that drops the mid-level prior factors (exponent
             1 - n_v for every non-root internal node), keeping only the root correction
             with the total leaf count. Wrong by construction; used to show the test has power.
@@ -599,6 +602,7 @@ class MultiLevelSampler:
             center = self.clamp_center.to(paths.device)
             scale = self.clamp_scale.to(paths.device)
             lo, hi = center - self.denoise_clamp * scale, center + self.denoise_clamp * scale
+            lo_all, hi_all = lo.to(torch.float64), hi.to(torch.float64)
             denoised = torch.maximum(torch.minimum(paths + lam ** 2 * scores, hi), lo)
             scores = (denoised - paths) / lam ** 2
         prior_scores, prior_precisions = self.prior.terms(tree, levels, lam)
@@ -609,6 +613,14 @@ class MultiLevelSampler:
                          project=self.project, diagnostics=diag)
         for m, c in diag.get("projected", {}).items():
             self.diagnostics[m] = self.diagnostics.get(m, 0) + c
+        if self.denoise_clamp is not None:
+            # the production sampler's second clamp: the *composed* denoiser of every level
+            # stays within denoise_clamp prior sds (a bad tail score is amplified (n-1)-fold)
+            for m in range(tree.depth):
+                block = slice(tree.offsets[m], tree.offsets[m + 1])
+                lo, hi = lo_all[block], hi_all[block]
+                denoised = torch.maximum(torch.minimum(levels[m] + lam ** 2 * u[m], hi), lo)
+                u[m] = (denoised - levels[m]) / lam ** 2
         return u
 
     def sample(self, num_samples, lam_max, lam_min=1e-3, steps=50, churn_eta=2.0,
