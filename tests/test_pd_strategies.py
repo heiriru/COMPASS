@@ -222,3 +222,110 @@ def test_unknown_strategy_is_rejected():
         sampler.set_pd_strategy("nope")
     with pytest.raises(ValueError):
         sampler.set_pd_strategy("composed_check", "nope")
+
+
+# --- truncation, blend, gloeckler_consistent, and the probe --------------------------------
+
+def row_information(k):
+    identity = torch.eye(2, dtype=torch.float64)
+    values, vectors = torch.linalg.eigh(k - identity)
+    delta = (vectors * (-values).clamp_min(0).unsqueeze(-2)) @ vectors.mT
+    keep = (vectors * (values >= 0).to(values.dtype).unsqueeze(-2)) @ vectors.mT   # P_j^+
+    return delta, keep
+
+
+def test_truncation_drops_the_negative_directions():
+    """Each row's message is (I_j^+, P_j^+ u_j), u_j = Lambda_j s_j - Lambda_0 s_0: no lift term."""
+    setup = wide_setup()
+    out, state, _ = compose(setup, "row_truncation")
+    y, k, lam, s, prior_lam, prior_s = gaussian_terms(setup, state)
+    delta, keep = row_information(k)
+    prior_weighted = prior_s @ prior_lam.T                                       # (S, H)
+    messages = torch.einsum("nij,nsj->nsi", lam, s) - prior_weighted[None]
+    precision = prior_lam + (lam + delta - prior_lam).sum(0)
+    numerator = prior_weighted + torch.einsum("nij,nsj->si", keep, messages)
+    expected = torch.linalg.solve(precision, numerator.T).T
+    torch.testing.assert_close(out, expected, rtol=3e-3, atol=3e-3)
+    # a Gaussian row's kept message is -lambda^-2 I_j^+ (y - m_j) for its likelihood mean m_j:
+    # it never involves K_j^-1, unlike the consistent rule
+    for rule in ("row_projection", "row_projection_consistent"):
+        assert float((compose(setup, rule)[0] - out).abs().max()) > 1e-2
+
+
+def test_blend_formula_and_limits():
+    setup = wide_setup()
+    out, state, _ = compose(setup, "row_projection_blend")
+    y, k, lam, s, prior_lam, prior_s = gaussian_terms(setup, state)
+    delta, _ = row_information(k)
+    lifted = lam + delta
+    means = torch.linalg.solve((k + delta).unsqueeze(1), torch.einsum("nij,nsj->nsi", lifted, s).unsqueeze(-1))
+    extra = (delta.unsqueeze(1) @ means).squeeze(-1).sum(0)
+    n = setup["observations"]
+    precision = lifted.sum(0) + (1 - n) * prior_lam
+    numerator = torch.einsum("nij,nsj->si", lam, s) + extra + (1 - n) * prior_s @ prior_lam.T
+    torch.testing.assert_close(out, torch.linalg.solve(precision, numerator.T).T, rtol=3e-3, atol=3e-3)
+
+
+def test_blend_stays_bounded_where_the_row_mean_is_undetermined():
+    """A row with K_j ~ 0 along v: the consistent rule divides by the floor, the blend by P_0."""
+    sampler = MultiObsSampler.__new__(MultiObsSampler)
+    inverse_variance = torch.tensor(4.0, dtype=torch.float64)
+    identity = torch.eye(2, dtype=torch.float64)
+    clean = torch.diag(torch.tensor([2.0, 1e-9], dtype=torch.float64))         # K_j
+    effective = (clean + inverse_variance * identity).unsqueeze(0)              # Lambda_j
+    delta = torch.diag(torch.tensor([0.0, 1.0 - 1e-9], dtype=torch.float64)).unsqueeze(0)
+    scores = torch.tensor([[[0.3, 0.5]]], dtype=torch.float64)
+    consistent = sampler._consistent_extra(delta, effective, scores, inverse_variance)
+    assert float(consistent.abs().max()) > 1e3
+    lifted = effective + delta
+    blend = delta[0] @ torch.linalg.solve(clean + delta[0], lifted[0] @ scores[0, 0])
+    assert float(blend.abs().max()) < 10
+
+
+def test_gloeckler_consistent_weights_the_row_means():
+    setup = wide_setup()
+    out, state, _ = compose(setup, "gloeckler_consistent", nugget=0.1)
+    y, k, lam, s, prior_lam, prior_s = gaussian_terms(setup, state)
+    n = setup["observations"]
+    lam_s = lam.sum(0) + (1 - n) * prior_lam
+    w, v = torch.linalg.eigh(lam_s)
+    lift = v @ torch.diag((-w).clamp_min(0) / (n - 1)) @ v.T + 0.1 * torch.eye(2, dtype=torch.float64)
+    weighted_means = torch.linalg.solve(k.unsqueeze(1), torch.einsum("nij,nsj->nsi", lam, s).unsqueeze(-1))
+    numerator = (torch.einsum("nij,nsj->si", lam, s) + (lift @ weighted_means).squeeze(-1).sum(0)
+                 + (1 - n) * prior_s @ prior_lam.T)
+    expected = torch.linalg.solve(lam_s + n * lift, numerator.T).T
+    torch.testing.assert_close(out, expected, rtol=3e-3, atol=3e-3)
+
+
+@pytest.mark.parametrize("strategy", ["row_truncation", "row_projection_blend",
+                                      "gloeckler_consistent"])
+def test_new_strategies_run_with_locals(strategy):
+    setup = wide_setup(locals_=(2,))
+    out, _, _ = compose(setup, strategy)
+    assert torch.isfinite(out).all()
+
+
+def test_new_strategies_agree_when_every_row_is_informative():
+    setup = wide_setup(widen=0.3, narrow=0.3)
+    ref, _, _ = compose(setup, "row_projection")
+    for strategy in ("row_truncation", "row_projection_blend"):
+        torch.testing.assert_close(compose(setup, strategy)[0], ref, rtol=1e-5, atol=1e-5)
+    torch.testing.assert_close(compose(setup, "gloeckler_consistent", nugget=0.0)[0], ref,
+                               rtol=1e-5, atol=1e-5)
+
+
+def test_probe_measures_the_consistent_minus_default_score(tmp_path, monkeypatch):
+    """The probe leaves the draws alone and its dscore is |s_cons - s_def| / |s_def|."""
+    import json
+    setup = wide_setup()
+    default, state, _ = compose(setup, "row_projection")
+    consistent, _, _ = compose(setup, "row_projection_consistent")
+    path = tmp_path / "probe.jsonl"
+    monkeypatch.setenv("COMPASS_PD_PROBE", str(path))
+    probed, _, _ = compose(setup, "row_projection")
+    assert torch.equal(probed, default)
+    record = json.loads(path.read_text().splitlines()[0])
+    ratio = (consistent - default).norm(dim=-1) / default.norm(dim=-1)
+    expected = torch.quantile(ratio, torch.tensor([0.1, 0.5, 0.9], dtype=torch.float64))
+    torch.testing.assert_close(torch.tensor(record["dscore"], dtype=torch.float64), expected, rtol=5e-3, atol=5e-3)
+    assert 0 < record["active_fraction"] <= 1 and len(record["k_rel"]) == 3

@@ -183,10 +183,19 @@ def test_unknown_clamp_mode_is_rejected():
         sampler.set_clamp_mode("box")
 
 
-def test_on_a_mixture_only_the_conjugate_clamp_is_exactly_conservative():
+@pytest.fixture
+def keep_default_dtype():
+    """clamp_study sets the float64 default dtype on import; do not leak it into later tests."""
+    dtype = torch.get_default_dtype()
+    yield
+    torch.set_default_dtype(dtype)
+
+
+def test_on_a_mixture_only_the_conjugate_clamp_is_exactly_conservative(keep_default_dtype):
     """psi is not quadratic: the metric clamp (its first Newton step) is approximately conservative,
     the globalised conjugate construction exactly, and both stay in the box."""
     import clamp_study as cs
+    torch.set_default_dtype(torch.float64)     # also when clamp_study was imported earlier
     target = cs.TARGETS["mixture"]
     lam2 = 0.49
     lower, upper = -torch.ones(2, dtype=torch.float64), torch.ones(2, dtype=torch.float64)

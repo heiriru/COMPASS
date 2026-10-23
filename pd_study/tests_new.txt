@@ -1,3 +1,624 @@
+........................................................................ [ 15%]
+........................................................................ [ 31%]
+........................................................................ [ 47%]
+........................................................................ [ 62%]
+.FFFFFFF..............................................F................. [ 78%]
+.....................................FFFFF.............................. [ 94%]
+...........................                                              [100%]
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_multiobs_analytic.py _______________
+tests/test_multiobs_analytic.py:40: in <module>
+    raise RuntimeError("test_multiobs_analytic.py requires a CUDA-capable GPU.")
+E   RuntimeError: test_multiobs_analytic.py requires a CUDA-capable GPU.
+------------------------------- Captured stdout --------------------------------
+Using 3 logical CPU(s) (limit of 3 threads).
+=================================== FAILURES ===================================
+____________ test_transformer_legacy_and_optional_return_contracts _____________
+
+    def test_transformer_legacy_and_optional_return_contracts():
+        torch.manual_seed(0)
+        model = ConditionTransformer(
+            nodes_size=4, hidden_size=8, depth=1, num_heads=1, mlp_ratio=1)
+        x = torch.randn(3, 4)
+        t = torch.rand(3, 1)
+        c = torch.tensor([
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0, 0.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0, 1.0],
+        ])
+    
+        legacy_score = model(x=x, t=t, c=c)
+>       score, drift = model(x=x, t=t, c=c, return_divergence=True)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_instantaneous_divergence.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py:1778: in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConditionTransformer(
+  (x_embedder): InputEmbedder()
+  (t_embedder): TimestepEmbedder(
+    (mlp): Sequential(
+      (...N_modulation): Sequential(
+      (0): SiLU()
+      (1): Linear(in_features=256, out_features=64, bias=True)
+    )
+  )
+)
+args = ()
+kwargs = {'x': tensor([[ 0.3858, -0.5343,  0.8087, -0.5688],
+        [ 1.7673, -1.1300, -1.8921, -1.1287],
+        [ 0.8748, -0...283]]), 'c': tensor([[0., 0., 1., 1.],
+        [1., 0., 1., 0.],
+        [0., 1., 0., 1.]]), 'return_divergence': True}
+
+    def _call_impl(self, *args, **kwargs):
+        forward_call = (self._slow_forward if torch._C._get_tracing_state() else self.forward)
+        # If we don't have any hooks, we want to skip the rest of the logic in
+        # this function, and just call forward.
+        if not (self._backward_hooks or self._backward_pre_hooks or self._forward_hooks or self._forward_pre_hooks
+                or _global_backward_pre_hooks or _global_backward_hooks
+                or _global_forward_hooks or _global_forward_pre_hooks):
+>           return forward_call(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: ConditionTransformer.forward() got an unexpected keyword argument 'return_divergence'
+
+.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py:1789: TypeError
+_____________ test_instantaneous_target_exact_hutchinson_and_masks _____________
+
+    def test_instantaneous_target_exact_hutchinson_and_masks():
+        model = _small_model(sde_type="vpsde")
+        trainer = model.trainer
+        x = torch.randn(3, 4, requires_grad=True)
+        t = torch.tensor([[0.2], [0.5], [0.8]])
+        mask = torch.tensor([
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0, 0.0, 1.0, 0.0],
+            [1.0, 1.0, 1.0, 1.0],
+        ])
+        diagonal = torch.tensor([1.5, -0.5, 2.0, 0.25])
+        raw_score = x * diagonal
+        alpha = model.sde.alpha_t(t).reshape(-1)
+        expected = alpha * torch.tensor([1.0, -0.25, 0.0])
+    
+>       exact = trainer.instantaneous_divergence_target(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            raw_score, x, t, mask, estimator="exact")
+E       AttributeError: 'Trainer' object has no attribute 'instantaneous_divergence_target'
+
+tests/test_instantaneous_divergence.py:142: AttributeError
+________________ test_learned_pfode_matches_exact_for_ve_and_vp ________________
+
+    def test_learned_pfode_matches_exact_for_ve_and_vp():
+        data, mask = _evaluation_data()
+        for sde in (VESDE(sigma=25.0), VPSDE()):
+            sbim = MockSBIm(sde)
+            pfode = PFODE(sbim)
+            sbim.model.forward_calls = 0
+            exact = pfode.log_prob(
+                data, mask, timesteps=40, divergence="exact")
+            exact_calls = sbim.model.forward_calls
+            sbim.model.forward_calls = 0
+>           learned = pfode.log_prob(
+                data, mask, timesteps=40, divergence="learned")
+
+tests/test_instantaneous_divergence.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/compass/PFODE.py:127: in log_prob
+    return self._log_prob(data, condition_mask, timesteps, eps, divergence,
+src/compass/PFODE.py:150: in _log_prob
+    log_probs.append(self._log_prob_batch(batch, mask, timesteps, eps,
+src/compass/PFODE.py:186: in _log_prob_batch
+    s0, div0 = self._score_and_div(y, ts[i], condition_mask, latent,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <compass.PFODE.PFODE object at 0x73ff79d5d730>
+y = tensor([[-1.0000,  0.5000,  2.0000, -0.2500],
+        [-0.5000,  0.1000,  2.0000, -0.2500],
+        [-1.8000,  1.0000,  2.0000, -0.2500]])
+t = tensor(0.0010)
+condition_mask = tensor([[0., 0., 1., 1.],
+        [0., 0., 1., 1.],
+        [0., 0., 1., 1.]])
+latent = tensor([[1., 1., 0., 0.],
+        [1., 1., 0., 0.],
+        [1., 1., 0., 0.]])
+divergence = 'learned', hutchinson_samples = 32, compute_div = True
+create_graph = False
+
+    def _score_and_div(self, y, t, condition_mask, latent, divergence, hutchinson_samples,
+                       compute_div=True, create_graph=False):
+        """Score s_y = alpha * s_x and its divergence w.r.t. y over the latent dims.
+    
+        The network approximates s_x = model(x,t,c)/sigma(t) with x = alpha(t) y on
+        the latent dims; div_y(s_y) = alpha^2 * div_x(s_x).
+    
+        With ``create_graph`` the outputs keep their dependence on ``y`` (and on the
+        conditioned values it carries), so the whole integration is differentiable.
+        """
+        if create_graph:
+            return self._score_and_div_graph(y, t, condition_mask, latent, divergence,
+                                             hutchinson_samples, compute_div)
+        sde = self.sde
+        alpha = sde.alpha_t(t).to(y.device)
+        sigma = sde.sigma_t(t).to(y.device)
+        t_vec = (t * torch.ones(y.shape[0], 1, device=y.device))
+    
+        x = y * (alpha * latent + condition_mask)
+    
+        if not compute_div:
+            with torch.no_grad():
+                out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
+                s_x = out / sigma
+            return (alpha * s_x).detach(), None
+    
+        with torch.enable_grad():
+            x = x.detach().requires_grad_(True)
+            out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
+            s_x = out / sigma
+    
+            if divergence == "exact":
+                # One backward pass per latent dimension: exact and deterministic,
+                # cheap for the low-dimensional joints COMPASS works with.
+                latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
+                div = torch.zeros(y.shape[0], device=y.device)
+                for k, j in enumerate(latent_dims):
+                    grad_j = torch.autograd.grad(s_x[:, j].sum(), x,
+                                                 retain_graph=(k < len(latent_dims) - 1))[0]
+                    div = div + grad_j[:, j] * latent[:, j]
+            elif divergence == "hutchinson":
+                div = torch.zeros(y.shape[0], device=y.device)
+                for k in range(hutchinson_samples):
+                    v = (torch.randint(0, 2, y.shape, device=y.device).float() * 2 - 1) * latent
+                    grad_v = torch.autograd.grad((s_x * v).sum(), x,
+                                                 retain_graph=(k < hutchinson_samples - 1))[0]
+                    div = div + (grad_v * v).sum(dim=-1)
+                div = div / hutchinson_samples
+            else:
+>               raise ValueError(f"Unknown divergence method '{divergence}'")
+E               ValueError: Unknown divergence method 'learned'
+
+src/compass/PFODE.py:345: ValueError
+___________________ test_learned_mode_requires_trained_head ____________________
+
+    def test_learned_mode_requires_trained_head():
+        model = _small_model(sde_type="vesde")
+        data, mask = _evaluation_data()
+        try:
+>           model.log_prob(data[:1], mask, timesteps=2, divergence="learned")
+
+tests/test_instantaneous_divergence.py:232: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/compass/ScoreBasedInferenceModel.py:674: in log_prob
+    return self.pfode.log_prob(data=data, condition_mask=condition_mask,
+src/compass/PFODE.py:127: in log_prob
+    return self._log_prob(data, condition_mask, timesteps, eps, divergence,
+src/compass/PFODE.py:150: in _log_prob
+    log_probs.append(self._log_prob_batch(batch, mask, timesteps, eps,
+src/compass/PFODE.py:186: in _log_prob_batch
+    s0, div0 = self._score_and_div(y, ts[i], condition_mask, latent,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <compass.PFODE.PFODE object at 0x73ff79af4f20>
+y = tensor([[-1.0000,  0.5000,  2.0000, -0.2500]]), t = tensor(0.0010)
+condition_mask = tensor([[0., 0., 1., 1.]]), latent = tensor([[1., 1., 0., 0.]])
+divergence = 'learned', hutchinson_samples = 32, compute_div = True
+create_graph = False
+
+    def _score_and_div(self, y, t, condition_mask, latent, divergence, hutchinson_samples,
+                       compute_div=True, create_graph=False):
+        """Score s_y = alpha * s_x and its divergence w.r.t. y over the latent dims.
+    
+        The network approximates s_x = model(x,t,c)/sigma(t) with x = alpha(t) y on
+        the latent dims; div_y(s_y) = alpha^2 * div_x(s_x).
+    
+        With ``create_graph`` the outputs keep their dependence on ``y`` (and on the
+        conditioned values it carries), so the whole integration is differentiable.
+        """
+        if create_graph:
+            return self._score_and_div_graph(y, t, condition_mask, latent, divergence,
+                                             hutchinson_samples, compute_div)
+        sde = self.sde
+        alpha = sde.alpha_t(t).to(y.device)
+        sigma = sde.sigma_t(t).to(y.device)
+        t_vec = (t * torch.ones(y.shape[0], 1, device=y.device))
+    
+        x = y * (alpha * latent + condition_mask)
+    
+        if not compute_div:
+            with torch.no_grad():
+                out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
+                s_x = out / sigma
+            return (alpha * s_x).detach(), None
+    
+        with torch.enable_grad():
+            x = x.detach().requires_grad_(True)
+            out = self.SBIm.model(x=x, t=t_vec, c=condition_mask)
+            s_x = out / sigma
+    
+            if divergence == "exact":
+                # One backward pass per latent dimension: exact and deterministic,
+                # cheap for the low-dimensional joints COMPASS works with.
+                latent_dims = torch.nonzero(latent.any(dim=0)).flatten().tolist()
+                div = torch.zeros(y.shape[0], device=y.device)
+                for k, j in enumerate(latent_dims):
+                    grad_j = torch.autograd.grad(s_x[:, j].sum(), x,
+                                                 retain_graph=(k < len(latent_dims) - 1))[0]
+                    div = div + grad_j[:, j] * latent[:, j]
+            elif divergence == "hutchinson":
+                div = torch.zeros(y.shape[0], device=y.device)
+                for k in range(hutchinson_samples):
+                    v = (torch.randint(0, 2, y.shape, device=y.device).float() * 2 - 1) * latent
+                    grad_v = torch.autograd.grad((s_x * v).sum(), x,
+                                                 retain_graph=(k < hutchinson_samples - 1))[0]
+                    div = div + (grad_v * v).sum(dim=-1)
+                div = div / hutchinson_samples
+            else:
+>               raise ValueError(f"Unknown divergence method '{divergence}'")
+E               ValueError: Unknown divergence method 'learned'
+
+src/compass/PFODE.py:345: ValueError
+____________________ test_legacy_and_new_checkpoint_loading ____________________
+
+tmp_path = PosixPath('/export/home/rheinric/.cache/vscode-tmp/pytest-of-rheinric/pytest-80/test_legacy_and_new_checkpoint0')
+
+    def test_legacy_and_new_checkpoint_loading(tmp_path):
+        torch.manual_seed(4)
+        model = _small_model(sde_type="vesde")
+        x = torch.randn(2, 4)
+        t = torch.rand(2, 1)
+        c = torch.tensor([[0.0, 0.0, 1.0, 1.0]]).repeat(2, 1)
+        expected_score = model.model(x=x, t=t, c=c).detach()
+    
+        legacy_state = {
+            key: value for key, value in model.model.state_dict().items()
+            if not key.startswith("divergence_head.")
+        }
+        legacy_checkpoint = {
+            "model_state_dict": legacy_state,
+            "nodes_size": model.nodes_size,
+            "sde_type": model.sde_type,
+            "sigma": model.sigma,
+            "beta_min": model.beta_min,
+            "beta_max": model.beta_max,
+            "hidden_size": model.hidden_size,
+            "depth": model.depth,
+            "num_heads": model.num_heads,
+            "mlp_ratio": model.mlp_ratio,
+        }
+        legacy_path = tmp_path / "legacy.pt"
+        torch.save(legacy_checkpoint, legacy_path)
+        loaded_legacy = ScoreBasedInferenceModel.load(legacy_path, device="cpu")
+>       assert not loaded_legacy.divergence_head_trained
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_instantaneous_divergence.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ScoreBasedInferenceModel(
+  (model): ConditionTransformer(
+    (x_embedder): InputEmbedder()
+    (t_embedder): Timeste...): Sequential(
+        (0): SiLU()
+        (1): Linear(in_features=256, out_features=64, bias=True)
+      )
+    )
+  )
+)
+name = 'divergence_head_trained'
+
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+        if "_parameters" in self.__dict__:
+            _parameters = self.__dict__["_parameters"]
+            if name in _parameters:
+                return _parameters[name]
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'ScoreBasedInferenceModel' object has no attribute 'divergence_head_trained'
+
+.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py:1967: AttributeError
+___________ test_legacy_trainer_batch_return_and_opt_in_head_update ____________
+
+    def test_legacy_trainer_batch_return_and_opt_in_head_update():
+        torch.manual_seed(7)
+        model = _small_model(sde_type="vesde")
+        trainer = model.trainer
+        trainer.device = "cpu"
+        trainer.eps = 1e-3
+        trainer.time_sampling = "uniform"
+        trainer.model = model.model
+        data = torch.randn(16, 4)
+        mask = torch.tensor([[0.0, 0.0, 1.0, 1.0]]).repeat(16, 1)
+        batch = (data, mask, torch.arange(16))
+    
+        trainer.train_divergence = False
+        trainer.divergence_loss_weight = 1.0
+        trainer.divergence_warmup_epochs = 0
+        legacy_loss = trainer._run_batch(batch)
+        assert legacy_loss.ndim == 0
+    
+        trainer.train_divergence = True
+        trainer.divergence_target = "exact"
+        trainer.hutchinson_samples = 1
+        # Mimic the intended warm-start workflow with a non-trivial trained score
+        # projection; a freshly constructed COMPASS score head is exactly zero.
+        with torch.no_grad():
+            model.model.final_layer.embedding_params.normal_(std=0.1)
+>       before = model.model.divergence_head.mlp[-1].weight.detach().clone()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_instantaneous_divergence.py:309: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ConditionTransformer(
+  (x_embedder): InputEmbedder()
+  (t_embedder): TimestepEmbedder(
+    (mlp): Sequential(
+      (...N_modulation): Sequential(
+      (0): SiLU()
+      (1): Linear(in_features=256, out_features=64, bias=True)
+    )
+  )
+)
+name = 'divergence_head'
+
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+        if "_parameters" in self.__dict__:
+            _parameters = self.__dict__["_parameters"]
+            if name in _parameters:
+                return _parameters[name]
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'ConditionTransformer' object has no attribute 'divergence_head'
+
+.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py:1967: AttributeError
+______________________ test_public_training_api_is_opt_in ______________________
+
+tmp_path = PosixPath('/export/home/rheinric/.cache/vscode-tmp/pytest-of-rheinric/pytest-80/test_public_training_api_is_op0')
+
+    def test_public_training_api_is_opt_in(tmp_path):
+        torch.manual_seed(9)
+        theta = torch.randn(32, 2)
+        observations = theta + 0.2 * torch.randn(32, 2)
+    
+        legacy = _small_model(sde_type="vesde")
+        legacy.train(
+            theta, observations, batch_size=16, max_epochs=1,
+            early_stopping_patience=1, device="cpu", verbose=False,
+            path=str(tmp_path), name="legacy_default")
+>       assert not legacy.divergence_head_trained
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_instantaneous_divergence.py:332: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ScoreBasedInferenceModel(
+  (model): ConditionTransformer(
+    (x_embedder): InputEmbedder()
+    (t_embedder): Timeste...): Sequential(
+        (0): SiLU()
+        (1): Linear(in_features=256, out_features=64, bias=True)
+      )
+    )
+  )
+)
+name = 'divergence_head_trained'
+
+    def __getattr__(self, name: str) -> Union[Tensor, "Module"]:
+        if "_parameters" in self.__dict__:
+            _parameters = self.__dict__["_parameters"]
+            if name in _parameters:
+                return _parameters[name]
+        if "_buffers" in self.__dict__:
+            _buffers = self.__dict__["_buffers"]
+            if name in _buffers:
+                return _buffers[name]
+        if "_modules" in self.__dict__:
+            modules = self.__dict__["_modules"]
+            if name in modules:
+                return modules[name]
+>       raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+E       AttributeError: 'ScoreBasedInferenceModel' object has no attribute 'divergence_head_trained'
+
+.COMPASS/lib/python3.12/site-packages/torch/nn/modules/module.py:1967: AttributeError
+_____________ test_validation_uses_configured_training_batch_size ______________
+
+    def test_validation_uses_configured_training_batch_size():
+        model = torch.nn.Linear(1, 1)
+        trainer = Trainer(SimpleNamespace(model=model, sde=object()))
+        trainer.world_size = 1
+        trainer.batch_size = 17
+        trainer.max_epochs = 0
+        trainer.early_stopping_patience = 1
+        trainer.lr = 1e-3
+        trainer.verbose = False
+        trainer.device = "cpu"
+        seen = []
+    
+        def prepare(data, batch_size, rank):
+            seen.append(batch_size)
+            return []
+    
+        trainer._prepare_data = prepare
+>       trainer._train_loop(0, torch.zeros(2, 1), torch.zeros(2, 1))
+
+tests/test_memory_bounded_attention.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/compass/Trainer.py:192: in _train_loop
+    fixed_masks=self._fixed_validation_masks(val_data),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <compass.Trainer.Trainer object at 0x73ff79223e60>
+val_data = tensor([[0.],
+        [0.]])
+
+    def _fixed_validation_masks(self, val_data):
+        """One mask per validation row, drawn once from a dedicated seed.
+    
+        The global RNG state is saved and restored, so adding this does not
+        shift any other random draw in training.
+        """
+        sampler = getattr(self, "mask_sampler", None)
+        if sampler is None:
+>           sampler = GroupedBernoulli(self.SBIm.schema, 0.33)
+                                       ^^^^^^^^^^^^^^^^
+E           AttributeError: 'types.SimpleNamespace' object has no attribute 'schema'
+
+src/compass/Trainer.py:377: AttributeError
+________________________ test_pfode_sampler_heun_vesde _________________________
+
+    def test_pfode_sampler_heun_vesde():
+>       mean_err, std_ratio = _sample_posterior(
+            VESDE(sigma=25.0), "heun", equation="probability_flow_ode")
+
+tests/test_pfode_vpsde_analytic.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+sde = <compass.SDE.VESDE object at 0x73ff792223f0>, method = 'heun'
+kw = {'equation': 'probability_flow_ode'}
+
+    def _sample_posterior(sde, method, **kw):
+        torch.manual_seed(3)
+        x_obs = MU0 + 0.4 * torch.randn(2)
+        m, v = posterior_moments(x_obs)
+        sbim = MockSBIm(DiffusedPosteriorScore, sde)
+>       samples = sbim.sampler.sample(
+            world_size=1, data=x_obs, condition_mask=MASK,
+            timesteps=50, num_samples=4000,
+            method=method, device="cpu", verbose=False, **kw)
+E       TypeError: Sampler.sample() got an unexpected keyword argument 'equation'
+
+tests/test_pfode_vpsde_analytic.py:171: TypeError
+________________________ test_pfode_sampler_heun_vpsde _________________________
+
+    def test_pfode_sampler_heun_vpsde():
+>       mean_err, std_ratio = _sample_posterior(
+            VPSDE(), "heun", equation="probability_flow_ode")
+
+tests/test_pfode_vpsde_analytic.py:213: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+sde = <compass.SDE.VPSDE object at 0x73ff79af5820>, method = 'heun'
+kw = {'equation': 'probability_flow_ode'}
+
+    def _sample_posterior(sde, method, **kw):
+        torch.manual_seed(3)
+        x_obs = MU0 + 0.4 * torch.randn(2)
+        m, v = posterior_moments(x_obs)
+        sbim = MockSBIm(DiffusedPosteriorScore, sde)
+>       samples = sbim.sampler.sample(
+            world_size=1, data=x_obs, condition_mask=MASK,
+            timesteps=50, num_samples=4000,
+            method=method, device="cpu", verbose=False, **kw)
+E       TypeError: Sampler.sample() got an unexpected keyword argument 'equation'
+
+tests/test_pfode_vpsde_analytic.py:171: TypeError
+___________________________ test_pfode_sampler_euler ___________________________
+
+    def test_pfode_sampler_euler():
+>       mean_err, std_ratio = _sample_posterior(
+            VESDE(sigma=25.0), "euler", equation="probability_flow_ode")
+
+tests/test_pfode_vpsde_analytic.py:222: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+sde = <compass.SDE.VESDE object at 0x73ff79b21370>, method = 'euler'
+kw = {'equation': 'probability_flow_ode'}
+
+    def _sample_posterior(sde, method, **kw):
+        torch.manual_seed(3)
+        x_obs = MU0 + 0.4 * torch.randn(2)
+        m, v = posterior_moments(x_obs)
+        sbim = MockSBIm(DiffusedPosteriorScore, sde)
+>       samples = sbim.sampler.sample(
+            world_size=1, data=x_obs, condition_mask=MASK,
+            timesteps=50, num_samples=4000,
+            method=method, device="cpu", verbose=False, **kw)
+E       TypeError: Sampler.sample() got an unexpected keyword argument 'equation'
+
+tests/test_pfode_vpsde_analytic.py:171: TypeError
+____________ test_pfode_sampler_defaults_trajectory_and_validation _____________
+
+    def test_pfode_sampler_defaults_trajectory_and_validation():
+        torch.manual_seed(5)
+        sde = VESDE(sigma=25.0)
+        x_obs = MU0 + 0.4 * torch.randn(2)
+        sbim = MockSBIm(DiffusedPosteriorScore, sde)
+>       samples = sbim.sampler.sample(
+            world_size=1, data=x_obs, condition_mask=MASK,
+            timesteps=20, eps=2e-3, num_samples=32,
+            method=None, equation="probability_flow_ode",
+            save_trajectory=True, device="cpu", verbose=False)
+E       TypeError: Sampler.sample() got an unexpected keyword argument 'equation'
+
+tests/test_pfode_vpsde_analytic.py:235: TypeError
+______________ test_pfode_public_sampling_paths_and_batched_masks ______________
+
+    def test_pfode_public_sampling_paths_and_batched_masks():
+        from compass.ScoreBasedInferenceModel import ScoreBasedInferenceModel
+    
+        class IndependentGaussianScore(torch.nn.Module):
+            def __init__(self, sde, mean, var):
+                super().__init__()
+                self.sde = sde
+                self.mean = mean
+                self.var = var
+    
+            def forward(self, x, t, c, return_attn_weights=False):
+                sigma = self.sde.sigma_t(t).to(x.device)
+                alpha = self.sde.alpha_t(t).to(x.device)
+                score = -(x - alpha * self.mean.to(x.device)) / (
+                    alpha**2 * self.var + sigma**2)
+                out = sigma * score
+                if return_attn_weights:
+                    return out, torch.zeros(1)
+                return out
+    
+        torch.manual_seed(6)
+        mean = torch.tensor([-1.2, 0.7, 2.1, -0.4])
+        model = ScoreBasedInferenceModel(
+            nodes_size=4, sde_type="vesde", sigma=25.0,
+            hidden_size=8, depth=1, num_heads=1, mlp_ratio=1)
+        model.model = IndependentGaussianScore(model.sde, mean, var=0.2)
+    
+>       posterior = model.sample(
+            x=torch.zeros(1, 2), timesteps=40, eps=2e-3, num_samples=512,
+            cfg_alpha=1.0, equation="probability_flow_ode",
+            device="cpu", verbose=False)
+E       TypeError: ScoreBasedInferenceModel.sample() got an unexpected keyword argument 'equation'
+
+tests/test_pfode_vpsde_analytic.py:284: TypeError
+=============================== warnings summary ===============================
+tests/test_gauss_jacobian_composition.py: 18 warnings
+  /export/home/rheinric/COMPASS/.COMPASS/lib/python3.12/site-packages/torch/jit/_script.py:1488: DeprecationWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
 FAILED tests/test_instantaneous_divergence.py::test_transformer_legacy_and_optional_return_contracts
 FAILED tests/test_instantaneous_divergence.py::test_instantaneous_target_exact_hutchinson_and_masks
 FAILED tests/test_instantaneous_divergence.py::test_learned_pfode_matches_exact_for_ve_and_vp
@@ -12,4 +633,4 @@ FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_euler - TypeErr...
 FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_sampler_defaults_trajectory_and_validation
 FAILED tests/test_pfode_vpsde_analytic.py::test_pfode_public_sampling_paths_and_batched_masks
 ERROR tests/test_multiobs_analytic.py - RuntimeError: test_multiobs_analytic....
-13 failed, 436 passed, 18 warnings, 1 error in 789.59s (0:13:09)
+13 failed, 446 passed, 18 warnings, 1 error in 772.41s (0:12:52)

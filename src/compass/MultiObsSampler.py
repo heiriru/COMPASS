@@ -229,6 +229,8 @@ class MultiObsSampler():
         self.pd_strategy = os.environ.get("COMPASS_PD_STRATEGY", "row_projection")
         self.pd_fallback = os.environ.get("COMPASS_PD_FALLBACK", "repair")
         self.pd_nugget = float(os.environ.get("COMPASS_PD_NUGGET", "0.1"))
+        # jsonl path for _probe_row_lift (diagnostics only; does not change the draws)
+        self.pd_probe = os.environ.get("COMPASS_PD_PROBE") or None
         # Denoised-prediction clamp: "coordinate" (default, per-coordinate clip) or
         # "metric" (conservative: projection in the denoiser's own metric; set_clamp_mode).
         self.clamp_mode = os.environ.get("COMPASS_CLAMP_MODE", "coordinate")
@@ -238,6 +240,13 @@ class MultiObsSampler():
         self.pd_floor = 1e-3
         self.jacobian_refresh = 1
         self.jacobian_curvature_floor = 1e-3
+        # Opt-in speed-up (set_cholesky_screen): skip the eigendecompositions of matrices a
+        # Cholesky factorisation already proves need no eigenvalue clamping.
+        self.cholesky_screen = False
+        # Opt-in speed-up (set_eigh_precision): dtype and chunk of the two per-row
+        # eigendecompositions on the gauss_jacobian path.
+        self.eigh_dtype = torch.float64
+        self.eigh_chunk = 2048
         self.jacobian_fd_step = 1e-2
         self.jacobian_refresh_low_noise = None
         self.jacobian_refresh_lambda = 0.3
@@ -2740,14 +2749,80 @@ class MultiObsSampler():
 
         curvature = -jacobian
         curvature = 0.5 * (curvature + curvature.mT)
-        eigenvalues, eigenvectors = self._batched_eigh(curvature)
         floor = float(self.jacobian_curvature_floor)
+        if getattr(self, "cholesky_screen", False):
+            return self._screened_jacobian_precision(curvature, variance, floor)
+        eigenvalues, eigenvectors = self._row_eigh(curvature)
         self._curv_eigenvalues = getattr(self, "_curv_eigenvalues", 0) + int(eigenvalues.numel())
         self._curv_negative = getattr(self, "_curv_negative", 0) + int((eigenvalues < 0).sum())
         lower = 0.0 if getattr(self, "curvature_lower_clip", True) else None
         eigenvalues = eigenvalues.clamp(min=lower, max=(1.0 - floor) / variance)
         precision = 1.0 / (variance * (1.0 - variance * eigenvalues))
         return (eigenvectors * precision.unsqueeze(-2)) @ eigenvectors.mT
+
+    def set_cholesky_screen(self, enabled):
+        """Switch the Cholesky screen of the gauss_jacobian eigendecompositions on or off.
+
+        Both per-row eigendecompositions on the gauss_jacobian path exist only to clamp
+        eigenvalues: the curvature H_j into [0, (1 - floor) / lambda^2] at a Jacobian refresh,
+        and the information I_j(t) onto the PSD cone at every evaluation. A Cholesky
+        factorisation proves a matrix already inside those bounds (it succeeds iff the
+        matrix is numerically positive definite), and then the clamp is the identity: the
+        precision follows from a Cholesky solve and the PSD lift is zero. Only the rows that
+        fail are eigendecomposed. The result is the unscreened one up to float rounding;
+        batched Cholesky of small matrices is far cheaper than batched eigh on CUDA, and
+        its workspace does not scale with the batch the way eigh's does. Off by default.
+        """
+        self.cholesky_screen = bool(enabled)
+
+    def set_eigh_precision(self, dtype=torch.float64, chunk=2048):
+        """dtype and chunk size of the per-row eigendecompositions on the gauss_jacobian path
+        (curvature clamp at a refresh, information projection at every evaluation).
+
+        On consumer GPUs fp64 runs at 1/32 rate: on an RTX 2080 Ti, 20,000 7x7 matrices take
+        17 ms in float64 and 4 ms in float32. The matrices are formed in float64 (the
+        information I_j = Lambda_j - Lambda_prior is a cancellation), only the
+        eigendecomposition runs in ``dtype``, and its output is cast back. The CUDA eigh
+        workspace is ~0.5 MB per matrix whatever their size (1.1 GB per 2,048-chunk), so
+        ``chunk`` bounds peak memory. Defaults reproduce the previous behaviour exactly."""
+        self.eigh_dtype = dtype
+        self.eigh_chunk = int(chunk)
+
+    def _row_eigh(self, matrices):
+        dtype = getattr(self, "eigh_dtype", torch.float64)
+        values, vectors = self._batched_eigh(matrices.to(dtype), getattr(self, "eigh_chunk", 2048))
+        return values.to(matrices.dtype), vectors.to(matrices.dtype)
+
+    def _screened_jacobian_precision(self, curvature, variance, floor):
+        """`_jacobian_joint_precision`'s clamp + inverse with the Cholesky screen.
+
+        Rows with 0 < H_j < (1 - floor) / lambda^2 (two Cholesky tests; the lower one only
+        when the lower clip is on) need no clamp: Lambda_j = (lambda^2 (I - lambda^2 H_j))^-1
+        directly. The others take the eigendecomposition path unchanged."""
+        dimension = curvature.shape[-1]
+        identity = torch.eye(dimension, dtype=curvature.dtype, device=curvature.device)
+        flat = curvature.reshape(-1, dimension, dimension)
+        upper = (1.0 - floor) / variance
+        _, info_upper = torch.linalg.cholesky_ex(upper * identity - flat)
+        inside = info_upper == 0
+        lower_clip = getattr(self, "curvature_lower_clip", True)
+        if lower_clip:
+            _, info_lower = torch.linalg.cholesky_ex(flat)
+            inside = inside & (info_lower == 0)
+        kernel = variance * (identity - variance * flat)          # Sigma_t,j, PD on `inside`
+        factor, _ = torch.linalg.cholesky_ex(kernel)
+        precision = torch.cholesky_inverse(factor)
+        outside = (~inside).nonzero(as_tuple=True)[0]
+        self._screen_rows = getattr(self, "_screen_rows", 0) + int(flat.shape[0])
+        self._screen_eigh_rows = getattr(self, "_screen_eigh_rows", 0) + int(outside.numel())
+        if outside.numel():
+            eigenvalues, eigenvectors = self._row_eigh(flat[outside])
+            self._curv_eigenvalues = getattr(self, "_curv_eigenvalues", 0) + int(eigenvalues.numel())
+            self._curv_negative = getattr(self, "_curv_negative", 0) + int((eigenvalues < 0).sum())
+            eigenvalues = eigenvalues.clamp(min=0.0 if lower_clip else None, max=upper)
+            clamped = 1.0 / (variance * (1.0 - variance * eigenvalues))
+            precision[outside] = (eigenvectors * clamped.unsqueeze(-2)) @ eigenvectors.mT
+        return precision.reshape(curvature.shape)
 
     def _bp_jacobian_score(self, scores, state, t, condition_mask, var_t):
         """Pool scores/Jacobians by block, then form the BP-JAC precision ratio."""
@@ -3141,11 +3216,13 @@ class MultiObsSampler():
                 h, dtype=torch.float64, device=effective.device)
         information = effective - prior_t
         information = 0.5 * (information + information.mT)
+        if getattr(self, "cholesky_screen", False):
+            return self._screened_projection(information, apply)
         # Chunked: with a per-sample precision this batch is
         # observations x samples matrices (90,000 at 30 x 3000), which the CUDA
         # eigh kernel cannot allocate workspace for in one call -- see
         # _batched_eigh.
-        eigenvalues, eigenvectors = self._batched_eigh(information)
+        eigenvalues, eigenvectors = self._row_eigh(information)
         deficits = (-eigenvalues).clamp_min(0.0)
 
         self._pd_composed_evaluations += 1
@@ -3173,8 +3250,45 @@ class MultiObsSampler():
             return None
         return delta
 
+    def _screened_projection(self, information, apply):
+        """`_project_information` with the Cholesky screen: rows whose I_j(t) factorises are
+        positive definite and get a zero lift; only the others are eigendecomposed. The
+        diagnostics then cover the eigendecomposed rows only (``_pd_information_min`` records
+        their minimum, or 0.0 -- a valid lower bound -- when every row passed)."""
+        h = information.shape[-1]
+        flat = information.reshape(-1, h, h)
+        _, info = torch.linalg.cholesky_ex(flat)
+        failed = (info != 0).nonzero(as_tuple=True)[0]
+        self._pd_composed_evaluations += 1
+        self._screen_rows = getattr(self, "_screen_rows", 0) + int(flat.shape[0])
+        self._screen_eigh_rows = getattr(self, "_screen_eigh_rows", 0) + int(failed.numel())
+        if failed.numel() == 0:
+            self._pd_information_min.append(0.0)
+            return None
+        eigenvalues, eigenvectors = self._row_eigh(flat[failed])
+        self._pd_information_eigenvalues += int(eigenvalues.numel())
+        negative = int((eigenvalues < 0).sum())
+        self._pd_negative_information += negative
+        self._pd_information_min.append(float(eigenvalues.min()))
+        if negative == 0:
+            return None
+        self._pd_adaptation_count += 1
+        deficits = (-eigenvalues).clamp_min(0.0)
+        delta_failed = torch.matmul(eigenvectors * deficits.unsqueeze(-2), eigenvectors.mT)
+        relative = (torch.linalg.matrix_norm(delta_failed)
+                    / torch.linalg.matrix_norm(flat[failed]).clamp_min(torch.finfo(torch.float64).eps))
+        self._pd_adaptation_relative.append(float(relative.max()))
+        self._pd_adaptation_relative_mean = getattr(self, "_pd_adaptation_relative_mean", [])
+        self._pd_adaptation_relative_mean.append(float(relative.mean()))
+        if not (self.information_projection if apply is None else apply):
+            return None
+        delta = torch.zeros_like(flat)
+        delta[failed] = delta_failed
+        return delta.reshape(information.shape)
+
     PD_STRATEGIES = ("row_projection", "composed_check", "gloeckler",
-                     "row_projection_post", "row_projection_consistent")
+                     "row_projection_post", "row_projection_consistent",
+                     "row_truncation", "row_projection_blend", "gloeckler_consistent")
     PD_FALLBACKS = ("repair", "row_projection", "gloeckler")
 
     def set_pd_strategy(self, strategy, fallback=None, nugget=None):
@@ -3202,6 +3316,17 @@ class MultiObsSampler():
           weighted term becomes (K_j + Delta_j) K_j^-1 Lambda_j s_j instead of
           (Lambda_j + Delta_j) s_j. The default rule lifts the precision but keeps
           the score of the unlifted Gaussian.
+        - "row_truncation": drop each row's message in the directions where I_j < 0.
+          Precision Lambda_prior + I_j^+ (as the default), numerator Lambda_ref s_ref +
+          P_j^+ (Lambda_j s_j - Lambda_ref s_ref): an exact Gaussian message with
+          precision I_j^+ and the row's own mean in the kept directions, and no
+          information in the others. Needs no K_j^-1.
+        - "row_projection_blend": the consistent term with K_j^-1 replaced by the lifted
+          (K_j + Delta_j)^-1 = (P_0 + I_j^+)^-1: Delta_j (K_j + Delta_j)^-1
+          (Lambda_j + Delta_j) s_j. Equals the consistent rule where K_j >> Delta_j and
+          stays bounded (by the prior covariance) where K_j -> 0.
+        - "gloeckler_consistent": Gloeckler's lift L, but each row's term is
+          L K_j^-1 Lambda_j s_j (the same row Gaussian, lifted) instead of L s_j.
         """
         if strategy not in self.PD_STRATEGIES:
             raise ValueError(f"pd strategy must be one of {self.PD_STRATEGIES}")
@@ -3222,14 +3347,16 @@ class MultiObsSampler():
         return lift + self.pd_nugget * identity
 
     def _apply_pd_strategy(self, precision, numerator, effective, global_scores,
-                           inverse_variance, n):
+                           inverse_variance, n, reference=None, state=None):
         """Check Lambda_S and apply the selected PD strategy at the composed level.
 
         ``precision`` is the composed Lambda_S, (H, H) or (samples, H, H);
         ``numerator`` (1, samples, H); ``effective`` the per-row precisions the
         numerator was weighted with, (rows, H, H) or (rows, samples, H, H);
-        ``global_scores`` (rows, samples, H). Returns the (precision, numerator)
-        to solve. The default strategy only records diagnostics.
+        ``global_scores`` (rows, samples, H); ``reference`` the (precision,
+        precision @ score) of the prior the I_j are measured against, and ``state``
+        the current globals (1, samples, H), both optional. Returns the (precision,
+        numerator) to solve. The default strategy only records diagnostics.
         """
         strategy = self.pd_strategy
         delta = getattr(self, "_last_row_delta", None)
@@ -3260,6 +3387,10 @@ class MultiObsSampler():
         trace = getattr(self, "_lams_trace", [])
         trace.append((variance ** 0.5, float(bad.float().mean()), relative))
         self._lams_trace = trace
+        if self.pd_probe and delta is not None:
+            projected = strategy == "row_projection" and self.information_projection
+            self._probe_row_lift(raw, numerator, delta, effective, global_scores,
+                                 inverse_variance, state, projected)
         if strategy in ("row_projection", "composed_check") and not (
                 strategy == "composed_check" and bool(bad.any()) and self.pd_fallback != "repair"):
             return precision, numerator
@@ -3294,42 +3425,174 @@ class MultiObsSampler():
             numerator = numerator + mask.squeeze(-1).unsqueeze(0) * extra
             return precision, numerator
 
-        if strategy == "gloeckler":
+        if strategy in ("gloeckler", "gloeckler_consistent"):
             if n <= 1:
                 return precision, numerator
             lift_one = self._gloeckler_lift(eigenvalues, eigenvectors, n)
-            extra = torch.einsum(
-                "ij,bsj->bsi" if lift_one.dim() == 2 else "sij,bsj->bsi",
-                lift_one, global_scores.sum(dim=0, keepdim=True))
+            if strategy == "gloeckler":
+                extra = torch.einsum(
+                    "ij,bsj->bsi" if lift_one.dim() == 2 else "sij,bsj->bsi",
+                    lift_one, global_scores.sum(dim=0, keepdim=True))
+            else:
+                # the same Gaussian, lifted: L K_j^-1 Lambda_j s_j per row
+                k_inverse = self._clean_precision_inverse(effective, inverse_variance)
+                means = self._apply_rows(k_inverse, self._weighted_rows(effective, global_scores))
+                lift_rows = lift_one if lift_one.dim() == 2 else lift_one.unsqueeze(0)
+                extra = (lift_rows @ means.unsqueeze(-1)).squeeze(-1).sum(dim=0, keepdim=True)
             return precision + n * lift_one, numerator + extra
+
+        if strategy == "row_truncation":
+            # Drop each row's message in its negative-information directions:
+            # precision Lambda_prior + I_j^+ (as the default) and numerator
+            # Lambda_ref s_ref + P_j^+ (Lambda_j s_j - Lambda_ref s_ref).
+            if delta is None:
+                return precision, numerator
+            if reference is None:
+                raise ValueError("row_truncation needs the reference prior terms")
+            reference_precision, reference_weighted = reference
+            information = effective - reference_precision
+            information = 0.5 * (information + information.mT)
+            values, vectors = self._row_eigh(information)
+            negative = (values < 0).to(values.dtype)
+            projector = (vectors * negative.unsqueeze(-2)) @ vectors.mT        # P_j^-
+            message = self._weighted_rows(effective, global_scores) - reference_weighted
+            if projector.dim() == 3:
+                removed = torch.einsum("nij,nsj->si", projector, message)
+            else:
+                removed = (projector @ message.unsqueeze(-1)).squeeze(-1).sum(dim=0)
+            return precision + delta.sum(dim=0), numerator - removed.unsqueeze(0)
 
         if delta is None:
             return precision, numerator
         lift = delta.sum(dim=0)
         if strategy == "row_projection_post":
             return precision + lift, numerator + weighted(delta, global_scores)
+        if strategy == "row_projection_blend":
+            # Delta_j (K_j + Delta_j)^-1 (Lambda_j + Delta_j) s_j: the consistent term with
+            # K_j^-1 replaced by the lifted (P_0 + I_j^+)^-1, i.e. weighted by K/(K + Delta).
+            identity = torch.eye(effective.shape[-1], dtype=effective.dtype, device=effective.device)
+            lifted = self._broadcast_rows(effective, delta) + delta
+            weighted_lifted = (lifted @ self._broadcast_scores(global_scores, delta)).squeeze(-1) \
+                if delta.dim() == 4 else torch.einsum("nij,nsj->nsi", lifted, global_scores)
+            clean = lifted - inverse_variance * identity
+            clean = 0.5 * (clean + clean.mT)
+            if delta.dim() == 4:
+                means = torch.linalg.solve(clean, weighted_lifted.unsqueeze(-1))
+                extra = (delta @ means).squeeze(-1).sum(dim=0, keepdim=True)
+            else:
+                means = torch.linalg.solve(clean.unsqueeze(1), weighted_lifted.unsqueeze(-1)).squeeze(-1)
+                extra = torch.einsum("nij,nsj->si", delta, means).unsqueeze(0)
+            return precision + lift, numerator + extra
         # row_projection_consistent: Delta_j K_j^-1 Lambda_j s_j, K_j = Lambda_j - lambda^-2 I
+        return precision + lift, numerator + self._consistent_extra(
+            delta, effective, global_scores, inverse_variance)
+
+    @staticmethod
+    def _broadcast_rows(effective, delta):
+        """Row precisions shaped like ``delta`` ((rows, H, H) or (rows, samples, H, H))."""
+        if delta.dim() == 4 and effective.dim() == 3:
+            return effective.unsqueeze(1).expand_as(delta)
+        return effective
+
+    @staticmethod
+    def _broadcast_scores(global_scores, delta):
+        return global_scores.unsqueeze(-1) if delta.dim() == 4 else global_scores
+
+    @staticmethod
+    def _apply_rows(matrices, vectors):
+        """(rows[, samples], H, H) applied to (rows, samples, H) -> (rows, samples, H)."""
+        if matrices.dim() == 3:
+            return torch.einsum("nij,nsj->nsi", matrices, vectors)
+        return (matrices @ vectors.unsqueeze(-1)).squeeze(-1)
+
+    @staticmethod
+    def _weighted_rows(effective, global_scores):
+        """Lambda_j s_j per row: (rows, samples, H)."""
+        if effective.dim() == 4:
+            return (effective @ global_scores.unsqueeze(-1)).squeeze(-1)
+        return torch.einsum("nij,nsj->nsi", effective, global_scores)
+
+    def _clean_precision_inverse(self, effective, inverse_variance):
+        """Floored K_j^-1, K_j = Lambda_j - lambda^-2 I (shape of ``effective``)."""
         identity = torch.eye(effective.shape[-1], dtype=effective.dtype, device=effective.device)
         clean = effective - inverse_variance * identity
-        if delta.dim() == 4 and clean.dim() == 3:
-            clean = clean.unsqueeze(1).expand_as(delta)
-            effective_full = effective.unsqueeze(1).expand_as(delta)
-        else:
-            effective_full = effective
         clean = 0.5 * (clean + clean.mT)
         k_values, k_vectors = self._batched_eigh(clean)
         # A row with (numerically) no clean precision has no finite mean; floor it.
         floor = 1e-6 * k_values.abs().amax(dim=-1, keepdim=True).clamp_min(1e-12)
-        k_inverse = (k_vectors / k_values.clamp_min(0.0).maximum(floor).unsqueeze(-2)) @ k_vectors.mT
-        weighted_scores = (effective_full @ global_scores.unsqueeze(-1)
-                           if effective_full.dim() == 4 else
-                           torch.einsum("nij,nsj->nsi", effective_full, global_scores).unsqueeze(-1))
+        return (k_vectors / k_values.clamp_min(0.0).maximum(floor).unsqueeze(-2)) @ k_vectors.mT
+
+    def _consistent_extra(self, delta, effective, global_scores, inverse_variance):
+        """sum_j Delta_j K_j^-1 Lambda_j s_j as (1, samples, H)."""
+        effective_full = self._broadcast_rows(effective, delta)
+        k_inverse = self._clean_precision_inverse(effective_full, inverse_variance)
+        weighted_scores = self._weighted_rows(effective_full, global_scores).unsqueeze(-1)
         if delta.dim() == 4:
-            extra = (delta @ (k_inverse @ weighted_scores)).squeeze(-1).sum(dim=0, keepdim=True)
+            return (delta @ (k_inverse @ weighted_scores)).squeeze(-1).sum(dim=0, keepdim=True)
+        return torch.einsum("nij,nsj->si", delta @ k_inverse,
+                            weighted_scores.squeeze(-1)).unsqueeze(0)
+
+    def _probe_row_lift(self, raw, numerator, delta, effective, global_scores, inverse_variance,
+                        state, projected):
+        """COMPASS_PD_PROBE: where the row lift Delta_j acts, how well determined is the
+        row's clean mean, and how far do the consistent and default rules disagree?
+
+        Appends one json line per call to ``self.pd_probe``. Per (row, sample) with an
+        active lift, along each negative-information direction v of I_j (|v| = 1):
+        ``k_rel`` = v^T K_j v / v^T P_0 v (clean row precision relative to the prior),
+        ``shift`` = |v^T (mu_j - y)| / prior sd along v (the implied mean's distance).
+        Per sample: ``dscore`` = |s_cons - s_def| / |s_def| of the composed global score,
+        ``toward_origin`` = cos(s_cons - s_def, -y)."""
+        import json
+        h = delta.shape[-1]
+        identity = torch.eye(h, dtype=delta.dtype, device=delta.device)
+        if effective.dim() == 3 and effective.shape[0] == 1 and delta.shape[0] > 1:
+            effective = effective.expand(delta.shape[0], -1, -1)
+        effective_full = self._broadcast_rows(effective, delta)
+        extra_default = self._apply_rows(delta, global_scores).sum(dim=0)
+        if projected:
+            # the rows (and numerator) arrive lifted already; the raw Lambda_j are needed here
+            effective_full = effective_full - delta
+            effective = effective_full
+            numerator = numerator - extra_default.unsqueeze(0)
+        values, vectors = self._row_eigh(0.5 * (delta + delta.mT))
+        active = values > 1e-12 * values.abs().amax(dim=-1, keepdim=True).clamp_min(1e-300)
+        clean = effective_full - inverse_variance * identity
+        prior = self.prior_precision_matrix.to(device=delta.device, dtype=delta.dtype)
+        k_dir = torch.einsum("...ia,...ij,...ja->...a", vectors, clean, vectors)
+        p_dir = torch.einsum("...ia,ij,...ja->...a", vectors, prior, vectors)
+        k_inverse = self._clean_precision_inverse(effective_full, inverse_variance)
+        weighted = self._weighted_rows(effective_full, global_scores)          # (rows, samples, H)
+        offset = -self._apply_rows(k_inverse, weighted) / inverse_variance          # y - mu_j
+        if vectors.dim() == 3:
+            shift = torch.einsum("nia,nsi->nsa", vectors, offset).abs()
+            k_rel = (k_dir / p_dir).unsqueeze(1).expand_as(shift)
+            act = active.unsqueeze(1).expand_as(shift)
+            sd = p_dir.rsqrt().unsqueeze(1).expand_as(shift)
         else:
-            extra = torch.einsum("nij,nsj->si", delta @ k_inverse,
-                                 weighted_scores.squeeze(-1)).unsqueeze(0)
-        return precision + lift, numerator + extra
+            shift = torch.einsum("nsia,nsi->nsa", vectors, offset).abs()
+            k_rel, act, sd = k_dir / p_dir, active, p_dir.rsqrt()
+        shift = shift / sd
+        composed = raw + delta.sum(dim=0)
+        composed = composed if composed.dim() == 3 else composed.expand(global_scores.shape[1], -1, -1)
+        extra_consistent = self._consistent_extra(delta, effective, global_scores, inverse_variance)[0]
+        s_def = torch.linalg.solve(composed, (numerator[0] + extra_default).unsqueeze(-1)).squeeze(-1)
+        diff = torch.linalg.solve(composed, (extra_consistent - extra_default).unsqueeze(-1)).squeeze(-1)
+        ratio = diff.norm(dim=-1) / s_def.norm(dim=-1).clamp_min(1e-300)
+        record = {"lambda": float(inverse_variance) ** -0.5,
+                  "active_fraction": float(act.any(dim=-1).float().mean())}
+        quantiles = torch.tensor([0.1, 0.5, 0.9], dtype=torch.float64)
+        if bool(act.any()):
+            record["k_rel"] = torch.quantile(k_rel[act].double().cpu(), quantiles).tolist()
+            record["shift"] = torch.quantile(shift[act].double().cpu(), quantiles).tolist()
+        record["dscore"] = torch.quantile(ratio.double().cpu(), quantiles).tolist()
+        if state is not None:
+            y = state[0].to(diff.dtype)
+            cos = (diff * -y).sum(-1) / (diff.norm(dim=-1) * y.norm(dim=-1)).clamp_min(1e-300)
+            big = ratio > 0.01
+            record["toward_origin"] = float(cos[big].mean()) if bool(big.any()) else None
+        with open(self.pd_probe, "a") as handle:
+            handle.write(json.dumps(record) + "\n")
 
     def _marginal_global_factors(self, var_t):
         """Return clean-moment GAUSS precisions for p(g | x_j)."""
@@ -4589,6 +4852,8 @@ class MultiObsSampler():
                 "ij,bsj->bsi", precision_prior_t,
                 prior_score.to(torch.float64),
             )
+            # The prior each row's information I_j is measured against (for row_truncation).
+            reference = (precision_prior_t, weighted_prior)
             if self.training_prior is None:
                 composed_precision = (
                     precision_sum + (1 - n) * precision_prior_t
@@ -4604,9 +4869,11 @@ class MultiObsSampler():
                 )
                 numerator = weighted_sum + weighted_prior - n * torch.einsum(
                     "ij,bsj->bsi", train_precision_t, train_score)
+                reference = (train_precision_t, torch.einsum(
+                    "ij,bsj->bsi", train_precision_t, train_score))
             composed_precision, numerator = self._apply_pd_strategy(
                 composed_precision, numerator, effective_precision,
-                global_scores, inverse_variance, n,
+                global_scores, inverse_variance, n, reference=reference, state=theta_h,
             )
             composed64, composed_solved_precision, _, _ = self._solve_composed_global(
                 composed_precision, numerator, global_scores

@@ -12,6 +12,9 @@
     consistent   row projection, with each row's score replaced by the score of the lifted
                  Gaussian (same clean mean)
     clampmetric  default PD rule; conservative (metric) clamp of the denoised predictions
+    gl1          gloeckler with nugget 1 (best of the nugget sweep on the exact-score toys)
+    trunc        no PSD clip of I_j; each row's message (I_j, Lambda_j s_j) truncated to the
+                 directions where I_j >= 0 (EP-style: skip the negative part of the site)
 
 Unlike run_noproj.py this never shares a GPU with another user: a job starts only on a card
 whose compute processes are all ours, and waits otherwise (AGENTS.md: autocvd semantics).
@@ -36,6 +39,8 @@ PD_VARIANTS = {
     "gloeckler": {"COMPASS_PD_STRATEGY": "gloeckler", "COMPASS_PD_NUGGET": "0.1"},
     "consistent": {"COMPASS_PD_STRATEGY": "row_projection_consistent"},
     "clampmetric": {"COMPASS_CLAMP_MODE": "metric"},
+    "gl1": {"COMPASS_PD_STRATEGY": "gloeckler", "COMPASS_PD_NUGGET": "1"},
+    "trunc": {"COMPASS_PD_STRATEGY": "row_truncation"},
 }
 for name, env in PD_VARIANTS.items():
     rn.VARIANTS[name] = dict(env=env, jac_only=True, controls=False)

@@ -198,3 +198,62 @@ On every experiment the clamp is almost never active: median 0%, max 0.4–0.9% 
 The one exception is IK flat global n = 128: W1 3.27 → 2.53. There the clamp is active most often, and the conservative version helps.
 
 This matches the 2-D study (section 2.1). The choice of clamp matters only where the network extrapolates, and there the metric clamp is the better one. It costs nothing elsewhere, so it is a safe default candidate. It just does not change results on the current benchmarks.
+
+## 4. Round 2: why `consistent` fails on the toys, and three alternatives
+
+New strategies (all in `_apply_pd_strategy`; `tests/test_pd_strategies.py`):
+
+| strategy | row message | idea |
+|---|---|---|
+| `row_truncation` | `(I_j⁺, Lambda_ref s_ref + P_j⁺ (Lambda_j s_j − Lambda_ref s_ref))` | EP-style: skip the negative part of each site. Precision = default; no `K_j^-1`. |
+| `row_projection_blend` | extra `Delta_j (K_j+Delta_j)^-1 (Lambda_j+Delta_j) s_j` | per-direction weight `K/(K+Delta)` between consistent (`K ≫ Delta`) and default (`K → 0`). `K+Delta = P0+I⁺` is PD. |
+| `gloeckler_consistent` | Gloeckler lift `L`, extra `Σ_j L K_j^-1 Lambda_j s_j` | Gloeckler's precision with the consistent (clean-mean) numerator. |
+
+`COMPASS_PD_PROBE=<file.jsonl>` logs, per sampler call, what the lift does: active fraction, `k_rel = vᵀK_j v / vᵀP0 v` along the `Delta_j` eigenvectors, the implied row-mean distance `|vᵀ(mu_j − y)|` in prior sd, and `dscore = |s_cons − s_def| / |s_def|` of the composed score. It does not change the draws (tested).
+
+### 4.1 Step 1: is it the `K_j^-1` blow-up? (`probe_summary.py` → `results/screen/probe_summary.txt`)
+
+Exact-score toys (abs, lean; oracle_hierarchical and oracle_joint; n = 4–128), default rule. Means over calls in each noise band:
+
+| toy | band | active | k_rel 10% / 50% | shift 50% (sd) | dscore 50% / 90% | cos(Δs, −y) |
+|---|---|---|---|---|---|---|
+| abs | λ > 2 | 0.4–0.7 | 0.35–0.45 / 0.66–0.88 | 2.5–2.6 | 0.04–0.12 / 0.05–0.17 | 1.00 |
+| abs | 0.5–2 | 0.3 | 0.07–0.10 / 0.43–0.54 | 0.7–1.0 | 0.08–0.21 / **36–2955** | −0.0 to −0.5 |
+| lean | λ > 2 | 0.66–0.87 | 0.30–0.37 / 0.54–0.63 | 2.8–3.2 | **0.24–0.28** / 1.0–2.8 | 0.88–0.93 |
+| lean | 0.5–2 | 0.06–0.18 | 0.05–0.12 / 0.34–0.52 | 3–10 | 0.00–0.01 / 0.01–2.3 | −0.2 |
+| both | λ < 0.5 | ≈ 0 | — | — | 0 | — |
+
+**Verdict: the explanation was half right.**
+- The `K_j^-1` blow-up exists, but only in a tail: at λ 0.5–2 on abs, 10% of directions have `K` below 0.1 of the prior, and the 90th percentile of the score change is 36–3000× the score. abs is symmetric, so this tail costs nothing in branch mass (`consistent` on abs: W1 ×1.09, P(g>0) 0.49–0.51).
+- What breaks lean is the bulk, not the tail. At λ > 2 the lift is active on 66–87% of samples, `K` is half the prior (not near zero), and the consistent rule changes the median composed score by 25%, pointing at the origin (cos 0.9). That is a strong early pull into the valley between the branches; the minor branch is lost (the probe shows the pull, not how samples then leave the valley): P(g>0) 0.99–1.00 vs exact 0.72–0.78.
+
+### 4.2 Steps 2–4: CPU screen (`screen.py`, exact-score toys, `gauss_jacobian_FD`)
+
+W1 / exact sd, geometric mean over modes and n, ratio to the default rule (below 1 = better):
+
+| | default | consistent | trunc | blend | gl nugget 0 | 0.01 | 0.1 | **1** | gl + consistent (0.1) |
+|---|---|---|---|---|---|---|---|---|---|
+| abs | 1.00 | 1.09 | 3.15 | 1.24 | 1.64 | 1.34 | 1.52 | 1.22 | 1.45 |
+| lean | 1.00 | 3.33 | 1.06 | 2.25 | 1.96 | 1.90 | 1.05 | **0.60** | 3.28 |
+
+P(g>0) on lean, oracle_hierarchical (exact 0.739 / 0.783 / 0.739 / 0.724 at n = 4 / 16 / 64 / 128): default 0.76 / 0.91 / 0.87 / 0.81; consistent 0.99–1.00; blend 0.84–0.97; glcons 0.99–1.00; trunc 0.63–0.70; gl1 0.69 / 0.72 / 0.70 / 0.69. oracle_joint is the same within 0.01. Full table: `results/screen/screen.txt`.
+
+Per-branch sd relative to exact (oracle_hierarchical, n = 4 → 128):
+
+| | abs | lean |
+|---|---|---|
+| default | 1.00 → 1.11 | 1.00 → 1.16 / 1.09 |
+| trunc | 1.15 → **3.3** | 1.06 → 1.15 |
+| gl 0.1 | 1.00 → 1.13 | 1.00 → 1.17 / 1.10 |
+| gl 1 | 1.04 → 1.26 | 1.04 → 1.28 / 1.29 |
+
+**Reading:**
+- **Blend and gl + consistent do not fix the collapse.** Both keep the consistent numerator where `K` is moderate, and that is where the damage is (4.1). The `K/(K+Delta)` weight only removes the tail, which was not the problem.
+- **Truncation removes the overshoot but throws away information.** On lean it is neutral overall (×1.06): P now undershoots (0.63–0.70). On abs the widths grow to 3.3× exact at n = 128: the folded rows carry real information in the directions where `I_j` is negative, and truncation drops all of it.
+- **Gloeckler only helps with a large nugget.** Nugget 0–0.1 is worse than default or equal. Nugget 1 is the best rule on lean (×0.60, P within 0.03–0.05 of exact), at the cost of 1.2–1.3× wide branches on both toys (abs ×1.22).
+  - Mechanism: the default overshoots the major branch on lean (P 0.81–0.91). The nugget adds precision without a numerator, which damps every composed score. That is mass bought with width, not a fix of the rule. It is the tuning knob of a tempered composition, and the right value is problem dependent.
+- **Room left:** none of the four removes the default's overshoot without a cost. On the exact toys the remaining error of the default is the branch mass (lean) and 10–16% excess width at n = 128. Both are the Gaussian-composition limit (memory: Gaussian composition symmetrises branches), not the PD rule. The mixture / exponential-tilt compositions address that directly.
+
+### 4.3 Trained networks (`run_pd.py --variants gl1 trunc`)
+
+Running on the one GPU without other users (GPU 8): PP, IK, GM and the trained toys. Results to follow.
