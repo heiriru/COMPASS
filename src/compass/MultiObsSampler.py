@@ -345,7 +345,7 @@ class MultiObsSampler():
                jacobian_refresh_lambda=0.3, jacobian_refresh_high_noise=None,
                jacobian_refresh_high_lambda=None, jacobian_refresh_band=None,
                jacobian_refresh_outside_band=None, jacobian_secant=False,
-               start_lambda=None, init_state=None):
+               start_lambda=None, init_state=None, jacobian_row_batch=None):
         """
         Sample from the multi-observation posterior via compositional score modeling.
 
@@ -439,6 +439,22 @@ class MultiObsSampler():
                     denoiser. The relation holds exactly for a Gaussian
                     posterior at any pair of noise levels and locally at a
                     single level for any posterior, and costs no network calls.
+            jacobian_row_batch: Observation mini-batching for the Jacobian
+                    corrections (experimental, opt-in; None keeps every row on
+                    every call). Each call evaluates the network -- score and
+                    Jacobian -- on only this many observation rows, taken
+                    round-robin, and every other row is represented by its
+                    cached lambda-free natural parameters
+                    ``K_j = Lambda_j - lambda^-2 I`` and
+                    ``eta_j = Lambda_j D_j - lambda^-2 y_j`` (``D_j`` the row's
+                    Tweedie denoiser), from which its score is rebuilt at the
+                    current state and noise level. For a Gaussian
+                    single-observation posterior N(mu_j, C_j) these are
+                    ``C_j^-1`` and ``C_j^-1 mu_j`` at every (y, lambda), so the
+                    rebuilt score is exact however stale the cache. The first
+                    call fills the cache for all rows. Per-call cost drops from
+                    n rows to ``jacobian_row_batch`` x (D+2) rows. Replaces the
+                    refresh schedule (``jacobian_refresh`` must stay 1).
             start_lambda, init_state: Start the reverse diffusion at noise level
                     ``start_lambda`` from ``init_state`` (shape
                     ``(observations, num_samples, nodes)`` in the sampler's
@@ -578,6 +594,7 @@ class MultiObsSampler():
         if (init_state is None) != (self.start_lambda is None):
             raise ValueError("start_lambda and init_state must be given together.")
         self.init_state = init_state
+        self._configure_row_batch(jacobian_row_batch, correction, world_size)
         if self.jacobian_block_size < 1:
             raise ValueError("jacobian_block_size must be at least 1.")
         if self.jacobian_pooling not in {"contiguous", "score_sorted"}:
@@ -2739,6 +2756,8 @@ class MultiObsSampler():
         """
         variance = float(torch.as_tensor(var_t, dtype=torch.float64).reshape(()))
         feature_order = list(self.full_gaussian_features)
+        if self._covariance_head() is not None:      # experimental, opt-in
+            return self._head_joint_precision(state, t, condition_mask, variance)
         # torch.func.jvp propagates tangents only with grad mode enabled, and
         # the composition runs inside `_get_score`'s no_grad block.
         with torch.enable_grad():
@@ -2823,6 +2842,39 @@ class MultiObsSampler():
             clamped = 1.0 / (variance * (1.0 - variance * eigenvalues))
             precision[outside] = (eigenvectors * clamped.unsqueeze(-2)) @ eigenvectors.mT
         return precision.reshape(curvature.shape)
+
+    def set_covariance_head(self, head):
+        """Use a learned covariance head (``compass.experimental.covariance_head``)
+        instead of the score Jacobian for the Jacobian corrections; None turns it off.
+        Env ``COMPASS_COVARIANCE_HEAD=<path to torch.save'd head>`` does the same."""
+        self.covariance_head = head
+
+    def _covariance_head(self):
+        head = getattr(self, "covariance_head", None)
+        if head is None and os.environ.get("COMPASS_COVARIANCE_HEAD"):
+            head = torch.load(os.environ["COMPASS_COVARIANCE_HEAD"], weights_only=False)
+            self.covariance_head = head
+        return head
+
+    def _head_joint_precision(self, state, t, condition_mask, variance):
+        """Row precisions ``K(y, x, lam) + lam^-2 I`` from the covariance head, with the
+        production upper clamp ``Lambda <= (floor lam^2)^-1``."""
+        head = self._covariance_head().to(state.device)
+        order = list(self.full_gaussian_features)
+        if list(head.latent_nodes) != order:
+            raise ValueError(f"covariance head latent_nodes {head.latent_nodes} != "
+                             f"composition order {order}")
+        rows, samples, _ = state.shape
+        lam = torch.full((rows * samples,), variance ** 0.5, device=state.device)
+        with torch.no_grad():
+            precision = head.precision(state[..., order].reshape(rows * samples, -1),
+                                       state[..., head.observed_nodes].reshape(rows * samples, -1),
+                                       lam)
+        cap = 1.0 / (float(self.jacobian_curvature_floor) * variance)
+        values, vectors = torch.linalg.eigh(precision)
+        precision = (vectors * values.clamp(max=cap).unsqueeze(-2)) @ vectors.mT
+        self._jacobian_evaluations += 1
+        return precision.reshape(rows, samples, len(order), len(order))
 
     def _bp_jacobian_score(self, scores, state, t, condition_mask, var_t):
         """Pool scores/Jacobians by block, then form the BP-JAC precision ratio."""
@@ -2951,7 +3003,8 @@ class MultiObsSampler():
             index = int(getattr(self, "_jacobian_call_index", 0))
             self._jacobian_call_index = index + 1
             information = getattr(self, "_jacobian_cached_information", None)
-            if information is None or index % refresh == 0:
+            if information is None or (index % refresh == 0
+                                       and not getattr(self, "_row_batch_frozen", False)):
                 # Cache the *lambda-free* information Lambda_j(t) - lambda^-2 I,
                 # never Lambda_j(t) itself. Lambda_j carries an exact lambda^-2 I
                 # term, and the composed precision subtracts (n-1) copies of
@@ -4367,8 +4420,90 @@ class MultiObsSampler():
     # ----- Standard Functions -----
     #############################################
 
+    def _configure_row_batch(self, row_batch, correction, world_size):
+        """Validate ``jacobian_row_batch`` and reset its cache (see :meth:`sample`)."""
+        self.jacobian_row_batch = None if row_batch is None else int(row_batch)
+        self._row_batch_cache = None
+        self._row_batch_order = None
+        self._row_batch_pointer = 0
+        self._row_batch_frozen = False
+        if self.jacobian_row_batch is None:
+            return
+        if self.jacobian_row_batch < 1:
+            raise ValueError("jacobian_row_batch must be at least 1.")
+        if correction not in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
+            raise ValueError("jacobian_row_batch needs correction='gauss_jacobian' or "
+                             "'gauss_jacobian_FD'.")
+        if (self.jacobian_refresh != 1 or self.jacobian_refresh_low_noise is not None
+                or self.jacobian_refresh_high_noise is not None
+                or self.jacobian_refresh_band is not None or self.jacobian_secant):
+            raise ValueError("jacobian_row_batch replaces the Jacobian refresh schedule; "
+                             "leave jacobian_refresh=1 and the other schedules unset.")
+        if world_size > 1:
+            raise NotImplementedError("jacobian_row_batch requires world_size=1.")
+        if self.cfg_alpha is not None:
+            raise NotImplementedError("jacobian_row_batch does not support cfg_alpha.")
+
+    def _row_batch_refresh(self, x, t, condition_mask, rows, var_t):
+        """Network score + Jacobian precision at ``rows``; store their natural parameters."""
+        order = list(self.full_gaussian_features)
+        state = x[rows]
+        mask = condition_mask[rows]
+        with torch.no_grad():
+            scores = self._raw_row_scores(state, t, mask)[..., order].to(torch.float64)
+        precision = self._jacobian_joint_precision(state, t, mask, var_t)
+        y = state[..., order].to(torch.float64)
+        denoised = y + var_t * scores
+        identity = torch.eye(len(order), dtype=torch.float64, device=x.device)
+        information = precision - identity / var_t
+        natural = (precision @ denoised.unsqueeze(-1)).squeeze(-1) - y / var_t
+        cache = self._row_batch_cache
+        cache[0][rows] = information
+        cache[1][rows] = natural
+
+    def _row_batched_score(self, x, t, condition_mask):
+        """Composed score with ``jacobian_row_batch`` rows refreshed (see :meth:`sample`)."""
+        n, samples, features = x.shape
+        order = list(self.full_gaussian_features)
+        dimension = len(order)
+        var_t = float(self.sde.lambda_t(t).reshape(-1)[0]) ** 2
+        batch = min(self.jacobian_row_batch, n)
+        if self._row_batch_cache is None:
+            self._row_batch_cache = (
+                torch.zeros(n, samples, dimension, dimension, dtype=torch.float64, device=x.device),
+                torch.zeros(n, samples, dimension, dtype=torch.float64, device=x.device),
+            )
+            # a fixed shuffle that leaves the global RNG (churn noise) untouched
+            self._row_batch_order = torch.randperm(
+                n, generator=torch.Generator().manual_seed(0)).to(x.device)
+            for start in range(0, n, batch):
+                self._row_batch_refresh(x, t, condition_mask,
+                                        self._row_batch_order[start:start + batch], var_t)
+        else:
+            positions = (self._row_batch_pointer + torch.arange(batch, device=x.device)) % n
+            self._row_batch_pointer = int((self._row_batch_pointer + batch) % n)
+            self._row_batch_refresh(x, t, condition_mask, self._row_batch_order[positions], var_t)
+        information, natural = self._row_batch_cache
+        identity = torch.eye(dimension, dtype=torch.float64, device=x.device)
+        y = x[..., order].to(torch.float64)
+        precision = information + identity / var_t
+        denoised = torch.linalg.solve(precision, (natural + y / var_t).unsqueeze(-1)).squeeze(-1)
+        score_table = torch.zeros(n, samples, features, dtype=x.dtype, device=x.device)
+        score_table[..., order] = ((denoised - y) / var_t).to(x.dtype)
+        # The composition reads the cached information instead of a fresh Jacobian.
+        self._jacobian_cached_information = information
+        self._row_batch_frozen = True
+        try:
+            with torch.no_grad():
+                return self._compositional_score(
+                    score_table, x, t, num_observations=n, condition_mask=condition_mask)
+        finally:
+            self._row_batch_frozen = False
+
     def _get_score(self, x, t, condition_mask, indices, cfg_alpha=None):
         """Get the composed score estimate with optional classifier-free guidance"""
+        if getattr(self, "jacobian_row_batch", None) is not None:
+            return self._row_batched_score(x, t, condition_mask)
         with torch.no_grad():
             n_obs, num_samples, num_features = x.shape
 
