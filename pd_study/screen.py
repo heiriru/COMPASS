@@ -37,7 +37,13 @@ VARIANTS = {
     "gl01": {"COMPASS_PD_STRATEGY": "gloeckler", "COMPASS_PD_NUGGET": "0.1"},
     "gl1": {"COMPASS_PD_STRATEGY": "gloeckler", "COMPASS_PD_NUGGET": "1"},
     "glcons": {"COMPASS_PD_STRATEGY": "gloeckler_consistent", "COMPASS_PD_NUGGET": "0.1"},
+    # consistent only below lambda* (round 3; needs the gate, frozen/dev)
+    "cg05": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_PD_CONSISTENT_BELOW": "0.5"},
+    "cg1": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_PD_CONSISTENT_BELOW": "1"},
+    "cg2": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_PD_CONSISTENT_BELOW": "2"},
 }
+# Pin `compass` to a frozen copy (src/ is being edited by another session); see frozen/*/sitecustomize.py
+FROZEN = HERE / "frozen" / "dev"
 TOY_RUNS = {"abs": "artifacts/runs", "lean": "artifacts/lean/runs"}
 MODES = ("oracle_hierarchical", "oracle_joint")
 NS = (4, 16, 64, 128)
@@ -55,7 +61,7 @@ def jobs(variants):
 
 def launch(variant, model, mode, n, cores):
     env = {**os.environ, "CUDA_VISIBLE_DEVICES": "-1", **VARIANTS[variant],
-           "PYTHONPATH": ".:../Gaussian_mixtures_compositional_score_modelling:../experiments_arruda_schur"}
+           "PYTHONPATH": f"{FROZEN}:.:../Gaussian_mixtures_compositional_score_modelling:../experiments_arruda_schur"}
     if variant == "default":
         env["COMPASS_PD_PROBE"] = str(OUT / f"probe_{model}_{mode}_n{n}.jsonl")
     log = open(OUT / "logs" / f"{variant}_{model}_{mode}_n{n}.log", "w")

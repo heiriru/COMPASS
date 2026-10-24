@@ -257,3 +257,45 @@ Per-branch sd relative to exact (oracle_hierarchical, n = 4 → 128):
 ### 4.3 Trained networks (`run_pd.py --variants gl1 trunc`)
 
 Running on the one GPU without other users (GPU 8): PP, IK, GM and the trained toys. Results to follow.
+
+## 5. Round 3: combining the consistent rule with the default (`run_pd.py --variants consclamp combfb combcl`)
+
+Question: can `row_projection_consistent` (best on PP and IK flat global) and the default (best on the toys, GM and IK reach) be combined into one rule that is good everywhere?
+
+Variants (all with the metric clamp, `COMPASS_CLAMP_MODE=metric`; code in `frozen/dev`, pinned run copy `frozen/r3`):
+- `consclamp`: consistent + metric clamp.
+- `combfb`: consistent only below λ* = 0.5 (`COMPASS_PD_CONSISTENT_BELOW`), default numerator above; rows whose implied clean mean `μ_j = y + λ² K_j⁻¹ Λ_j s_j` leaves the denoise box (prior mean ± 5 sd) fall back to the default term (`COMPASS_PD_CONSISTENT_GUARD=fallback`).
+- `combcl`: same gate, but `μ_j` is clamped into the box in the metric `K_j + Δ_j` (`GUARD=clamp`).
+
+λ* = 0.5 was picked from the CPU screen (geometric-mean W1 ratio to default; λ* = 1 / 2 / ∞): lean 1.02 / 1.25 / 2.87 / 3.33, abs 1.07 / 1.66 / 1.10 / 1.09.
+
+### 5.1 Results (W1 / exact sd, geometric-mean ratio to default; below 1 = better)
+
+| experiment | consistent | combfb | combcl |
+|---|---|---|---|
+| GM asym / sym | 1.49 / 1.54 | **1.00 / 1.00** | 1.03 / 1.05 |
+| IK flat global | **0.34** | 0.76 | 0.76 |
+| IK flat fixed | 1.07 | 0.94 | 0.94 |
+| IK reach shift / shift_bern | 5.50 / 5.72 | 4.15 / 4.52 | 4.29 / 4.72 |
+| IK reach sym / sym_bern | 1.12 / 3.00 | 1.67 / 1.82 | 1.50 / 1.98 |
+| IK abs(x1) / _R | 1.82 / 1.17 | 1.31 / 1.49 | 1.27 / 1.43 |
+| toy abs / curved / lean (trained) | 2.72 / 9.43 / 4.26 | **1.02 / 1.01 / 1.00** | 1.16 / 1.07 / 1.00 |
+| toy square | 4.74 | 1.75 | 1.96 |
+| oracle toys + GM oracle | 0.99–2.75 | 1.00 | 1.00 |
+
+Partial pooling (30 datasets; mean r / global RMSE / collapses):
+
+| net | default | consistent | combfb | combcl |
+|---|---|---|---|---|
+| baseline | 0.869 / 0.628 / 5 | 0.895 / 0.478 / 0 | **0.921 / 0.424 / 0** | 0.921 / 0.427 / 0 |
+| Rg | 0.868 / 0.608 / 3 | **0.909 / 0.476 / 0** | 0.867 / 0.515 / 1 | 0.860 / 0.533 / 1 |
+
+`consclamp` = `consistent` everywhere (the clamp is active on ~0.1% of calls). better / same / worse vs default over 112 cells: consistent 5 / 22 / 85, combfb 2 / 90 / 20, combcl 3 / 88 / 21.
+
+### 5.2 Verdict
+
+- **The gate removes the toy/GM damage completely.** The high-noise bulk pull (4.1) is the whole problem there; above λ = 0.5 the rule is the default, and GM, the trained abs/curved/lean toys and all oracle toys are back to default within noise.
+- **It keeps most of the PP gain on the baseline net (highest r in this study: 0.921, RMSE −32%, 0 collapses) and half of it on IK flat global, but only part of it on the Rg net** (RMSE 0.515 vs 0.476 consistent, one collapse back).
+- **It is not a free win.** IK reach (×4–4.5 on the shifted variants), IK abs(x1) (×1.3–1.5) and the square toy (×1.75) are damaged by the *low-noise* consistent term. Those are exactly the λ < 0.5 steps the gate keeps. The PP gain lives in the same band, so no single λ* separates the two.
+- **The guard does not help**: fallback and clamp agree to within noise; the damage is not from out-of-box row means.
+- Recommendation: keep the default rule as the library default. `combfb` (λ* = 0.5, fallback guard) is a good opt-in for partial-pooling-type models; plain `consistent` is still the best on the Rg net and IK flat global. A rule that is better everywhere needs a per-row criterion of *when* the consistent term is trustworthy (it is not the noise level and not the box); untested.

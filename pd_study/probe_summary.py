@@ -1,11 +1,38 @@
-"""Summarise the COMPASS_PD_PROBE jsonl of the screen by noise band (results/screen/probe_summary.txt)."""
+"""Summarise COMPASS_PD_PROBE jsonl files by noise band.
+
+    python probe_summary.py              # the CPU screen -> results/screen/probe_summary.txt
+    python probe_summary.py trained      # run_pd --probe (trained nets, all n of a job pooled)
+                                         # -> results/probe_trained.txt
+"""
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
 OUT = Path(__file__).resolve().parent / "results" / "screen"
 BANDS = [(2.0, 1e9, "lambda>2"), (0.5, 2.0, "0.5-2"), (0.1, 0.5, "0.1-0.5"), (0.0, 0.1, "<0.1")]
+
+if len(sys.argv) > 1 and sys.argv[1] == "trained":
+    diag = Path(__file__).resolve().parents[1] / "experiments_arruda_schur" / "artifacts" / "noproj" / "diagnostics"
+    lines = [f"{'job':34s} {'band':9s} {'calls':>6s} {'active':>6s} {'k_rel10':>7s} {'k_rel50':>7s} "
+             f"{'shift50':>7s} {'dscore50':>8s} {'dscore90':>8s} {'toward0':>7s}"]
+    for path in sorted(diag.glob("probe_*.probe.jsonl")):
+        records = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        name = path.name[len("probe_"):-len(".probe.jsonl")]
+        for lo, hi, band_name in BANDS:
+            band = [r for r in records if lo <= r["lambda"] < hi]
+            if not band:
+                continue
+            mean = lambda key, i=None: np.nanmean([(r[key][i] if i is not None else r[key]) for r in band
+                                                   if r.get(key) is not None] or [np.nan])
+            lines.append(f"{name:34s} {band_name:9s} {len(band):6d} {mean('active_fraction'):6.2f} "
+                         f"{mean('k_rel', 0):7.3f} {mean('k_rel', 1):7.3f} {mean('shift', 1):7.2f} "
+                         f"{mean('dscore', 1):8.3f} {mean('dscore', 2):8.3f} {mean('toward_origin'):7.2f}")
+    text = "\n".join(lines)
+    print(text)
+    (OUT.parent / "probe_trained.txt").write_text(text + "\n")
+    sys.exit()
 
 lines = [f"{'toy':5s} {'mode':20s} {'n':>4s} {'band':9s} {'calls':>5s} {'active':>6s} {'k_rel10':>7s} "
          f"{'k_rel50':>7s} {'shift50':>7s} {'dscore50':>8s} {'dscore90':>8s} {'toward0':>7s}"]

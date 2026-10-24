@@ -329,3 +329,80 @@ def test_probe_measures_the_consistent_minus_default_score(tmp_path, monkeypatch
     expected = torch.quantile(ratio, torch.tensor([0.1, 0.5, 0.9], dtype=torch.float64))
     torch.testing.assert_close(torch.tensor(record["dscore"], dtype=torch.float64), expected, rtol=5e-3, atol=5e-3)
     assert 0 < record["active_fraction"] <= 1 and len(record["k_rel"]) == 3
+
+
+def test_consistent_gate_switches_to_the_default_above_the_threshold():
+    """COMPASS_PD_CONSISTENT_BELOW = lambda*: consistent for lambda < lambda*, default above."""
+    setup = wide_setup(locals_=(2,))
+    lam = VARIANCE ** 0.5
+    default, _, _ = compose(setup, "row_projection")
+    consistent, _, _ = compose(setup, "row_projection_consistent")
+    assert float((default - consistent).abs().max()) > 1e-2
+
+    def gated(threshold):
+        state, mask = build_state(setup, num_samples=6)
+        sampler = sampler_for(setup, "row_projection_consistent")
+        assert sampler.pd_consistent_below == float("inf")          # off unless set
+        sampler.pd_consistent_below = threshold
+        scores = setup["model"](state.reshape(-1, setup["nodes"]), TIME,
+                                mask.reshape(-1, setup["nodes"])).reshape(state.shape)
+        out = sampler._compositional_score(scores.clone(), state, TIME, condition_mask=mask)
+        return out[0, :, HIERARCHY].to(torch.float64)
+
+    torch.testing.assert_close(gated(0.5 * lam), default, rtol=1e-5, atol=1e-5)
+    torch.testing.assert_close(gated(2.0 * lam), consistent, rtol=1e-6, atol=1e-6)
+
+
+def guarded(setup, guard, box, strategy="row_projection_consistent"):
+    state, mask = build_state(setup, num_samples=6)
+    sampler = sampler_for(setup, strategy)
+    sampler.pd_consistent_guard = guard
+    sampler.denoise_clamp = box
+    scores = setup["model"](state.reshape(-1, setup["nodes"]), TIME,
+                            mask.reshape(-1, setup["nodes"])).reshape(state.shape)
+    out = sampler._compositional_score(scores.clone(), state, TIME, condition_mask=mask)
+    return out[0, :, HIERARCHY].to(torch.float64), sampler
+
+
+@pytest.mark.parametrize("guard", ["fallback", "clamp"])
+def test_consistent_guard_limits(guard):
+    """A box that holds every row mean leaves the consistent rule unchanged; with fallback, a
+    box that holds none gives the default rule."""
+    setup = wide_setup(locals_=(2,))
+    consistent, _, _ = compose(setup, "row_projection_consistent")
+    wide, sampler = guarded(setup, guard, 1e6)
+    torch.testing.assert_close(wide, consistent, rtol=1e-6, atol=1e-6)
+    assert sampler.covariance_diagnostics["pd_guard_outside_fraction"] == 0.0
+    if guard == "fallback":
+        # the same box also clamps the row predictions: compare with the default rule under it
+        default, _ = guarded(setup, "none", 1e-9, strategy="row_projection")
+        empty, sampler = guarded(setup, guard, 1e-9)
+        torch.testing.assert_close(empty, default, rtol=1e-5, atol=1e-5)
+        assert sampler.covariance_diagnostics["pd_guard_outside_fraction"] == 1.0
+
+
+def test_consistent_guard_clamp_is_the_metric_clamp_of_the_row_means():
+    """extra = lambda^-2 sum_j Delta_j (clamp(mu_j) - y), clamp in the metric K_j + Delta_j."""
+    sampler = MultiObsSampler.__new__(MultiObsSampler)
+    sampler.pd_consistent_guard = "clamp"
+    sampler.denoise_clamp = 0.5
+    sampler.training_prior = None
+    sampler.prior_mean = torch.zeros(2, dtype=torch.float64)
+    sampler.prior_std = torch.ones(2, dtype=torch.float64)
+    generator = torch.Generator().manual_seed(7)
+    rows, samples, inverse_variance = 3, 5, 4.0
+    rotation = torch.tensor([[0.8, -0.6], [0.6, 0.8]], dtype=torch.float64)
+    k = torch.stack([rotation @ torch.diag(torch.tensor(v, dtype=torch.float64)) @ rotation.T
+                     for v in ([0.3, 2.0], [1.5, 0.05], [0.8, 0.8])])         # clean precisions K_j
+    delta = torch.stack([row_information(kj)[0] for kj in k])
+    effective = k + inverse_variance * torch.eye(2, dtype=torch.float64)
+    scores = torch.randn(rows, samples, 2, generator=generator, dtype=torch.float64)
+    state = 2 * torch.randn(1, samples, 2, generator=generator, dtype=torch.float64)
+    got = sampler._guarded_consistent_extra(delta, effective, scores, inverse_variance, state)[0]
+    y = state[0]
+    mean = y + torch.einsum("nij,nsj->nsi", torch.linalg.inv(k) @ effective, scores) / inverse_variance
+    lower, upper = -0.5 * torch.ones(2, dtype=torch.float64), 0.5 * torch.ones(2, dtype=torch.float64)
+    clamped = MultiObsSampler._box_qp(mean, (k + delta).unsqueeze(1), lower, upper)
+    assert ((clamped >= lower - 1e-12) & (clamped <= upper + 1e-12)).all()
+    expected = inverse_variance * torch.einsum("nij,nsj->si", delta, clamped - y)
+    torch.testing.assert_close(got, expected, rtol=1e-9, atol=1e-9)

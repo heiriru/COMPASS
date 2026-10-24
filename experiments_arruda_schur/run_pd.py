@@ -41,6 +41,14 @@ PD_VARIANTS = {
     "clampmetric": {"COMPASS_CLAMP_MODE": "metric"},
     "gl1": {"COMPASS_PD_STRATEGY": "gloeckler", "COMPASS_PD_NUGGET": "1"},
     "trunc": {"COMPASS_PD_STRATEGY": "row_truncation"},
+    # default rule with the COMPASS_PD_PROBE diagnostics (run with --probe; PP on fewer datasets)
+    "probe": {},
+    # round 3 (pd_study/frozen/r3): gate lambda* = 0.5 (the CPU screen: 1 and 2 still collapse lean); combining the consistent rule with the conservative clamp
+    "consclamp": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric"},
+    "combfb": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric",
+               "COMPASS_PD_CONSISTENT_BELOW": "0.5", "COMPASS_PD_CONSISTENT_GUARD": "fallback"},
+    "combcl": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric",
+               "COMPASS_PD_CONSISTENT_BELOW": "0.5", "COMPASS_PD_CONSISTENT_GUARD": "clamp"},
 }
 for name, env in PD_VARIANTS.items():
     rn.VARIANTS[name] = dict(env=env, jac_only=True, controls=False)
@@ -95,12 +103,27 @@ def main():
     parser.add_argument("--share-gpus", default="", help="GPUs where other users' processes are tolerated")
     parser.add_argument("--skip-started", default=None, help="log of a previous run_pd: skip jobs it started")
     parser.add_argument("--adopt", nargs="*", default=[], help="pid:gpu:cores of jobs left running by a previous run_pd")
+    parser.add_argument("--frozen", default=None,
+                        help="directory holding a frozen `compass` package + sitecustomize.py that pins it "
+                             "(pd_study/frozen/<commit>); protects the jobs from edits to src/ while they run")
+    parser.add_argument("--probe", action="store_true", help="write COMPASS_PD_PROBE jsonl per job")
+    parser.add_argument("--pp-datasets", default=None, help="override the 30 PP datasets")
+    parser.add_argument("--priority", nargs="*", default=[], help="job-name substrings to start first")
     args = parser.parse_args()
     for d in (rn.LOGS, rn.DIAG):
         d.mkdir(parents=True, exist_ok=True)
     queue = [job for v in args.variants for job in rn.jobs(v)]
+    for job in queue:
+        if args.frozen:
+            job["env"]["PYTHONPATH"] = str(Path(args.frozen).resolve()) + ":" + job["env"]["PYTHONPATH"]
+        if args.probe:
+            job["env"]["COMPASS_PD_PROBE"] = str(rn.DIAG / f"{job['name']}.probe.jsonl")
+        if args.pp_datasets and "--datasets" in job["cmd"]:
+            job["cmd"][job["cmd"].index("--datasets") + 1] = args.pp_datasets
     if args.only:
         queue = [j for j in queue if any(s in j["name"] for s in args.only)]
+    if args.priority:
+        queue.sort(key=lambda j: not any(p in j["name"] for p in args.priority))   # stable
     if args.skip_started:
         started = {line.split()[2] for line in Path(args.skip_started).read_text().splitlines()
                    if len(line.split()) > 2 and line.split()[1] == "start"}

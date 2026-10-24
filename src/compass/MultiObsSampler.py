@@ -229,6 +229,12 @@ class MultiObsSampler():
         self.pd_strategy = os.environ.get("COMPASS_PD_STRATEGY", "row_projection")
         self.pd_fallback = os.environ.get("COMPASS_PD_FALLBACK", "repair")
         self.pd_nugget = float(os.environ.get("COMPASS_PD_NUGGET", "0.1"))
+        # row_projection_consistent only below this noise level lambda; above it the default
+        # numerator (inf = everywhere, unchanged)
+        self.pd_consistent_below = float(os.environ.get("COMPASS_PD_CONSISTENT_BELOW", "inf"))
+        # row_projection_consistent: what to do with a row whose implied clean mean mu_j leaves
+        # the denoise_clamp box ("none" unchanged | "fallback" default term | "clamp" metric clamp)
+        self.pd_consistent_guard = os.environ.get("COMPASS_PD_CONSISTENT_GUARD", "none")
         # jsonl path for _probe_row_lift (diagnostics only; does not change the draws)
         self.pd_probe = os.environ.get("COMPASS_PD_PROBE") or None
         # Denoised-prediction clamp: "coordinate" (default, per-coordinate clip) or
@@ -2464,6 +2470,7 @@ class MultiObsSampler():
         self._lams_trace = []
         self._clamp_calls = 0
         self._clamp_active = 0
+        self._guard_calls = self._guard_outside = self._guard_elements = 0
         self._clamp_elements = 0
 
     @property
@@ -2532,6 +2539,11 @@ class MultiObsSampler():
             "clamp_active_fraction": (
                 getattr(self, "_clamp_active", 0) / getattr(self, "_clamp_elements", 0)
                 if getattr(self, "_clamp_elements", 0) else 0.0),
+            "pd_consistent_guard": getattr(self, "pd_consistent_guard", "none"),
+            # share of (row, sample) consistent row means outside the denoise_clamp box
+            "pd_guard_outside_fraction": (
+                getattr(self, "_guard_outside", 0) / getattr(self, "_guard_elements", 0)
+                if getattr(self, "_guard_elements", 0) else 0.0),
             "curvature_lower_clip": bool(getattr(self, "curvature_lower_clip", True)),
             # share of gauss_jacobian curvature eigenvalues below 0 (what the lower clip zeroes)
             "negative_curvature_fraction": (
@@ -3484,6 +3496,12 @@ class MultiObsSampler():
                 extra = torch.einsum("nij,nsj->si", delta, means).unsqueeze(0)
             return precision + lift, numerator + extra
         # row_projection_consistent: Delta_j K_j^-1 Lambda_j s_j, K_j = Lambda_j - lambda^-2 I
+        if variance ** 0.5 >= self.pd_consistent_below:
+            # the default rule at high noise (pd_consistent_below)
+            return precision + lift, numerator + weighted(delta, global_scores)
+        if self.pd_consistent_guard != "none" and state is not None and self.denoise_clamp is not None:
+            return precision + lift, numerator + self._guarded_consistent_extra(
+                delta, effective, global_scores, inverse_variance, state)
         return precision + lift, numerator + self._consistent_extra(
             delta, effective, global_scores, inverse_variance)
 
@@ -3531,6 +3549,48 @@ class MultiObsSampler():
             return (delta @ (k_inverse @ weighted_scores)).squeeze(-1).sum(dim=0, keepdim=True)
         return torch.einsum("nij,nsj->si", delta @ k_inverse,
                             weighted_scores.squeeze(-1)).unsqueeze(0)
+
+    def _row_mean_box(self, like):
+        """The denoise_clamp box of the row predictions (the training prior's when declared)."""
+        if self.training_prior is not None:
+            mean, std = self.training_prior
+        else:
+            mean, std = self.prior_mean, self.prior_std
+        mean = torch.as_tensor(mean).to(like).reshape(-1)
+        std = torch.as_tensor(std).to(like).reshape(-1)
+        return mean - self.denoise_clamp * std, mean + self.denoise_clamp * std
+
+    def _guarded_consistent_extra(self, delta, effective, global_scores, inverse_variance, state):
+        """sum_j Delta_j K_j^-1 Lambda_j s_j = lambda^-2 sum_j Delta_j (mu_j - y), with the implied
+        clean row mean mu_j = y + lambda^2 K_j^-1 Lambda_j s_j kept in the denoise_clamp box:
+
+        - "fallback": rows (per sample) whose mu_j leaves the box use the default term Delta_j s_j;
+        - "clamp": mu_j is replaced by its metric clamp into the box, in the metric of the lifted
+          clean precision K_j + Delta_j = P_0 + I_j^+ (the conservative clamp of set_clamp_mode).
+        """
+        variance = float(1.0 / inverse_variance)
+        effective_full = self._broadcast_rows(effective, delta)
+        k_inverse = self._clean_precision_inverse(effective_full, inverse_variance)
+        y = state[0].to(delta.dtype).unsqueeze(0)                                  # (1, samples, H)
+        mean = y + variance * self._apply_rows(k_inverse, self._weighted_rows(effective_full, global_scores))
+        lower, upper = self._row_mean_box(mean)
+        inside = ((mean >= lower) & (mean <= upper)).all(dim=-1, keepdim=True)  # (rows, samples, 1)
+        self._guard_calls = getattr(self, "_guard_calls", 0) + 1
+        self._guard_outside = getattr(self, "_guard_outside", 0) + int((~inside).sum())
+        self._guard_elements = getattr(self, "_guard_elements", 0) + int(inside.numel())
+        if self.pd_consistent_guard == "fallback":
+            consistent = self._apply_rows(delta, mean - y) / variance
+            default = self._apply_rows(delta, global_scores)
+            return torch.where(inside, consistent, default).sum(dim=0, keepdim=True)
+        if self.pd_consistent_guard != "clamp":
+            raise ValueError("pd consistent guard must be none, fallback or clamp")
+        identity = torch.eye(delta.shape[-1], dtype=delta.dtype, device=delta.device)
+        metric = effective_full - inverse_variance * identity + delta
+        metric = 0.5 * (metric + metric.mT)
+        if metric.dim() == 3:
+            metric = metric.unsqueeze(1)
+        clamped = self._box_qp(mean, metric, lower, upper).to(mean.dtype)
+        return (self._apply_rows(delta, clamped - y) / variance).sum(dim=0, keepdim=True)
 
     def _probe_row_lift(self, raw, numerator, delta, effective, global_scores, inverse_variance,
                         state, projected):
