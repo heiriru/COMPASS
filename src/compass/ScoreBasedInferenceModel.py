@@ -1031,6 +1031,15 @@ class ScoreBasedInferenceModel(nn.Module):
 
         if 'base_moments' in checkpoint:
             model.base_moments = tuple(torch.as_tensor(m) for m in checkpoint['base_moments'])
+        covariance_weights = [
+            key for key in checkpoint['model_state_dict']
+            if key.endswith("covariance_output.weight")
+        ]
+        if covariance_weights:
+            # trained with compass.covariance_output: re-attach it before loading
+            from .covariance_output import enable_covariance_output
+            weight = checkpoint['model_state_dict'][covariance_weights[0]]
+            enable_covariance_output(model, rank=int(weight.shape[-1]) - 1)
         incompatible = model.model.load_state_dict(
             checkpoint['model_state_dict'], strict=False
         )

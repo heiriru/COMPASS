@@ -49,6 +49,8 @@ def claim(need_mb, allowed=None, interval=60, verbose=True):
                       and (allowed is None or index in allowed)]
         if candidates:
             free, index = max(candidates)
+            # nvidia-smi indices are PCI-bus order; CUDA's default order may differ
+            os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
             os.environ["CUDA_VISIBLE_DEVICES"] = str(index)
             if verbose:
                 print(f"[gpu] using GPU {index} ({free} MB free, need {need_mb})", flush=True)

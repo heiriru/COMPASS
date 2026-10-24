@@ -113,3 +113,49 @@ def test_sampler_uses_one_forward_per_refresh_instead_of_the_jacobian():
     assert torch.isfinite(out).all()
     assert net.calls > 0
     assert sampler.solver_stats["jacobian_row_samples"] == 0      # no FD copies were evaluated
+
+
+def test_sbim_load_reattaches_the_output(tmp_path):
+    m = tokenized()
+    head = enable_covariance_output(m, rank=3)
+    with torch.no_grad():
+        for p in head.parameters():
+            p.normal_(0, 0.3)
+    m.save(path=str(tmp_path), name="cov")
+    loaded = ScoreBasedInferenceModel.load(str(tmp_path / "cov.pt"), device="cpu")
+    x, t = torch.randn(6, 5), torch.full((6, 1), 0.4)
+    with torch.no_grad():
+        m.model(x=x, t=t, c=MASK.expand(6, -1))
+        a = m.covariance_output.information([0, 1, 2])
+        loaded.model(x=x, t=t, c=MASK.expand(6, -1))
+        b = loaded.covariance_output.information([0, 1, 2])
+    torch.testing.assert_close(a, b)
+
+
+def test_output_lives_on_the_backbone_behind_a_forwarding_wrapper(tmp_path):
+    """A wrapper that forwards __getattr__ and state_dict to its backbone (as the
+    preconditioning wrappers do) must not receive the output: it would not be saved."""
+    class Wrapped(torch.nn.Module):
+        def __init__(self, backbone):
+            super().__init__()
+            self.backbone = backbone
+
+        def forward(self, x, t, c, **kw):
+            return self.backbone(x=x, t=t, c=c)
+
+        def state_dict(self, *a, **k):
+            return self.backbone.state_dict(*a, **k)
+
+        def load_state_dict(self, *a, **k):
+            return self.backbone.load_state_dict(*a, **k)
+
+        def __getattr__(self, name):
+            try:
+                return super().__getattr__(name)
+            except AttributeError:
+                return getattr(super().__getattr__("backbone"), name)
+
+    m = tokenized()
+    m.model = Wrapped(m.model)
+    enable_covariance_output(m, rank=3)
+    assert any(k.startswith("covariance_output.") for k in m.model.state_dict())

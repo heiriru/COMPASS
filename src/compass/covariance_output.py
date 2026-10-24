@@ -54,7 +54,10 @@ def _backbone(model):
         if id(module) in seen:
             continue
         seen.add(id(module))
-        if hasattr(module, "final_layer"):
+        # a registered child, not an attribute a wrapper forwards (PreconditionedScore and
+        # the precondition Wrapped forward __getattr__ to their backbone; their state_dict
+        # is the backbone's, so the output must live on the backbone itself)
+        if "final_layer" in module._modules:
             return module
         stack.extend(module.children())
     raise ValueError("no submodule with a final_layer: cannot attach a covariance output")

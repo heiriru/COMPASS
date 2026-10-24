@@ -194,6 +194,10 @@ def register_netcov_methods():
     from compass.covariance_output import NetworkCovarianceHead
     for name in ("gauss_jacobian", "gauss_jacobian_mixture_prior"):
         methods.METHODS[name + NETCOV] = dict(methods.METHODS[name], label=name + NETCOV)
+        # the library default: FD Jacobian, refresh 9 (JVP JAC OOMs at n = 64 on 11 GB)
+        fd = dict(methods.METHODS[name], label=name + "_fd")
+        fd["kwargs"] = dict(fd["kwargs"], correction="gauss_jacobian_FD", jacobian_refresh=9)
+        methods.METHODS[name + "_fd"] = fd
     methods.METHODS["gauss_hierarchical_mixture_prior"] = dict(
         methods.METHODS["gauss_hierarchical"], label="gauss_hierarchical_mixture_prior",
         mixture_prior=True)
@@ -318,7 +322,8 @@ def compose(arguments):
     methods.COMMON["eps"] = float(arguments.sample_eps)
     tag = f"eps{arguments.sample_eps:g}" + (arguments.tag_suffix or "")
     method_list = arguments.methods or ["gauss_jacobian", "gauss_jacobian_mixture_prior"]
-    if any(m.endswith(NETCOV) or m == "gauss_hierarchical_mixture_prior" for m in method_list):
+    if any(m.endswith(NETCOV) or m.endswith("_fd") or m == "gauss_hierarchical_mixture_prior"
+           for m in method_list):
         register_netcov_methods()
     argv = ["--regimes", "asymmetric", "symmetric", "--observations",
             *[str(n) for n in arguments.observations],

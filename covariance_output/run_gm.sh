@@ -1,6 +1,6 @@
 #!/bin/bash
 # GM benchmark for the network covariance output (GPU 6, exclusive at launch).
-export CUDA_VISIBLE_DEVICES=${GPU:-6} ROADMAP_OUT=/export/data/rheinric/covout/gm
+export CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=${GPU:-7} ROADMAP_OUT=/export/data/rheinric/covout/gm
 PY=/export/home/rheinric/COMPASS/.COMPASS/bin/python
 P="taskset -c 60-62 $PY"
 cd /export/data/rheinric/COMPASS-covout/experiments_roadmap2
