@@ -1,0 +1,166 @@
+{
+  "framework": "torch",
+  "torch": "2.12.0+cu130",
+  "device": "NVIDIA GeForce RTX 2080 Ti",
+  "compile": "default",
+  "accuracy": [
+    {
+      "lambda": 0.003,
+      "score_rel_err": 1.0284531351715696e-05,
+      "jvp_loop_rel_err": 1.732303478616936e-06,
+      "vmap_jvp_rel_err": 1.7212369633392766e-06,
+      "fd_rel_err": 0.005327486884643083,
+      "diag_jvp_rel_err": 1.732303478616936e-06,
+      "diag_fd_rel_err": 0.005182579384882057
+    },
+    {
+      "lambda": 0.03,
+      "score_rel_err": 1.0776326941026016e-05,
+      "jvp_loop_rel_err": 9.801830413956334e-07,
+      "vmap_jvp_rel_err": 9.91030142228355e-07,
+      "fd_rel_err": 0.001293524452711843,
+      "diag_jvp_rel_err": 9.801830413956334e-07,
+      "diag_fd_rel_err": 0.0013228003965422637
+    },
+    {
+      "lambda": 0.3,
+      "score_rel_err": 6.896020533767673e-07,
+      "jvp_loop_rel_err": 2.664205155354235e-07,
+      "vmap_jvp_rel_err": 3.044275804970816e-07,
+      "fd_rel_err": 0.000955703814790793,
+      "diag_jvp_rel_err": 2.664205155354235e-07,
+      "diag_fd_rel_err": 0.0009551651657270582
+    },
+    {
+      "lambda": 3.0,
+      "score_rel_err": 3.277434063475902e-07,
+      "jvp_loop_rel_err": 2.2112778773469212e-07,
+      "vmap_jvp_rel_err": 2.3928769143593997e-07,
+      "fd_rel_err": 0.003261165249744111,
+      "diag_jvp_rel_err": 2.2112778773469212e-07,
+      "diag_fd_rel_err": 0.0032610573041841617
+    }
+  ],
+  "timing": [
+    {
+      "rows": 20,
+      "draws": 6,
+      "batch": 120,
+      "forward": {
+        "median_ms": 2.734482055529952,
+        "p10_ms": 2.710939571261406,
+        "p90_ms": 5.739329336211085,
+        "first_call_ms": 6.837792694568634
+      },
+      "jvp_loop": {
+        "median_ms": 214.80737859383225,
+        "p10_ms": 190.61917490325868,
+        "p90_ms": 253.79158025607467,
+        "first_call_ms": 192.06831604242325
+      },
+      "vmap_jvp": {
+        "median_ms": 28.358978917822242,
+        "p10_ms": 25.31367316842079,
+        "p90_ms": 31.610362138599157,
+        "first_call_ms": 31.24819230288267
+      },
+      "fd": {
+        "median_ms": 9.327876847237349,
+        "p10_ms": 9.285426139831543,
+        "p90_ms": 11.940599419176579,
+        "first_call_ms": 9.514850098639727
+      },
+      "diag_jvp": {
+        "median_ms": 25.831407634541392,
+        "p10_ms": 23.200887301936746,
+        "p90_ms": 26.128051662817597,
+        "first_call_ms": 20.601885858923197
+      },
+      "diag_fd": {
+        "median_ms": 2.9209402855485678,
+        "p10_ms": 2.9066406190395355,
+        "p90_ms": 2.967326669022441,
+        "first_call_ms": 3.2091187313199043
+      }
+    },
+    {
+      "rows": 20,
+      "draws": 64,
+      "batch": 1280,
+      "forward": {
+        "median_ms": 8.855746826156974,
+        "p10_ms": 8.820764953270555,
+        "p90_ms": 10.279074404388668,
+        "first_call_ms": 12.07192288711667
+      },
+      "jvp_loop": {
+        "median_ms": 334.1928059235215,
+        "p10_ms": 327.5016389787197,
+        "p90_ms": 340.16183321364224,
+        "first_call_ms": 353.55983581393957
+      },
+      "vmap_jvp": {
+        "median_ms": 184.10014105029404,
+        "p10_ms": 183.84503298439085,
+        "p90_ms": 186.40629881992936,
+        "first_call_ms": 190.31914602965117
+      },
+      "fd": {
+        "median_ms": 90.66149150021374,
+        "p10_ms": 90.0696178432554,
+        "p90_ms": 92.07872278057039,
+        "first_call_ms": 90.1572098955512
+      },
+      "diag_jvp": {
+        "median_ms": 34.749621991068125,
+        "p10_ms": 33.942573657259345,
+        "p90_ms": 37.00898508541286,
+        "first_call_ms": 35.75585829094052
+      },
+      "diag_fd": {
+        "median_ms": 17.071683192625642,
+        "p10_ms": 17.046440858393908,
+        "p90_ms": 18.98167859762907,
+        "first_call_ms": 17.315471079200506
+      }
+    },
+    {
+      "rows": 20,
+      "draws": 256,
+      "batch": 5120,
+      "forward": {
+        "median_ms": 33.27665268443525,
+        "p10_ms": 33.0406142398715,
+        "p90_ms": 35.191340604797006,
+        "first_call_ms": 37.193709053099155
+      },
+      "jvp_loop": {
+        "median_ms": 1274.0661930292845,
+        "p10_ms": 1271.3207048829645,
+        "p90_ms": 1318.4972346760333,
+        "first_call_ms": 1274.0424112416804
+      },
+      "fd": {
+        "median_ms": 383.2056417595595,
+        "p10_ms": 375.90640070848167,
+        "p90_ms": 387.20695269294083,
+        "first_call_ms": 533.3401006646454
+      },
+      "diag_jvp": {
+        "median_ms": 139.78313677944243,
+        "p10_ms": 136.18297558277845,
+        "p90_ms": 143.16746098920703,
+        "first_call_ms": 136.3771678879857
+      },
+      "diag_fd": {
+        "median_ms": 72.9789356701076,
+        "p10_ms": 70.98564878106117,
+        "p90_ms": 74.6151686180383,
+        "first_call_ms": 69.3168300203979
+      }
+    }
+  ],
+  "failures": {
+    "vmap_jvp@20x256": "OutOfMemoryError: CUDA out of memory. Tried to allocate 2.50 GiB. GPU 0 has a total capacity of 10.57 GiB of which 204.12 MiB is free. Including non-PyTorch memory, this process has 10.37 GiB memory in use. Of the allocated memory 9.21 GiB is allocated by PyTorch, and 993.63 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://"
+  }
+}
