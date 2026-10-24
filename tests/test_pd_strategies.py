@@ -329,3 +329,25 @@ def test_probe_measures_the_consistent_minus_default_score(tmp_path, monkeypatch
     expected = torch.quantile(ratio, torch.tensor([0.1, 0.5, 0.9], dtype=torch.float64))
     torch.testing.assert_close(torch.tensor(record["dscore"], dtype=torch.float64), expected, rtol=5e-3, atol=5e-3)
     assert 0 < record["active_fraction"] <= 1 and len(record["k_rel"]) == 3
+
+
+def test_consistent_gate_switches_to_the_default_above_the_threshold():
+    """COMPASS_PD_CONSISTENT_BELOW = lambda*: consistent for lambda < lambda*, default above."""
+    setup = wide_setup(locals_=(2,))
+    lam = VARIANCE ** 0.5
+    default, _, _ = compose(setup, "row_projection")
+    consistent, _, _ = compose(setup, "row_projection_consistent")
+    assert float((default - consistent).abs().max()) > 1e-2
+
+    def gated(threshold):
+        state, mask = build_state(setup, num_samples=6)
+        sampler = sampler_for(setup, "row_projection_consistent")
+        assert sampler.pd_consistent_below == float("inf")          # off unless set
+        sampler.pd_consistent_below = threshold
+        scores = setup["model"](state.reshape(-1, setup["nodes"]), TIME,
+                                mask.reshape(-1, setup["nodes"])).reshape(state.shape)
+        out = sampler._compositional_score(scores.clone(), state, TIME, condition_mask=mask)
+        return out[0, :, HIERARCHY].to(torch.float64)
+
+    torch.testing.assert_close(gated(0.5 * lam), default, rtol=1e-5, atol=1e-5)
+    torch.testing.assert_close(gated(2.0 * lam), consistent, rtol=1e-6, atol=1e-6)

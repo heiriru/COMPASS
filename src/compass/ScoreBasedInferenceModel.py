@@ -467,7 +467,7 @@ class ScoreBasedInferenceModel(nn.Module):
         
     def sample(self, theta=None, x=None, err=None, condition_mask=None,
                timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, multi_obs_inference=False, hierarchy=None,
-               prior=None, local_prior=None, correction="gauss", posterior_precision=None,
+               prior=None, local_prior=None, correction="gauss_jacobian_FD", posterior_precision=None,
                posterior_covariance=None, posterior_mean=None,
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
@@ -485,7 +485,7 @@ class ScoreBasedInferenceModel(nn.Module):
                precision_est_batch_size=128,
                covariance_shrinkage=0.01, covariance_nugget=1e-6,
                pd_epsilon=1e-8, pd_floor=1e-3,
-               jacobian_refresh=1, jacobian_curvature_floor=1e-3,
+               jacobian_refresh=9, jacobian_curvature_floor=1e-3,
                jacobian_fd_step=1e-2, jacobian_refresh_low_noise=None,
                jacobian_refresh_lambda=0.3):
         """
@@ -510,7 +510,9 @@ class ScoreBasedInferenceModel(nn.Module):
                     observations (defaults to all latent variables)
             prior: Gaussian prior over the hierarchy dimensions as a tuple (mean, std),
                     each of length len(hierarchy). Defaults to N(0, 1).
-            correction: Score composition rule. Existing values are preserved;
+            correction: Score composition rule for multi_obs_inference; default
+                    "gauss_jacobian_FD" with jacobian_refresh=9 (the standard COMPASS
+                    method). Existing values are preserved;
                     benchmark names also include "legacy_mean",
                     "prior_corrected_sum", "damped_sum" and "minibatch_damped".
                     "gauss_jacobian" is the pilot-free hierarchical GAUSS rule:

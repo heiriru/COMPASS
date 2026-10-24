@@ -510,7 +510,220 @@ def exp4():
     print(plotting.save(fig, FIG, "fig_exp4_psis_loo"))
 
 
-COMMANDS = {"exp4": exp4, "exp3b": exp3b, "exp1": exp1, "exp2": exp2, "exp3a": exp3a}
+# ---------------------------------------------------------------------------
+# exp 5: honest model weights and elpd-difference error bars (WEIGHTS.md)
+# ---------------------------------------------------------------------------
+
+EXP5_SETUP = {  # label: (family, COMPASS tag, reference tags, reference key)
+    "offset": ("offset", "trained_n65536_s0_d1000", ("ref", "ref_loo"), "quad"),
+    "offset exact scores": ("offset", "oracle_d1000", ("ref", "ref_loo"), "quad"),
+    "noise": ("noise", "trained_n65536_s0_d1000", ("ref", "ref_loo"), "quad"),
+    "population": ("population", "trained_n131072_s0_d500_hutch", ("ref_r2",), "mcmc"),
+    "population_wide": ("population_wide", "trained_n131072_s0_d500_hutch", ("ref_r2",), "mcmc"),
+    "tutorial": ("tutorial", "trained_n131072_s0_d500_hutch", ("ref",), "mcmc"),
+}
+SEED_SD = 0.5594  # between-seed sd of the offset ΔWAIC shift (exp 2), WAIC scale
+
+
+def _exp5_records(fam, tag, ref_tags, key):
+    """[(true, compass models, reference models)]; reference entries merged over tags
+    (first tag wins on shared fields, so ref_loo only adds elpd_loo_rows / loo)."""
+    refs = {}
+    for t in ref_tags:
+        for rec in common.load_records("reference", fam, t):
+            slot = refs.setdefault((rec["true"], rec["rep"]), {})
+            for n, e in rec["models"].items():
+                if key in e:
+                    d = slot.setdefault(n, {})
+                    for a, b in e[key].items():
+                        d.setdefault(a, b)
+    names = list(family(fam))
+    out = []
+    for rec in common.load_records("compass", fam, tag):
+        r = refs.get((rec["true"], rec["rep"]))
+        if r is None or not all(n in r and "elpd_rows" in r[n] for n in names):
+            continue
+        vals = [rec["models"][n]["waic"] for n in names] + [r[n]["waic"] for n in names]
+        if not np.all(np.isfinite(vals)):
+            continue
+        out.append((rec["true"], rec["models"], r))
+    return names, out
+
+
+def _rows(models, names, loo=False):
+    k = "elpd_loo_rows" if loo and all("elpd_loo_rows" in models[n] for n in names) else "elpd_rows"
+    return np.array([models[n][k] for n in names], float).T          # (rows, K)
+
+
+def _pbma_plus(E, rng, n_boot=1000):
+    n = len(E)
+    alpha = rng.dirichlet(np.ones(n), n_boot)
+    z = n * alpha @ E
+    z -= z.max(1, keepdims=True)
+    w = np.exp(z)
+    return (w / w.sum(1, keepdims=True)).mean(0)
+
+
+def _stacking(E):
+    from scipy.optimize import minimize
+    from scipy.special import logsumexp, log_softmax
+
+    def f(a):
+        return -logsumexp(E + log_softmax(np.r_[0.0, a])[None], axis=1).sum()
+    a = minimize(f, np.zeros(E.shape[1] - 1), method="L-BFGS-B").x
+    return np.exp(log_softmax(np.r_[0.0, a]))
+
+
+def _mc_softmax(waic, sd, rng, n_draw=4000):
+    draws = waic[None] + sd[None] * rng.standard_normal((n_draw, len(waic)))
+    return np.mean([_softmax_weights(x) for x in draws], 0)
+
+
+def _se_decision(E, extra_var=None):
+    """(best index, decided): best by summed elpd; decided if Δ > 2 se for every other model."""
+    tot = E.sum(0)
+    b = int(tot.argmax())
+    n = len(E)
+    ok = True
+    for k in range(E.shape[1]):
+        if k == b:
+            continue
+        d = E[:, b] - E[:, k]
+        var = n * d.var(ddof=1) + (0.0 if extra_var is None else extra_var[b] + extra_var[k])
+        ok &= d.sum() > 2 * np.sqrt(var)
+    return b, bool(ok)
+
+
+def _weight_scores(W, ti):
+    W = np.asarray(W, float)
+    hit = np.eye(W.shape[1])[ti]
+    rel = analyze.reliability(W.ravel(), hit.ravel())
+    return dict(acc=float((W.argmax(1) == ti).mean()), ece=rel["ece"], null95=rel["ece_null_q95"],
+                brier=float(((W - hit) ** 2).sum(1).mean()),
+                log_score=float(np.log(np.clip(W[np.arange(len(ti)), ti], 1e-12, None)).mean()))
+
+
+def exp5():
+    rng = np.random.default_rng(5)
+    out = {}
+    for label, (fam, tag, ref_tags, key) in EXP5_SETUP.items():
+        names, recs = _exp5_records(fam, tag, ref_tags, key)
+        K = len(names)
+        ti = np.array([names.index(t) for t, _, _ in recs])
+        W = {m: [] for m in ("ref softmax", "ref pseudo-BMA+", "ref stacking", "ref evidence",
+                             "COMPASS softmax", "COMPASS pseudo-BMA+", "COMPASS stacking",
+                             "COMPASS MC-aware", "COMPASS MC+seed")}
+        dec = {m: [] for m in ("ref", "COMPASS", "COMPASS MC", "COMPASS MC+seed")}
+        z_mc, z_seed, pb_stored, pb_mine = [], [], [], []
+        for (true, c, r), t in zip(recs, ti):
+            Er, Ec = _rows(r, names), _rows(c, names)
+            wr = np.array([r[n]["waic"] for n in names]); wc = np.array([c[n]["waic"] for n in names])
+            mc = np.array([c[n]["mc_se"] for n in names])
+            W["ref softmax"].append(_softmax_weights(wr))
+            W["ref pseudo-BMA+"].append(_pbma_plus(Er, rng))
+            W["ref stacking"].append(_stacking(_rows(r, names, loo=True)))
+            if all("log_z" in r[n] for n in names):
+                W["ref evidence"].append(_softmax_weights(-2 * np.array([r[n]["log_z"] for n in names])))
+            W["COMPASS softmax"].append(_softmax_weights(wc))
+            W["COMPASS pseudo-BMA+"].append(_pbma_plus(Ec, rng))
+            W["COMPASS stacking"].append(_stacking(_rows(c, names, loo=True)))
+            W["COMPASS MC-aware"].append(_mc_softmax(wc, mc, rng))
+            W["COMPASS MC+seed"].append(_mc_softmax(wc, np.sqrt(mc ** 2 + SEED_SD ** 2 / 2), rng))
+            pb_stored.append(c[names[0]]["weight_pbma_plus"]); pb_mine.append(W["COMPASS pseudo-BMA+"][-1][0])
+            # elpd scale: Var(elpd) = Var(WAIC) / 4
+            dec["ref"].append(_se_decision(Er) + (t,))
+            dec["COMPASS"].append(_se_decision(Ec) + (t,))
+            dec["COMPASS MC"].append(_se_decision(Ec, mc ** 2 / 4) + (t,))
+            dec["COMPASS MC+seed"].append(_se_decision(Ec, (mc ** 2 + SEED_SD ** 2 / 2) / 4) + (t,))
+            for k in range(K):
+                if k == t:
+                    continue
+                err = (wc[k] - wc[t]) - (wr[k] - wr[t])
+                z_mc.append(err / np.sqrt(mc[k] ** 2 + mc[t] ** 2))
+                z_seed.append(err / np.sqrt(mc[k] ** 2 + mc[t] ** 2 + SEED_SD ** 2))
+        res = dict(family=fam, n=len(recs), models=names, weights={}, decision={})
+        for m, w in W.items():
+            if len(w) == len(recs):
+                res["weights"][m] = _weight_scores(w, ti)
+        ref_pick = np.array([b for b, _, _ in dec["ref"]]); ref_dec = np.array([d for _, d, _ in dec["ref"]])
+        for m, v in dec.items():
+            b = np.array([x[0] for x in v]); d = np.array([x[1] for x in v])
+            res["decision"][m] = dict(
+                decided=float(d.mean()),
+                acc_decided=float((b[d] == ti[d]).mean()) if d.any() else None,
+                acc_all=float((b == ti).mean()),
+                wrong_decided=float((d & (b != ti)).mean()),
+                agree_with_ref=float(((b == ref_pick) & (d == ref_dec)).mean()))
+        z_mc, z_seed = np.abs(z_mc), np.abs(z_seed)
+        res["z"] = dict(within2_mc=float((z_mc < 2).mean()), within2_mc_seed=float((z_seed < 2).mean()),
+                        median_abs_mc=float(np.median(z_mc)), median_abs_mc_seed=float(np.median(z_seed)))
+        res["pbma_check_corr"] = float(np.corrcoef(pb_stored, pb_mine)[0, 1])
+        out[label] = res
+        print(f"\n== {label} (n={res['n']}, {names})")
+        for m, s in res["weights"].items():
+            print(f"  {m:22s} acc {s['acc']:.3f}  ECE {s['ece']:.3f} (null95 {s['null95']:.3f})  "
+                  f"Brier {s['brier']:.3f}  log {s['log_score']:.3f}")
+        for m, s in res["decision"].items():
+            print(f"  rule {m:16s} decided {s['decided']:.2f}  acc|decided "
+                  f"{s['acc_decided'] if s['acc_decided'] is None else round(s['acc_decided'], 3)}  "
+                  f"wrong&decided {s['wrong_decided']:.3f}  agree ref {s['agree_with_ref']:.2f}")
+        print(f"  |z|<2: MC {res['z']['within2_mc']:.2f}, MC+seed {res['z']['within2_mc_seed']:.2f};"
+              f" pbma+ check corr {res['pbma_check_corr']:.3f}")
+    save_json("exp5", out)
+    _exp5_figure(out)
+
+
+def _exp5_figure(out):
+    plotting.style()
+    labels = list(out)
+    fig, axs = plt.subplots(1, 4, figsize=(20, 4.6))
+    methods = [("softmax", NEW), ("pseudo-BMA+", FOURTH), ("stacking", LEGACY), ("MC+seed", INK2),
+               ("evidence", EXACT)]
+    xs = np.arange(len(labels))
+    for ax, metric, ylab in ((axs[0], "ece", "ECE vs true model (tick: null95)"),
+                             (axs[1], "log_score", "mean log weight of true model")):
+        width = 0.8 / len(methods)
+        for j, (m, col) in enumerate(methods):
+            for lvl, hatch, alpha in (("ref", "//", 0.45), ("COMPASS", None, 1.0)):
+                key = f"{lvl} {m}"
+                vals = [out[l]["weights"].get(key, {}).get(metric, np.nan) for l in labels]
+                off = (j - len(methods) / 2 + 0.5) * width
+                # reference level drawn as a hollow marker over the COMPASS bar
+                if lvl == "COMPASS":
+                    ax.bar(xs + off, vals, width, color=col, label=m if metric == "ece" else None)
+                    if metric == "ece":
+                        nul = [out[l]["weights"].get(key, {}).get("null95", np.nan) for l in labels]
+                        ax.scatter(xs + off, nul, marker="_", color="k", s=60, zorder=3)
+                else:
+                    ax.scatter(xs + off, vals, marker="o", facecolor="white", edgecolor=col, s=22, zorder=4,
+                               label=("reference level (hollow)" if (metric == "ece" and j == 0) else None))
+        ax.set_xticks(xs, labels, rotation=20, fontsize=8); ax.set_ylabel(ylab)
+        if metric == "log_score":
+            ax.set_ylim(max(ax.get_ylim()[0], -3), 0.05)
+    axs[0].legend(fontsize=7); axs[0].set_title("calibration of model weights")
+    axs[1].set_title("proper score (higher is better)")
+    ax = axs[2]
+    rules = [("ref", EXACT), ("COMPASS", NEW), ("COMPASS MC+seed", INK2)]
+    for j, (m, col) in enumerate(rules):
+        off = (j - 1) * 0.27
+        dd = [out[l]["decision"][m]["decided"] for l in labels]
+        wd = [out[l]["decision"][m]["wrong_decided"] for l in labels]
+        ax.bar(xs + off, dd, 0.27, color=col, alpha=0.5, label=f"{m}: decided")
+        ax.bar(xs + off, wd, 0.27, color=col, hatch="xx", edgecolor="k", label=f"{m}: decided & wrong")
+    ax.set_xticks(xs, labels, rotation=20, fontsize=8); ax.set_ylabel("fraction of datasets")
+    ax.legend(fontsize=6); ax.set_title("rule: pick only if Δelpd > 2 se")
+    ax = axs[3]
+    ax.bar(xs - 0.2, [out[l]["z"]["within2_mc"] for l in labels], 0.4, color=NEW, label="MC-SE only")
+    ax.bar(xs + 0.2, [out[l]["z"]["within2_mc_seed"] for l in labels], 0.4, color=INK2, label="MC-SE + seed")
+    ax.axhline(0.95, color=EXACT, ls="--", lw=1, label="target 0.95")
+    ax.set_xticks(xs, labels, rotation=20, fontsize=8); ax.set_ylim(0, 1.05)
+    ax.set_ylabel("fraction |ΔWAIC error| < 2 σ"); ax.legend(fontsize=7)
+    ax.set_title("do COMPASS error bars cover the error?")
+    fig.tight_layout()
+    print(plotting.save(fig, FIG, "fig_exp5_weights"))
+
+
+COMMANDS = {"exp5": exp5, "exp4": exp4, "exp3b": exp3b, "exp1": exp1, "exp2": exp2, "exp3a": exp3a}
 
 
 def main():

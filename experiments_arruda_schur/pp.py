@@ -8,6 +8,13 @@ the best K=1 arm on record, and the attention mode is the only change.
     python pp.py train --mode full
     python pp.py infer --mode full --method arruda_laplace --datasets 30
     python pp.py infer --mode none --method gauss_jacobian_FD --datasets 30
+    python pp.py infer --mode hierarchical --precondition Rg --datasets 30   # default: gauss_jacobian_FD_r9
+
+The default method is ``gauss_jacobian_FD_r9`` (since 2026-10-23): the FD Jacobian refreshed at
+every 9th composed-score call. On this problem it is 3.3-3.75x faster than the production
+schedule of ``gauss_jacobian_FD`` (refresh every call above lambda 0.3, every 20th below) with no
+accuracy loss beyond the seed floor (docs/jacobian_speedup_results.md). ``gauss_jacobian_FD`` keeps
+its old schedule, so earlier result folders under that name stay comparable.
 
 ``--mode none`` loads the production C2 checkpoint read-only. Outputs are
 written under ``experiments_arruda_schur/artifacts/pp/<mode>/recovery/<method>-...``
@@ -68,12 +75,14 @@ ROLES = {"g": list(range(7)), "l": list(range(7, 10)), "x": list(range(10, 26))}
 PLANS = {
     "gauss_hierarchical": ({}, "gauss_hierarchical", {}),
     "gauss_jacobian_FD": ({}, "gauss_jacobian_FD",
-                          {"jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3}),
+                          {"jacobian_refresh": 1, "jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3}),
     # The dense schedule: a fresh FD Jacobian at every evaluation, at all noise levels.
     "gauss_jacobian_FD_r1": ({}, "gauss_jacobian_FD", {"jacobian_refresh": 1}),
+    # One odd refresh period everywhere (docs/jacobian_speedup_results.md; the fair benchmark's ours-fast).
+    "gauss_jacobian_FD_r9": ({}, "gauss_jacobian_FD", {"jacobian_refresh": 9}),
     # The production FD schedule with twice the default Karras churn (eta 2 -> 4).
     "gauss_jacobian_FD_churn4": ({}, "gauss_jacobian_FD",
-                                 {"jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3,
+                                 {"jacobian_refresh": 1, "jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3,
                                   "churn_eta": 4.0}),
     "arruda_direct": ({"estimator": "direct"}, "arruda_schur", {}),
     # The log-det gradient (H extra local Jacobians) is refreshed every 5th
@@ -87,7 +96,7 @@ PLANS = {
                              {"jacobian_refresh": 5, "jacobian_refresh_low_noise": 20,
                               "jacobian_refresh_lambda": 0.3}),
     "arruda_gauss_direct": ({"estimator": "direct"}, "arruda_schur_gauss",
-                            {"jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3}),
+                            {"jacobian_refresh": 1, "jacobian_refresh_low_noise": 20, "jacobian_refresh_lambda": 0.3}),
     "arruda_gauss_laplace": ({"estimator": "laplace"}, "arruda_schur_gauss",
                              {"jacobian_refresh": 5, "jacobian_refresh_low_noise": 20,
                               "jacobian_refresh_lambda": 0.3}),
@@ -383,7 +392,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("train", "infer"))
     parser.add_argument("--mode", choices=MODES, required=True)
-    parser.add_argument("--method", choices=tuple(PLANS) + ("langevin_fnpse",), default="gauss_hierarchical")
+    parser.add_argument("--method", choices=tuple(PLANS) + ("langevin_fnpse",), default="gauss_jacobian_FD_r9")
     parser.add_argument("--subjects", type=int, default=100)
     parser.add_argument("--datasets", type=int, default=30)
     parser.add_argument("--dataset-start", type=int, default=0)

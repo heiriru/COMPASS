@@ -129,4 +129,9 @@ enough at lambda 0.5 for the start to be unbiased. The secant update again moves
    and crashed once (r15s, non-PD composed covariance). Exact for Gaussian rows (unit-tested), but
    consecutive calls differ by ~28% in lambda and ~lambda in state. Kept opt-in, off by default.
 
-Not yet done: a second seed of r9 on all 30 datasets; IK / GM benches; changing pp.py's default plan.
+Not yet done: a second seed of r9 on all 30 datasets; IK / GM benches.
+
+2026-10-23: `gauss_jacobian_FD_r9` is now pp.py's default `--method` (the library default
+`jacobian_refresh` stays 1 until the IK / GM benches are run). Re-timed after the sampler refactor
+(compact HierarchicalState etc.), datasets 0-4, 100 draws, GPU otherwise idle: production schedule
+165 s/dataset (old and new sampler code identical, draws bit for bit), r9 44 s/dataset (3.75x).

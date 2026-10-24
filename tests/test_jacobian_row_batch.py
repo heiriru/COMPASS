@@ -42,7 +42,9 @@ def test_full_batch_reproduces_the_default_rule():
 
 def test_small_batches_are_exact_for_gaussian_rows():
     model = oracle()
-    reference, stats_ref = draw(model, 12)
+    # reference: every row refreshed at every evaluation (jacobian_refresh=1; the
+    # library default of 9 already amortises the Jacobian over evaluations)
+    reference, stats_ref = draw(model, 12, jacobian_refresh=1)
     batched, stats = draw(model, 12, jacobian_row_batch=2)
     torch.testing.assert_close(batched, reference, rtol=1e-3, atol=1e-3)
     # the per-call network rows shrink: ~2 refreshed rows x (D+2) copies vs 12 x (D+2)

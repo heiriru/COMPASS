@@ -154,6 +154,12 @@ def test_checkpoint_sampler_pfode_and_composition(fixture):
     )
     assert_identical(log_prob, entry["log_prob"], "PF-ODE log-probability")
 
+    # The fixture was frozen under the previous composition arithmetic; "cholesky"
+    # reproduces it bit for bit (the default "elimination" agrees to float rounding).
+    # Like churn_eta=0.0 below, this pins the sampler so that the fixture detects
+    # changes to the architecture.
+    model.multi_obs_sampler.set_schur_mode("cholesky")
+    model.multi_obs_sampler.set_eigh_precision(torch.float64, 2048)
     torch.manual_seed(entry["sample_seed"])
     composed = model.sample(
         x=observations, timesteps=20, num_samples=16, method="dpm", order=2,

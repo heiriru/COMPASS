@@ -5,6 +5,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
 import tqdm
 import datetime
+import gc
 import math
 import os
 
@@ -12,6 +13,18 @@ from .churn import (
     DEFAULT_ETA as DEFAULT_CHURN_ETA, GAMMA_CAP as DEFAULT_CHURN_GAMMA_CAP,
     apply_churn, resolve_corrector_steps, schedule_ceiling,
 )
+from .hierarchical_state import HierarchicalLayout, HierarchicalState, NOISE_STREAMS
+
+def _tiny_matmul(a, b):
+    """``a @ b`` for large batches of tiny matrices, as a broadcast product and a sum.
+
+    Batched GEMM is dominated by per-matrix overhead at these sizes: for 80,000 float64
+    7x3 @ 3x7 products it takes 7.7 ms on an RTX 2080 Ti, the broadcast form 0.8 ms. The
+    temporary holds ``batch x i x k x j`` numbers, so use it only for small ``k`` (the
+    contracted dimension). Equal to ``a @ b`` up to the order of the k-term sums.
+    """
+    return (a.unsqueeze(-1) * b.unsqueeze(-3)).sum(-2)
+
 
 class TensorTupleDataset(Dataset):
     def __init__(self, tensor1, tensor2):
@@ -44,7 +57,10 @@ class MultiObsSampler():
 
     Fifteen composition rules are implemented (`correction` argument):
 
-    - "gauss" (default): Gaussian-corrected composition (Gloeckler et al. 2024,
+    The default is "gauss_jacobian_FD" with ``jacobian_refresh=9`` (the standard COMPASS
+    method since 2026-10-23; see compass.hierarchical_state and docs/jacobian_speedup_results.md).
+
+    - "gauss": Gaussian-corrected composition (Gloeckler et al. 2024,
       "Compositional simulation-based inference for time series"). The composed score
       approximates the score of the *diffused* multi-observation posterior, so it is
       valid inside the standard reverse-diffusion samplers (euler / dpm). Requires an
@@ -238,15 +254,36 @@ class MultiObsSampler():
         self.covariance_nugget = 1e-6
         self.pd_epsilon = 1e-8
         self.pd_floor = 1e-3
-        self.jacobian_refresh = 1
+        self.jacobian_refresh = 9
         self.jacobian_curvature_floor = 1e-3
         # Opt-in speed-up (set_cholesky_screen): skip the eigendecompositions of matrices a
         # Cholesky factorisation already proves need no eigenvalue clamping.
         self.cholesky_screen = False
         # Opt-in speed-up (set_eigh_precision): dtype and chunk of the two per-row
         # eigendecompositions on the gauss_jacobian path.
-        self.eigh_dtype = torch.float64
-        self.eigh_chunk = 2048
+        self.eigh_dtype = torch.float32
+        self.eigh_chunk = 1024
+        # Sampler state (set_state_layout): "compact" holds the globals once per draw and
+        # the locals once per row (compass.hierarchical_state) and builds the (N, M, F)
+        # node array only for a network evaluation; "dense" is the synchronised array.
+        # Noise stream (set_noise_stream): "legacy" (default) reproduces the synchronised
+        # sampler's random stream, so seeded runs give the same draws as before the compact
+        # layout; "compact" draws only the free coordinates.
+        self.state_layout = os.environ.get("COMPASS_STATE_LAYOUT", "compact")
+        self.noise_stream = os.environ.get("COMPASS_NOISE_STREAM", "legacy")
+        # Schur blocks of the hierarchical rules (set_schur_mode): "elimination" reads
+        # K_j and R_j off one d_l x d_l factorisation per row; "cholesky" is the former
+        # route through the full D x D covariance.
+        self.schur_mode = os.environ.get("COMPASS_SCHUR_MODE", "elimination")
+        # Rows per network call (set_network_row_budget); None = one call per evaluation.
+        self.network_max_rows = None
+        # Collect the young garbage generations after every network call (set_network_gc).
+        self.network_gc = os.environ.get("COMPASS_NETWORK_GC", "1") != "0"
+        # gauss_jacobian_FD reuses the score evaluation's own network output as the
+        # finite-difference base point instead of evaluating it again.
+        self.fd_reuse_base = True
+        self._layout = None
+        self._fd_base = None
         self.jacobian_fd_step = 1e-2
         self.jacobian_refresh_low_noise = None
         self.jacobian_refresh_lambda = 0.3
@@ -322,7 +359,7 @@ class MultiObsSampler():
 
     def sample(self, world_size, data, condition_mask=None, timesteps=50, eps=1e-3, num_samples=1000, cfg_alpha=None, hierarchy=None,
                prior=None, local_prior=None,
-               correction="gauss", posterior_precision=None,
+               correction="gauss_jacobian_FD", posterior_precision=None,
                posterior_covariance=None, posterior_mean=None,
                global_posterior_mean=None, global_posterior_covariance=None,
                precision_est_samples=500, precision_est_timesteps=None, denoise_clamp=5.0,
@@ -339,7 +376,7 @@ class MultiObsSampler():
                device="cpu", verbose=True, method="dpm", save_trajectory=False, result_dict=None,
                precision_est_batch_size=128, covariance_shrinkage=0.01,
                covariance_nugget=1e-6, pd_epsilon=1e-8, pd_floor=1e-3,
-               jacobian_refresh=1, jacobian_curvature_floor=1e-3,
+               jacobian_refresh=9, jacobian_curvature_floor=1e-3,
                jacobian_block_size=2, jacobian_pooling="contiguous",
                jacobian_fd_step=1e-2, jacobian_refresh_low_noise=None,
                jacobian_refresh_lambda=0.3, jacobian_refresh_high_noise=None,
@@ -366,7 +403,8 @@ class MultiObsSampler():
                     (mean, std) or, for "full_gaussian", (mean, covariance_matrix).
                     Defaults to a standard normal N(0, 1) (correct if the model was
                     trained on parameters standardized to zero mean and unit variance).
-            correction: Composition rule. In addition to the existing "gauss",
+            correction: Composition rule; default "gauss_jacobian_FD" (with
+                    jacobian_refresh=9). In addition to "gauss",
                     "uncorrected", "fnpe", "damping", "gauss_damping", "hybrid"
                     and "hybrid_damping" values, accepts "legacy_mean",
                     "prior_corrected_sum", "damped_sum", "minibatch_damped" and
@@ -1841,11 +1879,10 @@ class MultiObsSampler():
         alpha = self.sde.alpha_t(t).to(z.device)
         rows, samples, features = z.shape
         x = z * (alpha * (1 - condition_mask) + condition_mask)
-        scores = self.SBIm.model(
-            x=x.reshape(rows * samples, features), t=t,
-            c=condition_mask.reshape(rows * samples, features),
+        scores = self._call_network(
+            x.reshape(rows * samples, features), t,
+            condition_mask.reshape(rows * samples, features),
         )
-        scores = self.SBIm.output_scale_function(t, scores)
         self.score_network_calls += 1
         self.evaluated_subject_rows += int(rows)
         self.evaluated_row_samples = getattr(self, "evaluated_row_samples", 0) + int(rows) * int(samples)
@@ -1929,34 +1966,58 @@ class MultiObsSampler():
         rows, samples, features = z.shape
         lam = float(self.sde.lambda_t(t).reshape(-1)[0])
         step = float(self.jacobian_fd_step) * lam
-        copies = [z]
-        for feature in feature_order:
-            shifted = z.clone()
-            shifted[:, :, feature] += step
-            copies.append(shifted)
+        order = list(feature_order)
+        width = len(order)
+        # The base point s(z) is the score evaluation's own network output when this
+        # Jacobian is taken at the state just scored (see _get_score); it is not
+        # evaluated again then.
+        base = None
+        cached = getattr(self, "_fd_base", None)
+        if (getattr(self, "fd_reuse_base", False) and cached is not None
+                and cached[0] is z and torch.equal(cached[1], torch.as_tensor(t))
+                and cached[2] == order):
+            base = cached[3]
+        work = ([] if base is not None else [None]) + list(range(width))   # None = base copy
         self.jacobian_row_samples = (getattr(self, "jacobian_row_samples", 0)
-                                     + rows * samples * len(copies))
-        per_call = max(1, self.FD_JACOBIAN_MAX_ROWS // max(1, rows * samples))
+                                     + rows * samples * len(work))
         mask_per_sample = (
             condition_mask.dim() == 3 and condition_mask.shape[1] == samples
         )
-        outputs = []
+        budget = getattr(self, "network_max_rows", None)
+        if budget is not None and rows * samples > budget:
+            # Copies larger than the row budget are split along the draw axis.
+            span = max(1, budget // max(1, rows))
+            calls = [([item], start, min(start + span, samples))
+                     for item in work for start in range(0, samples, span)]
+        else:
+            per_call = max(1, self.FD_JACOBIAN_MAX_ROWS // max(1, rows * samples))
+            calls = [(work[i:i + per_call], 0, samples) for i in range(0, len(work), per_call)]
+        jacobian = torch.empty(rows, samples, width, width, dtype=torch.float64, device=z.device)
         with torch.no_grad():
-            for start in range(0, len(copies), per_call):
-                chunk = copies[start:start + per_call]
-                mask = (
-                    condition_mask.repeat(1, len(chunk), 1) if mask_per_sample
-                    else condition_mask
-                )
+            for items, start, stop in calls:
+                chunk = []
+                for item in items:
+                    copy = z[:, start:stop].clone()
+                    if item is not None:
+                        copy[:, :, order[item]] += step
+                    chunk.append(copy)
+                mask = condition_mask[:, start:stop] if mask_per_sample else condition_mask
+                if mask_per_sample and len(chunk) > 1:
+                    mask = mask.repeat(1, len(chunk), 1)
                 scores = self._raw_row_scores(torch.cat(chunk, dim=1), t, mask)
-                outputs.append(
-                    scores.reshape(rows, len(chunk), samples, features)
-                )
-        scores = torch.cat(outputs, dim=1)[..., feature_order].to(torch.float64)
-        columns = (scores[:, 1:] - scores[:, :1]) / step
-        # (rows, D_in, samples, D_out) -> (rows, samples, D_out, D_in), the
-        # layout `_row_score_jacobian` returns.
-        return columns.permute(0, 2, 3, 1).contiguous()
+                scores = scores.reshape(rows, len(chunk), stop - start, features)[..., order]
+                scores = scores.to(torch.float64)
+                # Column k is (s(z + h e_k) - s(z)) / h. The base copy comes first in
+                # `work`, so the base of these draws is in place before any column needs it.
+                for position, item in enumerate(items):
+                    if item is None:
+                        if base is None:
+                            base = torch.empty(rows, samples, width, dtype=torch.float64, device=z.device)
+                        base[:, start:stop] = scores[:, position]
+                    else:
+                        jacobian[:, start:stop, :, item] = (scores[:, position] - base[:, start:stop]) / step
+        # (rows, samples, D_out, D_in), the layout `_row_score_jacobian` returns.
+        return jacobian
 
     @staticmethod
     def _forward_ad_attention():
@@ -2193,6 +2254,7 @@ class MultiObsSampler():
         self.terminal_corrector_seconds = {count: 0.0 for count in self.terminal_corrector_counts}
         for batch in data_loader:
             data_batch, condition_mask_batch, idx = self._prepare_data(batch, num_samples, self.device)
+            self._layout = self._make_layout(data_batch, condition_mask_batch)
             if getattr(self, "init_state", None) is not None:
                 data_batch = self._warm_start_state(data_batch, condition_mask_batch)
             else:
@@ -2238,7 +2300,11 @@ class MultiObsSampler():
                 if self.correction in self.DIAGONAL_GAUSSIAN_CORRECTIONS:
                     result = self._final_denoise(result, condition_mask_batch, idx)
                 alpha_end = self.sde.alpha_t(self.timesteps_list[-1]).to(result.device)
-                result = result * (alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
+                if isinstance(result, HierarchicalState):
+                    # Back to the (N, M, F) array sample() returns, observed values in place.
+                    result = self._layout.assemble(result * alpha_end)
+                else:
+                    result = result * (alpha_end * (1 - condition_mask_batch) + condition_mask_batch)
                 if not torch.all(torch.isfinite(result)):
                     raise RuntimeError(f"Sampling with correction={self.correction!r} produced non-finite values.")
                 result[:, :, self.hierarchy] = result[:1, :, self.hierarchy]
@@ -2247,6 +2313,8 @@ class MultiObsSampler():
                 else:
                     sweep_samples[count].append(result)
             indices.append(idx)
+        self._layout = None
+        self._fd_base = None
 
         if self.world_size > 1:
             dist.barrier()
@@ -2264,6 +2332,10 @@ class MultiObsSampler():
             stats["jacobian_secant_skipped"] = int(getattr(self, "_secant_skipped", 0))
             stats.setdefault("score_evaluations", int(self.score_network_calls))
             self.solver_stats = stats
+            # The per-row curvature caches (N x M x D x D float64 each) are rebuilt by
+            # every call; do not keep them alive between calls.
+            self._jacobian_cached_information = None
+            self._last_joint_precision = None
             log = os.environ.get("COMPASS_PROJECTION_LOG")
             if log and self.correction in self.COVARIANCE_GAUSSIAN_CORRECTIONS | {"arruda_schur_gauss"}:
                 import json
@@ -2794,7 +2866,7 @@ class MultiObsSampler():
         """
         self.cholesky_screen = bool(enabled)
 
-    def set_eigh_precision(self, dtype=torch.float64, chunk=2048):
+    def set_eigh_precision(self, dtype=torch.float32, chunk=1024):
         """dtype and chunk size of the per-row eigendecompositions on the gauss_jacobian path
         (curvature clamp at a refresh, information projection at every evaluation).
 
@@ -2803,9 +2875,89 @@ class MultiObsSampler():
         information I_j = Lambda_j - Lambda_prior is a cancellation), only the
         eigendecomposition runs in ``dtype``, and its output is cast back. The CUDA eigh
         workspace is ~0.5 MB per matrix whatever their size (1.1 GB per 2,048-chunk), so
-        ``chunk`` bounds peak memory. Defaults reproduce the previous behaviour exactly."""
+        ``chunk`` bounds peak memory. Default float32 in chunks of 1,024 (since 2026-10-23);
+        ``set_eigh_precision(torch.float64, 2048)`` restores the earlier behaviour exactly."""
         self.eigh_dtype = dtype
         self.eigh_chunk = int(chunk)
+
+    def set_state_layout(self, layout):
+        """Layout of the sampler state during reverse diffusion.
+
+        "compact" (default): :class:`~compass.hierarchical_state.HierarchicalState`, the
+        global coordinates once per draw ``(M, d_g)`` and the local ones once per row
+        ``(N, M, d_l)``; the ``(N, M, F)`` node array is assembled only for a network
+        evaluation. "dense": the synchronised ``(N, M, F)`` array. Both give the same
+        draws, bit for bit. "dense" is also used automatically with ``world_size > 1``,
+        with a latent feature observed in some rows only, and when a subclass or monkeypatch
+        replaces a method that sees the state (STATE_METHODS)."""
+        if layout not in ("compact", "dense"):
+            raise ValueError("state layout must be 'compact' or 'dense'.")
+        self.state_layout = layout
+
+    def set_noise_stream(self, stream):
+        """Random stream of the compact layout's noise (initial state, churn, Langevin,
+        terminal denoising). Both give one global noise vector per draw and independent
+        local noise per row. "legacy" (default) draws what the synchronised sampler drew
+        (a full (N, M, F) array and one shared (1, M, F) row) and slices it, so a seeded run
+        reproduces the earlier draws exactly; "compact" draws only the M d_g + N M d_l
+        numbers that are used (same distribution, different random stream)."""
+        if stream not in NOISE_STREAMS:
+            raise ValueError(f"noise stream must be one of {NOISE_STREAMS}.")
+        self.noise_stream = stream
+
+    def set_schur_mode(self, mode):
+        """How the hierarchical rules read K_j = S_j (+ the information lift) and R_j off
+        a row's joint backward precision P_j = [[A, B], [B^T, C]].
+
+        "elimination" (default): one Cholesky factorisation of the d_l x d_l block C,
+        S_j = A - B C^-1 B^T and R_j = -C^-1 B^T. The PSD lift of the information is added
+        to S_j directly (S_j is affine in A with unit slope and R_j does not involve A).
+        The small per-row products of the composition use broadcast kernels (_tiny_matmul).
+        "cholesky": the former route, which lifts A, factorises the full D x D P_j, forms
+        Sigma_t,j = P_j^-1 and inverts its d_g x d_g block, with the former batched
+        products: the previous arithmetic bit for bit. Equal up to float64 rounding; the
+        elimination needs no D x D factorisation or solve at any evaluation."""
+        if mode not in ("elimination", "cholesky"):
+            raise ValueError("schur mode must be 'elimination' or 'cholesky'.")
+        self.schur_mode = mode
+
+    def set_network_row_budget(self, rows):
+        """At most ``rows`` network input rows per forward call (score evaluations and
+        finite-difference copies); None (default) evaluates all N M rows at once. The rows
+        do not interact inside the network, so this bounds the activation memory without
+        changing what is computed (only the batch the kernels see)."""
+        if rows is not None and int(rows) < 1:
+            raise ValueError("the network row budget must be a positive integer or None.")
+        self.network_max_rows = None if rows is None else int(rows)
+
+    def set_network_gc(self, enabled):
+        """Collect Python's two young garbage generations after every network call (on by
+        default; COMPASS_NETWORK_GC=0 turns it off).
+
+        Some networks leave their activations in reference cycles: the keras/BayesFlow
+        diffusion net does, about 100 MiB per 10,000 rows on the partial-pooling benchmark.
+        Reference counting cannot free a cycle, so that GPU memory stays allocated until
+        the cyclic collector happens to run, and over a sampling call it piled up to
+        several GiB (the OOM splits of the batched benchmark). ``gc.collect(1)`` frees it
+        at about 0.1 ms per call; it never changes what is computed."""
+        self.network_gc = bool(enabled)
+
+    def _call_network(self, x_flat, t, c_flat):
+        """output_scale_function(model(x, t, c)) over flat rows, in calls of at most
+        ``network_max_rows`` rows."""
+        budget = getattr(self, "network_max_rows", None)
+        if budget is None or x_flat.shape[0] <= budget:
+            out = self.SBIm.output_scale_function(t, self.SBIm.model(x=x_flat, t=t, c=c_flat))
+            if getattr(self, "network_gc", True):
+                gc.collect(1)
+            return out
+        parts = []
+        for start in range(0, x_flat.shape[0], budget):
+            parts.append(self.SBIm.output_scale_function(
+                t, self.SBIm.model(x=x_flat[start:start + budget], t=t, c=c_flat[start:start + budget])))
+            if getattr(self, "network_gc", True):
+                gc.collect(1)
+        return torch.cat(parts)
 
     def _row_eigh(self, matrices):
         dtype = getattr(self, "eigh_dtype", torch.float64)
@@ -3058,10 +3210,7 @@ class MultiObsSampler():
             joint_precision_t = information + inverse_variance * identity
             # metric of the conservative clamp (set_clamp_mode("metric"))
             self._last_joint_precision = joint_precision_t
-            joint_precision_t = joint_precision_t + self._global_block_adaptation(
-                joint_precision_t, inverse_variance, n, h,
-            )
-            return self._schur_factors(joint_precision_t, h)
+            return self._lifted_schur_factors(joint_precision_t, inverse_variance, n, h)
 
         cache = getattr(self, "_covariance_time_cache", {})
         cache_key = (inverse_variance, n)
@@ -3075,10 +3224,7 @@ class MultiObsSampler():
             dimension, dtype=torch.float64, device=covariance_precision.device
         )
         joint_precision_t = covariance_precision + inverse_variance * identity
-        joint_precision_t = joint_precision_t + self._global_block_adaptation(
-            joint_precision_t, inverse_variance, n, h,
-        )
-        result = self._schur_factors(joint_precision_t, h)
+        result = self._lifted_schur_factors(joint_precision_t, inverse_variance, n, h)
 
         self._row_delta_cache = getattr(self, "_row_delta_cache", {})
         self._row_delta_cache[cache_key] = getattr(self, "_last_row_delta", None)
@@ -3147,6 +3293,42 @@ class MultiObsSampler():
         self._secant_updates = getattr(self, "_secant_updates", 0) + int(ok.sum())
         self._secant_skipped = getattr(self, "_secant_skipped", 0) + int((~ok).sum())
         return updated
+
+    def _lifted_schur_factors(self, joint_precision_t, inverse_variance, n, h):
+        """(K_j, R_j) of the per-row joint precisions, with the information projection.
+
+        K_j is the Schur complement S_j = A_j - B_j C_j^-1 B_j^T, raised by the PSD lift
+        Delta_j of the information I_j = S_j - P_0 (`_project_information`) when the
+        row projection is on; R_j = -C_j^-1 B_j^T. The lift acts on the global block
+        A_j, which S_j contains with unit slope and R_j does not contain, so both follow
+        from one factorisation of the d_l x d_l block C_j ("elimination", see
+        set_schur_mode). "cholesky" lifts A_j and factorises the full matrix instead.
+        """
+        if (getattr(self, "schur_mode", "elimination") == "cholesky"
+                or self.correction in self.FULL_GAUSSIAN_CORRECTIONS
+                or joint_precision_t.shape[-1] == h):
+            joint_precision_t = joint_precision_t + self._global_block_adaptation(
+                joint_precision_t, inverse_variance, n, h,
+            )
+            return self._schur_factors(joint_precision_t, h)
+        factor, info = torch.linalg.cholesky_ex(joint_precision_t[..., h:, h:])
+        if torch.any(info != 0):
+            raise RuntimeError("Diffusion-time joint covariance is not positive definite.")
+        regression = torch.cholesky_solve(joint_precision_t[..., h:, :h], factor)   # C^-1 B^T
+        effective = joint_precision_t[..., :h, :h] - _tiny_matmul(
+            joint_precision_t[..., :h, h:], regression)
+        effective = 0.5 * (effective + effective.mT)
+        delta = self._project_information(effective, inverse_variance, h, apply=True)
+        self._last_row_delta = delta
+        if (delta is not None and self.pd_strategy == "row_projection"
+                and self.information_projection):
+            effective = effective + delta
+        # P_j is positive definite iff C_j and S_j are: the same guarantee the full
+        # factorisation of the "cholesky" route checks.
+        _, info = torch.linalg.cholesky_ex(effective)
+        if torch.any(info != 0):
+            raise RuntimeError("Diffusion-time joint covariance is not positive definite.")
+        return effective, -regression
 
     @staticmethod
     def _schur_global_precision(joint_precision_t, h):
@@ -3289,10 +3471,19 @@ class MultiObsSampler():
         # Counted whether or not the projection is applied: with it off, these
         # record the lift it *would* have made.
         self._pd_adaptation_count += 1
-        # I^+ - I = sum of the removed negative eigencomponents.
-        delta = torch.matmul(
-            eigenvectors * deficits.unsqueeze(-2), eigenvectors.mT
-        )
+        # I^+ - I = sum of the removed negative eigencomponents. eigh sorts ascending, so
+        # they are the first `count` columns in every row (count = the most any row has);
+        # the remaining columns carry a zero deficit and are left out of the product.
+        if self._fast_kernels():
+            count = int((eigenvalues < 0).sum(-1).max())
+            delta = _tiny_matmul(
+                eigenvectors[..., :count] * deficits[..., :count].unsqueeze(-2),
+                eigenvectors[..., :count].mT,
+            )
+        else:
+            delta = torch.matmul(
+                eigenvectors * deficits.unsqueeze(-2), eigenvectors.mT
+            )
         relative = (torch.linalg.matrix_norm(delta)
                     / torch.linalg.matrix_norm(information).clamp_min(
                         torch.finfo(torch.float64).eps))
@@ -4434,11 +4625,15 @@ class MultiObsSampler():
         if correction not in self.JACOBIAN_GAUSSIAN_CORRECTIONS:
             raise ValueError("jacobian_row_batch needs correction='gauss_jacobian' or "
                              "'gauss_jacobian_FD'.")
-        if (self.jacobian_refresh != 1 or self.jacobian_refresh_low_noise is not None
+        if (self.jacobian_refresh not in (1, 9) or self.jacobian_refresh_low_noise is not None
                 or self.jacobian_refresh_high_noise is not None
                 or self.jacobian_refresh_band is not None or self.jacobian_secant):
             raise ValueError("jacobian_row_batch replaces the Jacobian refresh schedule; "
-                             "leave jacobian_refresh=1 and the other schedules unset.")
+                             "leave jacobian_refresh at 1 or its default 9 and the other "
+                             "schedules unset.")
+        # The rotating row batch is the refresh schedule, so the default period 9 is
+        # not used: every evaluation refreshes `jacobian_row_batch` rows.
+        self.jacobian_refresh = 1
         if world_size > 1:
             raise NotImplementedError("jacobian_row_batch requires world_size=1.")
         if self.cfg_alpha is not None:
@@ -4500,9 +4695,37 @@ class MultiObsSampler():
         finally:
             self._row_batch_frozen = False
 
-    def _get_score(self, x, t, condition_mask, indices, cfg_alpha=None):
-        """Get the composed score estimate with optional classifier-free guidance"""
+    def _get_score(self, x, t, condition_mask, indices, cfg_alpha=None, parts=False):
+        """Get the composed score estimate with optional classifier-free guidance.
+
+        ``x`` is either the synchronised ``(N, M, F)`` array, for which the composed
+        score comes back in the same layout, or a compact
+        :class:`HierarchicalState`, for which the ``(N, M, F)`` network input is
+        assembled here, only for this evaluation, and the score comes back as a state
+        (``g = u^g`` once per draw, ``l = u^l`` per row). ``parts=True`` (dense input)
+        returns ``(composed (1, M, H), row scores (N, M, F))`` without broadcasting.
+        """
+        if isinstance(x, HierarchicalState):
+            layout = self._layout
+            rows = layout.assemble(x)
+            if (type(self)._compositional_score is not _LIBRARY_COMPOSITION
+                    or getattr(self, "jacobian_row_batch", None) is not None):
+                # A subclass composes on its own, and jacobian_row_batch keeps its own
+                # per-row cache; both return the synchronised array, whose global block
+                # is the same in every row.
+                dense = self._get_score(rows, t, condition_mask, indices, cfg_alpha)
+                return HierarchicalState(g=dense[0][:, layout.h_index], l=dense[:, :, layout.l_index])
+            composed, row_scores = self._get_score(
+                rows, t, condition_mask, indices, cfg_alpha, parts=True)
+            if row_scores.shape[0] == layout.rows:
+                local = row_scores[:, :, layout.l_index]
+            else:   # observation mini-batches: no locals to update (every latent is shared)
+                local = torch.zeros_like(x.l)
+            return HierarchicalState(g=composed.reshape(-1, *composed.shape[-2:])[0].to(rows.dtype),
+                                     l=local)
         if getattr(self, "jacobian_row_batch", None) is not None:
+            if parts:
+                raise NotImplementedError("jacobian_row_batch does not support parts=True.")
             return self._row_batched_score(x, t, condition_mask)
         with torch.no_grad():
             n_obs, num_samples, num_features = x.shape
@@ -4532,8 +4755,7 @@ class MultiObsSampler():
             x_flat = network_x.reshape(evaluated_rows * num_samples, num_features)
             c_flat = network_mask.reshape(evaluated_rows * num_samples, num_features)
 
-            scores_flat = self.SBIm.model(x=x_flat, t=t, c=c_flat)
-            scores_flat = self.SBIm.output_scale_function(t, scores_flat)
+            scores_flat = self._call_network(x_flat, t, c_flat)
             self.score_network_calls += 1
             self.evaluated_subject_rows += int(evaluated_rows)
             self.evaluated_row_samples += int(evaluated_rows) * int(num_samples)
@@ -4550,17 +4772,30 @@ class MultiObsSampler():
             score_table = (alpha * scores_flat).reshape(
                 evaluated_rows, num_samples, num_features
             )
+            if (self.correction in self.FINITE_DIFFERENCE_JACOBIAN_CORRECTIONS
+                    and cfg_alpha is None and selected is None and self.world_size == 1):
+                # The finite-difference Jacobian at this state starts from exactly this
+                # network output (`_row_score_jacobian_fd`); kept before the composition
+                # clamps rewrite the table.
+                order = list(self.full_gaussian_features)
+                self._fd_base = (x, torch.as_tensor(t).clone(), order,
+                                 score_table[..., order].to(torch.float64))
 
             if self.world_size > 1:
                 dist.barrier()
                 score_table = self._gather_scores(score_table, indices)
 
+            # return_parts only when asked: subclasses that override _compositional_score
+            # (and therefore never get the compact layout) need not know the keyword.
             score = self._compositional_score(
                 score_table, x, t, num_observations=n_obs,
                 minibatch_selected=selected is not None,
-                condition_mask=condition_mask,
+                condition_mask=condition_mask, **({"return_parts": True} if parts else {}),
             )
+            self._fd_base = None
 
+        if parts:
+            return score
         if self.world_size > 1:
             return score[indices]
         return score
@@ -4788,20 +5023,27 @@ class MultiObsSampler():
         scores[:, :, locals_] = ((clamped - y) / float(var_t)).to(scores.dtype)
         return scores
 
-    @staticmethod
-    def _weight_global_scores(precision, scores):
+    def _weight_global_scores(self, precision, scores):
         """Contract per-observation precisions with per-observation scores.
 
         ``precision`` is ``(n, H, H)`` for the pilot-covariance corrections and
         ``(n, samples, H, H)`` when it is state-dependent (`gauss_jacobian`).
         """
         if precision.dim() == 4:
+            if self._fast_kernels():
+                # one small matrix-vector product per row and draw (see _tiny_matmul)
+                return (precision * scores.unsqueeze(-2)).sum(-1)
             return torch.einsum("nsij,nsj->nsi", precision, scores)
         return torch.einsum("nij,nsj->nsi", precision, scores)
 
+    def _fast_kernels(self):
+        """Tiny-matrix kernels on (schur_mode "elimination"); "cholesky" keeps the previous
+        arithmetic bit for bit."""
+        return getattr(self, "schur_mode", "elimination") != "cholesky"
+
     def _compositional_score(
         self, scores, x, t, num_observations=None, minibatch_selected=False,
-        condition_mask=None,
+        condition_mask=None, return_parts=False,
     ):
         """
         Compose the per-observation scores on the hierarchy (shared parameter)
@@ -5110,7 +5352,10 @@ class MultiObsSampler():
             global_delta = (
                 composed.to(torch.float64).expand(n, -1, -1) - global_scores
             )
-            if cross_factor.dim() == 4:
+            if cross_factor.dim() == 4 and self._fast_kernels():
+                # one small matrix-vector product per row and draw (see _tiny_matmul)
+                local_delta = (cross_factor * global_delta.unsqueeze(-2)).sum(-1)
+            elif cross_factor.dim() == 4:
                 local_delta = torch.einsum(
                     "nslg,nsg->nsl", cross_factor, global_delta
                 )
@@ -5136,6 +5381,11 @@ class MultiObsSampler():
             raise RuntimeError(
                 f"The stabilized {name} score became non-finite."
             )
+
+        if return_parts:
+            # (composed (1, M, H), row scores with the local rule applied): the compact
+            # sampler keeps the composed score once per draw.
+            return composed, scores
 
         # Broadcast the composed score to all observation rows on the shared dims
         result = scores if scores.shape[0] == x.shape[0] else torch.zeros_like(x)
@@ -5171,6 +5421,9 @@ class MultiObsSampler():
         var_denoise = 1.0 / (Lambda_star + 1.0 / var_end)                     # (1, H)
 
         noise = self._shared_noise(x)
+        if isinstance(x, HierarchicalState):
+            return HierarchicalState(
+                g=x.g + var_end * score.g + torch.sqrt(var_denoise) * noise.g, l=x.l.clone())
         x = x.clone()
         x[:, :, h] = x[:, :, h] + var_end * score[:, :, h] \
                      + torch.sqrt(var_denoise) * noise[:, :, h]
@@ -5181,7 +5434,12 @@ class MultiObsSampler():
         Noise that is shared across the observation axis on the hierarchy dimensions
         (so the shared parameters stay synchronized across observation rows) and
         independent on all other dimensions.
+
+        For a compact :class:`HierarchicalState` the global noise exists once per draw
+        by construction (``HierarchicalLayout.noise``, stream set by set_noise_stream).
         """
+        if isinstance(x, HierarchicalState):
+            return self._layout.noise(getattr(self, "noise_stream", "compact"))
         noise = torch.randn_like(x)
         shared = torch.randn(1, x.shape[1], x.shape[2], device=x.device)
         if self.world_size > 1:
@@ -5195,10 +5453,54 @@ class MultiObsSampler():
         densities have reference N(0, sigma_max^2 / n) on the shared dimensions
         (Geffner et al. 2023), so noise and step sizes shrink by 1/n there.
         """
-        scale = torch.ones(x.shape[2], device=x.device)
+        compact = isinstance(x, HierarchicalState)
+        features = self._layout.features if compact else x.shape[2]
+        scale = torch.ones(features, device=x.device)
         if self.correction == "fnpe":
             scale[self.hierarchy] = 1.0 / self.num_observations
-        return scale
+        return self._layout.feature_values(scale) if compact else scale
+
+    # Methods that see the sampler state. A subclass or monkeypatch that replaces one of
+    # them was written for the synchronised (N, M, F) array, so it gets that array.
+    # _compositional_score is not among them: an override returns the synchronised
+    # (N, M, F) score array, which the compact path splits (see _get_score).
+    STATE_METHODS = (
+        "_get_score", "_shared_noise", "_hierarchy_scale",
+        "_initial_sample", "_warm_start_state", "_final_denoise", "_basic_sampler",
+        "_adaptive_sampler", "_langevin_sampler", "_corrector_step", "_dpm_sampler",
+        "_dpm_solver_1_step", "_dpm_solver_2_step", "_dpm_solver_3_step",
+    )
+
+    def _state_methods_are_library(self):
+        return all(getattr(type(self), name) is _LIBRARY_STATE_METHODS[name]
+                   and name not in vars(self) for name in self.STATE_METHODS)
+
+    def _make_layout(self, data, condition_mask):
+        """The compact layout for this batch, or None for the synchronised array."""
+        if (getattr(self, "state_layout", "compact") != "compact" or self.world_size > 1
+                or not self._state_methods_are_library()
+                or not HierarchicalLayout.supports(condition_mask, self.hierarchy,
+                                                   self.local_latent_indices)):
+            return None
+        return HierarchicalLayout(data, condition_mask, self.hierarchy, self.local_latent_indices)
+
+    @staticmethod
+    def _latent_factor(condition_mask, state):
+        """Multiplier that confines an update to the latent coordinates: 1 - mask on
+        the synchronised array; 1 for a compact state, which holds latents only."""
+        return 1 if isinstance(state, HierarchicalState) else 1 - condition_mask
+
+    def _as_rows(self, value, latent_only=False):
+        """A state (or increment, if ``latent_only``) as an (N, M, F) array."""
+        if isinstance(value, HierarchicalState):
+            if latent_only:
+                return self._layout.assemble_latent(value)
+            return self._layout.assemble(value)
+        return value
+
+    def _trajectory_buffer(self, data, length):
+        rows = self._as_rows(data)
+        return torch.zeros(rows.shape[0], length, rows.shape[1], rows.shape[2])
 
     def _check_data_shape(self, data, condition_mask):
         # Check data shape
@@ -5250,13 +5552,15 @@ class MultiObsSampler():
         data = data.to(device)
         condition_mask = condition_mask.to(device)
 
-        data = data.unsqueeze(1).repeat(1,num_samples,1)
-        condition_mask = condition_mask.unsqueeze(1).repeat(1,num_samples,1)
-
+        # The observed values and the mask are the same for every draw, so they are
+        # built once per observation and broadcast over the draws as views; nothing
+        # here allocates the (N, M, F) array.
         joint_data = torch.zeros_like(condition_mask)
         if torch.sum(condition_mask==1).item()!=0:
             joint_data[condition_mask==1] = data.flatten()
 
+        joint_data = joint_data.unsqueeze(1).expand(-1, num_samples, -1)
+        condition_mask = condition_mask.unsqueeze(1).expand(-1, num_samples, -1)
         return joint_data, condition_mask, idx
 
     def _warm_start_state(self, data, condition_mask):
@@ -5271,12 +5575,22 @@ class MultiObsSampler():
             )
         state = init * (1 - condition_mask) + data * condition_mask
         state[:, :, self.hierarchy] = state[:1, :, self.hierarchy]
+        if self._layout is not None:
+            return self._layout.split(state)
         return state
 
     def _initial_sample(self, data, condition_mask):
         # Initialize latent variables with noise from the diffusion reference
         # distribution, keeping observed variables fixed. The noise on the shared
         # (hierarchy) dimensions is identical across observation rows.
+        if self._layout is not None:
+            # Compact state: the latent coordinates of `data` are zero, so the initial
+            # state is the scaled noise alone, global block once per draw.
+            state = self._layout.zeros()
+            std_max = self.sde.lambda_t(torch.ones(1, dtype=data.dtype, device=data.device))
+            scale = torch.sqrt(self._hierarchy_scale(state))
+            noise = self._shared_noise(state)
+            return state + std_max * scale * noise
         std_max = self.sde.lambda_t(torch.ones_like(data))
         scale = torch.sqrt(self._hierarchy_scale(data))
         noise = self._shared_noise(data)
@@ -5302,10 +5616,10 @@ class MultiObsSampler():
 
         if self.save_trajectory:
             # Storage for trajectory (optional)
-            self.data_t = torch.zeros(data.shape[0], self.timesteps+1, data.shape[1], data.shape[2])
-            self.score_t = torch.zeros(data.shape[0], self.timesteps+1, data.shape[1], data.shape[2])
-            self.dx_t = torch.zeros(data.shape[0], self.timesteps+1, data.shape[1], data.shape[2])
-            self.data_t[:,0,:,:] = data
+            self.data_t = self._trajectory_buffer(data, self.timesteps+1)
+            self.score_t = self._trajectory_buffer(data, self.timesteps+1)
+            self.dx_t = self._trajectory_buffer(data, self.timesteps+1)
+            self.data_t[:,0,:,:] = self._as_rows(data)
 
         # Main sampling loop
         for i in tqdm.tqdm(range(self.timesteps-1), disable=not self.verbose, total=self.timesteps-1):
@@ -5324,13 +5638,13 @@ class MultiObsSampler():
             noise = self._shared_noise(data) * torch.sqrt(dvar)
 
             # Apply update respecting condition mask
-            data = data + (dx + noise) * (1-condition_mask)
+            data = data + (dx + noise) * self._latent_factor(condition_mask, data)
 
             if self.save_trajectory:
                 # Store trajectory data
-                self.data_t[:,i+1] = data
-                self.dx_t[:,i] = dx
-                self.score_t[:,i] = score
+                self.data_t[:,i+1] = self._as_rows(data)
+                self.dx_t[:,i] = self._as_rows(dx, latent_only=True)
+                self.score_t[:,i] = self._as_rows(score, latent_only=True)
 
         return data.detach()
 
@@ -5360,7 +5674,8 @@ class MultiObsSampler():
         accepted = 0
         rejected = 0
         evaluations = 0
-        latent = 1 - condition_mask
+        latent = self._latent_factor(condition_mask, data)
+        compact = isinstance(data, HierarchicalState)
         previous_euler = data.clone()
 
         progress = tqdm.tqdm(
@@ -5383,8 +5698,9 @@ class MultiObsSampler():
             )
             endpoint = data + (variance_drop * endpoint_score + noise) * latent
             heun = 0.5 * (euler + endpoint)
-            heun = heun * latent + data * condition_mask
-            heun[:, :, self.hierarchy] = heun[:1, :, self.hierarchy]
+            if not compact:
+                heun = heun * latent + data * condition_mask
+                heun[:, :, self.hierarchy] = heun[:1, :, self.hierarchy]
             evaluations += 2
 
             scale = torch.maximum(
@@ -5448,15 +5764,15 @@ class MultiObsSampler():
             steps_per_level: Number of Langevin steps per noise level
         """
         if self.save_trajectory:
-            self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
-            self.data_t[:,0,:,:] = data
+            self.data_t = self._trajectory_buffer(data, self.timesteps)
+            self.data_t[:,0,:,:] = self._as_rows(data)
 
         for i, t in tqdm.tqdm(enumerate(self.timesteps_list), disable=not self.verbose, total=self.timesteps):
             t = t.reshape(-1, 1)
             data = self._corrector_step(data, t, condition_mask, idx,
                                         steps_per_level, snr, self.cfg_alpha)
             if self.save_trajectory and i+1 < self.timesteps:
-                self.data_t[:,i+1] = data
+                self.data_t[:,i+1] = self._as_rows(data)
 
         return data.detach()
 
@@ -5488,7 +5804,8 @@ class MultiObsSampler():
 
             # Update x with the score and noise, respecting the condition mask
             grad_step = step_size * score
-            x = x + grad_step * (1-condition_mask) + noise * (1-condition_mask)
+            latent = self._latent_factor(condition_mask, x)
+            x = x + grad_step * latent + noise * latent
 
         return x
 
@@ -5506,7 +5823,7 @@ class MultiObsSampler():
 
         # First-order step
         score_now = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
-        data_next = data_t + h * sigma_now * score_now * (1-condition_mask)
+        data_next = data_t + h * sigma_now * score_now * self._latent_factor(condition_mask, data_t)
 
         return data_next
 
@@ -5518,11 +5835,11 @@ class MultiObsSampler():
 
         # First-order step
         score_half = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
-        data_half = data_t + h * sigma_now * score_half * (1-condition_mask)
+        data_half = data_t + h * sigma_now * score_half * self._latent_factor(condition_mask, data_t)
 
         # Second-order (Heun) step
         score_next = self._get_score(data_half, t_next, condition_mask, idx, self.cfg_alpha)
-        data_next = data_t + 0.5 * h * (sigma_now * score_half + sigma_next * score_next) * (1-condition_mask)
+        data_next = data_t + 0.5 * h * (sigma_now * score_half + sigma_next * score_next) * self._latent_factor(condition_mask, data_t)
 
         return data_next
 
@@ -5538,20 +5855,20 @@ class MultiObsSampler():
         score_t = self._get_score(data_t, t, condition_mask, idx, self.cfg_alpha)
 
         # First intermediate point (Euler step)
-        data_mid1 = data_t + (sigma_t - sigma_mid) * sigma_t * score_t * (1-condition_mask)
+        data_mid1 = data_t + (sigma_t - sigma_mid) * sigma_t * score_t * self._latent_factor(condition_mask, data_t)
 
         # Get score at the first intermediate point
         score_mid1 = self._get_score(data_mid1, t_mid, condition_mask, idx, self.cfg_alpha)
 
         # Second intermediate point (using first intermediate)
-        data_mid2 = data_t + (sigma_t - sigma_mid) * ((1/3) * sigma_t * score_t + (2/3) * sigma_mid * score_mid1) * (1-condition_mask)
+        data_mid2 = data_t + (sigma_t - sigma_mid) * ((1/3) * sigma_t * score_t + (2/3) * sigma_mid * score_mid1) * self._latent_factor(condition_mask, data_t)
 
         # Get score at the second intermediate point
         score_mid2 = self._get_score(data_mid2, t_mid, condition_mask, idx, self.cfg_alpha)
 
         # Final step using all information
         data_next = data_t + (sigma_t - sigma_next) * ((1/4) * sigma_t * score_t +
-                                            (3/4) * sigma_next * score_mid2) * (1-condition_mask)
+                                            (3/4) * sigma_next * score_mid2) * self._latent_factor(condition_mask, data_t)
 
         return data_next
 
@@ -5581,11 +5898,12 @@ class MultiObsSampler():
 
         if self.save_trajectory:
             # Storage for trajectory (optional)
-            self.data_t = torch.zeros(data.shape[0], self.timesteps, data.shape[1], data.shape[2])
-            self.data_t[:,0,:,:] = data
+            self.data_t = self._trajectory_buffer(data, self.timesteps)
+            self.data_t[:,0,:,:] = self._as_rows(data)
 
-        # Observed coordinates are conditioning data: churn must not perturb them.
-        latent = 1 - condition_mask
+        # Observed coordinates are conditioning data: churn must not perturb them
+        # (a compact state holds no observed coordinates).
+        latent = self._latent_factor(condition_mask, data)
         ceiling = schedule_ceiling(self.sde, data.device)
 
         # Main sampling loop
@@ -5626,7 +5944,7 @@ class MultiObsSampler():
 
             if self.save_trajectory:
                 # Store trajectory data
-                self.data_t[:,i+1] = data
+                self.data_t[:,i+1] = self._as_rows(data)
 
         # Optional terminal-only correction. These steps are never interleaved with the DPM trajectory.
         if terminal_corrector_steps:
@@ -5636,3 +5954,9 @@ class MultiObsSampler():
                 terminal_corrector_steps, snr, self.cfg_alpha,
             )
         return data.detach()
+
+
+# The library's own state-level methods, captured at import (see _make_layout).
+_LIBRARY_STATE_METHODS = {name: getattr(MultiObsSampler, name)
+                          for name in MultiObsSampler.STATE_METHODS}
+_LIBRARY_COMPOSITION = MultiObsSampler._compositional_score

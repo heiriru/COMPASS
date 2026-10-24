@@ -118,7 +118,8 @@ def test_curl_runs_on_the_configured_sampler():
     # The Jacobian is measured over the shared block plus two rows of locals.
     assert report["width"] == len(HIERARCHY) + 2 * (NODES - OBSERVED - len(HIERARCHY))
     # A refresh setting must not leak out of the diagnostic.
-    assert model.multi_obs_sampler.jacobian_refresh == 1
+    # (draw() used the sample() default refresh period, 9 since 2026-10-23)
+    assert model.multi_obs_sampler.jacobian_refresh == 9
 
 
 def test_newton_map_is_pilot_free_with_matching_curvature():

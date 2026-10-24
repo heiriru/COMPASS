@@ -123,6 +123,8 @@ def inference_plan(name):
             "order": 2,
             "map_method": "newton",
             "sampler_kwargs": {
+                # explicit since the library default became 9 (2026-10-23)
+                "jacobian_refresh": 1,
                 "jacobian_refresh_low_noise": 20,
                 "jacobian_refresh_lambda": 0.3,
             },

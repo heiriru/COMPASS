@@ -121,6 +121,9 @@ def test_composed_precision_dominates_the_prior_at_every_diffusion_time(
     """
     sampler = wide_posterior_sampler(correction)
     sampler.denoise_clamp = None                    # nothing may depend on it
+    # The bound is exact up to the precision of the eigendecomposition; the default
+    # float32 eigh leaves ~1e-7 relative, so the 1e-9 check runs in float64.
+    sampler.set_eigh_precision(torch.float64, 2048)
     n, h = sampler.num_observations, len(sampler.hierarchy)
     sigmas = torch.logspace(
         math.log10(float(sampler.sde.lambda_t(torch.tensor(1.0)))),
