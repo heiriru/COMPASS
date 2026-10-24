@@ -110,7 +110,23 @@ preconditioned):
 
 - Global width errors are large (log-sd 0.2-0.5 vs 0.03 for exact scores). With
   bigger groups the network, not the rule, is the limit.
-- 16×16 and 4×64 (clamped) were still running when this was written.
+- 16×16 and 4×64 (clamped, 3 datasets each), g/h/l mean RMSE and global log-sd error:
+
+  | arm | 16×16 g/h/l | 16×16 g log-sd | 4×64 g/h/l | 4×64 g log-sd |
+  |---|---|---|---|---|
+  | exact-score floor | 0.10/0.25/0.23 | 0.02 | 0.06/0.50/0.44 | 0.02 |
+  | JAC-FD r9 | 0.37/0.19/0.17 | 0.29 | 0.68/0.28/0.22 | 0.72 |
+  | JAC-FD | 0.53/0.32/0.28 | 1.14 | 0.61/0.61/0.54 | 1.17 |
+  | GH-pilot | 0.32/0.44/0.39 | 0.09 | 0.74/0.77/0.72 | 2.00 |
+
+  - The trained network is the limit at the global level: errors are 3-12× the
+    exact-score floor.
+  - The exact-score arm itself is off on h/l at 4×64 (0.50/0.44, h log-sd 0.32), so 50
+    steps are not enough for groups of 64.
+  - The dropped-prior ablation has small mean errors but wrong widths (log-sd
+    0.7-0.9). Read means and widths together.
+- Toy J = 10,000, rb100, 2 datasets: mean error 3.1 / 2.3 sd, width 1.02 / 1.03,
+  ~5,300 s each.
 
 ### 1.9 Covariance head
 
@@ -148,7 +164,7 @@ Exact for Gaussian rows (test). Arruda toy, J = 1000, 5 datasets:
 | rb20 | 6.9 | 0.94 sd | 683 | 3.6 GB |
 | rb100 | 1.7 | 0.50 sd | 889 | 3.9 GB |
 
-J = 10,000, rb100 (1 dataset so far): 5,321 s/dataset at 3.9 GB peak, the same memory
+J = 10,000, rb100 (2 datasets): ~5,300 s/dataset at 3.9 GB peak, the same memory
 as J = 1000. Width ratio 1.02, mean error 3.1 sd. Full JAC was not run: extrapolated it
 would take ~4-5 h per dataset, and it is network-limited from J = 1000 on.
 
