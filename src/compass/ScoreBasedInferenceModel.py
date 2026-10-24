@@ -272,7 +272,7 @@ class ScoreBasedInferenceModel(nn.Module):
                 tsm_variance_fn=None,
                 time_loss_weight="auto", sigma_data=1.0,
                 validation_noise_seed=20250719, restore="final", time_eps=1e-3,
-                fisher_consistency=None):
+                fisher_consistency=None, covariance_objective=None):
         """
         Train the model on the provided data
 
@@ -297,6 +297,9 @@ class ScoreBasedInferenceModel(nn.Module):
                     at sigma 15-25). Lower it together with the sampling ``eps``.
             fisher_consistency: Optional ``compass.consistency.FisherConsistency``
                     penalty (experimental); see Trainer.train.
+            covariance_objective: Optional ``compass.covariance_output.CovarianceObjective``
+                    (second-order DSM for the network's covariance output, opt-in); added to
+                    the loss on training passes only.
             restore: ``"final"`` (default) keeps the last epoch's averaged weights,
                     ``"best"`` reloads the best-validation checkpoint at the end.
             time_sampling: Diffusion-time sampling scheme during training
@@ -395,7 +398,8 @@ class ScoreBasedInferenceModel(nn.Module):
                             tsm_lambda_c=tsm_lambda_c, tsm_variance_fn=tsm_variance_fn,
                             time_loss_weight=time_loss_weight, sigma_data=sigma_data,
                             validation_noise_seed=validation_noise_seed, restore=restore,
-                            time_eps=time_eps, fisher_consistency=fisher_consistency)
+                            time_eps=time_eps, fisher_consistency=fisher_consistency,
+                            covariance_objective=covariance_objective)
 
 
     def _resolve_mask_sampler(self, mask_sampler, mask_menu, mask_roles,

@@ -62,7 +62,11 @@ ARMS = {
     "fisher": {"fisher": 1.0},
     "lo": {"time_eps": 1e-5},
     "edm_lo": {"time_eps": 1e-5, "parameterization": "edm", "sigma_data": 2.5},
+    # covariance output on the network (compass.covariance_output), second-order DSM
+    "cov": {"covariance": "joint"},          # readout and trunk both trained by the NLL
+    "cov_det": {"covariance": "detached"},   # readout only: the score training is unchanged
 }
+COV_RANK = 4
 if os.environ.get("ROADMAP_SMOKE"):
     RECIPE.update(simulations=4000, max_epochs=2, batch_size=256)
 LAMBDAS = (0.003, 0.006, 0.01, 0.02, 0.03, 0.06, 0.1, 0.3, 1.0, 3.0)
@@ -140,6 +144,13 @@ def train(arguments):
             min_ess=8.0)
     if "time_eps" in spec:
         extra["time_eps"] = spec["time_eps"]
+    if "covariance" in spec:
+        from compass.covariance_output import CovarianceObjective, enable_covariance_output
+        scale = torch.as_tensor(rows.std(0), dtype=torch.float32)
+        head = enable_covariance_output(network, rank=COV_RANK, node_scale=scale)
+        extra["covariance_objective"] = CovarianceObjective(
+            head, weight=float(os.environ.get("COV_WEIGHT", "1.0")),
+            detach_trunk=spec["covariance"] == "detached")
     started = time.time()
     network.train(*split(rows), *split(val), batch_size=RECIPE["batch_size"],
                   max_epochs=RECIPE["max_epochs"], early_stopping_patience=RECIPE["patience"],
@@ -160,9 +171,46 @@ def train(arguments):
 
 def load(arm, seed, device):
     from compass import ScoreBasedInferenceModel
-    network = ScoreBasedInferenceModel.load(str(directory(arm, seed) / "Model.pt"), device=device)
+    if "covariance" in ARMS[arm]:
+        from compass.covariance_output import enable_covariance_output
+        network = build(arm)
+        enable_covariance_output(network, rank=COV_RANK)
+        state = torch.load(directory(arm, seed) / "Model.pt", map_location="cpu", weights_only=False)
+        network.model.load_state_dict(state.get("model_state_dict", state))
+    else:
+        network = ScoreBasedInferenceModel.load(str(directory(arm, seed) / "Model.pt"), device=device)
     network.model.to(device).eval()
     return network
+
+
+NETCOV = "_netcov"
+
+
+def register_netcov_methods():
+    """GM methods with the network's covariance output in place of the Jacobian:
+    ``<jacobian method>_netcov``; plus ``gauss_hierarchical_mixture_prior`` (pilot run)."""
+    import methods
+    from compass.MultiObsSampler import MultiObsSampler
+    from compass.covariance_output import NetworkCovarianceHead
+    for name in ("gauss_jacobian", "gauss_jacobian_mixture_prior"):
+        methods.METHODS[name + NETCOV] = dict(methods.METHODS[name], label=name + NETCOV)
+    methods.METHODS["gauss_hierarchical_mixture_prior"] = dict(
+        methods.METHODS["gauss_hierarchical"], label="gauss_hierarchical_mixture_prior",
+        mixture_prior=True)
+    original = methods.draw
+
+    def draw(network, x, method, arguments, device, mixture=M.DEFAULT):
+        if not method.endswith(NETCOV):
+            return original(network, x, method, arguments, device, mixture)
+        head = NetworkCovarianceHead(network, M.LATENT_INDICES, M.OBSERVED_INDICES)
+        saved = MultiObsSampler._covariance_head, arguments.jacobian_refresh
+        MultiObsSampler._covariance_head = lambda self: head
+        arguments.jacobian_refresh = 1        # one cheap forward pass per call
+        try:
+            return original(network, x, method, arguments, device, mixture)
+        finally:
+            MultiObsSampler._covariance_head, arguments.jacobian_refresh = saved
+    methods.draw = draw
 
 
 def score(arguments):
@@ -205,6 +253,55 @@ def score(arguments):
     (directory(arguments.arm, arguments.seed) / "score.json").write_text(json.dumps(out, indent=2))
 
 
+def info(arguments):
+    """Per-lambda error of the backward information K = Cov(theta_0|y,x)^-1 - lam^-2 I against
+    the exact one: FD Jacobian of the network (what gauss_jacobian_FD uses) vs the network's
+    covariance output (cov arms)."""
+    import oracle
+    from compass.experimental.multilevel import finite_difference_jacobian, jacobian_precision
+    device = arguments.device
+    network = load(arguments.arm, arguments.seed, device)
+    exact = oracle.OracleModel(MIX, sigma=RECIPE["sigma"], device=device)
+    rng = np.random.default_rng([arguments.seed, 77])
+    rows = torch.as_tensor(MIX.simulate(4096, rng), dtype=torch.float32, device=device)
+    x_obs = rows[:, 2:3]
+    head = None
+    if "covariance" in ARMS[arguments.arm]:
+        from compass.covariance_output import NetworkCovarianceHead
+        head = NetworkCovarianceHead(network, M.LATENT_INDICES, M.OBSERVED_INDICES)
+
+    def score_of(model, scale_fn):
+        def f(y, lam):
+            n = y.shape[0]
+            t = network.sde.time_of_lambda(torch.full((n, 1), lam, device=device))
+            state = torch.cat([y.float(), x_obs.repeat(n // len(x_obs), 1)], 1)
+            c = torch.tensor([0.0, 0.0, 1.0], device=device).expand(n, 3)
+            with torch.no_grad():
+                return scale_fn(t, model(x=state, t=t, c=c))[:, :2].double()
+        return f
+    s_net = score_of(network.model, network.output_scale_function)
+    s_ex = score_of(exact.model, exact.output_scale_function)
+    eye = torch.eye(2, dtype=torch.float64, device=device)
+    out = {}
+    torch.manual_seed(4321)
+    for lam in (0.03, 0.06, 0.1, 0.3, 1.0, 3.0):
+        y = rows[:, :2] + lam * torch.randn_like(rows[:, :2])
+        J_ex = finite_difference_jacobian(lambda p, l: s_ex(p, l), y.double(), lam, step=1e-3)
+        J_fd = finite_difference_jacobian(lambda p, l: s_net(p, l), y.double(), lam)
+        K_ex = jacobian_precision(J_ex, lam) - eye / lam ** 2
+        K_fd = jacobian_precision(J_fd, lam) - eye / lam ** 2
+
+        def rel(K):
+            return float(((K - K_ex).flatten(1).norm(dim=1) / K_ex.flatten(1).norm(dim=1).clamp_min(1e-9)).median())
+        row = {"info_rel_err_fd": rel(K_fd)}
+        if head is not None:
+            K_net = head.information(y, x_obs, torch.full((len(y),), lam, device=device))
+            row["info_rel_err_netcov"] = rel(K_net)
+        out[str(lam)] = row
+        print(f"{arguments.arm} s{arguments.seed} lambda {lam:<5} " + " ".join(f"{k} {v:.3f}" for k, v in row.items()), flush=True)
+    (directory(arguments.arm, arguments.seed) / "info.json").write_text(json.dumps(out, indent=2))
+
+
 def compose(arguments):
     import methods
     import run_scaling
@@ -219,9 +316,13 @@ def compose(arguments):
     run_scaling.load_network = lambda args, train: (network, parameters,
                                                     directory(arguments.arm, arguments.seed))
     methods.COMMON["eps"] = float(arguments.sample_eps)
-    tag = f"eps{arguments.sample_eps:g}"
-    argv = ["--regimes", "asymmetric", "symmetric", "--observations", "1", "8", "32",
-            "--methods", "gauss_jacobian", "gauss_jacobian_mixture_prior",
+    tag = f"eps{arguments.sample_eps:g}" + (arguments.tag_suffix or "")
+    method_list = arguments.methods or ["gauss_jacobian", "gauss_jacobian_mixture_prior"]
+    if any(m.endswith(NETCOV) or m == "gauss_hierarchical_mixture_prior" for m in method_list):
+        register_netcov_methods()
+    argv = ["--regimes", "asymmetric", "symmetric", "--observations",
+            *[str(n) for n in arguments.observations],
+            "--methods", *method_list,
             "--replicates", str(arguments.replicates), "--draws", str(arguments.draws),
             "--device", arguments.device, "--tag", tag,
             "--artifacts", str(directory(arguments.arm, arguments.seed))]
@@ -230,7 +331,7 @@ def compose(arguments):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("train", "score", "compose"))
+    parser.add_argument("action", choices=("train", "score", "compose", "info"))
     parser.add_argument("--arm", choices=tuple(ARMS), required=True)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--device", default="cuda")
@@ -238,8 +339,11 @@ def main():
     parser.add_argument("--sample-eps", type=float, default=1e-3)
     parser.add_argument("--replicates", type=int, default=2)
     parser.add_argument("--draws", type=int, default=2000)
+    parser.add_argument("--methods", nargs="+", default=None)
+    parser.add_argument("--observations", type=int, nargs="+", default=[1, 8, 32])
+    parser.add_argument("--tag-suffix", default="")
     arguments = parser.parse_args()
-    {"train": train, "score": score, "compose": compose}[arguments.action](arguments)
+    {"train": train, "score": score, "compose": compose, "info": info}[arguments.action](arguments)
 
 
 if __name__ == "__main__":
