@@ -136,4 +136,124 @@ raw Lambda_S and clamp activity on the published trajectories.
 **Scoring.** W1 to the exact posterior in exact sd, versus the stored run. "Same" means within
 15% + 0.02. PP is scored by mean r, RMSE and collapses.
 
-**Status:** pending GPUs (see `artifacts/noproj/run_pd.out`).
+**Status:** finished on 2026-10-23. All 180 jobs ran on GPUs no other user was on.
+- Some jobs on the curved and lean_T_e4 toys ran out of memory at n = 128. Every one finished on a later retry, so no output is missing.
+- Tables: `artifacts/noproj/comparison_pd.{txt,json}`. Figure: `artifacts/figures/17_pd_strategies.png`.
+
+### 3.1 The default path is unchanged
+
+`default` reproduces the stored draws **bit for bit**: max |diff| = 0 on all 112 rows, and PP mean r, RMSE and collapses are identical.
+
+A few `default` diagnostics are missing (`nan`) for toy rows whose `n` was drawn during an aborted shared-GPU attempt. Those draws are bit-identical; their jsonl is in `diagnostics/killed_shared/`.
+
+### 3.2 How often the raw Lambda_S is not PD (default trajectories)
+
+| family | samples non-PD (max / median) | score calls with ≥1 non-PD sample (max / median) |
+|---|---|---|
+| GM (trained) | 0.3% / 0.1% | 18% / 8% |
+| GM oracle | 0 / 0 | 0.3% / 0 |
+| IK (all) | **80%** / 11% | 100% / 59% |
+| toys (trained) | 15% / 10% | 67% / 51% |
+| toys (oracle scores) | 20% / 20% | 50% / 50% |
+| PP (baseline / Rg) | 22% / 23% | — |
+
+The worst case is IK flat global, at 67–80% of samples.
+
+So "only check Lambda_S" fails often, even with exact scores. Without per-row projection, Sum I_j is regularly indefinite: one row's negative curvature is not covered by the others.
+
+### 3.3 Accuracy
+
+W1 to the exact posterior, in exact sd, is compared with the stored row-projection run.
+- **Geometric-mean ratio:** below 1 means the variant is better.
+- **Tally:** better / same / worse over 112 rows, where "same" = within 15% + 0.02.
+- **PP:** mean r, global RMSE and collapses over 30 datasets. Stored: baseline 0.869 / 0.628 / 5; Rg 0.868 / 0.608 / 3.
+
+| variant | GM | GM oracle | IK | toys | toy oracle | tally | PP baseline | PP Rg |
+|---|---|---|---|---|---|---|---|---|
+| `lams` (check, then composed spectral repair) | 1.01 | 1.00 | 1.73 | 1.44 | 1.34 | 2/70/40 | 0.779 / 1.052 / 7 | 0.847 / 0.802 / 7 |
+| `lamsrow` (check, row projection only if not PD) | 1.01 | 1.00 | 1.13 | 1.10 | 1.11 | 2/90/20 | 0.857 / 0.749 / 6 | 0.849 / 0.789 / 7 |
+| `gloeckler` (nugget 0.1) | 1.01 | 1.00 | 1.24 | **0.93** | 0.98 | 17/76/19 | 0.878 / 0.566 / 4 | 0.888 / 0.492 / **1** |
+| `consistent` | 1.51 | 1.00 | 1.73 | 4.60 | 1.65 | 5/22/85 | **0.895 / 0.478 / 0** | **0.909 / 0.476 / 0** |
+| `clampmetric` | 1.00 | 1.00 | 0.98 | 1.00 | 1.00 | 1/111/0 | 0.869 / 0.628 / 5 | 0.868 / 0.607 / 3 |
+
+**Reading:**
+- **Check-only is worse than the current rule, and the fallback matters.**
+  - `lams` repairs the composed Lambda_S on ~50% of calls. It loses badly on IK, the toys and PP: mean r 0.869 → 0.779.
+  - `lamsrow` projects rows only where Lambda_S fails. It is closer to the current rule, but still worse everywhere (PP 0.857 / 0.849).
+  - So projecting every row, even when the sum would be PD, is not what costs accuracy. Rows with negative curvature hurt even when the others compensate.
+- **Gloeckler is the only drop-in that is never clearly worse on average.**
+  - It is slightly better on the trained toys (0.93) and better on PP: mean r 0.878 / 0.888, global RMSE −10% / −19%, Rg collapses 3 → 1.
+  - It is worse on IK (1.24, mostly IK flat global at n = 8–32: W1 0.19 → 0.93).
+- **`consistent` splits by regime.**
+  - It is the **best result on partial pooling we have**: mean r 0.895 / 0.909, global RMSE −24% / −22%, **zero collapses**. That is above the 0.904 of the TSM-trained nets (different training), here with the untouched nets.
+  - It is also the best on IK flat global (n = 8: 0.19 → 0.04; n = 128: 3.27 → 1.68).
+  - But it is much worse on the GM and toy problems (×1.5 and ×4.6), with W1 ≈ 0.5–0.7 sd on every curved and lean toy (0.1–0.45 on abs and square).
+  - Likely cause: the `K_j^-1` amplification where a row is almost uninformative (section 1.1). On the toys most rows say little about g individually, so the floored `K_j^-1` turns a small projection into a large mean shift. In PP each row is informative about the globals, so the consistent mean is the better one.
+  - Before using it outside PP, it needs a better treatment of uninformative rows (e.g. shrink `Delta_j` with `K_j`, or fall back to the default where `K_j` is near the floor).
+
+### 3.4 The metric (conservative) clamp
+
+On every experiment the clamp is almost never active: median 0%, max 0.4–0.9% of predictions. So `clampmetric` equals the default within noise (111/112 "same", PP identical).
+
+The one exception is IK flat global n = 128: W1 3.27 → 2.53. There the clamp is active most often, and the conservative version helps.
+
+This matches the 2-D study (section 2.1). The choice of clamp matters only where the network extrapolates, and there the metric clamp is the better one. It costs nothing elsewhere, so it is a safe default candidate. It just does not change results on the current benchmarks.
+
+## 4. Round 2: why `consistent` fails on the toys, and three alternatives
+
+New strategies (all in `_apply_pd_strategy`; `tests/test_pd_strategies.py`):
+
+| strategy | row message | idea |
+|---|---|---|
+| `row_truncation` | `(I_j⁺, Lambda_ref s_ref + P_j⁺ (Lambda_j s_j − Lambda_ref s_ref))` | EP-style: skip the negative part of each site. Precision = default; no `K_j^-1`. |
+| `row_projection_blend` | extra `Delta_j (K_j+Delta_j)^-1 (Lambda_j+Delta_j) s_j` | per-direction weight `K/(K+Delta)` between consistent (`K ≫ Delta`) and default (`K → 0`). `K+Delta = P0+I⁺` is PD. |
+| `gloeckler_consistent` | Gloeckler lift `L`, extra `Σ_j L K_j^-1 Lambda_j s_j` | Gloeckler's precision with the consistent (clean-mean) numerator. |
+
+`COMPASS_PD_PROBE=<file.jsonl>` logs, per sampler call, what the lift does: active fraction, `k_rel = vᵀK_j v / vᵀP0 v` along the `Delta_j` eigenvectors, the implied row-mean distance `|vᵀ(mu_j − y)|` in prior sd, and `dscore = |s_cons − s_def| / |s_def|` of the composed score. It does not change the draws (tested).
+
+### 4.1 Step 1: is it the `K_j^-1` blow-up? (`probe_summary.py` → `results/screen/probe_summary.txt`)
+
+Exact-score toys (abs, lean; oracle_hierarchical and oracle_joint; n = 4–128), default rule. Means over calls in each noise band:
+
+| toy | band | active | k_rel 10% / 50% | shift 50% (sd) | dscore 50% / 90% | cos(Δs, −y) |
+|---|---|---|---|---|---|---|
+| abs | λ > 2 | 0.4–0.7 | 0.35–0.45 / 0.66–0.88 | 2.5–2.6 | 0.04–0.12 / 0.05–0.17 | 1.00 |
+| abs | 0.5–2 | 0.3 | 0.07–0.10 / 0.43–0.54 | 0.7–1.0 | 0.08–0.21 / **36–2955** | −0.0 to −0.5 |
+| lean | λ > 2 | 0.66–0.87 | 0.30–0.37 / 0.54–0.63 | 2.8–3.2 | **0.24–0.28** / 1.0–2.8 | 0.88–0.93 |
+| lean | 0.5–2 | 0.06–0.18 | 0.05–0.12 / 0.34–0.52 | 3–10 | 0.00–0.01 / 0.01–2.3 | −0.2 |
+| both | λ < 0.5 | ≈ 0 | — | — | 0 | — |
+
+**Verdict: the explanation was half right.**
+- The `K_j^-1` blow-up exists, but only in a tail: at λ 0.5–2 on abs, 10% of directions have `K` below 0.1 of the prior, and the 90th percentile of the score change is 36–3000× the score. abs is symmetric, so this tail costs nothing in branch mass (`consistent` on abs: W1 ×1.09, P(g>0) 0.49–0.51).
+- What breaks lean is the bulk, not the tail. At λ > 2 the lift is active on 66–87% of samples, `K` is half the prior (not near zero), and the consistent rule changes the median composed score by 25%, pointing at the origin (cos 0.9). That is a strong early pull into the valley between the branches; the minor branch is lost (the probe shows the pull, not how samples then leave the valley): P(g>0) 0.99–1.00 vs exact 0.72–0.78.
+
+### 4.2 Steps 2–4: CPU screen (`screen.py`, exact-score toys, `gauss_jacobian_FD`)
+
+W1 / exact sd, geometric mean over modes and n, ratio to the default rule (below 1 = better):
+
+| | default | consistent | trunc | blend | gl nugget 0 | 0.01 | 0.1 | **1** | gl + consistent (0.1) |
+|---|---|---|---|---|---|---|---|---|---|
+| abs | 1.00 | 1.09 | 3.15 | 1.24 | 1.64 | 1.34 | 1.52 | 1.22 | 1.45 |
+| lean | 1.00 | 3.33 | 1.06 | 2.25 | 1.96 | 1.90 | 1.05 | **0.60** | 3.28 |
+
+P(g>0) on lean, oracle_hierarchical (exact 0.739 / 0.783 / 0.739 / 0.724 at n = 4 / 16 / 64 / 128): default 0.76 / 0.91 / 0.87 / 0.81; consistent 0.99–1.00; blend 0.84–0.97; glcons 0.99–1.00; trunc 0.63–0.70; gl1 0.69 / 0.72 / 0.70 / 0.69. oracle_joint is the same within 0.01. Full table: `results/screen/screen.txt`.
+
+Per-branch sd relative to exact (oracle_hierarchical, n = 4 → 128):
+
+| | abs | lean |
+|---|---|---|
+| default | 1.00 → 1.11 | 1.00 → 1.16 / 1.09 |
+| trunc | 1.15 → **3.3** | 1.06 → 1.15 |
+| gl 0.1 | 1.00 → 1.13 | 1.00 → 1.17 / 1.10 |
+| gl 1 | 1.04 → 1.26 | 1.04 → 1.28 / 1.29 |
+
+**Reading:**
+- **Blend and gl + consistent do not fix the collapse.** Both keep the consistent numerator where `K` is moderate, and that is where the damage is (4.1). The `K/(K+Delta)` weight only removes the tail, which was not the problem.
+- **Truncation removes the overshoot but throws away information.** On lean it is neutral overall (×1.06): P now undershoots (0.63–0.70). On abs the widths grow to 3.3× exact at n = 128: the folded rows carry real information in the directions where `I_j` is negative, and truncation drops all of it.
+- **Gloeckler only helps with a large nugget.** Nugget 0–0.1 is worse than default or equal. Nugget 1 is the best rule on lean (×0.60, P within 0.03–0.05 of exact), at the cost of 1.2–1.3× wide branches on both toys (abs ×1.22).
+  - Mechanism: the default overshoots the major branch on lean (P 0.81–0.91). The nugget adds precision without a numerator, which damps every composed score. That is mass bought with width, not a fix of the rule. It is the tuning knob of a tempered composition, and the right value is problem dependent.
+- **Room left:** none of the four removes the default's overshoot without a cost. On the exact toys the remaining error of the default is the branch mass (lean) and 10–16% excess width at n = 128. Both are the Gaussian-composition limit (memory: Gaussian composition symmetrises branches), not the PD rule. The mixture / exponential-tilt compositions address that directly.
+
+### 4.3 Trained networks (`run_pd.py --variants gl1 trunc`)
+
+Running on the one GPU without other users (GPU 8): PP, IK, GM and the trained toys. Results to follow.

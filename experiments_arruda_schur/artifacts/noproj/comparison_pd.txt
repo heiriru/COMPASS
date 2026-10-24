@@ -1,0 +1,251 @@
+experiment             arm                                 n  W1/sd: stored   default      lams   lamsrow gloeckler consisten clampmetr   nonPD(raw Lambda_S) per variant
+GM asymmetric          hierarchical gauss_jacobian_FD      8          0.622     0.622     0.598     0.582     0.617     1.088     0.620    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          hierarchical gauss_jacobian_FD     16          1.348     1.348     1.339     1.340     1.337     1.649     1.351    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          hierarchical gauss_jacobian_FD     32          2.758     2.758     2.771     2.772     2.748     2.956     2.754    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          hierarchical gauss_jacobian_FD     64          5.177     5.177     5.172     5.173     5.158     5.224     5.173    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          none gauss_jacobian_FD              8          0.748     0.748     0.745     0.745     0.773     1.279     0.746    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          none gauss_jacobian_FD             16          1.094     1.094     1.104     1.102     1.121     2.241     1.095    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          none gauss_jacobian_FD             32          1.897     1.897     1.960     1.960     1.949     3.472     1.905    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          none gauss_jacobian_FD             64          4.071     4.071     4.463     4.470     4.224     6.634     4.008    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          oracle gauss_jacobian_FD            8          0.599     0.599     0.604     0.604     0.573     0.593     0.599    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          oracle gauss_jacobian_FD           16          1.221     1.221     1.220     1.220     1.233     1.214     1.221    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          oracle gauss_jacobian_FD           32          2.473     2.473     2.472     2.472     2.492     2.476     2.473    0.00  0.00  0.00  0.00  0.00  0.00
+GM asymmetric          oracle gauss_jacobian_FD           64          4.637     4.637     4.636     4.636     4.656     4.632     4.637    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           hierarchical gauss_jacobian_FD      8          0.392     0.392     0.385     0.382     0.392     0.714     0.390    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           hierarchical gauss_jacobian_FD     16          0.887     0.887     0.896     0.898     0.888     1.135     0.888    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           hierarchical gauss_jacobian_FD     32          2.008     2.008     2.018     2.016     2.006     2.179     2.006    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           hierarchical gauss_jacobian_FD     64          4.103     4.103     4.104     4.105     4.099     4.108     4.105    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           none gauss_jacobian_FD              8          0.495     0.495     0.503     0.503     0.504     0.837     0.497    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           none gauss_jacobian_FD             16          0.902     0.902     0.904     0.904     0.909     1.694     0.893    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           none gauss_jacobian_FD             32          1.362     1.362     1.399     1.399     1.403     2.852     1.370    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           none gauss_jacobian_FD             64          3.259     3.259     3.619     3.618     3.454     6.151     3.311    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           oracle gauss_jacobian_FD            8          0.507     0.507     0.510     0.510     0.505     0.500     0.507    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           oracle gauss_jacobian_FD           16          1.104     1.104     1.107     1.107     1.098     1.099     1.104    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           oracle gauss_jacobian_FD           32          2.138     2.138     2.141     2.141     2.139     2.132     2.138    0.00  0.00  0.00  0.00  0.00  0.00
+GM symmetric           oracle gauss_jacobian_FD           64          4.061     4.061     4.063     4.063     4.077     4.062     4.061    0.00  0.00  0.00  0.00  0.00  0.00
+IK flat fixed          hierarchical gauss_jacobian_FD      8          0.093     0.093     0.067     0.084     0.053     0.054     0.093    0.11  0.06  0.11  0.09  0.11  0.11
+IK flat fixed          hierarchical gauss_jacobian_FD     32          0.501     0.501     0.548     0.499     0.482     0.605     0.501    0.10  0.07  0.09  0.09  0.11  0.10
+IK flat fixed          hierarchical gauss_jacobian_FD    128          0.719     0.719     0.679     0.706     0.662     1.241     0.719    0.08  0.07  0.08  0.08  0.09  0.08
+IK flat global         hierarchical gauss_jacobian_FD      8          0.190     0.190     1.232     0.250     0.926     0.040     0.189    0.67  0.68  0.68  0.69  0.68  0.67
+IK flat global         hierarchical gauss_jacobian_FD     32          0.267     0.267     1.602     0.267     0.893     0.098     0.232    0.78  0.76  0.77  0.79  0.80  0.78
+IK flat global         hierarchical gauss_jacobian_FD    128          3.265     3.265     5.328     3.238     3.849     1.683     2.534    0.80  0.79  0.80  0.82  0.82  0.81
+IK reach shift         hierarchical gauss_jacobian_FD      8          0.054     0.054     0.145     0.100     0.073     0.501     0.054    0.10  0.08  0.10  0.09  0.10  0.10
+IK reach shift         hierarchical gauss_jacobian_FD     32          0.081     0.081     0.420     0.122     0.138     0.547     0.081    0.13  0.08  0.12  0.11  0.10  0.13
+IK reach shift         hierarchical gauss_jacobian_FD    128          0.225     0.225     0.161     0.149     0.173     0.597     0.225    0.07  0.05  0.06  0.06  0.06  0.07
+IK reach shift_bernoulli hierarchical gauss_jacobian_FD      8          0.076     0.076     0.059     0.099     0.109     0.519     0.076    0.14  0.10  0.12  0.12  0.13  0.14
+IK reach shift_bernoulli hierarchical gauss_jacobian_FD     32          0.079     0.079     0.106     0.053     0.096     0.578     0.079    0.18  0.12  0.16  0.14  0.14  0.18
+IK reach shift_bernoulli hierarchical gauss_jacobian_FD    128          0.174     0.174     0.207     0.165     0.134     0.651     0.174    0.13  0.10  0.12  0.12  0.09  0.13
+IK reach sym           hierarchical gauss_jacobian_FD      8          0.073     0.073     0.254     0.183     0.154     0.140     0.073    0.09  0.07  0.08  0.08  0.09  0.09
+IK reach sym           hierarchical gauss_jacobian_FD     32          0.093     0.093     0.414     0.106     0.222     0.064     0.093    0.15  0.09  0.13  0.12  0.14  0.15
+IK reach sym           hierarchical gauss_jacobian_FD    128          0.130     0.130     0.189     0.123     0.145     0.139     0.130    0.08  0.06  0.07  0.07  0.06  0.08
+IK reach sym_bernoulli hierarchical gauss_jacobian_FD      8          0.060     0.060     0.142     0.120     0.058     0.159     0.060    0.10  0.08  0.10  0.10  0.10  0.10
+IK reach sym_bernoulli hierarchical gauss_jacobian_FD     32          0.072     0.072     0.213     0.128     0.053     0.387     0.072    0.15  0.10  0.14  0.13  0.13  0.15
+IK reach sym_bernoulli hierarchical gauss_jacobian_FD    128          0.151     0.151     0.157     0.133     0.145     0.287     0.151    0.09  0.07  0.08  0.09  0.08  0.09
+IK |x1|                hierarchical gauss_jacobian_FD      8          0.151     0.151     0.217     0.212     0.195     0.267     0.151    0.03  0.03  0.03  0.03  0.03  0.03
+IK |x1|                hierarchical gauss_jacobian_FD     32          0.154     0.154     0.269     0.172     0.198     0.243     0.154    0.05  0.04  0.05  0.05  0.05  0.05
+IK |x1|                hierarchical gauss_jacobian_FD    128          0.098     0.098     0.082     0.094     0.134     0.213     0.098    0.11  0.06  0.10  0.09  0.08  0.11
+IK |x1|                hierarchical_R gauss_jacobian_FD    8          0.059     0.059     0.100     0.059     0.059     0.149     0.059    0.05  0.05  0.05  0.05  0.05  0.05
+IK |x1|                hierarchical_R gauss_jacobian_FD   32          0.157     0.157     0.136     0.132     0.126     0.112     0.157    0.09  0.06  0.08  0.08  0.08  0.09
+IK |x1|                hierarchical_R gauss_jacobian_FD  128          0.186     0.186     0.347     0.205     0.212     0.164     0.186    0.12  0.08  0.11  0.10  0.10  0.12
+toy abs                hierarchical gauss_jacobian_FD      4          0.047     0.047     0.053     0.062     0.049     0.171     0.047     nan  0.08  0.10  0.10  0.09  0.10
+toy abs                hierarchical gauss_jacobian_FD     16          0.050     0.050     0.055     0.087     0.075     0.160     0.050     nan  0.12  0.15  0.16  0.15  0.16
+toy abs                hierarchical gauss_jacobian_FD     64          0.021     0.021     0.011     0.012     0.011     0.173     0.021    0.10  0.09  0.10  0.10  0.08  0.10
+toy abs                hierarchical gauss_jacobian_FD    128          0.033     0.033     0.069     0.059     0.052     0.121     0.033    0.06  0.06  0.06  0.06  0.05  0.06
+toy abs                none gauss_jacobian_FD              4          0.052     0.052     0.050     0.053     0.053     0.087     0.052     nan  0.08  0.09  0.09  0.09  0.09
+toy abs                none gauss_jacobian_FD             16          0.045     0.045     0.080     0.031     0.044     0.059     0.045     nan  0.10  0.12  0.13  0.12  0.13
+toy abs                none gauss_jacobian_FD             64          0.059     0.059     0.075     0.107     0.051     0.123     0.059    0.08  0.07  0.08  0.08  0.07  0.08
+toy abs                none gauss_jacobian_FD            128          0.089     0.089     0.180     0.090     0.171     0.165     0.089    0.05  0.05  0.05  0.05  0.04  0.05
+toy abs                oracle_hierarchical gauss_jacobian_FD    4          0.019     0.019     0.024     0.024     0.023     0.046     0.019     nan  0.00  0.00  0.00  0.00  0.00
+toy abs                oracle_hierarchical gauss_jacobian_FD   16          0.010     0.010     0.016     0.018     0.017     0.021     0.010     nan  0.02  0.04  0.05  0.04  0.05
+toy abs                oracle_hierarchical gauss_jacobian_FD   64          0.019     0.019     0.007     0.018     0.011     0.012     0.019     nan  0.01  0.02  0.01  0.00  0.02
+toy abs                oracle_hierarchical gauss_jacobian_FD  128          0.032     0.032     0.022     0.013     0.032     0.009     0.032     nan  0.00  0.00  0.00  0.00  0.00
+toy abs                oracle_joint gauss_jacobian_FD      4          0.011     0.011     0.030     0.028     0.015     0.042     0.011     nan  0.00  0.00  0.00  0.00  0.01
+toy abs                oracle_joint gauss_jacobian_FD     16          0.020     0.020     0.026     0.022     0.017     0.020     0.020     nan  0.02  0.04  0.04  0.03  0.04
+toy abs                oracle_joint gauss_jacobian_FD     64          0.022     0.022     0.012     0.025     0.024     0.014     0.022     nan  0.00  0.01  0.01  0.00  0.01
+toy abs                oracle_joint gauss_jacobian_FD    128          0.036     0.036     0.025     0.022     0.028     0.015     0.036     nan  0.00  0.00  0.00  0.00  0.00
+toy curved             hierarchical gauss_jacobian_FD      4          0.072     0.072     0.311     0.169     0.157     0.600     0.072    0.10  0.07  0.09  0.09  0.08  0.10
+toy curved             hierarchical gauss_jacobian_FD     16          0.177     0.177     0.325     0.209     0.182     0.661     0.177    0.13  0.10  0.13  0.13  0.12  0.13
+toy curved             hierarchical gauss_jacobian_FD     64          0.076     0.076     0.192     0.078     0.034     0.628     0.076    0.10  0.08  0.10  0.11  0.09  0.10
+toy curved             hierarchical gauss_jacobian_FD    128          0.049     0.049     0.136     0.030     0.028     0.624     0.050    0.09  0.07  0.09  0.10  0.08  0.09
+toy curved             hierarchical_R gauss_jacobian_FD    4          0.024     0.024     0.039     0.049     0.026     0.602     0.024    0.12  0.08  0.11  0.11  0.11  0.12
+toy curved             hierarchical_R gauss_jacobian_FD   16          0.040     0.040     0.166     0.028     0.020     0.648     0.040    0.15  0.10  0.14  0.15  0.14  0.15
+toy curved             hierarchical_R gauss_jacobian_FD   64          0.093     0.093     0.277     0.017     0.064     0.654     0.093    0.10  0.08  0.10  0.10  0.09  0.10
+toy curved             hierarchical_R gauss_jacobian_FD  128          0.095     0.095     0.023     0.062     0.103     0.635     0.095    0.06  0.04  0.05  0.05  0.05  0.06
+toy lean               hierarchical gauss_jacobian_FD      4          0.057     0.057     0.125     0.073     0.048     0.535     0.057     nan  0.12  0.16  0.16  0.15  0.17
+toy lean               hierarchical gauss_jacobian_FD     16          0.083     0.083     0.093     0.109     0.040     0.485     0.086     nan  0.15  0.15  0.16  0.14  0.15
+toy lean               hierarchical gauss_jacobian_FD     64          0.100     0.100     0.102     0.108     0.104     0.538     0.104    0.13  0.13  0.13  0.14  0.12  0.13
+toy lean               hierarchical gauss_jacobian_FD    128          0.117     0.117     0.166     0.099     0.109     0.608     0.115    0.12  0.12  0.12  0.13  0.10  0.12
+toy lean               hierarchical_R gauss_jacobian_FD    4          0.089     0.089     0.309     0.151     0.124     0.558     0.089     nan  0.11  0.15  0.15  0.14  0.16
+toy lean               hierarchical_R gauss_jacobian_FD   16          0.261     0.261     0.288     0.271     0.181     0.518     0.264     nan  0.13  0.14  0.15  0.13  0.14
+toy lean               hierarchical_R gauss_jacobian_FD   64          0.238     0.238     0.280     0.253     0.157     0.591     0.236     nan  0.12  0.13  0.14  0.12  0.13
+toy lean               hierarchical_R gauss_jacobian_FD  128          0.183     0.183     0.334     0.220     0.163     0.621     0.184    0.13  0.11  0.13  0.14  0.12  0.13
+toy lean               hierarchical_T gauss_jacobian_FD    4          0.081     0.081     0.314     0.129     0.130     0.556     0.081     nan  0.13  0.16  0.15  0.15  0.17
+toy lean               hierarchical_T gauss_jacobian_FD   16          0.243     0.243     0.262     0.250     0.160     0.504     0.244     nan  0.14  0.15  0.16  0.14  0.15
+toy lean               hierarchical_T gauss_jacobian_FD   64          0.176     0.176     0.242     0.171     0.110     0.570     0.176    0.12  0.11  0.12  0.13  0.11  0.12
+toy lean               hierarchical_T gauss_jacobian_FD  128          0.143     0.143     0.181     0.167     0.093     0.604     0.145    0.10  0.09  0.10  0.11  0.08  0.10
+toy lean               hierarchical_TF gauss_jacobian_FD    4          0.072     0.072     0.273     0.100     0.072     0.547     0.072     nan  0.09  0.13  0.12  0.12  0.13
+toy lean               hierarchical_TF gauss_jacobian_FD   16          0.284     0.284     0.304     0.285     0.205     0.535     0.285    0.12  0.11  0.12  0.13  0.11  0.12
+toy lean               hierarchical_TF gauss_jacobian_FD   64          0.235     0.235     0.259     0.234     0.187     0.645     0.232    0.10  0.09  0.10  0.10  0.09  0.10
+toy lean               hierarchical_TF gauss_jacobian_FD  128          0.228     0.228     0.236     0.237     0.266     0.683     0.227    0.09  0.08  0.09  0.10  0.08  0.09
+toy lean               hierarchical_TFR gauss_jacobian_FD    4          0.083     0.083     0.303     0.120     0.122     0.573     0.083     nan  0.11  0.14  0.14  0.14  0.15
+toy lean               hierarchical_TFR gauss_jacobian_FD   16          0.263     0.263     0.267     0.266     0.172     0.532     0.263    0.13  0.12  0.13  0.13  0.12  0.13
+toy lean               hierarchical_TFR gauss_jacobian_FD   64          0.214     0.214     0.210     0.207     0.093     0.591     0.214    0.12  0.12  0.12  0.13  0.12  0.12
+toy lean               hierarchical_TFR gauss_jacobian_FD  128          0.178     0.178     0.212     0.176     0.113     0.620     0.177    0.12  0.11  0.12  0.12  0.11  0.12
+toy lean               none gauss_jacobian_FD              4          0.036     0.036     0.095     0.056     0.037     0.537     0.036     nan  0.11  0.14  0.14  0.13  0.14
+toy lean               none gauss_jacobian_FD             16          0.127     0.127     0.090     0.113     0.083     0.498     0.127     nan  0.13  0.14  0.15  0.13  0.14
+toy lean               none gauss_jacobian_FD             64          0.075     0.075     0.083     0.058     0.082     0.585     0.076    0.12  0.11  0.12  0.13  0.11  0.12
+toy lean               none gauss_jacobian_FD            128          0.108     0.108     0.084     0.120     0.125     0.617     0.108    0.11  0.10  0.11  0.12  0.10  0.11
+toy lean               oracle_hierarchical gauss_jacobian_FD    4          0.089     0.089     0.387     0.122     0.153     0.563     0.089     nan  0.15  0.20  0.19  0.21  0.21
+toy lean               oracle_hierarchical gauss_jacobian_FD   16          0.331     0.331     0.370     0.332     0.203     0.522     0.331     nan  0.17  0.18  0.19  0.17  0.18
+toy lean               oracle_hierarchical gauss_jacobian_FD   64          0.284     0.284     0.366     0.287     0.199     0.590     0.285     nan  0.17  0.19  0.20  0.19  0.19
+toy lean               oracle_hierarchical gauss_jacobian_FD  128          0.214     0.214     0.425     0.240     0.211     0.614     0.214     nan  0.16  0.20  0.20  0.20  0.21
+toy lean               oracle_joint gauss_jacobian_FD      4          0.089     0.089     0.394     0.132     0.152     0.563     0.089     nan  0.15  0.20  0.19  0.20  0.21
+toy lean               oracle_joint gauss_jacobian_FD     16          0.336     0.336     0.372     0.337     0.213     0.527     0.336     nan  0.17  0.18  0.19  0.17  0.18
+toy lean               oracle_joint gauss_jacobian_FD     64          0.293     0.293     0.378     0.296     0.215     0.596     0.293    0.19  0.17  0.18  0.20  0.19  0.19
+toy lean               oracle_joint gauss_jacobian_FD    128          0.227     0.227     0.435     0.252     0.218     0.620     0.227    0.20  0.16  0.20  0.20  0.20  0.20
+toy square             hierarchical gauss_jacobian_FD      4          0.032     0.032     0.034     0.033     0.034     0.364     0.032     nan  0.03  0.03  0.03  0.03  0.03
+toy square             hierarchical gauss_jacobian_FD     16          0.049     0.049     0.042     0.047     0.061     0.429     0.049     nan  0.04  0.04  0.04  0.04  0.04
+toy square             hierarchical gauss_jacobian_FD     64          0.079     0.079     0.073     0.119     0.083     0.449     0.079    0.04  0.03  0.03  0.03  0.03  0.04
+toy square             hierarchical gauss_jacobian_FD    128          0.098     0.098     0.107     0.129     0.098     0.406     0.098    0.03  0.03  0.03  0.03  0.03  0.03
+toy square             none gauss_jacobian_FD              4          0.027     0.027     0.023     0.023     0.024     0.322     0.027     nan  0.04  0.04  0.04  0.04  0.04
+toy square             none gauss_jacobian_FD             16          0.069     0.069     0.087     0.075     0.094     0.183     0.069     nan  0.04  0.05  0.05  0.04  0.05
+toy square             none gauss_jacobian_FD             64          0.133     0.133     0.260     0.242     0.208     0.214     0.133     nan  0.03  0.03  0.03  0.03  0.03
+toy square             none gauss_jacobian_FD            128          0.137     0.137     0.235     0.235     0.204     0.294     0.137     nan  0.03  0.03  0.03  0.03  0.03
+
+vs stored (better / same / worse, same = within 15% + 0.02):
+  default        0 / 112 /   0
+  lams           2 /  70 /  40
+  lamsrow        2 /  90 /  20
+  gloeckler     17 /  76 /  19
+  consistent     5 /  22 /  85
+  clampmetric    1 / 111 /   0
+
+default variant vs stored draws (max |diff|; must be 0):
+  GM asymmetric          hierarchical gauss_jacobian_FD      8  0.0
+  GM asymmetric          hierarchical gauss_jacobian_FD     16  0.0
+  GM asymmetric          hierarchical gauss_jacobian_FD     32  0.0
+  GM asymmetric          hierarchical gauss_jacobian_FD     64  0.0
+  GM asymmetric          none gauss_jacobian_FD              8  0.0
+  GM asymmetric          none gauss_jacobian_FD             16  0.0
+  GM asymmetric          none gauss_jacobian_FD             32  0.0
+  GM asymmetric          none gauss_jacobian_FD             64  0.0
+  GM asymmetric          oracle gauss_jacobian_FD            8  0.0
+  GM asymmetric          oracle gauss_jacobian_FD           16  0.0
+  GM asymmetric          oracle gauss_jacobian_FD           32  0.0
+  GM asymmetric          oracle gauss_jacobian_FD           64  0.0
+  GM symmetric           hierarchical gauss_jacobian_FD      8  0.0
+  GM symmetric           hierarchical gauss_jacobian_FD     16  0.0
+  GM symmetric           hierarchical gauss_jacobian_FD     32  0.0
+  GM symmetric           hierarchical gauss_jacobian_FD     64  0.0
+  GM symmetric           none gauss_jacobian_FD              8  0.0
+  GM symmetric           none gauss_jacobian_FD             16  0.0
+  GM symmetric           none gauss_jacobian_FD             32  0.0
+  GM symmetric           none gauss_jacobian_FD             64  0.0
+  GM symmetric           oracle gauss_jacobian_FD            8  0.0
+  GM symmetric           oracle gauss_jacobian_FD           16  0.0
+  GM symmetric           oracle gauss_jacobian_FD           32  0.0
+  GM symmetric           oracle gauss_jacobian_FD           64  0.0
+  IK flat fixed          hierarchical gauss_jacobian_FD      8  0.0
+  IK flat fixed          hierarchical gauss_jacobian_FD     32  0.0
+  IK flat fixed          hierarchical gauss_jacobian_FD    128  0.0
+  IK flat global         hierarchical gauss_jacobian_FD      8  0.0
+  IK flat global         hierarchical gauss_jacobian_FD     32  0.0
+  IK flat global         hierarchical gauss_jacobian_FD    128  0.0
+  IK reach shift         hierarchical gauss_jacobian_FD      8  0.0
+  IK reach shift         hierarchical gauss_jacobian_FD     32  0.0
+  IK reach shift         hierarchical gauss_jacobian_FD    128  0.0
+  IK reach shift_bernoulli hierarchical gauss_jacobian_FD      8  0.0
+  IK reach shift_bernoulli hierarchical gauss_jacobian_FD     32  0.0
+  IK reach shift_bernoulli hierarchical gauss_jacobian_FD    128  0.0
+  IK reach sym           hierarchical gauss_jacobian_FD      8  0.0
+  IK reach sym           hierarchical gauss_jacobian_FD     32  0.0
+  IK reach sym           hierarchical gauss_jacobian_FD    128  0.0
+  IK reach sym_bernoulli hierarchical gauss_jacobian_FD      8  0.0
+  IK reach sym_bernoulli hierarchical gauss_jacobian_FD     32  0.0
+  IK reach sym_bernoulli hierarchical gauss_jacobian_FD    128  0.0
+  IK |x1|                hierarchical gauss_jacobian_FD      8  0.0
+  IK |x1|                hierarchical gauss_jacobian_FD     32  0.0
+  IK |x1|                hierarchical gauss_jacobian_FD    128  0.0
+  IK |x1|                hierarchical_R gauss_jacobian_FD    8  0.0
+  IK |x1|                hierarchical_R gauss_jacobian_FD   32  0.0
+  IK |x1|                hierarchical_R gauss_jacobian_FD  128  0.0
+  toy abs                hierarchical gauss_jacobian_FD      4  0.0
+  toy abs                hierarchical gauss_jacobian_FD     16  0.0
+  toy abs                hierarchical gauss_jacobian_FD     64  0.0
+  toy abs                hierarchical gauss_jacobian_FD    128  0.0
+  toy abs                none gauss_jacobian_FD              4  0.0
+  toy abs                none gauss_jacobian_FD             16  0.0
+  toy abs                none gauss_jacobian_FD             64  0.0
+  toy abs                none gauss_jacobian_FD            128  0.0
+  toy abs                oracle_hierarchical gauss_jacobian_FD    4  0.0
+  toy abs                oracle_hierarchical gauss_jacobian_FD   16  0.0
+  toy abs                oracle_hierarchical gauss_jacobian_FD   64  0.0
+  toy abs                oracle_hierarchical gauss_jacobian_FD  128  0.0
+  toy abs                oracle_joint gauss_jacobian_FD      4  0.0
+  toy abs                oracle_joint gauss_jacobian_FD     16  0.0
+  toy abs                oracle_joint gauss_jacobian_FD     64  0.0
+  toy abs                oracle_joint gauss_jacobian_FD    128  0.0
+  toy curved             hierarchical gauss_jacobian_FD      4  0.0
+  toy curved             hierarchical gauss_jacobian_FD     16  0.0
+  toy curved             hierarchical gauss_jacobian_FD     64  0.0
+  toy curved             hierarchical gauss_jacobian_FD    128  0.0
+  toy curved             hierarchical_R gauss_jacobian_FD    4  0.0
+  toy curved             hierarchical_R gauss_jacobian_FD   16  0.0
+  toy curved             hierarchical_R gauss_jacobian_FD   64  0.0
+  toy curved             hierarchical_R gauss_jacobian_FD  128  0.0
+  toy lean               hierarchical gauss_jacobian_FD      4  0.0
+  toy lean               hierarchical gauss_jacobian_FD     16  0.0
+  toy lean               hierarchical gauss_jacobian_FD     64  0.0
+  toy lean               hierarchical gauss_jacobian_FD    128  0.0
+  toy lean               hierarchical_R gauss_jacobian_FD    4  0.0
+  toy lean               hierarchical_R gauss_jacobian_FD   16  0.0
+  toy lean               hierarchical_R gauss_jacobian_FD   64  0.0
+  toy lean               hierarchical_R gauss_jacobian_FD  128  0.0
+  toy lean               hierarchical_T gauss_jacobian_FD    4  0.0
+  toy lean               hierarchical_T gauss_jacobian_FD   16  0.0
+  toy lean               hierarchical_T gauss_jacobian_FD   64  0.0
+  toy lean               hierarchical_T gauss_jacobian_FD  128  0.0
+  toy lean               hierarchical_TF gauss_jacobian_FD    4  0.0
+  toy lean               hierarchical_TF gauss_jacobian_FD   16  0.0
+  toy lean               hierarchical_TF gauss_jacobian_FD   64  0.0
+  toy lean               hierarchical_TF gauss_jacobian_FD  128  0.0
+  toy lean               hierarchical_TFR gauss_jacobian_FD    4  0.0
+  toy lean               hierarchical_TFR gauss_jacobian_FD   16  0.0
+  toy lean               hierarchical_TFR gauss_jacobian_FD   64  0.0
+  toy lean               hierarchical_TFR gauss_jacobian_FD  128  0.0
+  toy lean               none gauss_jacobian_FD              4  0.0
+  toy lean               none gauss_jacobian_FD             16  0.0
+  toy lean               none gauss_jacobian_FD             64  0.0
+  toy lean               none gauss_jacobian_FD            128  0.0
+  toy lean               oracle_hierarchical gauss_jacobian_FD    4  0.0
+  toy lean               oracle_hierarchical gauss_jacobian_FD   16  0.0
+  toy lean               oracle_hierarchical gauss_jacobian_FD   64  0.0
+  toy lean               oracle_hierarchical gauss_jacobian_FD  128  0.0
+  toy lean               oracle_joint gauss_jacobian_FD      4  0.0
+  toy lean               oracle_joint gauss_jacobian_FD     16  0.0
+  toy lean               oracle_joint gauss_jacobian_FD     64  0.0
+  toy lean               oracle_joint gauss_jacobian_FD    128  0.0
+  toy square             hierarchical gauss_jacobian_FD      4  0.0
+  toy square             hierarchical gauss_jacobian_FD     16  0.0
+  toy square             hierarchical gauss_jacobian_FD     64  0.0
+  toy square             hierarchical gauss_jacobian_FD    128  0.0
+  toy square             none gauss_jacobian_FD              4  0.0
+  toy square             none gauss_jacobian_FD             16  0.0
+  toy square             none gauss_jacobian_FD             64  0.0
+  toy square             none gauss_jacobian_FD            128  0.0
+
+partial pooling C2 (mean r, global RMSE, collapses):
+  baseline with (stored)          mean r 0.869  global RMSE 0.628  local 0.254  collapses 5  (30 datasets)
+  baseline without (default)      mean r 0.869  global RMSE 0.628  local 0.254  collapses 5  (30 datasets)  nonPD 0.224 repair 0.000 clamp 0.0024
+  Rg       with (stored)          mean r 0.868  global RMSE 0.608  local 0.254  collapses 3  (30 datasets)
+  Rg       without (default)      mean r 0.868  global RMSE 0.608  local 0.254  collapses 3  (30 datasets)  nonPD 0.228 repair 0.000 clamp 0.0014
+  baseline without (lams)         mean r 0.779  global RMSE 1.052  local 0.276  collapses 7  (30 datasets)  nonPD 0.303 repair 0.731 clamp 0.0070
+  Rg       without (lams)         mean r 0.847  global RMSE 0.802  local 0.264  collapses 7  (30 datasets)  nonPD 0.219 repair 0.500 clamp 0.0088
+  baseline without (lamsrow)      mean r 0.857  global RMSE 0.749  local 0.259  collapses 6  (30 datasets)  nonPD 0.252 repair 0.068 clamp 0.0032
+  Rg       without (lamsrow)      mean r 0.849  global RMSE 0.789  local 0.259  collapses 7  (30 datasets)  nonPD 0.226 repair 0.052 clamp 0.0025
+  baseline without (gloeckler)    mean r 0.878  global RMSE 0.566  local 0.252  collapses 4  (30 datasets)  nonPD 0.193 repair 0.000 clamp 0.0014
+  Rg       without (gloeckler)    mean r 0.888  global RMSE 0.492  local 0.249  collapses 1  (30 datasets)  nonPD 0.236 repair 0.000 clamp 0.0009
+  baseline without (consistent)   mean r 0.895  global RMSE 0.478  local 0.250  collapses 0  (30 datasets)  nonPD 0.137 repair 0.000 clamp 0.0009
+  Rg       without (consistent)   mean r 0.909  global RMSE 0.476  local 0.251  collapses 0  (30 datasets)  nonPD 0.216 repair 0.000 clamp 0.0010
+  baseline without (clampmetric)  mean r 0.869  global RMSE 0.628  local 0.254  collapses 5  (30 datasets)  nonPD 0.223 repair 0.001 clamp 0.0035
+  Rg       without (clampmetric)  mean r 0.868  global RMSE 0.607  local 0.254  collapses 3  (30 datasets)  nonPD 0.229 repair 0.000 clamp 0.0021
