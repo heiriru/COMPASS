@@ -15,3 +15,8 @@ from .SDE import *
 from .Trainer import *
 from .Sampler import *
 from .MultiObsSampler import *
+from .priors import GaussianPrior, GaussianMixturePrior, ScorePrior
+from .latent_attention import (
+    MODES as LATENT_ATTENTION_MODES, enable_latent_attention,
+    load_latent_attention, save_latent_attention,
+)

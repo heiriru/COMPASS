@@ -49,12 +49,14 @@ class Trainer():
     # ----- Training loop -----
     #############################################
     def train(self, world_size, train_data, val_data=None,
-              max_epochs=500, early_stopping_patience=20, batch_size=128, lr=1e-3,
+              max_epochs=500, early_stopping_patience=100, batch_size=128, lr=1e-3,
               path=None, name="Model", device="cpu", verbose=True,
               time_sampling="mixture", mask_loss_weights=None,
               mask_sampler=None, validation_mask_seed=20250718,
               global_target_fn=None, global_target_indices=None, tsm_lambda_c=1.0,
-              tsm_variance_fn=None, time_loss_weight=None, sigma_data=1.0):
+              tsm_variance_fn=None, time_loss_weight=None, sigma_data=1.0,
+              validation_noise_seed=20250719, restore="final", time_eps=1e-3,
+              fisher_consistency=None):
 
         """
         Training function for the score prediction task
@@ -65,7 +67,11 @@ class Trainer():
             train_data: Training data
             val_data: Validation data
             max_epochs: Maximum number of epochs
-            early_stopping_patience: Number of epochs to wait before early stopping
+            early_stopping_patience: Number of epochs to wait before early stopping.
+                    Default 100 (was 20): patience 100 against 40 cut the PF-ODE log p
+                    error 15-33% and improved the posterior
+                    (validation/likelihood_improvement), and on partial pooling a seed
+                    that stopped at epoch 56 instead of 108-131 was the worst of three.
             batch_size: Batch size
             lr: Learning rate
             path: Path to save the model
@@ -102,6 +108,31 @@ class Trainer():
                     w = 1 / (1 + lambda^2 V), the DSM target having variance 1/lambda^2.
                     V may depend only on network inputs (here x_t), never on the clean
                     values, or the blend is biased.
+            validation_noise_seed: Seed for the diffusion times and noise of every
+                    validation pass. The validation pass runs inside a forked RNG
+                    seeded with this value (plus the rank), so every epoch scores
+                    the model on the same (t, noise) draw and training draws are
+                    not consumed by validation. Without it the validation draws
+                    came off the global stream in lockstep across runs: curves of
+                    different architectures correlated r~0.87 and early stopping
+                    fired on the luckiest draw. ``None`` restores the historical
+                    behaviour exactly (use it to reproduce runs made before this
+                    option existed).
+            time_eps: Smallest diffusion time drawn in training (default 1e-3, the
+                    historical value). The VESDE noise floor lambda(1e-3) is ~0.032, so
+                    no network ever trained below it; lower this (and the sampling eps)
+                    to reach smaller lambda.
+            fisher_consistency: Optional experimental penalty
+                    (``compass.consistency.FisherConsistency``) that pushes the
+                    predictive average of the posterior score of the globals onto the
+                    known diffused prior score. ``None`` (default) is off.
+            restore: Which weights the model holds (and ``{name}.pt`` contains)
+                    after training. ``"final"`` (default): the schedule-free averaged
+                    weights of the last epoch. ``"best"``: the best-validation
+                    checkpoint ``{name}_checkpoint.pt``, which is written in both
+                    cases. Final beat best-validation in 3/3 partial-pooling seeds
+                    (global RMSE 0.468->0.435, 0.685->0.636, 1.128->0.991), and the
+                    best-validation checkpoint had 30-70% larger log p error in C9.
         """
         start_time = time.time()
 
@@ -121,7 +152,10 @@ class Trainer():
         self.name = name
         self.name_checkpoint = f"{self.name}_checkpoint"
         self.verbose = verbose
-        self.eps = 1e-3 # Epsilon for numerical stability and endpoint in diffusion process
+        self.eps = float(time_eps)  # smallest training time (endpoint of the diffusion)
+        self.fisher_consistency = fisher_consistency
+        if fisher_consistency is not None:
+            fisher_consistency.bind(self, train_data)
         self.time_sampling = time_sampling
         # Condition-mask sampler. None keeps the historical Bernoulli(0.33)
         # draw; a ConditionalMenu concentrates the draws on the conditionals the
@@ -135,6 +169,11 @@ class Trainer():
                                       else torch.as_tensor(global_target_indices, dtype=torch.long))
         self.tsm_lambda_c = float(tsm_lambda_c)
         self.tsm_variance_fn = tsm_variance_fn
+        self.validation_noise_seed = (None if validation_noise_seed is None
+                                      else int(validation_noise_seed))
+        if restore not in ("final", "best"):
+            raise ValueError(f"restore must be 'final' or 'best', got {restore!r}")
+        self.restore = restore
         if time_loss_weight not in (None, "edm"):
             raise ValueError(f"time_loss_weight must be None or 'edm', got {time_loss_weight!r}")
         # Optional noise-level weighting of the per-example epsilon loss. "edm"
@@ -277,6 +316,8 @@ class Trainer():
         # weights, both in memory and in the saved final model.
         optimizer.eval()
         self.model.eval()
+        if getattr(self, "restore", "final") == "best":
+            self._restore_best_checkpoint(rank)
 
         if self.world_size > 1:
             dist.barrier()
@@ -291,7 +332,31 @@ class Trainer():
             # error in every family and budget (validation/c9_network_seeds, E-C9.2).
             self._save_checkpoint(name=self.name)
         
+    def _restore_best_checkpoint(self, rank):
+        """Load the best-validation weights (restore="best") into the live model."""
+        if self.world_size > 1:
+            dist.barrier()
+        path = f"{self.path}/{self.name_checkpoint}.pt"
+        if not os.path.exists(path):
+            return
+        state = torch.load(path, map_location=self.device)["model_state_dict"]
+        target = self.model.module if self.world_size > 1 else self.model
+        target.load_state_dict(state)
+
     def _run_epoch(self, epoch, data_loader, optimizer, is_train):
+        if not is_train and getattr(self, "validation_noise_seed", None) is not None:
+            # Every validation pass sees the same (t, noise) draw, and validation
+            # no longer advances the training RNG stream.
+            devices = []
+            if torch.device(self.device).type == "cuda" and torch.cuda.is_available():
+                devices = [torch.cuda.current_device()]
+            rank = dist.get_rank() if self.world_size > 1 else 0
+            with torch.random.fork_rng(devices=devices):
+                torch.manual_seed(self.validation_noise_seed + rank)
+                return self._run_epoch_inner(epoch, data_loader, optimizer, is_train)
+        return self._run_epoch_inner(epoch, data_loader, optimizer, is_train)
+
+    def _run_epoch_inner(self, epoch, data_loader, optimizer, is_train):
         if self.world_size > 1:
             data_loader.sampler.set_epoch(epoch)
 
@@ -338,6 +403,12 @@ class Trainer():
         # Calculate loss (DSM target -x_1/sigma, optionally blended with TSM on the globals)
         target_noise = self._blend_global_target(data, timesteps, x_1, condition_mask, x_t)
         loss = self.loss_fn(score, timesteps, target_noise, condition_mask)
+        penalty = getattr(self, "fisher_consistency", None)
+        if penalty is not None and torch.is_grad_enabled():
+            # Training passes only: the validation loss stays the plain DSM loss,
+            # comparable across arms. The loss is a batch sum (see loss_fn), so the
+            # per-anchor penalty is scaled to the batch.
+            loss = loss + data.shape[0] * penalty(self, data.device)
 
         return loss
 

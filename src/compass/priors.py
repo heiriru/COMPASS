@@ -21,6 +21,17 @@ supplies
 The tuple form keeps working unchanged and is converted to a
 :class:`GaussianPrior`, so existing callers are bit-for-bit unaffected.
 
+A bare prior-score *callable* is accepted through :class:`ScorePrior`::
+
+    prior = ScorePrior(lambda theta_y, lam: my_diffused_score(theta_y, lam),
+                       mean=m, covariance=C)            # or ScorePrior.from_samples(fn, draws)
+    model.sample(x=x, multi_obs_inference=True, prior=prior, ...)
+
+so any prior whose diffused score you can write down (mixtures, truncations,
+priors in transformed coordinates, a learned prior score) enters the composition
+exactly. The moments are still needed, but only for the denoise clamp and the
+precision *weighting* of the covariance-aware rules -- never for the score.
+
 Exact diffused mixture score
 ----------------------------
 For ``p_0(g) = sum_k pi_k N(g; mu_k, Sigma_k)`` under the additive-noise
@@ -168,6 +179,80 @@ class GaussianMixturePrior:
         return first - mean_direction.unsqueeze(-1) * mean_direction.unsqueeze(-2)
 
 
+class ScorePrior:
+    """A prior given by its diffused score function.
+
+    ``score(theta_y, lambda_t)`` returns ``grad log p_t(theta_y)`` for the prior
+    diffused to noise level ``lambda_t`` (``p_t = p_0 * N(0, lambda_t^2 I)``, in the
+    ``y = x / alpha`` coordinates every sampler uses), same shape as ``theta_y``.
+    A three-argument ``score(theta_y, t, lambda_t)`` is accepted too.
+
+    ``mean`` / ``covariance`` are the prior's first two moments. They are used for
+    the denoise clamp box and for ``Lambda_prior(t)`` in the precision-weighted
+    rules, which need one matrix; the composed score itself only ever reads
+    ``score``. ``log_prob(theta)`` is optional and needed only by
+    ``certify_composition``.
+    """
+
+    def __init__(self, score, mean, covariance, log_prob=None):
+        if not callable(score):
+            raise TypeError("ScorePrior needs a callable score(theta_y, lambda_t).")
+        self._score = score
+        self._takes_t = _positional_arity(score) >= 3
+        self.mean = torch.as_tensor(mean, dtype=torch.float64).reshape(-1)
+        covariance = torch.as_tensor(covariance, dtype=torch.float64)
+        if covariance.dim() == 1:
+            covariance = torch.diag(covariance)
+        if covariance.shape != (self.mean.numel(), self.mean.numel()):
+            raise ValueError(
+                f"covariance must be {self.mean.numel()}x{self.mean.numel()} (or a "
+                f"variance vector), got {tuple(covariance.shape)}."
+            )
+        self.covariance = covariance
+        self.marginal_std = torch.diagonal(covariance).sqrt()
+        self._log_prob = log_prob
+
+    @classmethod
+    def from_samples(cls, score, samples, log_prob=None):
+        """Moments from prior draws ``(num, dim)``; the score is still ``score``."""
+        samples = torch.as_tensor(samples, dtype=torch.float64)
+        if samples.dim() != 2 or samples.shape[0] < 2:
+            raise ValueError("samples must be (num >= 2, dim) prior draws.")
+        return cls(score, samples.mean(0), torch.cov(samples.T).reshape(
+            samples.shape[1], samples.shape[1]), log_prob=log_prob)
+
+    def score(self, theta_y, t, lambda_t):
+        out = (self._score(theta_y, t, lambda_t) if self._takes_t
+               else self._score(theta_y, lambda_t))
+        out = torch.as_tensor(out)
+        if out.shape != theta_y.shape:
+            raise ValueError(
+                f"prior score returned shape {tuple(out.shape)} for input "
+                f"{tuple(theta_y.shape)}; it must preserve the shape."
+            )
+        return out
+
+    def log_prob(self, theta):
+        if self._log_prob is None:
+            raise NotImplementedError(
+                "This ScorePrior has no log_prob; pass log_prob= to use it in "
+                "certify_composition."
+            )
+        return self._log_prob(theta)
+
+
+def _positional_arity(function):
+    import inspect
+    try:
+        parameters = inspect.signature(function).parameters.values()
+    except (TypeError, ValueError):
+        return 2
+    kinds = (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+    if any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in parameters):
+        return 2
+    return sum(p.kind in kinds for p in parameters)
+
+
 def resolve_prior_object(prior, width):
     """Return a prior object for ``prior``, or ``None`` for the tuple form.
 
@@ -188,7 +273,14 @@ def resolve_prior_object(prior, width):
                 f"expected {width} (= len(hierarchy))."
             )
         return prior
+    if callable(prior):
+        raise ValueError(
+            "A bare prior-score callable carries no moments, which the denoise clamp "
+            "and the precision-weighted rules need. Wrap it: "
+            "compass.priors.ScorePrior(fn, mean=..., covariance=...) or "
+            "ScorePrior.from_samples(fn, prior_draws)."
+        )
     raise ValueError(
-        "prior must be (mean, scale) or an object with a .score method; "
-        f"got {type(prior).__name__}."
+        "prior must be (mean, scale), a ScorePrior, or an object with a .score "
+        f"method; got {type(prior).__name__}."
     )

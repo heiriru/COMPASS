@@ -3772,9 +3772,20 @@ class MultiObsSampler():
             batch_size=batch_size, verbose=verbose,
         ).reshape(n_obs, num_samples).to(torch.float64)
 
-        log_prior_term = (1 - n_obs) * self._gaussian_log_density(
-            shared[0].to(torch.float64), prior_mean, prior_covariance,
-        )
+        prior_object = (getattr(self, "prior_object", None)
+                        if prior is None and saved_hierarchy == hierarchy else None)
+        if prior is not None:
+            from .priors import resolve_prior_object
+            prior_object = resolve_prior_object(prior, len(hierarchy))
+        if prior_object is not None:
+            # A non-Gaussian prior's own density: the Gaussian moment match here would
+            # put (n-1) copies of the wrong log-prior into the certified target.
+            log_prior = prior_object.log_prob(shared[0].to(torch.float64)).to(torch.float64)
+        else:
+            log_prior = self._gaussian_log_density(
+                shared[0].to(torch.float64), prior_mean, prior_covariance,
+            )
+        log_prior_term = (1 - n_obs) * log_prior
         log_target = log_prior_term + log_observation_terms.sum(dim=0)
 
         result = {

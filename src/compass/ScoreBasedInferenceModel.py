@@ -23,7 +23,10 @@ from .PFODE import PFODE
 
 # Bumped whenever a checkpoint's architecture payload changes shape. Legacy
 # checkpoints predate the field entirely and are recognised by its absence.
-ARCH_VERSION = 1
+# Version 2 adds the latent-attention rule; it is written only by models that use
+# one, so a version-1 reader refuses them instead of silently dropping the rule,
+# and every other checkpoint keeps writing 1.
+ARCH_VERSION = 2
 ARCHITECTURES = ("legacy", "tokenized", "grouped")
 
 
@@ -118,6 +121,10 @@ class ScoreBasedInferenceModel(nn.Module):
             depth_across=None,  # Grouped trunk: blocks over globals + repeats
             depth_readout=None, # Grouped trunk: blocks after the broadcast back
             time_embedding="raw",  # "raw" t or "log_lambda" (see _install_time_map)
+            latent_attention="none",  # "none", "global", "hierarchical" or "full"
+            latent_roles=None,  # (global_size, local_size) or {"g","l","x": indices}
+            parameterization="eps",  # "eps" or "edm" (experimental, compass.parameterization)
+            parameterization_sigma_data=1.0,
             ):
 
         super(ScoreBasedInferenceModel, self).__init__()
@@ -192,6 +199,25 @@ class ScoreBasedInferenceModel(nn.Module):
             )
         self.model.to(device)
         self._install_time_map(time_embedding)
+        from .parameterization import install as _install_parameterization
+        _install_parameterization(self, parameterization, parameterization_sigma_data)
+        self.latent_attention = "none"
+        if latent_attention not in (None, "none"):
+            # Latent-to-latent attention (compass.latent_attention): parameter-free,
+            # so the state dict is the plain tokenized one; the rule lives in the
+            # architecture payload.
+            if self.arch != "tokenized" or self.trunk != "shared":
+                raise ValueError(
+                    "latent_attention needs arch='tokenized' with trunk='shared'; "
+                    f"got arch={self.arch!r}, trunk={self.trunk!r}."
+                )
+            if latent_roles is None:
+                raise ValueError(
+                    "latent_attention needs latent_roles=(global_size, local_size) "
+                    "or a {'g': ..., 'l': ..., 'x': ...} map of node indices."
+                )
+            from .latent_attention import enable_latent_attention
+            enable_latent_attention(self, latent_attention, latent_roles)
 
         # Init Trainer
         self.trainer = Trainer(self)
@@ -237,14 +263,16 @@ class ScoreBasedInferenceModel(nn.Module):
     
     def train(self, theta, x, theta_val=None, x_val=None,
                 batch_size=128, max_epochs=500, lr=1e-3, device="cpu",
-                verbose=True, path=None, name="Model", early_stopping_patience=20,
+                verbose=True, path=None, name="Model", early_stopping_patience=100,
                 time_sampling="mixture", mask_loss_weights=None,
-                mask_sampler=None, mask_menu="bernoulli",
+                mask_sampler=None, mask_menu="auto",
                 mask_roles=None, mask_weights=None,
                 mask_bernoulli_fraction=0.0, mask_bernoulli_probability=0.33,
                 global_target_fn=None, global_target_indices=None, tsm_lambda_c=1.0,
                 tsm_variance_fn=None,
-                time_loss_weight=None, sigma_data=1.0):
+                time_loss_weight="auto", sigma_data=1.0,
+                validation_noise_seed=20250719, restore="final", time_eps=1e-3,
+                fisher_consistency=None):
         """
         Train the model on the provided data
 
@@ -261,6 +289,16 @@ class ScoreBasedInferenceModel(nn.Module):
             verbose: Whether to show training progress
             path: Path to save model
             early_stopping_patience: Number of epochs to wait before early stopping
+                    (default 100; 20 stopped measurably too early, see Trainer.train)
+            validation_noise_seed: Fixed seed for the validation pass's diffusion
+                    times and noise (default); ``None`` is the historical
+                    unseeded draw, for reproducing older runs. See Trainer.train.
+            time_eps: Smallest diffusion time trained on (default 1e-3, i.e. lambda 0.032
+                    at sigma 15-25). Lower it together with the sampling ``eps``.
+            fisher_consistency: Optional ``compass.consistency.FisherConsistency``
+                    penalty (experimental); see Trainer.train.
+            restore: ``"final"`` (default) keeps the last epoch's averaged weights,
+                    ``"best"`` reloads the best-validation checkpoint at the end.
             time_sampling: Diffusion-time sampling scheme during training
                     ("mixture" (default), "uniform" or "log_sigma"); see Trainer.train
             mask_loss_weights: Optional list of (mask, weight) loss-balancing
@@ -272,11 +310,14 @@ class ScoreBasedInferenceModel(nn.Module):
                     menu of conditionals (see ``compass.SIX_CONDITIONALS``).
                     Supplying this overrides ``mask_menu``.
             mask_menu: Which condition-mask distribution to train under.
+                    ``"auto"`` (default) follows ``mask_roles``: none given is
+                    ``"bernoulli"`` (the historical default, unchanged), an int
+                    is ``"inference"`` and a tuple/dict is ``"six"``.
                     "inference" (needs mask_roles=<number of theta dims>): 1/3
                     posterior mask, 1/3 likelihood mask, 1/3 Bernoulli -- the
                     directions model comparison uses; see _resolve_mask_sampler.
 
-                    ``"bernoulli"`` (default) draws every node's conditioning
+                    ``"bernoulli"`` draws every node's conditioning
                     flag independently at ``mask_bernoulli_probability``, which
                     spreads the signal over all ``2**tokens`` conditionals.
 
@@ -304,19 +345,32 @@ class ScoreBasedInferenceModel(nn.Module):
                     to the Bernoulli sampler, so the general conditional
                     capability is not lost. ``0.0`` (default) is menu-only.
             mask_bernoulli_probability: Rate for the Bernoulli draws.
-            time_loss_weight: None (default) or "edm": weight the epsilon loss by
-                    (1 + sigma^2 / sigma_data^2), which puts training signal on high
-                    noise levels (see Trainer.train).
+            time_loss_weight: "auto" (default), None or "edm". "edm" weights the
+                    epsilon loss by (1 + sigma^2 / sigma_data^2), which puts training
+                    signal on high noise levels (see Trainer.train). "auto" is "edm"
+                    whenever training uses a mask menu (a ``mask_menu`` other than
+                    Bernoulli, or an explicit ``mask_sampler``) and None otherwise:
+                    the two were measured as a pair. On partial pooling (six-mixed
+                    menu, 3 seeds x 30 datasets) EDM cut global RMSE 0.666 -> 0.434
+                    in every seed and raised mean r 0.871 -> 0.903; on likelihoods
+                    (inference menu) it cut PF-ODE log p error 32-37%. EDM alone,
+                    under the Bernoulli draw, cost the posterior a little, so the
+                    Bernoulli default keeps the plain epsilon loss.
             sigma_data: Data scale for time_loss_weight="edm".
             global_target_fn, global_target_indices, tsm_lambda_c: optional target
                     score matching on the globals of a hierarchical model; see
                     Trainer.train. ``global_target_fn`` maps clean node vectors to
                     grad_g [log p(g) + log p(l | g)] in network coordinates.
         """
+        if mask_menu == "auto":
+            mask_menu = ("bernoulli" if mask_roles is None or mask_sampler is not None
+                         else "six" if isinstance(mask_roles, (tuple, list, dict)) else "inference")
         mask_sampler = self._resolve_mask_sampler(
             mask_sampler, mask_menu, mask_roles, mask_weights,
             mask_bernoulli_fraction, mask_bernoulli_probability,
         )
+        if time_loss_weight == "auto":
+            time_loss_weight = "edm" if mask_sampler is not None else None
 
         # Combine theta and x into a single tensor
         # train_data: (num_samples, node_size)
@@ -339,7 +393,9 @@ class ScoreBasedInferenceModel(nn.Module):
                             global_target_fn=global_target_fn,
                             global_target_indices=global_target_indices,
                             tsm_lambda_c=tsm_lambda_c, tsm_variance_fn=tsm_variance_fn,
-                            time_loss_weight=time_loss_weight, sigma_data=sigma_data)
+                            time_loss_weight=time_loss_weight, sigma_data=sigma_data,
+                            validation_noise_seed=validation_noise_seed, restore=restore,
+                            time_eps=time_eps, fisher_consistency=fisher_consistency)
 
 
     def _resolve_mask_sampler(self, mask_sampler, mask_menu, mask_roles,
@@ -440,7 +496,10 @@ class ScoreBasedInferenceModel(nn.Module):
             condition_mask: Binary mask indicating observed values (1) and latent values (0)
                     Shape: (num_samples, num_total_features)
             timesteps: Number of diffusion steps
-            eps: End time for diffusion process
+            eps: End time for diffusion process. Forwarded to both samplers; it
+                    used to be dropped, so every sample stopped at the sampler
+                    default 1e-3 whatever was passed (benchmarks/SimFormer: that
+                    residual noise was the whole C2ST gap to Simformer).
             num_samples: Number of samples to generate
             cfg_alpha: Classifier-free guidance strength
 
@@ -583,7 +642,7 @@ class ScoreBasedInferenceModel(nn.Module):
             world_size = 1
             
         if multi_obs_inference == False:
-            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
+            samples = self.sampler.sample(world_size=world_size, data=data, err=err, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha,
                                     order=order, snr=snr, corrector_steps_interval=corrector_steps_interval, corrector_steps=corrector_steps, final_corrector_steps=final_corrector_steps,
                                     churn_eta=churn_eta, churn_s_noise=churn_s_noise, churn_gamma_cap=churn_gamma_cap,
                                     verbose=verbose, method=method, save_trajectory=save_trajectory,
@@ -592,7 +651,7 @@ class ScoreBasedInferenceModel(nn.Module):
             
         elif multi_obs_inference == True:
             # Hierarchical Compositional Score Modeling
-            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
+            samples = self.multi_obs_sampler.sample(world_size=world_size, data=data, condition_mask=condition_mask, timesteps=timesteps, eps=eps, num_samples=num_samples, device=device, cfg_alpha=cfg_alpha, hierarchy=hierarchy,
                                       prior=prior, local_prior=local_prior,
                                       correction=correction,
                                       posterior_precision=posterior_precision,
@@ -779,8 +838,9 @@ class ScoreBasedInferenceModel(nn.Module):
         """
         if self.arch == "legacy":
             return {}
+        mode = getattr(self.model, "latent_attention", "none")
         payload = {
-            "arch_version": ARCH_VERSION,
+            "arch_version": 1 if mode == "none" else 2,
             "arch": self.arch,
             "schema": self.schema.to_dict(),
             "trunk": self.trunk,
@@ -800,6 +860,9 @@ class ScoreBasedInferenceModel(nn.Module):
             payload["depth_within"] = self.depth_within
             payload["depth_across"] = self.depth_across
             payload["depth_readout"] = self.depth_readout
+        if mode != "none":
+            payload["latent_attention"] = mode
+            payload["latent_roles"] = self.model.latent_roles
         return payload
 
     #############################################
@@ -863,6 +926,8 @@ class ScoreBasedInferenceModel(nn.Module):
             "time_embedding": self.time_embedding}
         if getattr(self, "base_moments", None) is not None:
             out["base_moments"] = [m.detach().cpu() for m in self.base_moments]
+        from .parameterization import payload as _parameterization_payload
+        out.update(_parameterization_payload(self))
         return out
 
     def set_base_moments(self, data):
@@ -952,6 +1017,10 @@ class ScoreBasedInferenceModel(nn.Module):
             num_heads=checkpoint['num_heads'],
             mlp_ratio=checkpoint['mlp_ratio'],
             time_embedding=checkpoint.get('time_embedding', 'raw'),
+            latent_attention=checkpoint.get('latent_attention', 'none'),
+            latent_roles=checkpoint.get('latent_roles'),
+            parameterization=checkpoint.get('parameterization', 'eps'),
+            parameterization_sigma_data=checkpoint.get('parameterization_sigma_data', 1.0),
         )
 
         if 'base_moments' in checkpoint:

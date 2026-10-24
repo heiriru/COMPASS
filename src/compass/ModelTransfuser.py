@@ -157,7 +157,7 @@ class ModelTransfuser():
     #############################################
 
     def train_models(self, batch_size=128, max_epochs=500, lr=1e-3, device="cuda",
-                verbose=False, path=None, early_stopping_patience=20): 
+                verbose=False, path=None, early_stopping_patience=100): 
         
         """
         Train the models on the provided data
