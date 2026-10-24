@@ -259,8 +259,8 @@ class MultiObsSampler():
         # Opt-in speed-up (set_cholesky_screen): skip the eigendecompositions of matrices a
         # Cholesky factorisation already proves need no eigenvalue clamping.
         self.cholesky_screen = False
-        # Opt-in speed-up (set_eigh_precision): dtype and chunk of the two per-row
-        # eigendecompositions on the gauss_jacobian path.
+        # dtype and chunk of the two per-row eigendecompositions on the gauss_jacobian
+        # path (set_eigh_precision); float32 / 1024 is the standard method.
         self.eigh_dtype = torch.float32
         self.eigh_chunk = 1024
         # Sampler state (set_state_layout): "compact" holds the globals once per draw and
@@ -2960,8 +2960,8 @@ class MultiObsSampler():
         return torch.cat(parts)
 
     def _row_eigh(self, matrices):
-        dtype = getattr(self, "eigh_dtype", torch.float64)
-        values, vectors = self._batched_eigh(matrices.to(dtype), getattr(self, "eigh_chunk", 2048))
+        dtype = getattr(self, "eigh_dtype", torch.float32)
+        values, vectors = self._batched_eigh(matrices.to(dtype), getattr(self, "eigh_chunk", 1024))
         return values.to(matrices.dtype), vectors.to(matrices.dtype)
 
     def _screened_jacobian_precision(self, curvature, variance, floor):
@@ -5439,7 +5439,7 @@ class MultiObsSampler():
         by construction (``HierarchicalLayout.noise``, stream set by set_noise_stream).
         """
         if isinstance(x, HierarchicalState):
-            return self._layout.noise(getattr(self, "noise_stream", "compact"))
+            return self._layout.noise(getattr(self, "noise_stream", "legacy"))
         noise = torch.randn_like(x)
         shared = torch.randn(1, x.shape[1], x.shape[2], device=x.device)
         if self.world_size > 1:
