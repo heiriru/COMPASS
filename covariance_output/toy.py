@@ -53,7 +53,7 @@ METHODS = {
     "netcov": {"method": "dpm", "order": 2, "correction": "gauss_jacobian_FD",
                "jacobian_refresh": 1},
 }
-MAX_ROWS = {"gh": 50_000, "jac_r9": 96_000, "netcov": 50_000}
+MAX_ROWS = {"gh": 20_000, "jac_r9": 48_000, "netcov": 20_000}   # shared 11 GB cards
 
 
 def directory(arm):
