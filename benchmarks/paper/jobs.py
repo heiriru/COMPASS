@@ -144,7 +144,10 @@ def pp_jobs():
     net = finals[7]
     for variant in SAMPLER_VARIANTS:
         if variant != "final":
-            out.append(pp_infer(f"{variant}_s7", net, f"paper_{variant}", env=env_of(variant)))
+            # fp64 / dense change only floating-point order or the route: their draws are compared
+            # one to one with the final arm's, so 5 datasets suffice
+            datasets = 5 if variant in ("fp64", "dense") else 30
+            out.append(pp_infer(f"{variant}_s7", net, f"paper_{variant}", env=env_of(variant), datasets=datasets))
     out.append(pp_infer("netcov_r1_s7", net, "paper_netcov_r1", method="gauss_jacobian_FD_r1",
                         env={**PP_NETCOV}))
     out.append(pp_infer("gh_s7", net, "paper_gh", method=GH))

@@ -60,6 +60,21 @@ def status(job):
     return "pending"
 
 
+class Adopted:
+    """A job a previous queue process started and that is still running (state/<name>.running):
+    poll its pid; the exit code is unknown, so success is read from the log."""
+
+    def __init__(self, pid):
+        self.pid = pid
+
+    def poll(self):
+        try:
+            os.kill(self.pid, 0)
+            return None
+        except OSError:
+            return 0
+
+
 def launch(job, gpu, slot):
     env = dict(os.environ)
     env.update({
@@ -81,7 +96,9 @@ def launch(job, gpu, slot):
               f"cwd {job['cwd']}\ncmd {' '.join(job['cmd'])}\nenv {json.dumps(job.get('env', {}))}\n")
     log.flush()
     cmd = ["taskset", "-c", slot] + [J.PY if c == "PY" else c for c in job["cmd"]]
-    return subprocess.Popen(cmd, cwd=J.TREE / job["cwd"], env=env, stdout=log, stderr=subprocess.STDOUT)
+    process = subprocess.Popen(cmd, cwd=J.TREE / job["cwd"], env=env, stdout=log, stderr=subprocess.STDOUT)
+    (STATE / f"{job['name']}.running").write_text(f"{process.pid} {slot}\n")
+    return process
 
 
 def main():
@@ -114,12 +131,20 @@ def main():
     known = {j["name"] for j in J.jobs()}
     running = {}            # name -> (process, slot, job, started)
     retried = set()
+    by_name = {j["name"]: j for j in J.jobs()}
+    for marker in STATE.glob("*.running"):
+        name = marker.stem
+        pid, slot = marker.read_text().split()
+        if name in by_name and Adopted(int(pid)).poll() is None:
+            running[name] = (Adopted(int(pid)), slot, by_name[name], marker.stat().st_mtime)
+            say(f"adopt {name} (pid {pid}, still running)")
     while True:
         for name, (process, slot, job, started) in list(running.items()):
             code = process.poll()
             if code is None:
                 continue
             del running[name]
+            (STATE / f"{name}.running").unlink(missing_ok=True)
             minutes = (time.time() - started) / 60
             text = (LOGS / f"{name}.log").read_text(errors="ignore")[-20000:].lower()
             if code == 0 and "traceback (most recent call last)" not in text[-4000:]:
