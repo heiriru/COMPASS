@@ -43,6 +43,12 @@ PD_VARIANTS = {
     "trunc": {"COMPASS_PD_STRATEGY": "row_truncation"},
     # default rule with the COMPASS_PD_PROBE diagnostics (run with --probe; PP on fewer datasets)
     "probe": {},
+    # round 3 (pd_study/frozen/r3): gate lambda* = 0.5 (the CPU screen: 1 and 2 still collapse lean); combining the consistent rule with the conservative clamp
+    "consclamp": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric"},
+    "combfb": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric",
+               "COMPASS_PD_CONSISTENT_BELOW": "0.5", "COMPASS_PD_CONSISTENT_GUARD": "fallback"},
+    "combcl": {"COMPASS_PD_STRATEGY": "row_projection_consistent", "COMPASS_CLAMP_MODE": "metric",
+               "COMPASS_PD_CONSISTENT_BELOW": "0.5", "COMPASS_PD_CONSISTENT_GUARD": "clamp"},
 }
 for name, env in PD_VARIANTS.items():
     rn.VARIANTS[name] = dict(env=env, jac_only=True, controls=False)
@@ -102,6 +108,7 @@ def main():
                              "(pd_study/frozen/<commit>); protects the jobs from edits to src/ while they run")
     parser.add_argument("--probe", action="store_true", help="write COMPASS_PD_PROBE jsonl per job")
     parser.add_argument("--pp-datasets", default=None, help="override the 30 PP datasets")
+    parser.add_argument("--priority", nargs="*", default=[], help="job-name substrings to start first")
     args = parser.parse_args()
     for d in (rn.LOGS, rn.DIAG):
         d.mkdir(parents=True, exist_ok=True)
@@ -115,6 +122,8 @@ def main():
             job["cmd"][job["cmd"].index("--datasets") + 1] = args.pp_datasets
     if args.only:
         queue = [j for j in queue if any(s in j["name"] for s in args.only)]
+    if args.priority:
+        queue.sort(key=lambda j: not any(p in j["name"] for p in args.priority))   # stable
     if args.skip_started:
         started = {line.split()[2] for line in Path(args.skip_started).read_text().splitlines()
                    if len(line.split()) > 2 and line.split()[1] == "start"}
