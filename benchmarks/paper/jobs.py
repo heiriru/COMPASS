@@ -40,7 +40,7 @@ SAFEGUARD_VARIANTS = ("final", "noproj", "consistent", "gate", "gloeckler", "met
 
 
 def env_of(variant, base=None):
-    env = dict(FINAL)
+    env = json.loads(json.dumps(FINAL))
     env.update(base or {})
     extra = dict(SAMPLER_VARIANTS[variant])
     if "PAPER_SAMPLE_KW" in extra:
@@ -50,7 +50,8 @@ def env_of(variant, base=None):
 
 
 def job(name, cwd, cmd, env=None, need=2000, after=(), pythonpath=()):
-    return dict(name=name, cwd=cwd, cmd=["PY", "-u", *cmd], env=env or {}, need=need,
+    env = json.loads(json.dumps(env or {}))      # a private copy: jobs() serialises it in place
+    return dict(name=name, cwd=cwd, cmd=["PY", "-u", *cmd], env=env, need=need,
                 after=list(after), pythonpath=list(pythonpath))
 
 
