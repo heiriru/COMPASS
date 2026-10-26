@@ -113,8 +113,8 @@ study (same commit line, same recipe), and `paper_final_s9`.
 
 ```bash
 python benchmarks/paper/setup_tree.py         # worktree at HEAD + copies of the data/checkpoints
-nohup python benchmarks/paper/queue.py --gpu 7 > /export/data/rheinric/paper_bench/queue.out 2>&1 &
-python benchmarks/paper/queue.py --list       # status
+nohup python benchmarks/paper/jobqueue.py --gpu 7 > /export/data/rheinric/paper_bench/queue.out 2>&1 &
+python benchmarks/paper/jobqueue.py --list       # status
 python benchmarks/paper/summarize.py          # RESULTS.md
 ```
 

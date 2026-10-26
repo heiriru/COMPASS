@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Run the paper benchmark jobs (jobs.py) on ONE GPU, several at a time when memory allows.
 
-    python queue.py --gpu 7                 # run every pending job (resumable)
-    python queue.py --gpu 7 --only pp_      # jobs whose name contains a substring
-    python queue.py --list                  # job table with status
+    python jobqueue.py --gpu 7                 # run every pending job (resumable)
+    python jobqueue.py --gpu 7 --only pp_      # jobs whose name contains a substring
+    python jobqueue.py --list                  # job table with status
 
 The GPU is chosen once (it must carry no other user's process when the queue starts) and held:
 a job starts only when (a) its dependencies finished, (b) fewer than --max-jobs run, and (c) the

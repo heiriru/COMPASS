@@ -252,6 +252,22 @@ def pp_metrics(folder, datasets):
         s=float(np.mean([r["runtime_seconds"] for r in rs])), datasets=len(rs))
 
 
+def identity_row(variant, net):
+    import torch
+    diffs, secs, base_secs = [], [], []
+    for i in range(5):
+        a = pp_folder(net, "paper_final") / f"dataset-{i:04d}.pt"
+        b = pp_folder(net, f"paper_{variant}") / f"dataset-{i:04d}.pt"
+        if not (a.exists() and b.exists()):
+            return f"| {variant} | — | — | — | — |"
+        ra, rb = (torch.load(f, map_location="cpu", weights_only=False) for f in (a, b))
+        ga, gb = ra["posterior"]["globals"].double().numpy(), rb["posterior"]["globals"].double().numpy()
+        diffs.append(np.abs(ga - gb) / ga.std(0))
+        secs.append(rb["runtime_seconds"]); base_secs.append(ra["runtime_seconds"])
+    d = np.concatenate([x.ravel() for x in diffs])
+    return f"| {variant} | {d.max():.2e} | {np.median(d):.2e} | {np.mean(secs):.0f} | {np.mean(base_secs):.0f} |"
+
+
 def pp_tables():
     lines, out = [], {}
     head = "| arm | seeds | datasets | mean r | global RMSE | cover90 | z_rms | local RMSE | collapses | s/dataset |"
@@ -286,6 +302,10 @@ def pp_tables():
         lines.append(row(label, [pp_metrics(pp_folder(finals[7], tag, method), d30)]))
     for steps in (25, 100):
         lines.append(row(f"{steps} steps", [pp_metrics(pp_folder(finals[7], f"paper_t{steps}", timesteps=steps), d30)]))
+    lines += ["", "Same draws? fp64 eigh and the dense / Cholesky route against the final arm, datasets 0-4 "
+              "(max |difference| over all global draws, in units of the posterior sd; seconds per dataset):", "",
+              "| variant | max diff / sd | median diff / sd | s/dataset | final s/dataset |", "|---|---|---|---|---|"]
+    lines += [identity_row(v, finals[7]) for v in ("fp64", "dense")]
     lines += ["", "seed-8 cross-check of the two PD choices closest to the default:", "", head, sep,
               row("final (seed 8)", [pp_metrics(pp_folder(finals[8], "paper_final"), d30)])]
     for v in ("consistent", "gate"):

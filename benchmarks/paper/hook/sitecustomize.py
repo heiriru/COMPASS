@@ -1,6 +1,6 @@
 """Benchmark hook: run any experiment driver with the final method, or with one component of it
 changed, without editing the driver. Python imports this module at start-up when its folder is on
-PYTHONPATH (benchmarks/paper/queue.py puts it there for every job). With none of the variables
+PYTHONPATH (benchmarks/paper/jobqueue.py puts it there for every job). With none of the variables
 below set it does nothing.
 
 Sampling (``MultiObsSampler.sample``, so every subclass and every driver):
