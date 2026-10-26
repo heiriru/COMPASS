@@ -98,6 +98,10 @@ METHODS = {
                                  "jacobian_refresh": 9, "max_rows": FD_MAX_ROWS},
     "langevin_fnpe": {"method": "langevin", "correction": "fnpe",
                       "corrector_steps": 10, "snr": 0.2},
+    # benchmarks/paper: the library's standard method as it ships (FD Jacobian, refresh 9,
+    # float32 eigh), under its own name so the archived r9 results keep theirs
+    "paper_final": {"method": "dpm", "order": 2, "correction": "gauss_jacobian_FD",
+                    "jacobian_refresh": 9, "max_rows": FD_MAX_ROWS},
     "uncorrected": {"method": "dpm", "order": 2, "correction": "uncorrected"},
 }
 

@@ -37,7 +37,7 @@ for _var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
 print(f"CPU cap: {len(_cpus)} logical CPUs {_cpus}", flush=True)
 
 SRC = os.environ.get("COMPASS_SRC", str(Path(__file__).resolve().parents[1] / "src"))
-GM = Path("/export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling")
+GM = Path(os.environ.get("GM_DIR", "/export/home/rheinric/COMPASS/Gaussian_mixtures_compositional_score_modelling"))
 OUT = Path(os.environ.get("ROADMAP_OUT", "/export/data/rheinric/roadmap2/gm"))
 sys.path[:0] = [SRC, str(GM)]
 
@@ -65,6 +65,8 @@ ARMS = {
     # covariance output on the network (compass.covariance_output), second-order DSM
     "cov": {"covariance": "joint"},          # readout and trunk both trained by the NLL
     "cov_det": {"covariance": "detached"},   # readout only: the score training is unchanged
+    # benchmarks/paper's final recipe on GM: the covariance output and the training floor of 2.10
+    "cov_lo": {"covariance": "joint", "time_eps": 1e-5},
 }
 COV_RANK = 4
 if os.environ.get("ROADMAP_SMOKE"):
@@ -209,7 +211,8 @@ def register_netcov_methods():
         head = NetworkCovarianceHead(network, M.LATENT_INDICES, M.OBSERVED_INDICES)
         saved = MultiObsSampler._covariance_head, arguments.jacobian_refresh
         MultiObsSampler._covariance_head = lambda self: head
-        arguments.jacobian_refresh = 1        # one cheap forward pass per call
+        # one cheap forward pass per call; GM_NETCOV_REFRESH=9 evaluates it on the default schedule
+        arguments.jacobian_refresh = int(os.environ.get("GM_NETCOV_REFRESH", "1"))
         try:
             return original(network, x, method, arguments, device, mixture)
         finally:

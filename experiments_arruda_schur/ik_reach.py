@@ -82,8 +82,10 @@ def tag(variant, menu):
     return variant if menu == "six_weighted" else f"{variant}_{menu}"
 
 
-def model_dir(variant, menu="six_weighted"):
-    return ROOT / "models" / f"tokenized_{ik.CONFIG}_{tag(variant, menu)}_hierarchical"
+def model_dir(variant, menu="six_weighted", suffix=""):
+    """``suffix``: a separately trained network of the same recipe (e.g. benchmarks/paper's final
+    recipe with the covariance output, ``_paper``)."""
+    return ROOT / "models" / f"tokenized_{ik.CONFIG}_{tag(variant, menu)}_hierarchical{suffix}"
 
 
 # -- data and exact reference --------------------------------------------------------------
@@ -146,7 +148,7 @@ def train(arguments):
     from compass import hierarchical_roles
     from compass.experimental.latent_attention import enable_latent_attention, save_latent_attention
 
-    directory = model_dir(arguments.variant, arguments.menu)
+    directory = model_dir(arguments.variant, arguments.menu, arguments.model_suffix)
     directory.mkdir(parents=True, exist_ok=True)
     original = trainer.build
 
@@ -190,7 +192,8 @@ def run(arguments):
     mean = use_reach_model(arguments.variant)
     import train_model as trainer
     load = common.load_with_latent_attention(trainer.load_to)
-    model = load(model_dir(arguments.variant, arguments.menu) / "Model_checkpoint.pt", "cuda")
+    weights = "Model_checkpoint.pt" if arguments.weights == "best" else "Model.pt"
+    model = load(model_dir(arguments.variant, arguments.menu, arguments.model_suffix) / weights, "cuda")
     for parameter in model.model.parameters():
         parameter.requires_grad_(False)
     model.model.eval()
@@ -370,6 +373,9 @@ def main():
     parser.add_argument("--draws", type=int, default=2000)
     parser.add_argument("--suffix", default="", help="appended to the runs/ folder name (e.g. _noproj)")
     parser.add_argument("--train-samples", type=int, default=200_000)
+    parser.add_argument("--model-suffix", default="", help="network folder suffix (a separately trained net)")
+    parser.add_argument("--weights", choices=("best", "final"), default="best",
+                        help="best-validation checkpoint or the final-epoch weights")
     arguments = parser.parse_args()
     {"data": data, "train": train, "run": run, "grade": grade}[arguments.action](arguments)
 

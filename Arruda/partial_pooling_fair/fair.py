@@ -58,7 +58,9 @@ OUT = Path("/export/data/rheinric/compass_pp_fair")
 # FAIR_SMOKE=1: 2-epoch networks and posteriors in separate folders, to test the pipeline end to end
 SMOKE = os.environ.get("FAIR_SMOKE") == "1"
 MODELS = OUT / ("models_smoke" if SMOKE else "models")
-POSTERIORS = OUT / ("posteriors_smoke" if SMOKE else "posteriors")
+# FAIR_POSTERIORS: write (and score) posteriors in another folder (benchmarks/paper)
+POSTERIORS = Path(os.environ["FAIR_POSTERIORS"]) if os.environ.get("FAIR_POSTERIORS") else \
+    OUT / ("posteriors_smoke" if SMOKE else "posteriors")
 N_TRAIN = S.N_TRAINING_BATCHES * S.BATCH_SIZE      # 32,768
 WIDE = 1.5
 SEEDS = {"global": 101, "global_wide": 202, "local": 303, "test": 404,
@@ -88,13 +90,26 @@ SETTINGS = {"ours-batched": OURS, "ours-batched-r9": OURS_R9, "ours-fast": OURS_
 # draws only the free coordinates' noise (same distribution, different random stream).
 # eigh in float32 / 1,024-chunks has been the library default since 2026-10-23; the other arms pin
 # the earlier float64 / 2,048 so their archived numbers keep their meaning.
-SAMPLER_SWITCHES = {"ours-fast": dict(eigh_dtype=torch.float32, eigh_chunk=1024),
+# "paper" / "paper-<label>": the library's standard method (refresh 9, float32 eigh / 1,024) for
+# benchmarks/paper; <label> names the arm, and an ablation changes one component through the
+# benchmark hook's PAPER_* variables. FAIR_SEED_OFFSET shifts the inference seed (Monte Carlo
+# replicates of the same arm).
+SETTINGS["paper"] = OURS_R9
+SEED_OFFSET = int(os.environ.get("FAIR_SEED_OFFSET", "0"))
+
+
+def base_rule(rule):
+    return "paper" if rule.split("-")[0] == "paper" else rule
+
+
+SAMPLER_SWITCHES = {"paper": dict(eigh_dtype=torch.float32, eigh_chunk=1024),
+                    "ours-fast": dict(eigh_dtype=torch.float32, eigh_chunk=1024),
                     "ours-v2": dict(eigh_dtype=torch.float32, eigh_chunk=1024),
                     "ours-v2-compactnoise": dict(eigh_dtype=torch.float32, eigh_chunk=1024, noise="compact")}
 
 
 def configure(sampler, rule):
-    switches = SAMPLER_SWITCHES.get(rule, dict(eigh_dtype=torch.float64, eigh_chunk=2048))
+    switches = SAMPLER_SWITCHES.get(base_rule(rule), dict(eigh_dtype=torch.float64, eigh_chunk=2048))
     if switches:
         sampler.set_eigh_precision(switches["eigh_dtype"], switches["eigh_chunk"])
         if "noise" in switches:
@@ -293,14 +308,14 @@ def infer_bf(net, subjects=S.N_SUBJECTS):
     test = load("test")
     composed_wf = composed(net)
     prior = prior_score(1.0) if NETWORKS[net] == 1.0 else corrected_prior_score(subjects)
-    keras.utils.set_random_seed(SEEDS["test"])
+    keras.utils.set_random_seed(SEEDS["test"] + SEED_OFFSET)
     t = time.time()
     post = composed_wf.compositional_sample(
         num_samples=S.N_SAMPLES, conditions={"sim_data": test["sim_data"][:, :subjects]},
         compute_prior_score=prior, mini_batch_size=3, method=S.METHOD, steps=S.STEPS,
         max_steps=S.MAX_STEP, batch_size=S.BATCH_SIZE, compositional_bridge_d0=0.1)
     seconds = time.time() - t
-    save_arm("bf", net, subjects, {k: np.asarray(post[k]).reshape(S.N_TEST, S.N_SAMPLES) for k in GLOBALS},
+    save_arm(os.environ.get("FAIR_BF_NAME", "bf"), net, subjects, {k: np.asarray(post[k]).reshape(S.N_TEST, S.N_SAMPLES) for k in GLOBALS},
              seconds, test)
 
 
@@ -464,13 +479,13 @@ def infer_joint_batched(rule, net, subjects=S.N_SUBJECTS, chunk=int(os.environ.g
         """One sampler call for datasets ``ids``; on CUDA OOM split them in half (memory-aware
         chunking: only the datasets that need it run smaller, not the whole benchmark)."""
         conds = summaries_of(workflow, test["sim_data"][ids.start:ids.stop, :subjects])
-        torch.manual_seed(SEEDS["test"] + ids.start)
+        torch.manual_seed(SEEDS["test"] + SEED_OFFSET + ids.start)
         if DEVICE == "cuda":
             torch.cuda.reset_peak_memory_stats()
         z = None
         try:
             with torch.no_grad():
-                z = sample_batched(sampler, conds, mask, S.N_SAMPLES, common | SETTINGS[rule])
+                z = sample_batched(sampler, conds, mask, S.N_SAMPLES, common | SETTINGS[base_rule(rule)])
         except torch.OutOfMemoryError:
             pass
         if z is None:
@@ -696,7 +711,7 @@ def main():
     if action == "infer":
         rule, net = rest[:2]
         subjects = int(rest[2]) if len(rest) > 2 else S.N_SUBJECTS
-        if rule in SETTINGS:
+        if base_rule(rule) in SETTINGS:
             return infer_joint_batched(rule, net, subjects)
         if rule == "ours" and net in JOINT:
             return infer_joint(net, subjects)

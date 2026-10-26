@@ -52,8 +52,11 @@ METHODS = {
                "jacobian_refresh": 9},
     "netcov": {"method": "dpm", "order": 2, "correction": "gauss_jacobian_FD",
                "jacobian_refresh": 1},
+    # the network output on the library's default schedule (refresh 9)
+    "netcov_r9": {"method": "dpm", "order": 2, "correction": "gauss_jacobian_FD",
+                  "jacobian_refresh": 9},
 }
-MAX_ROWS = {"gh": 20_000, "jac_r9": 48_000, "netcov": 20_000}   # shared 11 GB cards
+MAX_ROWS = {"gh": 20_000, "jac_r9": 48_000, "netcov": 20_000, "netcov_r9": 20_000}   # shared 11 GB cards
 
 
 def directory(arm):
@@ -110,7 +113,7 @@ def run(arm, observations, datasets, num_samples, methods):
                 torch.manual_seed(index)
                 sampler = MultiObsSampler(model)
                 head = None
-                if name == "netcov":
+                if name.startswith("netcov"):
                     head = NetworkCovarianceHead(model, toy.HIERARCHY, list(range(toy.DIM, toy.NODES)))
                     sampler.set_covariance_head(head)
                 started = time.perf_counter()
