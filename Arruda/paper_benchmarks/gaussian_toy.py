@@ -69,7 +69,7 @@ HIERARCHY = list(range(DIM))
 EPS = 1e-5
 SDE_KWARGS = {"sde_type": "vesde", "sigma": 8.0}
 NETWORK = {"hidden_size": 64, "depth": 4, "num_heads": 4, "mlp_ratio": 2}
-TRAIN_SAMPLES = 200_000
+TRAIN_SAMPLES = int(os.environ.get("TOY_TRAIN", 200_000))
 TIMESTEPS = 100
 # Network rows (observations x draws) per sampler call; draws are split into
 # independent chunks above this. The Jacobian rule runs D forward-mode passes.

@@ -3023,7 +3023,8 @@ class MultiObsSampler():
                                        state[..., head.observed_nodes].reshape(rows * samples, -1),
                                        lam)
         cap = 1.0 / (float(self.jacobian_curvature_floor) * variance)
-        values, vectors = torch.linalg.eigh(precision)
+        # chunked: the CUDA batched eigh workspace grows with the batch (8 GB at 16k rows)
+        values, vectors = self._row_eigh(precision)
         precision = (vectors * values.clamp(max=cap).unsqueeze(-2)) @ vectors.mT
         self._jacobian_evaluations += 1
         return precision.reshape(rows, samples, len(order), len(order))

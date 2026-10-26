@@ -56,7 +56,7 @@ class Trainer():
               global_target_fn=None, global_target_indices=None, tsm_lambda_c=1.0,
               tsm_variance_fn=None, time_loss_weight=None, sigma_data=1.0,
               validation_noise_seed=20250719, restore="final", time_eps=1e-3,
-              fisher_consistency=None):
+              fisher_consistency=None, covariance_objective=None):
 
         """
         Training function for the score prediction task
@@ -154,6 +154,8 @@ class Trainer():
         self.verbose = verbose
         self.eps = float(time_eps)  # smallest training time (endpoint of the diffusion)
         self.fisher_consistency = fisher_consistency
+        # opt-in second-order DSM for a covariance output (compass.covariance_output)
+        self.covariance_objective = covariance_objective
         if fisher_consistency is not None:
             fisher_consistency.bind(self, train_data)
         self.time_sampling = time_sampling
@@ -409,6 +411,10 @@ class Trainer():
             # comparable across arms. The loss is a batch sum (see loss_fn), so the
             # per-anchor penalty is scaled to the batch.
             loss = loss + data.shape[0] * penalty(self, data.device)
+        objective = getattr(self, "covariance_objective", None)
+        if objective is not None and torch.is_grad_enabled():
+            # training passes only, like the Fisher penalty: validation stays plain DSM
+            loss = loss + objective(self, data, x_t, timesteps, score, condition_mask)
 
         return loss
 
