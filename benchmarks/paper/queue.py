@@ -30,7 +30,7 @@ ME = pwd.getpwuid(os.getuid()).pw_name
 STATE, LOGS = J.OUT / "state", J.OUT / "logs"
 SLOTS = ["39-41", "42-44", "45-47", "66-68", "69-71"]
 MARGIN_MB = 1200
-SETTLE_S = 90
+SETTLE_S = 45
 
 
 def say(message):
