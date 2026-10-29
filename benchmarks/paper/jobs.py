@@ -189,8 +189,9 @@ def pp_jobs():
     # with BayesFlow's metrics next to its compositional_sample; then a timing run with the GPU alone
     fairtest = {"PP_TEST_FILE": str(OUT / "fairtest" / "test.pt")}
     for seed, variant in finals.items():
+        # measured peak 3.2 GB per job (the 4.5 GB default is the training-sized guess)
         out.append(pp_infer(f"fairtest_s{seed}", variant, "paper_fairtest", env={**FINAL, **fairtest},
-                            datasets=100, after=["pp_train_final_s9"] if seed == 9 else []))
+                            datasets=100, after=["pp_train_final_s9"] if seed == 9 else [], need=3500))
     out.append(pp_infer("fairtest_timing_s7", finals[7], "paper_fairtest_timing", env={**FINAL, **fairtest},
                         datasets=5, need=10**6, after=[f"pp_fairtest_s{s}" for s in finals]))
     # seed-8 sampler cross-check of the two closest PD choices
