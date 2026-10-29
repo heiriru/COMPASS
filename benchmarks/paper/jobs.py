@@ -194,6 +194,17 @@ def pp_jobs():
                             datasets=100, after=["pp_train_final_s9"] if seed == 9 else [], need=3500))
     out.append(pp_infer("fairtest_timing_s7", finals[7], "paper_fairtest_timing", env={**FINAL, **fairtest},
                         datasets=5, need=10**6, after=[f"pp_fairtest_s{s}" for s in finals]))
+    # the final recipe trained like BayesFlow: exactly 500 epochs, no early stopping (pp.py's patience
+    # is 20; seeds 7 / 8 ran all 500 epochs anyway, seed 9 stopped at 440), final weights; evaluated
+    # on our test set and on BayesFlow's
+    for seed in finals:
+        train = pp_train("e500", seed, env={"PAPER_TRAIN_KW": {"early_stopping_patience": 100000}})
+        out.append(train)
+        variant = f"paper_e500_s{seed}"
+        out.append(pp_infer(f"e500_s{seed}_d100", variant, "paper_final", env=FINAL, datasets=100,
+                            after=[train["name"]], need=3500))
+        out.append(pp_infer(f"fairtest_e500_s{seed}", variant, "paper_fairtest", env={**FINAL, **fairtest},
+                            datasets=100, after=[train["name"]], need=3500))
     # seed-8 sampler cross-check of the two closest PD choices
     for variant in ("consistent", "gate"):
         out.append(pp_infer(f"{variant}_s8", finals[8], f"paper_{variant}", env=env_of(variant)))
