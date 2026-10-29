@@ -354,6 +354,24 @@ def fair_table():
     return "```\n" + text + "\n```"
 
 
+def fairtest_table():
+    import fairtest
+    text = fairtest.score()
+    keep = [l for l in text.splitlines() if l.startswith(("arm", "compass", "bf_global_wide_n100", "bf_global_n100"))
+            or "paper-final" in l and "wide_n100" in l]
+    return "```\n" + "\n".join(keep) + "\n```"
+
+
+def fairtest_seconds():
+    import torch
+    folder = (ART / "pp" / "hierarchical_Rg_wide1.5_covout_cov_s7" / "recovery" / "paper_fairtest_timing"
+              / "gauss_jacobian_FD_r9-s100-t50")
+    files = sorted(folder.glob("dataset-*.pt"))
+    if not files:
+        return float("nan")
+    return float(np.mean([torch.load(f, map_location="cpu", weights_only=False)["runtime_seconds"] for f in files]))
+
+
 # ---------------------------------------------------------------------------- Gaussian toy, AR(1)
 def gausstoy_table():
     path = J.OUT / "toy" / "cov" / "results.jsonl"
@@ -394,6 +412,11 @@ def main():
         "## 1. Partial pooling on BayesFlow's own network (fair benchmark)", "",
         "`bf_*` = upstream's `compositional_sample` on its global net (+ its local net); `paper-*` = COMPASS on "
         "the joint net with the same architecture and simulations. 100 test datasets.", "", fair_table(), "",
+        "### 1b. Head-to-head on the same 100 test datasets: BayesFlow vs the full COMPASS method", "",
+        "`compass-*` = the COMPASS network and sampler (3 training seeds) on upstream's test datasets "
+        "(`fairtest.py`), scored by the same `fair.py score`. `min` is sampling minutes for all 100 datasets "
+        "with the GPU shared by 3 jobs; with the GPU alone the COMPASS network takes "
+        f"{fairtest_seconds():.0f} s per dataset (pp_fairtest_timing_s7).", "", fairtest_table(), "",
         "## 2. Partial pooling, COMPASS network", "", pp_text, "",
         "## 3. Exact-reference problems (toys, IK, latent-attention GM)", "", exact_text, "",
         "## 4. GM with the covariance-output networks (exact MC; 2 seeds x 2 replicates)", "", gm_text, "",
