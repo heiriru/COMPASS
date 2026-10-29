@@ -185,6 +185,14 @@ def pp_jobs():
     # runs on the nowide net, paired with the final sampler on that same net (pp_nowide_s7)
     out.append(pp_infer("fnpse_s7", "paper_nowide_s7", "paper_fnpse", method="langevin_fnpse",
                         after=["pp_train_nowide_s7"], wide=1.0))
+    # the final method on upstream BayesFlow's own 100 test datasets (fairtest.py convert), scored
+    # with BayesFlow's metrics next to its compositional_sample; then a timing run with the GPU alone
+    fairtest = {"PP_TEST_FILE": str(OUT / "fairtest" / "test.pt")}
+    for seed, variant in finals.items():
+        out.append(pp_infer(f"fairtest_s{seed}", variant, "paper_fairtest", env={**FINAL, **fairtest},
+                            datasets=100, after=["pp_train_final_s9"] if seed == 9 else []))
+    out.append(pp_infer("fairtest_timing_s7", finals[7], "paper_fairtest_timing", env={**FINAL, **fairtest},
+                        datasets=5, need=10**6, after=[f"pp_fairtest_s{s}" for s in finals]))
     # seed-8 sampler cross-check of the two closest PD choices
     for variant in ("consistent", "gate"):
         out.append(pp_infer(f"{variant}_s8", finals[8], f"paper_{variant}", env=env_of(variant)))

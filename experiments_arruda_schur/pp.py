@@ -339,7 +339,10 @@ def infer(arguments):
     encoder_path = encoder_path_of(arguments, paths)
     encoder, item_norm, z_norm = load_encoder(encoder_path, "cuda")
     summary_dim = int(encoder.summary_dim)
-    test = torch.load(test_data_path(config, paths), map_location="cpu", weights_only=False)["payload"]["sde"]
+    # PP_TEST_FILE: another test set in the same payload format (benchmarks/paper/fairtest.py
+    # converts upstream BayesFlow's 100 test datasets)
+    test_file = os.environ.get("PP_TEST_FILE") or test_data_path(config, paths)
+    test = torch.load(test_file, map_location="cpu", weights_only=False)["payload"]["sde"]
     theta_norm = load_normalizers(config, paths)["sde_joint_theta"]
     identity_z = Normalizer(torch.zeros(summary_dim), torch.ones(summary_dim),
                             torch.zeros(summary_dim, dtype=torch.bool), "encoder_train")
