@@ -152,7 +152,6 @@ def pp_jobs():
                         env={**PP_NETCOV}))
     out.append(pp_infer("gh_s7", net, "paper_gh", method=GH))
     out.append(pp_infer("arruda_s7", net, "paper_arruda", method=AD))
-    out.append(pp_infer("fnpse_s7", net, "paper_fnpse", method="langevin_fnpse"))
     out.append(pp_infer("churn0_s7", net, "paper_churn0", env={**FINAL, "COMPASS_SAMPLER_OVERRIDE": {"churn_eta": 0.0}}))
     for steps in (25, 100):
         out.append(pp_infer(f"t{steps}_s7", net, f"paper_t{steps}", env=FINAL, timesteps=steps))
@@ -182,6 +181,10 @@ def pp_jobs():
                                 after=[train["name"]], **arch))
         if arm == "nocov":
             continue
+    # F-NPSE has no training-prior correction in the library (set_training_prior refuses it), so it
+    # runs on the nowide net, paired with the final sampler on that same net (pp_nowide_s7)
+    out.append(pp_infer("fnpse_s7", "paper_nowide_s7", "paper_fnpse", method="langevin_fnpse",
+                        after=["pp_train_nowide_s7"], wide=1.0))
     # seed-8 sampler cross-check of the two closest PD choices
     for variant in ("consistent", "gate"):
         out.append(pp_infer(f"{variant}_s8", finals[8], f"paper_{variant}", env=env_of(variant)))

@@ -296,10 +296,14 @@ def pp_tables():
                                ("netcov r1", "paper_netcov_r1", "gauss_jacobian_FD_r1"),
                                ("gauss_hierarchical (pilot)", "paper_gh", GH),
                                ("arruda_direct (plain sum)", "paper_arruda", AD),
-                               ("F-NPSE (Langevin)", "paper_fnpse", "langevin_fnpse"),
                                ("no churn", "paper_churn0", "gauss_jacobian_FD_r9"),
                                ("best-validation weights", "paper_bestval", "gauss_jacobian_FD_r9")):
         lines.append(row(label, [pp_metrics(pp_folder(finals[7], tag, method), d30)]))
+    # F-NPSE cannot divide out the wide training prior: both arms on the nowide net
+    nowide = lambda tag, method="gauss_jacobian_FD_r9": [pp_metrics(pp_folder(  # noqa: E731
+        "paper_nowide_s7", tag, method, prefix="hierarchical_Rg"), d30)]
+    lines.append(row("nowide net: JAC-FD r9", nowide("paper_final")))
+    lines.append(row("nowide net: F-NPSE (Langevin)", nowide("paper_fnpse", "langevin_fnpse")))
     for steps in (25, 100):
         lines.append(row(f"{steps} steps", [pp_metrics(pp_folder(finals[7], f"paper_t{steps}", timesteps=steps), d30)]))
     lines += ["", "Same draws? fp64 eigh and the dense / Cholesky route against the final arm, datasets 0-4 "
