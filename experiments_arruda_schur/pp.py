@@ -303,7 +303,8 @@ def infer(arguments):
         import precondition
         assert precondition.load(model, checkpoint.parent, None) is not None, "precondition.json missing"
     model.model.eval()
-    settings, correction, sampler_kwargs = PLANS[arguments.method]
+    # Methods outside PLANS (langevin_fnpse) keep the upstream inference_plan below.
+    settings, correction, sampler_kwargs = PLANS.get(arguments.method, ({}, None, {}))
     model.multi_obs_sampler = MarginalSchurSampler(model, **settings)
     if arguments.train_prior_scale != 1.0 or arguments.declare_training_prior:
         # The net was trained under a different (wider) prior on the globals: each subject's

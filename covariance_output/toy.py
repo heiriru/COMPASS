@@ -40,7 +40,6 @@ from compass import ConditionalMenu, MultiObsSampler  # noqa: E402
 from compass.covariance_output import (  # noqa: E402
     CovarianceObjective, NetworkCovarianceHead, enable_covariance_output,
 )
-assert "COMPASS-covout" in compass.__file__, compass.__file__
 
 OUT = Path(os.environ.get("COVOUT_TOY", "/export/data/rheinric/covout/toy"))
 RANK = 10
