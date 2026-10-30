@@ -7,7 +7,7 @@ same on both sides: same hierarchical prior, 30 trials, Euler dt 1e-3, 10 s cap,
 7 globals. Only the observation encoding differs: COMPASS uses (choice, log rt, censored).
 
     python fairtest.py convert            # OUT/fairtest/test.pt from fair's test.npz
-    python fairtest.py export <variant>   # pp.py outputs -> OUT/fairtest/posteriors/compass-<variant>.npz
+    python fairtest.py export <variant> [tag]   # pp.py outputs -> OUT/fairtest/posteriors/compass-<variant>[-<tag>].npz
     python fairtest.py score              # fair.py score over BayesFlow's arms + the exported ones
 """
 import os
@@ -66,7 +66,8 @@ def export(variant, tag="paper_fairtest", method="gauss_jacobian_FD_r9", prefix=
     out["l_alpha"] = np.exp(loc[..., 1]).transpose(0, 2, 1)
     out["l_t0"] = np.exp(loc[..., 2]).transpose(0, 2, 1)
     POST.mkdir(parents=True, exist_ok=True)
-    path = POST / f"compass-{variant}_n100.npz"
+    suffix = "" if tag == "paper_fairtest" else "-" + tag.replace("paper_fairtest_", "")
+    path = POST / f"compass-{variant}{suffix}_n100.npz"
     np.savez(path, seconds=float(sum(r["runtime_seconds"] for r in rs)), **out)
     print(f"wrote {path}")
 
