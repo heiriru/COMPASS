@@ -148,6 +148,34 @@ case as worse when W1 is more than 15% above the final arm's.
 | no covariance output | 0.949 | 0.87 / 1.02 | the joint covariance head costs nothing measurable in recovery; it is what makes netcov possible |
 | **plain ε-loss (no EDM)** | **0.957** (0.956–0.958) | 0.89 / 0.95 | better than the final recipe on both seeds; see §4 |
 
+### Early stopping vs a fixed 500 epochs, as BayesFlow trains
+
+`pp.py` stops training after 20 epochs without validation improvement; BayesFlow trains a fixed
+500 epochs. The final recipe was retrained with early stopping off (`paper_e500_s7/8/9`, exactly
+500 epochs, final weights; everything else identical) and evaluated on both test sets, 100
+datasets each.
+
+| seed | epochs (early stopping → fixed) | our test set: r / RMSE / cov90 | BayesFlow's test set: r / ECE / cov90 / local ECE |
+|---|---|---|---|
+| 7 | 500 → 500 | 0.936 / 0.366 / 0.79 → **identical** | 0.940 / 0.086 / 0.80 / 0.023 → **identical** |
+| 8 | 500 → 500 | 0.947 / 0.346 / 0.82 → **identical** | 0.938 / 0.072 / 0.83 / 0.018 → **identical** |
+| 9 | 440 → 500 | 0.936 / 0.364 / 0.84 → 0.939 / 0.357 / 0.80 | 0.933 / 0.059 / 0.85 / 0.016 → 0.935 / 0.078 / 0.83 / 0.034 |
+
+- **Training is deterministic.** Seeds 7 and 8 never triggered early stopping under seeded
+  validation, and their retrainings reproduce the original networks exactly, to every printed
+  digit.
+- **Seed 9, the only real change**, trained 60 more epochs. Its validation loss never improved after
+  epoch 419, in the fixed run as well:
+  - recovery improves a little (+0.002 to +0.003 r);
+  - calibration gets a little worse on both test sets (cov90 −0.02 to −0.04; ECE 0.059 → 0.078;
+    local ECE 0.016 → 0.034).
+
+  Both changes are inside the seed-to-seed spread.
+- **Verdict:** training a fixed 500 epochs, as BayesFlow does, does not change the network's
+  performance. With seeded validation, early stopping fires rarely (1 of 3 seeds) and late
+  (epoch 440). The comparison against BayesFlow is therefore not confounded by the stopping
+  rule.
+
 ## 4. Weaknesses a reviewer will find, stated
 
 1. **EDM loss weighting does not help posterior recovery on PP; it hurts slightly.**
