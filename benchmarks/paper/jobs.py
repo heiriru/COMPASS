@@ -212,6 +212,24 @@ def pp_jobs():
         out.append(pp_infer(f"fairtest_netcov_s{seed}", finals[seed], "paper_fairtest_netcov",
                             env={**FINAL, **PP_NETCOV, **fairtest}, datasets=100,
                             after=["pp_train_final_s9"] if seed == 9 else [], need=3500))
+    # the best method without the Rg residual on the globals (EDM kept), 3 seeds, Jacobian and
+    # covariance head, on both test sets; paper_norg_s7 comes from the training ablations
+    norg = {7: "pp_train_norg_s7"}
+    for seed in (8, 9):
+        train = pp_train("norg", seed, precondition="")
+        out.append(train)
+        norg[seed] = train["name"]
+    for seed in (7, 8, 9):
+        variant, after = f"paper_norg_s{seed}", [norg[seed]]
+        out.append(pp_infer(f"norg_s{seed}_d100", variant, "paper_final", env=FINAL, datasets=100,
+                            after=after, need=3500, precondition=""))
+        out.append(pp_infer(f"norg_netcov_s{seed}_d100", variant, "paper_netcov_r9", env={**FINAL, **PP_NETCOV},
+                            datasets=100, after=after, need=3500, precondition=""))
+        out.append(pp_infer(f"fairtest_norg_s{seed}", variant, "paper_fairtest", env={**FINAL, **fairtest},
+                            datasets=100, after=after, need=3500, precondition=""))
+        out.append(pp_infer(f"fairtest_norg_netcov_s{seed}", variant, "paper_fairtest_netcov",
+                            env={**FINAL, **PP_NETCOV, **fairtest}, datasets=100, after=after, need=3500,
+                            precondition=""))
     # seed-8 sampler cross-check of the two closest PD choices
     for variant in ("consistent", "gate"):
         out.append(pp_infer(f"{variant}_s8", finals[8], f"paper_{variant}", env=env_of(variant)))

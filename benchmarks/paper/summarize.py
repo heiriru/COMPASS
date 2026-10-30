@@ -288,6 +288,10 @@ def pp_tables():
     lines += ["### Final method, 3 training seeds x 100 datasets", "", head, sep,
               row("final: JAC-FD r9", [pp_metrics(pp_folder(v, "paper_final"), d100) for v in finals.values()]),
               row("final net, netcov r9", [pp_metrics(pp_folder(v, "paper_netcov_r9"), d100) for v in finals.values()]),
+              row("without Rg: JAC-FD r9",
+                  [pp_metrics(pp_folder(f"paper_norg_s{s}", "paper_final", prefix="hierarchical_wide1.5"), d100) for s in (7, 8, 9)]),
+              row("without Rg: netcov r9",
+                  [pp_metrics(pp_folder(f"paper_norg_s{s}", "paper_netcov_r9", prefix="hierarchical_wide1.5"), d100) for s in (7, 8, 9)]),
               row("final recipe, fixed 500 epochs (no early stopping)",
                   [pp_metrics(pp_folder(f"paper_e500_s{s}", "paper_final"), d100) for s in (7, 8, 9)])]
     lines += ["", "### Sampler ablations and baselines (seed-7 final net, datasets 0-29, paired)", "", head, sep,
