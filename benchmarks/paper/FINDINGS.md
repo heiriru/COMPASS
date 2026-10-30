@@ -84,6 +84,33 @@ NRMSE moves by about ±0.005 between scorings, because BayesFlow's metric resamp
 
   Together they could plausibly bring 47 s to a few seconds per dataset.
 
+### The best COMPASS combination: final recipe sampled with the covariance head (netcov)
+
+The final recipe keeps EDM, because EDM is the likelihood-accuracy choice. It is sampled with the
+network covariance (netcov r9) instead of the FD Jacobian. Everything else is identical: same
+networks, 3 training seeds, 100 datasets per test set.
+
+| test set | sampler | globals r | ECE | cov90 | z_rms | locals r | time (shared GPU) |
+|---|---|---|---|---|---|---|---|
+| BayesFlow's | FD Jacobian | 0.937 (0.933–0.940) | 0.072 (0.059–0.086) | 0.83 | — | 0.943 | 245 min / 100 datasets |
+| BayesFlow's | **netcov** | 0.937 (0.932–0.942) | **0.062** (0.043–0.077) | **0.84** | — | 0.943 | **145 min** |
+| ours | FD Jacobian | 0.940 (0.936–0.947) | — | 0.82 | 1.21 | — | 127 s / dataset |
+| ours | **netcov** | 0.941 (0.936–0.948) | — | **0.84** | **1.14** | — | 110 s / dataset |
+
+- **Recovery:** identical with both samplers.
+- **Calibration:** netcov is better on every seed of BayesFlow's test set:
+  - ECE 0.086 → 0.077, 0.072 → 0.066 and 0.059 → 0.043;
+  - z_rms on our set 1.21 → 1.14.
+- **Speed:** netcov is 1.7× faster on BayesFlow's test set. It needs no extra finite-difference
+  forward passes.
+- **Against BayesFlow (ECE 0.106, cov90 0.79):** this combination is the best COMPASS arm,
+  r 0.937 vs 0.926 and ECE 0.062 vs 0.106.
+- **Against our rule on BayesFlow's own network** (ECE 0.039, cov90 0.88): this combination is
+  still less calibrated. The network's per-subject bias, summed over 100 subjects (§4.2), is
+  reduced but not removed.
+- **FD stays the library default** because netcov is worse on IK reach (§2, last row). For
+  partial pooling, netcov is the recommended sampler.
+
 ### Partial pooling with the COMPASS network (`RESULTS.md` §2): 3 training seeds × 100 datasets
 
 | arm | mean r | collapses | s/dataset |
