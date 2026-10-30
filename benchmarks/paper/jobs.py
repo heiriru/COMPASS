@@ -205,22 +205,13 @@ def pp_jobs():
                             after=[train["name"]], need=3500))
         out.append(pp_infer(f"fairtest_e500_s{seed}", variant, "paper_fairtest", env={**FINAL, **fairtest},
                             datasets=100, after=[train["name"]], need=3500))
-    # the best combination the ablations point to: no EDM loss weight + the network covariance
-    # (netcov r9) for sampling, everything else final. A 2x2 on BayesFlow's test set (EDM x FD/netcov,
-    # 3 seeds) plus the best arm on our test set; noedm seed 9 is trained here
-    out.append(pp_train("noedm", 9, env={"PAPER_TRAIN_KW": {"time_loss_weight": None}}))
-    noedm = {s: f"paper_noedm_s{s}" for s in (7, 8, 9)}
+    # the best COMPASS combination: the final recipe (EDM stays on: it is the likelihood-accuracy
+    # choice) sampled with the network covariance (netcov r9) instead of the FD Jacobian, on
+    # BayesFlow's test set; the same arm on our test set is pp_netcov_s*_d100
     for seed in (7, 8, 9):
-        after = ["pp_train_noedm_s9"] if seed == 9 else []
-        after_final = ["pp_train_final_s9"] if seed == 9 else []
         out.append(pp_infer(f"fairtest_netcov_s{seed}", finals[seed], "paper_fairtest_netcov",
-                            env={**FINAL, **PP_NETCOV, **fairtest}, datasets=100, after=after_final, need=3500))
-        out.append(pp_infer(f"fairtest_noedm_s{seed}", noedm[seed], "paper_fairtest", env={**FINAL, **fairtest},
-                            datasets=100, after=after, need=3500))
-        out.append(pp_infer(f"fairtest_best_s{seed}", noedm[seed], "paper_fairtest_netcov",
-                            env={**FINAL, **PP_NETCOV, **fairtest}, datasets=100, after=after, need=3500))
-        out.append(pp_infer(f"best_s{seed}_d100", noedm[seed], "paper_netcov_r9", env={**FINAL, **PP_NETCOV},
-                            datasets=100, after=after, need=3500))
+                            env={**FINAL, **PP_NETCOV, **fairtest}, datasets=100,
+                            after=["pp_train_final_s9"] if seed == 9 else [], need=3500))
     # seed-8 sampler cross-check of the two closest PD choices
     for variant in ("consistent", "gate"):
         out.append(pp_infer(f"{variant}_s8", finals[8], f"paper_{variant}", env=env_of(variant)))
