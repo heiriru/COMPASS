@@ -168,12 +168,61 @@ case as worse when W1 is more than 15% above the final arm's.
 |---|---|---|---|
 | final recipe (seeds 7, 8) | 0.945 (0.938–0.952) | 0.81 / 1.21 | |
 | **unseeded validation** | **0.902** (0.885–0.919) | 0.81 / 1.40 | the largest effect: fresh validation noise stops training at 119–150 epochs instead of 500 |
-| no residual globals (`norg`) | 0.942 | **0.59 / 1.92** | Rg is what calibrates the globals |
+| no residual globals (`norg`), seed 7 | 0.942 | **0.59 / 1.92** | a one-seed result; with 3 seeds and 100 datasets it is seed-dependent, see below |
 | full latent attention | 0.941 | 0.80 / 1.31 | hierarchical attention: RMSE 0.354 vs 0.393 |
 | inference prior as training prior (`nowide`) | 0.944 | 0.78 / 1.29 | small effect at this budget (one seed) |
 | + TSM on the globals | 0.948 | 0.83 / 1.14 | no gain |
 | no covariance output | 0.949 | 0.87 / 1.02 | the joint covariance head costs nothing measurable in recovery; it is what makes netcov possible |
 | **plain ε-loss (no EDM)** | **0.957** (0.956–0.958) | 0.89 / 0.95 | better than the final recipe on both seeds; see §4 |
+
+### With and without the Rg residual on the globals (3 seeds, Jacobian and covariance head, both test sets)
+
+Same recipe as the final method (EDM kept, hierarchical attention, wide prior, covariance head
+trained jointly), with or without the residual output on the globals. 100 datasets per test set.
+
+**Our test set** (`collapses` = log σ_ν driven to the prior floor):
+
+| arm | seed 7: r / RMSE / cov90 / z | seed 8 | seed 9 | mean r / RMSE / cov90 / z_rms | collapses |
+|---|---|---|---|---|---|
+| Rg, FD | 0.936 / 0.366 / 0.79 / 1.20 | 0.947 / 0.346 / 0.82 / 1.25 | 0.936 / 0.364 / 0.84 / 1.17 | 0.940 / **0.359** / 0.82 / 1.21 | **0** |
+| Rg, netcov | 0.936 / 0.363 / 0.81 / 1.13 | 0.948 / 0.346 / 0.85 / 1.20 | 0.938 / 0.363 / 0.87 / 1.08 | **0.941** / **0.357** / 0.84 / 1.14 | **0** |
+| no Rg, FD | 0.939 / 0.397 / **0.60 / 1.90** | 0.932 / 0.380 / 0.87 / 1.02 | 0.935 / 0.445 / 0.86 / 1.04 | 0.935 / 0.407 / 0.78 / 1.32 | 2 |
+| no Rg, netcov | 0.940 / 0.398 / **0.62 / 1.93** | 0.931 / 0.382 / 0.88 / 0.97 | 0.936 / 0.432 / 0.90 / 0.94 | 0.936 / 0.404 / 0.80 / 1.28 | 2 |
+
+**BayesFlow's test set** (BayesFlow itself: r 0.926, ECE 0.106, cov90 0.79):
+
+| arm | ECE per seed (7 / 8 / 9) | cov90 per seed | mean r | mean NRMSE | mean ECE | mean cov90 |
+|---|---|---|---|---|---|---|
+| Rg, FD | 0.086 / 0.072 / 0.059 | 0.80 / 0.83 / 0.85 | 0.937 | **0.29** | 0.072 | 0.83 |
+| Rg, netcov | 0.077 / 0.066 / 0.043 | 0.83 / 0.83 / 0.86 | 0.937 | **0.29** | **0.062** | 0.84 |
+| no Rg, FD | **0.203** / 0.054 / 0.051 | 0.65 / 0.87 / 0.86 | 0.936 | 0.32 | 0.103 | 0.79 |
+| no Rg, netcov | **0.192** / 0.063 / 0.053 | 0.66 / 0.89 / 0.88 | 0.936 | 0.32 | 0.103 | 0.81 |
+
+**What Rg does, corrected.** The earlier one-seed result ("Rg is what calibrates the globals",
+coverage 0.59 without it) does not generalise.
+
+- **Without Rg the outcome depends on the seed:**
+  - seed 7 is badly overconfident (cov90 0.60–0.66, ECE about 0.2, worse than BayesFlow);
+  - seeds 8 and 9 are well calibrated, with z_rms 0.94–1.04 and cov90 0.86–0.90, better than
+    with Rg;
+  - but seeds 8 and 9 have larger errors (RMSE 0.38–0.45 vs 0.35–0.36) and one log σ collapse
+    each.
+- **With Rg every seed behaves the same:**
+  - RMSE 0.346–0.366, no collapses;
+  - recovery r 0.936–0.948;
+  - the same mild under-coverage (cov90 0.79–0.87, z_rms 1.08–1.25).
+- **Mechanism:** without Rg, the network must learn the prior part of the global scores. Composition
+  subtracts that part 99 times, so a small error in it is amplified. Seed to seed, that error
+  sometimes shifts the centre (seed 7: overconfident) and sometimes widens or blurs it (seeds 8
+  and 9: wider and less accurate).
+
+  Rg makes the prior part exact. That removes the seed lottery and the collapses, at the cost of
+  a consistent ~15% under-coverage. The under-coverage is the network's own per-subject bias,
+  which Rg does not touch.
+- **netcov** helps calibration in every arm (z_rms −0.04 to −0.09) but cannot replace Rg.
+- **Verdict:** Rg is kept because it makes the method **reliable**: same accuracy on every seed,
+  lower error, no collapses. It is not what fixes calibration. The remaining under-coverage is a
+  separate problem (§4.2).
 
 ### Early stopping vs a fixed 500 epochs, as BayesFlow trains
 
@@ -231,7 +280,7 @@ datasets each.
    there (1.95–2.50), but each loses elsewhere.
 6. **Seeds.**
    - The BayesFlow networks have one training seed each; the inference seed is replicated instead.
-   - The architecture and prior ablations (`norg`, `nowide`, `full`) have one seed.
+   - The architecture and prior ablations `nowide` and `full` have one seed. `norg` has three (below).
    - The sampler ablations run on the seed-7 net, with the two closest PD alternatives cross-checked
      on seed 8.
 7. **F-NPSE has no training-prior correction** in the library, so on PP it runs on the `nowide`

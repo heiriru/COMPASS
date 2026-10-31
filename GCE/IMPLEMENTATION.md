@@ -57,7 +57,7 @@ Otherwise we report upper limits, and the same five checks decide how robust tho
 
    | setting | change | evidence |
    |---|---|---|
-   | Rg residual on the globals | add it (`experiments_arruda_schur/precondition.py`, as `pp.py --precondition Rg`) | without it PP coverage drops from 0.81 to 0.59 |
+   | Rg residual on the globals | add it (`experiments_arruda_schur/precondition.py`, as `pp.py --precondition Rg`) | on PP over 3 seeds, without it results depend on the seed (one seed cov90 0.60), the error is higher (RMSE 0.41 vs 0.36) and log σ collapses appear |
    | loss weight | pass `time_loss_weight=None` explicitly | EDM hurts posterior recovery on PP: 0.957 without vs 0.945 with |
    | seeded validation, final weights | keep; check that `train()` does not override `validation_noise_seed` | seeded validation is the largest single training effect |
    | covariance output | leave off for now | optional; netcov is faster but worse on IK |
